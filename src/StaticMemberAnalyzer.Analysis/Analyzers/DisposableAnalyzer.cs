@@ -298,6 +298,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 #pragma warning restore RS1008
 
 
+        private static bool IsSuppressedByComment(SyntaxNode node)
+        {
+            var tree = node.SyntaxTree;
+            var location = node.GetLocation();
+            var lineSpan = location.GetLineSpan();
+            var startLine = lineSpan.StartLinePosition.Line;
+            if (startLine == 0) return false;
+
+            var text = tree.GetText();
+            var prevLineText = text.Lines[startLine - 1].ToString().Trim();
+
+            return prevLineText.StartsWith("//") && prevLineText.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+
         private static bool IsDisposable(OperationAnalysisContext context,
                                          INamedTypeSymbol disposableSymbol
             )
@@ -721,8 +736,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
             // !! REPORT !!
-            context.ReportDiagnostic(Diagnostic.Create(
-                Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
+            if (!IsSuppressedByComment(syntax))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
+            }
 
 
             //Core.ReportDebugMessage(context.ReportDiagnostic,
