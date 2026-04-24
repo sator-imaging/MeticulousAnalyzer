@@ -300,16 +300,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressedByComment(SyntaxNode node)
         {
-            var tree = node.SyntaxTree;
             var location = node.GetLocation();
             var lineSpan = location.GetLineSpan();
             var startLine = lineSpan.StartLinePosition.Line;
             if (startLine == 0) return false;
 
-            var text = tree.GetText();
-            var prevLineText = text.Lines[startLine - 1].ToString().Trim();
+            int targetLine = startLine - 1;
 
-            return prevLineText.StartsWith("//") && prevLineText.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            var root = node.SyntaxTree.GetRoot();
+            return root.DescendantTrivia()
+                .Any(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
+                          t.GetLocation().GetLineSpan().StartLinePosition.Line == targetLine &&
+                          t.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
 
