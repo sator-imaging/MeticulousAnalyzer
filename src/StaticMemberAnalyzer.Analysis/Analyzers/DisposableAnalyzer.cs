@@ -302,19 +302,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var tree = node.SyntaxTree;
             var text = tree.GetText();
-            var startLine = node.GetLocation().GetLineSpan().StartLinePosition.Line;
-            if (startLine <= 0 || startLine >= text.Lines.Count) return false;
+            var line = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
+            if (line <= 0) return false;
 
-            var targetLineText = text.Lines[startLine - 1].ToString();
-            int firstNonSpace = 0;
-            while (firstNonSpace < targetLineText.Length && char.IsWhiteSpace(targetLineText[firstNonSpace]))
-                firstNonSpace++;
+            var targetLineSpan = text.Lines[line - 1].Span;
+            var root = tree.GetRoot();
 
-            if (firstNonSpace >= targetLineText.Length) return false;
-
-            var trivia = tree.GetRoot().FindTrivia(text.Lines[startLine - 1].Start + firstNonSpace);
-            return trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                   trivia.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            return !root.DescendantTokens(targetLineSpan).Any(t => targetLineSpan.Contains(t.Span)) &&
+                   root.DescendantTrivia(targetLineSpan)
+                       .Any(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
+                                 t.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
 
