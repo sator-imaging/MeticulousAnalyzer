@@ -307,10 +307,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             int targetLine = startLine - 1;
 
-            var root = node.SyntaxTree.GetRoot();
-            return root.DescendantTrivia()
+            var tree = node.SyntaxTree;
+            var text = tree.GetText();
+            if (targetLine >= text.Lines.Count) return false;
+
+            var targetLineSpan = text.Lines[targetLine].Span;
+
+            return tree.GetRoot().DescendantTrivia(targetLineSpan)
                 .Any(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                          t.GetLocation().GetLineSpan().StartLinePosition.Line == targetLine &&
                           t.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
