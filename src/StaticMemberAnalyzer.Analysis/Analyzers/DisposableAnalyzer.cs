@@ -298,15 +298,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 #pragma warning restore RS1008
 
 
-        private static bool IsSuppressedByComment(SyntaxNode node)
+        private static bool IsSuppressedByComment(SyntaxNode? node)
         {
+            if (node == null) return false;
             var text = node.SyntaxTree.GetText();
-            var line = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
-            if (line <= 0) return false;
+            var lineNum = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
+            if (lineNum == 0) return false;
 
-            var prevLineText = text.Lines[line - 1].ToString().TrimStart();
-            return prevLineText.StartsWith("//", StringComparison.Ordinal) &&
-                   prevLineText.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            var prevLine = text.Lines[lineNum - 1].ToString().TrimStart();
+            return prevLine.StartsWith("//", StringComparison.Ordinal) &&
+                   prevLine.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
 
@@ -608,6 +609,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
             SyntaxNode? suppressionTarget = null;
+            for (SyntaxNode? curr = syntax; curr != null; curr = curr.Parent)
+            {
+                if (curr is LocalDeclarationStatementSyntax) { suppressionTarget = curr; break; }
+                if (curr is AssignmentExpressionSyntax aes)
+                {
+                    var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                    var symbol = model.GetSymbolInfo(aes.Left).Symbol;
+                    if (symbol?.Kind is SymbolKind.Local or SymbolKind.Parameter)
+                        suppressionTarget = aes.Parent as ExpressionStatementSyntax ?? (SyntaxNode)aes;
+                    break;
+                }
+                if (curr is StatementSyntax or MemberDeclarationSyntax or AnonymousFunctionExpressionSyntax) break;
+            }
+
 
             // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
             if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
@@ -632,8 +647,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         {
                             goto NO_WARN;
                         }
-
-                        suppressionTarget = localVarStx;
 
                         if (localVarStx.Declaration.Variables.Count == 1)
                         {
@@ -699,10 +712,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         {
                             goto NO_WARN;
                         }
-                    }
-                    else if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Local or SymbolKind.Parameter))
-                    {
-                        suppressionTarget = assignStx;
                     }
                 }
                 // --> if (disposable == ...)
