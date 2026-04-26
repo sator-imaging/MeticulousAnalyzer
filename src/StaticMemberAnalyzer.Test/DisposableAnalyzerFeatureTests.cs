@@ -141,7 +141,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_SuppressedByComment_WhenPassedAsArgument()
+        public async Task SMA0040_NotSuppressedByComment_WhenPassedAsArgument()
         {
             var test = @"
 using System;
@@ -155,7 +155,34 @@ namespace Test
         void Method()
         {
             // Don't dispose
-            MethodTakingDisposable(new MyDisposable());
+            MethodTakingDisposable({|#0:new MyDisposable()|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0042_SuppressedByComment()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        MyDisposable Method(bool condition)
+        {
+            // Don't dispose
+            var d = new MyDisposable();
+            if (condition) return d;
+            return null;
         }
     }
 }

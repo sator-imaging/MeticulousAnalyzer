@@ -607,6 +607,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
+            SyntaxNode? suppressionTarget = null;
+
             // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
             if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
             {
@@ -631,6 +633,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             goto NO_WARN;
                         }
 
+                        suppressionTarget = localVarStx;
+
                         if (localVarStx.Declaration.Variables.Count == 1)
                         {
                             var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
@@ -646,8 +650,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                     //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
                                     // reporting detailed diagnostic instead of generic one.
-                                    context.ReportDiagnostic(Diagnostic.Create(
-                                        Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                    if (!IsSuppressedByComment(suppressionTarget))
+                                    {
+                                        context.ReportDiagnostic(Diagnostic.Create(
+                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                    }
                                 }
 
                                 // then, just go to NO_WARN to avoid additionally reporting SMA0040.
@@ -693,6 +700,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             goto NO_WARN;
                         }
                     }
+                    else if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Local or SymbolKind.Parameter))
+                    {
+                        suppressionTarget = assignStx;
+                    }
                 }
                 // --> if (disposable == ...)
                 // --> while (disposable == ...)
@@ -733,7 +744,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
             // !! REPORT !!
-            if (!IsSuppressedByComment(syntax))
+            if (suppressionTarget == null || !IsSuppressedByComment(suppressionTarget))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
