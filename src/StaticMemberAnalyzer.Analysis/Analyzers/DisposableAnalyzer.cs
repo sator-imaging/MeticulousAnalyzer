@@ -652,11 +652,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                     //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
                                     // reporting detailed diagnostic instead of generic one.
-                                    if (!IsSuppressedByComment(localVarStx))
-                                    {
-                                        context.ReportDiagnostic(Diagnostic.Create(
-                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
-                                    }
+                                    context.ReportDiagnostic(Diagnostic.Create(
+                                        Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
                                 }
 
                                 // then, just go to NO_WARN to avoid additionally reporting SMA0040.
@@ -698,13 +695,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         || op.Parent is not IConversionOperation castOp
                         || (castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
                         )
-                        {
-                            goto NO_WARN;
-                        }
-                    }
-                    else if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Local or SymbolKind.Parameter))
-                    {
-                        if (IsSuppressedByComment(assignStx.Parent as ExpressionStatementSyntax ?? (SyntaxNode)assignStx))
                         {
                             goto NO_WARN;
                         }
