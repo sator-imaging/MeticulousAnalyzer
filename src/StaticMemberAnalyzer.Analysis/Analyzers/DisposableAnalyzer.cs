@@ -281,18 +281,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (node == null) return false;
 
-            var firstToken = node.GetFirstToken();
-            var comment = firstToken
+            var comment = node
+                .GetFirstToken()
                 .LeadingTrivia
                 .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
 
-            if (comment == default) return false;
-
-            // NOTE: Indent level check is not perfect but there is no way to ignore preceding comment at the line end
-            int indentLevel = firstToken.GetLocation().GetLineSpan().StartLinePosition.Character;
-
-            return indentLevel == comment.GetLocation().GetLineSpan().StartLinePosition.Character &&
-                   comment.ToString().IndexOf(SuppressionComment, StringComparison.OrdinalIgnoreCase) >= 0;
+            return comment != default
+                && comment.ToString().IndexOf(SuppressionComment, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
 
