@@ -191,7 +191,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Assignment_IsSuppressedByComment()
+        public async Task SMA0040_Assignment_IsNotSuppressedByComment()
         {
             var test = @"
 using System;
@@ -205,12 +205,15 @@ namespace Test
         {
             IDisposable d;
             // Don't dispose
-            d = new MyDisposable();
+            d = {|#0:new MyDisposable()|};
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }
