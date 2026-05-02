@@ -57,6 +57,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0060 | Avoid Reassigning Locals                   | Avoid assignments to locals unless the local is intentionally mutable.
 | SMA0061 | Avoid Reassigning Parameters               | Avoid assignments to parameters unless the parameter is intentionally mutable.
 | SMA0062 | Avoid Passing Writable Variables to Calls  | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
+| SMA0063 | Property Access Can Change State           | Avoid passing properties to method/indexer calls as writable arguments because their accessors can have side effects.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
