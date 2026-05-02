@@ -324,6 +324,19 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 {
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
+
+
+### Suppress by Comment
+
+Add a single-line comment containing `Don't dispose` (case-insensitive) immediately before the local variable declaration.
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> This suppression is only effective for initial local variable declarations. Assignments to existing variables cannot be suppressed by comments.
 ```
 
 

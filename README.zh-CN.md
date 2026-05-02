@@ -324,6 +324,19 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 {
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
+
+
+### 通过注释抑制
+
+在局部变量声明的正上方添加包含 `Don't dispose`（不区分大小写）的单行注释。
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> 此抑制方式仅对局部变量的初始声明有效。对现有变量的赋值无法通过注释来抑制。
 ```
 
 
