@@ -280,11 +280,29 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (node == null) return false;
             var text = node.SyntaxTree.GetText();
             var lineNum = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
-            if (lineNum == 0) return false;
+            if (lineNum <= 0) return false;
 
-            var prevLine = text.Lines[lineNum - 1].ToString().TrimStart();
-            return prevLine.StartsWith("//", StringComparison.Ordinal) &&
-                   prevLine.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            var line = text.Lines[lineNum - 1];
+            var start = line.Start;
+            var end = line.End;
+
+            // skip white spaces
+            int i = start;
+            while (i < end && char.IsWhiteSpace(text[i]))
+            {
+                i++;
+            }
+
+            // check if the line starts with "//"
+            if (i + 1 >= end || text[i] != '/' || text[i + 1] != '/')
+            {
+                return false;
+            }
+
+            // only allocate string for the comment part
+            i += 2;
+            var commentText = text.ToString(Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(i, end));
+            return commentText.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
 
