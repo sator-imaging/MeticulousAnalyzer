@@ -167,7 +167,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0042_IsNotSuppressedByComment()
+        public async Task SMA0042_IsSuppressedByComment()
         {
             var test = @"
 using System;
@@ -180,21 +180,18 @@ namespace Test
         MyDisposable Method(bool condition)
         {
             // Don't dispose
-            var {|#0:d = new MyDisposable()|};
+            var d = new MyDisposable();
             if (condition) return d;
             return null;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NotAllCodePathsReturn)
-                .WithLocation(0)
-                .WithArguments("d");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task SMA0040_Assignment_IsNotSuppressedByComment()
+        public async Task SMA0040_Assignment_IsSuppressedByComment()
         {
             var test = @"
 using System;
@@ -208,15 +205,12 @@ namespace Test
         {
             IDisposable d;
             // Don't dispose
-            d = {|#0:new MyDisposable()|};
+            d = new MyDisposable();
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithLocation(0)
-                .WithArguments("IDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

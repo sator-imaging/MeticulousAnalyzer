@@ -275,6 +275,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  internal  ================================================================ */
 
+        private static bool IsSuppressedByComment(SyntaxNode? node)
+        {
+            if (node == null) return false;
+            var text = node.SyntaxTree.GetText();
+            var lineNum = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
+            if (lineNum == 0) return false;
+
+            var prevLine = text.Lines[lineNum - 1].ToString().TrimStart();
+            return prevLine.StartsWith("//", StringComparison.Ordinal) &&
+                   prevLine.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+
 #pragma warning disable RS1008
 
         readonly static Func<INamedTypeSymbol, bool> HasDisposableImplemented = static x =>
@@ -296,19 +309,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         };
 
 #pragma warning restore RS1008
-
-
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            if (node == null) return false;
-            var text = node.SyntaxTree.GetText();
-            var lineNum = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
-            if (lineNum == 0) return false;
-
-            var prevLine = text.Lines[lineNum - 1].ToString().TrimStart();
-            return prevLine.StartsWith("//", StringComparison.Ordinal) &&
-                   prevLine.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
 
 
         private static bool IsDisposable(OperationAnalysisContext context,
@@ -632,6 +632,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             goto NO_WARN;
                         }
 
+                        if (IsSuppressedByComment(localVarStx))
+                        {
+                            goto NO_WARN;
+                        }
+
                         if (localVarStx.Declaration.Variables.Count == 1)
                         {
                             var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
@@ -647,8 +652,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                     //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
                                     // reporting detailed diagnostic instead of generic one.
-                                    context.ReportDiagnostic(Diagnostic.Create(
-                                        Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                    if (!IsSuppressedByComment(localVarStx))
+                                    {
+                                        context.ReportDiagnostic(Diagnostic.Create(
+                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                    }
                                 }
 
                                 // then, just go to NO_WARN to avoid additionally reporting SMA0040.
@@ -705,15 +713,40 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         goto NO_WARN;
                     }
                 }
+                // // UNKNOWN EDIT BY AI
+                // else if (op.Parent is IIsPatternOperation isPatternOp) // handles PropertyReference
+                // {
+                //     if (isPatternOp.Pattern is IConstantPatternOperation constantPattern)
+                //     {
+                //         if (constantPattern.Value.ConstantValue.HasValue && constantPattern.Value.ConstantValue.Value == null)
+                //         {
+                //             if (!isCreationOp)
+                //             {
+                //                 goto NO_WARN;
+                //             }
+                //         }
+                //     }
+                // }
+                // else if (op.Parent is IConstantPatternOperation constantPatternOp && constantPatternOp.Parent is IIsPatternOperation) // handles Conversion of null
+                // {
+                //     var conversion = (IConversionOperation)op;
+                //     if (conversion.Operand is ILiteralOperation literalOp)
+                //     {
+                //         if (literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null)
+                //         {
+                //             goto NO_WARN;
+                //         }
+                //     }
+                // }
             }
 
 
             // !! REPORT !!
 
-            // suppression check: only for local variable declaration
-            if (syntax.Parent is EqualsValueClauseSyntax eq && eq.Parent is VariableDeclaratorSyntax vd && vd.Parent is VariableDeclarationSyntax v && v.Parent is LocalDeclarationStatementSyntax loc)
+            // suppression check: check expression statement for re-assignment.
+            if (syntax.Parent is AssignmentExpressionSyntax && syntax.Parent.Parent is ExpressionStatementSyntax expStx)
             {
-                if (IsSuppressedByComment(loc))
+                if (IsSuppressedByComment(expStx))
                 {
                     goto NO_WARN;
                 }
