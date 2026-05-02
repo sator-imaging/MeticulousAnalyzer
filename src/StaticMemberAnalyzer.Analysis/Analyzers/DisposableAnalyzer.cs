@@ -278,13 +278,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
             if (node == null) return false;
-            var text = node.SyntaxTree.GetText();
-            var lineNum = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
-            if (lineNum == 0) return false;
 
-            var prevLine = text.Lines[lineNum - 1].ToString().TrimStart();
-            return prevLine.StartsWith("//", StringComparison.Ordinal) &&
-                   prevLine.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            var firstToken = node.GetFirstToken();
+            var prevToken  = firstToken.GetPreviousToken();
+
+            var line = firstToken.GetLocation().GetLineSpan().StartLinePosition.Line;
+
+            var comment = prevToken.TrailingTrivia
+                .Where(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                .SingleOrDefault(t =>
+                    t.GetLocation().GetLineSpan().StartLinePosition.Line < line);
+
+            return comment.RawKind != 0 && comment.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
 
@@ -670,6 +675,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 //       --> Property = new Disposable();
                 if (syntax.Parent is AssignmentExpressionSyntax assignStx)
                 {
+                    if (assignStx.Parent is ExpressionStatementSyntax exprStmt && IsSuppressedByComment(exprStmt))
+                    {
+                        goto NO_WARN;
+                    }
+
                     var leftStx = assignStx.Left;
 
                     var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
