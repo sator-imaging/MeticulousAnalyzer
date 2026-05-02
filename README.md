@@ -50,6 +50,7 @@ Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern 
 > [!IMPORTANT]
 > Underlining analyzer is obsolete: to enable it again, set the preprocessor symbol `STMG_ENABLE_UNDERLINING_ANALYZER` and rebuild.
 
+<details>
 
 There is fancy extra feature to take your attention while coding in Visual Studio. No more need to use `Obsolete` attribute in case of annotating types, methods, fields and properties.
 
@@ -57,6 +58,8 @@ See [the following section](#annotating--underlining) for details.
 
 
 ![Draw Underline](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/DrawUnderline.png)
+
+</details>
 
 
 
@@ -180,6 +183,11 @@ Helpful annotation and code fix for enum types which prevents modification of st
 
 ## Kotlin-like Enum Pattern
 
+> [!IMPORTANT]
+> To use this feature, set the preprocessor symbol `STMG_ENABLE_KOTLIN_ENUM` and rebuild.
+
+<details>
+
 Analysis to help implementing Kotlin-style enum class.
 
 Here are Enum-like type requirements:
@@ -285,6 +293,8 @@ switch (val)
 
 <!------- End of Details Tag -------></details></p>
 
+</details>
+
 
 
 
@@ -312,7 +322,26 @@ Analyzer won't show warning in the following condition:
 
 
 
+## Suppress by Comment
+
+Add a single-line comment containing `Don't dispose` (case-insensitive) immediately before the local variable declaration.
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> This suppression is only effective for initial local variable declarations. Assignments to existing variables cannot be suppressed by comments.
+
+
+
 ## Suppress `Disposable` Analysis
+
+> [!IMPORTANT]
+> To use this feature, set the preprocessor symbol `STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE` and rebuild.
+
+<details>
 
 To suppress analysis for specified types, declare attribute named `DisposableAnalyzerSuppressor` and add it to assembly.
 
@@ -325,6 +354,8 @@ sealed class DisposableAnalyzerSuppressor : Attribute
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
 ```
+
+</details>
 
 
 
@@ -344,6 +375,7 @@ This analyzer helps keep local values and parameters immutable by flagging write
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
 
+<details>
 
 - Assignment
     - `=`
@@ -452,7 +484,7 @@ class Demo
 > [!NOTE]
 > Member access assignments are reported when rooted at local/parameter (e.g. `foo.Bar.Value = 1` where `foo` is local/parameter), but not when rooted at field.
 
-
+</details>
 
 
 
@@ -465,6 +497,7 @@ class Demo
 > [!IMPORTANT]
 > Underlining analyzer is obsolete: to enable it again, set the preprocessor symbol `STMG_ENABLE_UNDERLINING_ANALYZER` and rebuild.
 
+<details>
 
 There is optional feature to draw underline on selected types, fields, properties, generic type/method arguments and parameters of method, delegate and lambda function.
 
@@ -542,6 +575,8 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
     </assembly>
 </linker>
 ```
+
+</details>
 
 
 

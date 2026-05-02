@@ -50,6 +50,7 @@
 > [!IMPORTANT]
 > Underlining analyzer 已废弃。如需重新启用，请设置预处理符号 `STMG_ENABLE_UNDERLINING_ANALYZER` 并重新构建。
 
+<details>
 
 这是一个在 Visual Studio 编码时用于增强提示的附加功能。你不再需要通过 `Obsolete` 属性来标注类型、方法、字段和属性。
 
@@ -57,6 +58,8 @@
 
 
 ![Draw Underline](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/DrawUnderline.png)
+
+</details>
 
 
 
@@ -180,6 +183,11 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 
 ## Kotlin 风格 Enum 模式
 
+> [!IMPORTANT]
+> 如需启用，请设置预处理符号 `STMG_ENABLE_KOTLIN_ENUM` 并重新构建。
+
+<details>
+
 用于辅助实现 Kotlin 风格的 enum class 模式。
 
 类 enum 类型要求：
@@ -285,6 +293,8 @@ switch (val)
 
 <!------- End of Details Tag -------></details></p>
 
+</details>
+
 
 
 
@@ -312,7 +322,26 @@ d = (new object()) as IDisposable;
 
 
 
+## 通过注释抑制
+
+在局部变量声明的正上方添加包含 `Don't dispose`（不区分大小写）的单行注释。
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> 此抑制方式仅对局部变量的初始声明有效。对现有变量的赋值无法通过注释来抑制。
+
+
+
 ## 抑制 `Disposable` 分析
+
+> [!IMPORTANT]
+> 如需启用，请设置预处理符号 `STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE` 并重新构建。
+
+<details>
 
 若需对指定类型抑制分析，声明名为 `DisposableAnalyzerSuppressor` 的特性并加到程序集上。
 
@@ -325,6 +354,8 @@ sealed class DisposableAnalyzerSuppressor : Attribute
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
 ```
+
+</details>
 
 
 
@@ -344,6 +375,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
 
+<details>
 
 - 赋值
     - `=`
@@ -452,7 +484,7 @@ class Demo
 > [!NOTE]
 > 当赋值根节点是局部变量/参数时会被报告（例如 `foo.Bar.Value = 1` 中的 `foo`）。根节点是字段时不会报告。
 
-
+</details>
 
 
 
@@ -465,6 +497,7 @@ class Demo
 > [!IMPORTANT]
 > Underlining analyzer 已废弃。如需重新启用，请设置预处理符号 `STMG_ENABLE_UNDERLINING_ANALYZER` 并重新构建。
 
+<details>
 
 这是一个可选功能，可在类型、字段、属性、泛型类型/方法参数，以及方法/委托/Lambda 参数上绘制下划线。
 
@@ -542,6 +575,8 @@ public static int Underline_Drawn = 310;
     </assembly>
 </linker>
 ```
+
+</details>
 
 
 
