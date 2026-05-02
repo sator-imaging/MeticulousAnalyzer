@@ -632,11 +632,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             goto NO_WARN;
                         }
 
-                        if (IsSuppressedByComment(localVarStx))
-                        {
-                            goto NO_WARN;
-                        }
-
                         if (localVarStx.Declaration.Variables.Count == 1)
                         {
                             var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
@@ -710,35 +705,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         goto NO_WARN;
                     }
                 }
-                // // UNKNOWN EDIT BY AI
-                // else if (op.Parent is IIsPatternOperation isPatternOp) // handles PropertyReference
-                // {
-                //     if (isPatternOp.Pattern is IConstantPatternOperation constantPattern)
-                //     {
-                //         if (constantPattern.Value.ConstantValue.HasValue && constantPattern.Value.ConstantValue.Value == null)
-                //         {
-                //             if (!isCreationOp)
-                //             {
-                //                 goto NO_WARN;
-                //             }
-                //         }
-                //     }
-                // }
-                // else if (op.Parent is IConstantPatternOperation constantPatternOp && constantPatternOp.Parent is IIsPatternOperation) // handles Conversion of null
-                // {
-                //     var conversion = (IConversionOperation)op;
-                //     if (conversion.Operand is ILiteralOperation literalOp)
-                //     {
-                //         if (literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null)
-                //         {
-                //             goto NO_WARN;
-                //         }
-                //     }
-                // }
             }
 
 
             // !! REPORT !!
+
+            // suppression check: only for local variable declaration
+            if (syntax.Parent is EqualsValueClauseSyntax eq && eq.Parent is VariableDeclaratorSyntax vd && vd.Parent is VariableDeclarationSyntax v && v.Parent is LocalDeclarationStatementSyntax loc)
+            {
+                if (IsSuppressedByComment(loc))
+                {
+                    goto NO_WARN;
+                }
+            }
+
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
 

@@ -204,9 +204,9 @@ namespace Test
     class MyDisposable : IDisposable { public void Dispose() {} }
     class Program
     {
-        IDisposable d;
         void Method()
         {
+            IDisposable d;
             // Don't dispose
             d = {|#0:new MyDisposable()|};
         }
@@ -215,7 +215,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(0)
-                .WithArguments("MyDisposable");
+                .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
