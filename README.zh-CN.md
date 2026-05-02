@@ -184,7 +184,7 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ## Kotlin 风格 Enum 模式
 
 > [!IMPORTANT]
-> 如需重新启用，请设置预处理符号 `STMG_ENABLE_KOTLIN_ENUM` 并重新构建。
+> 如需启用，请设置预处理符号 `STMG_ENABLE_KOTLIN_ENUM` 并重新构建。
 
 <details>
 
