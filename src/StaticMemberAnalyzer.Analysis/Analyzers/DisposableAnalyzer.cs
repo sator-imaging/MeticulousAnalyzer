@@ -277,14 +277,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
+            const string SuppressionComment = "Don't dispose";
+
             if (node == null) return false;
-            var comment = node
-                .GetFirstToken()
+
+            var firstToken = node.GetFirstToken();
+            var comment = firstToken
                 .LeadingTrivia
                 .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
 
-            return comment.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                   comment.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (comment == default) return false;
+
+            // NOTE: Indent level check is not perfect but there is no way to ignore preceding comment at the line end
+            int indentLevel = firstToken.GetLocation().GetLineSpan().StartLinePosition.Character;
+
+            return indentLevel == comment.GetLocation().GetLineSpan().StartLinePosition.Character &&
+                   comment.ToString().IndexOf(SuppressionComment, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
 
