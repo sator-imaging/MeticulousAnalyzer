@@ -230,8 +230,7 @@ namespace Test
             DoNothing();  // Don't dispose
 
             // The following assignment must report error (expect the above comment is ignored)
-            IDisposable d;
-            d = {|#0:new MyDisposable()|};
+            var d = {|#0:new MyDisposable()|};
         }
     }
 }
@@ -258,8 +257,7 @@ namespace Test
         {
             DoNothing();  // Don't dispose
             // The following assignment must report error (expect the above comment is ignored)
-            IDisposable d;
-            d = {|#0:new MyDisposable()|};
+            var d = {|#0:new MyDisposable()|};
         }
     }
 }
