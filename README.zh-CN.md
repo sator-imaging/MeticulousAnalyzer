@@ -339,7 +339,7 @@ var d = new MyDisposable();
 ## 抑制 `Disposable` 分析
 
 > [!IMPORTANT]
-> 如需重新启用，请设置预处理符号 `STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE` 并重新构建。
+> 如需启用，请设置预处理符号 `STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE` 并重新构建。
 
 <details>
 
