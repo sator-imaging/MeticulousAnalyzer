@@ -267,5 +267,49 @@ namespace Test
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0040_SuppressedByComment_WithAdditionalText()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            // Don't dispose: Additional comment.
+            var d = new MyDisposable();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_SuppressedByComment_WithNoteAndCustomText()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            // NOTE: Custom comment (don't dispose)
+            var d = new MyDisposable();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
