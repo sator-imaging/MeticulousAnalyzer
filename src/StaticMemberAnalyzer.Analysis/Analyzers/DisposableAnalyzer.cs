@@ -281,10 +281,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var comment = node
                 .GetFirstToken()
                 .LeadingTrivia
-                .LastOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+                .FirstOrDefault(t => t.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0);
 
-            return comment.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                   comment.ToString().IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+            return comment.IsKind(SyntaxKind.SingleLineCommentTrivia);
         }
 
 

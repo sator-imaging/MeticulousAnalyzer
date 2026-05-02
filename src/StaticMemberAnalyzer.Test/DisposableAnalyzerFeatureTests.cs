@@ -212,5 +212,60 @@ namespace Test
                 .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Assignment_WithBlankLine_IsNotSuppressed()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void DoNothing() {}
+        void Method()
+        {
+            DoNothing();  // Don't dispose
+
+            IDisposable d;
+            d = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Assignment_WithoutBlankLine_IsNotSuppressed()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void DoNothing() {}
+        void Method()
+        {
+            DoNothing();  // Don't dispose
+            IDisposable d;
+            d = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
