@@ -275,6 +275,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  internal  ================================================================ */
 
+        private static bool IsSuppressedByComment(SyntaxNode? node)
+        {
+            if (node == null) return false;
+            var text = node.SyntaxTree.GetText();
+            var lineNum = text.Lines.GetLineFromPosition(node.SpanStart).LineNumber;
+            if (lineNum == 0) return false;
+
+            var prevLine = text.Lines[lineNum - 1].ToString().TrimStart();
+            return prevLine.StartsWith("//", StringComparison.Ordinal) &&
+                   prevLine.IndexOf("Don't dispose", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+
 #pragma warning disable RS1008
 
         readonly static Func<INamedTypeSymbol, bool> HasDisposableImplemented = static x =>
@@ -615,6 +628,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         // DON'T check localVarStx variable type is disposable or not
                         // just check using keyword existence
                         if (localVarStx.UsingKeyword != default)
+                        {
+                            goto NO_WARN;
+                        }
+
+                        if (IsSuppressedByComment(localVarStx))
                         {
                             goto NO_WARN;
                         }
