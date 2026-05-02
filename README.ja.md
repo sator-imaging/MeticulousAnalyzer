@@ -324,6 +324,19 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 {
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
+
+
+### コメントによる抑制
+
+ローカル変数の宣言の直前に `Don't dispose` (大文字小文字を区別しない) を含む 1 行コメントを追加します。
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> この抑制はローカル変数の初期宣言に対してのみ有効です。既存の変数への代入は、コメントによって抑制することはできません。
 ```
 
 
