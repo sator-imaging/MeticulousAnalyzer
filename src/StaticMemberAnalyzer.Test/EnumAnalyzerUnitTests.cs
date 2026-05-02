@@ -174,6 +174,7 @@ namespace Test
             var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+#if STMG_ENABLE_KOTLIN_ENUM
         [TestMethod]
         public async Task TestEnumLike()
         {
@@ -193,6 +194,7 @@ namespace Test
             var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumLike).WithLocation(0).WithArguments("ETest", "constructor is not 'private' or 'protected'");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+#endif
 
         [TestMethod]
         public async Task TestCastFromEnum_CompareToSame_IsNotReported()

@@ -318,10 +318,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                          INamedTypeSymbol disposableSymbol
             )
         {
+#if STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE
             if (IsTypeIgnoredByAssemblyAttribute(context, disposableSymbol))
             {
                 return false;
             }
+#endif
 
             if (!disposableSymbol.IsRefLikeType)
             {
