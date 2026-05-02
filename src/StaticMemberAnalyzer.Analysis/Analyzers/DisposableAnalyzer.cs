@@ -608,22 +608,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
-            SyntaxNode? suppressionTarget = null;
-            for (SyntaxNode? curr = syntax; curr != null; curr = curr.Parent)
-            {
-                if (curr is LocalDeclarationStatementSyntax) { suppressionTarget = curr; break; }
-                if (curr is AssignmentExpressionSyntax aes)
-                {
-                    var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                    var symbol = model.GetSymbolInfo(aes.Left).Symbol;
-                    if (symbol?.Kind is SymbolKind.Local or SymbolKind.Parameter)
-                        suppressionTarget = aes.Parent as ExpressionStatementSyntax ?? (SyntaxNode)aes;
-                    break;
-                }
-                if (curr is StatementSyntax or MemberDeclarationSyntax or AnonymousFunctionExpressionSyntax) break;
-            }
-
-
             // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
             if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
             {
@@ -648,6 +632,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             goto NO_WARN;
                         }
 
+                        if (IsSuppressedByComment(localVarStx))
+                        {
+                            goto NO_WARN;
+                        }
+
                         if (localVarStx.Declaration.Variables.Count == 1)
                         {
                             var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
@@ -663,7 +652,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                     //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
                                     // reporting detailed diagnostic instead of generic one.
-                                    if (!IsSuppressedByComment(suppressionTarget))
+                                    if (!IsSuppressedByComment(localVarStx))
                                     {
                                         context.ReportDiagnostic(Diagnostic.Create(
                                             Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
@@ -713,6 +702,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             goto NO_WARN;
                         }
                     }
+                    else if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Local or SymbolKind.Parameter))
+                    {
+                        if (IsSuppressedByComment(assignStx.Parent as ExpressionStatementSyntax ?? (SyntaxNode)assignStx))
+                        {
+                            goto NO_WARN;
+                        }
+                    }
                 }
                 // --> if (disposable == ...)
                 // --> while (disposable == ...)
@@ -753,11 +749,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
             // !! REPORT !!
-            if (suppressionTarget == null || !IsSuppressedByComment(suppressionTarget))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
-            }
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
 
 
             //Core.ReportDebugMessage(context.ReportDiagnostic,
