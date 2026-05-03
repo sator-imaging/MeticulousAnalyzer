@@ -281,48 +281,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (node == null) return false;
 
-            var firstToken = node.GetFirstToken();
-            var leadingTrivia = firstToken.LeadingTrivia;
+            var comment = node
+                .GetFirstToken()
+                .LeadingTrivia
+                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
 
-            foreach (var trivia in leadingTrivia)
-            {
-                if (trivia.IsKind(SyntaxKind.WhitespaceTrivia) || trivia.IsKind(SyntaxKind.EndOfLineTrivia))
-                    continue;
-
-                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                {
-                    return trivia.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
-                }
-                break;
-            }
-
-            var prevToken = firstToken.GetPreviousToken();
-            if (prevToken != default)
-            {
-                foreach (var trivia in prevToken.TrailingTrivia)
-                {
-                    if (trivia.IsKind(SyntaxKind.WhitespaceTrivia) || trivia.IsKind(SyntaxKind.EndOfLineTrivia))
-                        continue;
-
-                    if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                    {
-                        if (trivia.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase))
-                        {
-                            int eolCount = 0;
-                            foreach (var lt in leadingTrivia)
-                            {
-                                if (lt.IsKind(SyntaxKind.EndOfLineTrivia)) eolCount++;
-                                else if (lt.IsKind(SyntaxKind.WhitespaceTrivia)) continue;
-                                else break;
-                            }
-                            return eolCount == 0;
-                        }
-                    }
-                    break;
-                }
-            }
-
-            return false;
+            return comment != default
+                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
         }
 
 
@@ -674,15 +639,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                         if (IsSuppressedByComment(localVarStx))
                         {
-                            // don't allow variable named '_'
-                            if (localVarStx.Declaration.Variables.Any(v => v.Identifier.Text == "_"))
-                            {
-                                // fall through to report error
-                            }
-                            else
-                            {
-                                goto NO_WARN;
-                            }
+                            goto NO_WARN;
                         }
 
                         if (localVarStx.Declaration.Variables.Count == 1)
@@ -727,15 +684,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     if (leftSymbol?.Kind is SymbolKind.Discard)
                     {
                         // Won't allow silent suppression
-                        if (IsSuppressedByComment(assignStx.Parent ?? assignStx))
+                        if (IsSuppressedByComment(assignStx))
                         {
                             goto NO_WARN;
                         }
-                    }
-                    else if (leftSymbol?.Name == "_")
-                    {
-                        // Named variable named '_'. NOT a discard.
-                        // Won't allow suppression. Fall through to report error.
                     }
                     else
                     {
