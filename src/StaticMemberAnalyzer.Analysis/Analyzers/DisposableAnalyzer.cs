@@ -580,153 +580,162 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             //       because unity doesn't allow using latest roslyn analyzer
             var syntax = op.Syntax;
 
-
-            // NOTE: if switch arm expression found, move focus to parent expression
-            //       > var x = value switch { ... };
-            //                              ~~~~~~~ current focus
-            //       > var x = value switch { ... };
-            //                 ~~~~~~~~~~~~~~~~~~~~ moving to here
+            if (IsSyntaxIgnorable())
             {
-                if (op.Parent is ISwitchExpressionArmOperation switchArmOp
-                 && switchArmOp.Parent is ISwitchExpressionOperation switchOp
-                )
-                {
-                    syntax = switchOp.Syntax;
-                }
+                goto NO_WARN;
             }
 
-
-            // NOTE: remove parenthesizes and null warning suppressor!!
-            //       --> (((new Disposable()))) --> new Disposable()
-            //       --> (new Disposable())! --> new Disposable()
-            syntax = Core.UnwrapParenthesizeAndNullSuppressorNodes(syntax);
-
-
-            // return statement?
-            // --> Method() => new Disposable();
-            // --> Method() { return new Disposable(); }
+            bool IsSyntaxIgnorable()
             {
-                if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax)
+                // NOTE: if switch arm expression found, move focus to parent expression
+                //       > var x = value switch { ... };
+                //                              ~~~~~~~ current focus
+                //       > var x = value switch { ... };
+                //                 ~~~~~~~~~~~~~~~~~~~~ moving to here
                 {
-                    goto NO_WARN;
-                }
-            }
-
-
-            // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
-            if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
-            {
-                // using statement w/o block scope?
-                // --> using var x = new Disposable();
-                // --> using(var x = new Disposable()) { ... }
-                if (equalsStx.Parent is VariableDeclaratorSyntax declaratorStx
-                 && declaratorStx.Parent is VariableDeclarationSyntax varDeclStx
-                )
-                {
-                    var parStx = varDeclStx.Parent;
-                    if (parStx is UsingStatementSyntax or MemberDeclarationSyntax)
+                    if (op.Parent is ISwitchExpressionArmOperation switchArmOp
+                     && switchArmOp.Parent is ISwitchExpressionOperation switchOp
+                    )
                     {
-                        goto NO_WARN;
+                        syntax = switchOp.Syntax;
                     }
-                    else if (parStx is LocalDeclarationStatementSyntax localVarStx)
+                }
+
+
+                // NOTE: remove parenthesizes and null warning suppressor!!
+                //       --> (((new Disposable()))) --> new Disposable()
+                //       --> (new Disposable())! --> new Disposable()
+                syntax = Core.UnwrapParenthesizeAndNullSuppressorNodes(syntax);
+
+
+                // return statement?
+                // --> Method() => new Disposable();
+                // --> Method() { return new Disposable(); }
+                {
+                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax)
                     {
-                        // DON'T check localVarStx variable type is disposable or not
-                        // just check using keyword existence
-                        if (localVarStx.UsingKeyword != default)
-                        {
-                            goto NO_WARN;
-                        }
+                        return true;
+                    }
+                }
 
-                        if (IsSuppressedByComment(localVarStx))
-                        {
-                            goto NO_WARN;
-                        }
 
-                        if (localVarStx.Declaration.Variables.Count == 1)
+                // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
+                if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
+                {
+                    // using statement w/o block scope?
+                    // --> using var x = new Disposable();
+                    // --> using(var x = new Disposable()) { ... }
+                    if (equalsStx.Parent is VariableDeclaratorSyntax declaratorStx
+                     && declaratorStx.Parent is VariableDeclarationSyntax varDeclStx
+                    )
+                    {
+                        var parStx = varDeclStx.Parent;
+                        if (parStx is UsingStatementSyntax or MemberDeclarationSyntax)
                         {
-                            var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
-                            if (IsLocalVariableReturned(context, localVarDeclaratorStx, out var inAllCodePaths))
+                            return true;
+                        }
+                        else if (parStx is LocalDeclarationStatementSyntax localVarStx)
+                        {
+                            // DON'T check localVarStx variable type is disposable or not
+                            // just check using keyword existence
+                            if (localVarStx.UsingKeyword != default)
                             {
-                                if (!inAllCodePaths)
+                                return true;
+                            }
+
+                            if (IsSuppressedByComment(localVarStx))
+                            {
+                                return true;
+                            }
+
+                            if (localVarStx.Declaration.Variables.Count == 1)
+                            {
+                                var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
+                                if (IsLocalVariableReturned(context, localVarDeclaratorStx, out var inAllCodePaths))
                                 {
-                                    // NOTE: Workaround for Roslyn bug
-                                    //       Even through 'localVarDeclaratorStx.Identifier.ToString()' returns 'd',
-                                    //       'localVarDeclaratorStx.Identifier.GetLocation()' may NOT be pointing 'd' location.
-                                    //       As a result, although a violation is detected correctly, a warning is not reported at all.
-                                    //       --> var d = new MyDisposable();
-                                    //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
+                                    if (!inAllCodePaths)
+                                    {
+                                        // NOTE: Workaround for Roslyn bug
+                                        //       Even through 'localVarDeclaratorStx.Identifier.ToString()' returns 'd',
+                                        //       'localVarDeclaratorStx.Identifier.GetLocation()' may NOT be pointing 'd' location.
+                                        //       As a result, although a violation is detected correctly, a warning is not reported at all.
+                                        //       --> var d = new MyDisposable();
+                                        //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
-                                    // reporting detailed diagnostic instead of generic one.
-                                    context.ReportDiagnostic(Diagnostic.Create(
-                                        Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                        // reporting detailed diagnostic instead of generic one.
+                                        context.ReportDiagnostic(Diagnostic.Create(
+                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                    }
+
+                                    // then, just go to NO_WARN to avoid additionally reporting SMA0040.
+                                    return true;
                                 }
-
-                                // then, just go to NO_WARN to avoid additionally reporting SMA0040.
-                                goto NO_WARN;
                             }
                         }
                     }
                 }
-            }
-            else
-            {
-                // NOTE: ignore field/property assignment even if field/property type is disposable
-                //       --> Field = new Disposable();
-                //       --> Property = new Disposable();
-                if (syntax.Parent is AssignmentExpressionSyntax assignStx)
+                else
                 {
-                    var leftStx = assignStx.Left;
-
-                    var model = op.SemanticModel ?? context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                    var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
-
-                    // Discarding?
-                    if (leftSymbol?.Kind is SymbolKind.Discard)
+                    // NOTE: ignore field/property assignment even if field/property type is disposable
+                    //       --> Field = new Disposable();
+                    //       --> Property = new Disposable();
+                    if (syntax.Parent is AssignmentExpressionSyntax assignStx)
                     {
-                        // Won't allow silent suppression
-                        if (IsSuppressedByComment(assignStx))
+                        var leftStx = assignStx.Left;
+
+                        var model = op.SemanticModel ?? context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                        var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
+
+                        // Discarding?
+                        if (leftSymbol?.Kind is SymbolKind.Discard)
                         {
-                            goto NO_WARN;
+                            // Won't allow silent suppression
+                            if (IsSuppressedByComment(assignStx))
+                            {
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            // Left hand is indexer?
+                            if (leftStx is ElementAccessExpressionSyntax elementAccessStx)
+                            {
+                                // array[0] returns null, list[0] returns non-null
+                                var nonArraySymbol = model.GetSymbolInfo(elementAccessStx.Expression).Symbol;
+                                if (nonArraySymbol != null)
+                                {
+                                    leftSymbol = nonArraySymbol;
+                                }
+                            }
+
+                            // Ignore field/property
+                            if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Field or SymbolKind.Property))
+                            {
+                                // don't allow cast and forget
+                                // NG --> m_objectField = (new Disposable()) as object;
+                                if (!isCreationOp
+                                || op.Parent is not IConversionOperation castOp
+                                || (castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
+                                )
+                                {
+                                    return true;
+                                }
+                            }
                         }
                     }
-                    else
+                    // --> if (disposable == ...)
+                    // --> while (disposable == ...)
+                    else if (op.Parent is IBinaryOperation)
                     {
-                        // Left hand is indexer?
-                        if (leftStx is ElementAccessExpressionSyntax elementAccessStx)
+                        // don't allow creation operation pass the warning
+                        if (!isCreationOp)
                         {
-                            // array[0] returns null, list[0] returns non-null
-                            var nonArraySymbol = model.GetSymbolInfo(elementAccessStx.Expression).Symbol;
-                            if (nonArraySymbol != null)
-                            {
-                                leftSymbol = nonArraySymbol;
-                            }
-                        }
-
-                        // Ignore field/property
-                        if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Field or SymbolKind.Property))
-                        {
-                            // don't allow cast and forget
-                            // NG --> m_objectField = (new Disposable()) as object;
-                            if (!isCreationOp
-                            || op.Parent is not IConversionOperation castOp
-                            || (castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
-                            )
-                            {
-                                goto NO_WARN;
-                            }
+                            return true;
                         }
                     }
                 }
-                // --> if (disposable == ...)
-                // --> while (disposable == ...)
-                else if (op.Parent is IBinaryOperation)
-                {
-                    // don't allow creation operation pass the warning
-                    if (!isCreationOp)
-                    {
-                        goto NO_WARN;
-                    }
-                }
+
+                return false;
             }
 
 
