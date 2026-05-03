@@ -681,7 +681,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
 
                     // Discarding?
-                    if (leftSymbol.Kind is SymbolKind.Discard)
+                    if (leftSymbol?.Kind is SymbolKind.Discard)
                     {
                         // Won't allow silent suppression
                         if (IsSuppressedByComment(assignStx))
