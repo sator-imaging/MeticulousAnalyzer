@@ -327,6 +327,9 @@ Analyzer won't show warning in the following condition:
 Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
 
 ```cs
+// Don't dispose
+var d = new MyDisposable();
+
 // Don't dispose because it is managed by external library.
 // - Multiple single line comments are allowed but '// Don't dispose' must be the first.
 _ = new MyDisposable();
