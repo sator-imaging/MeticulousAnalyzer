@@ -492,5 +492,51 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA0040_CastAs_SuppressedByComment()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method(object disposable)
+        {
+            // Don't dispose
+            var casted = disposable as IDisposable;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_CastAs_NotSuppressed()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method(object disposable)
+        {
+            var casted = {|#0:disposable as IDisposable|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
     }
 }
