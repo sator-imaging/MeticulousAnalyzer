@@ -218,7 +218,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // Check if the target is a disposable type
                 if (assignmentOp.Target.Type is INamedTypeSymbol targetTypeSymbol && IsDisposable(context, targetTypeSymbol))
                 {
-                    var semanticModel = context.Compilation.GetSemanticModel(assignmentOp.Syntax.SyntaxTree);
+                    var semanticModel = assignmentOp.SemanticModel;
                     var targetSymbolInfo = semanticModel.GetSymbolInfo(assignmentOp.Target.Syntax);
                     if (targetSymbolInfo.Symbol == null)
                         return;
@@ -677,7 +677,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     var leftStx = assignStx.Left;
 
-                    var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                    var model = op.SemanticModel;
                     var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
 
                     // Discarding?
