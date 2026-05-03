@@ -8,11 +8,13 @@
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-	  <ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj">
-		  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+  <ItemGroup Condition=" true ">
+
+    <ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj">
 		  <OutputItemType>Analyzer</OutputItemType>
+		  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 	  </ProjectReference>
+
   </ItemGroup>
 
 </Project>

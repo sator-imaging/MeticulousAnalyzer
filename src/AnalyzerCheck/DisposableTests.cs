@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -85,6 +85,24 @@ internal class DisposableTests
     [Obfuscation(Exclude = true, ApplyToMembers = true)] public enum EInt { Value, Other, Etcetera }
     EInt EnumValueField = EInt.Other;
     Exception ExceptionField = new Exception();
+
+    void SuppressionTestAlpha()
+    {
+        // Don't dispose: the following line don't show error.
+        var x = new DisposableNoNoWarn();
+
+        // Don't dispose: Discard can have suppression comment
+        _ = new DisposableNoNoWarn();
+    }
+
+    void SuppressionTestBravo()
+    {
+        IDisposable _;
+
+        // Don't dispose
+        _ = new Disposable();  // Warning: Assigning to the variable '_' (not discarding).
+                               //          Removing the above line wil solve (comment-out won't solve).
+    }
 
 
     void Test(Disposable methodParam, EInt value)

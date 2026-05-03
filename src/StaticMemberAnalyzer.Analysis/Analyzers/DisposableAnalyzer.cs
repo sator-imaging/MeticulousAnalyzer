@@ -677,10 +677,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     var leftStx = assignStx.Left;
 
+                    var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                    var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
+
                     // Discarding?
-                    if (leftStx.IsKind(SyntaxKind.DiscardDesignation))
+                    if (leftSymbol?.Kind is SymbolKind.Discard)
                     {
-                        // Won't allow silent discard
+                        // Won't allow silent suppression
                         if (IsSuppressedByComment(assignStx))
                         {
                             goto NO_WARN;
@@ -688,10 +691,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
                     else
                     {
-                        var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                        var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
-
-                        // left hand is indexer?
+                        // Left hand is indexer?
                         if (leftStx is ElementAccessExpressionSyntax elementAccessStx)
                         {
                             // array[0] returns null, list[0] returns non-null
@@ -702,7 +702,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             }
                         }
 
-                        // ignore field/property
+                        // Ignore field/property
                         if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Field or SymbolKind.Property))
                         {
                             // don't allow cast and forget
