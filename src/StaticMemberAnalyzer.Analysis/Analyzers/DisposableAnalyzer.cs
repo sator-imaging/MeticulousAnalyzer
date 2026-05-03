@@ -580,12 +580,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             //       because unity doesn't allow using latest roslyn analyzer
             var syntax = op.Syntax;
 
-            if (IsSyntaxIgnorable(syntax))
+            if (IsSyntaxIgnorable())
             {
                 goto NO_WARN;
             }
 
-            bool IsSyntaxIgnorable(SyntaxNode syntax)
+            bool IsSyntaxIgnorable()
             {
                 // NOTE: if switch arm expression found, move focus to parent expression
                 //       > var x = value switch { ... };
