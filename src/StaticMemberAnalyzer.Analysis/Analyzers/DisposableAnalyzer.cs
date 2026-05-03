@@ -261,7 +261,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 {
                                     // The dispose call is on the same variable. We're good.
                                     return;
-                                 }
+                                }
                             }
                         }
                     }
@@ -277,7 +277,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
-            const string SuppressionComment = "Don't dispose";
+            const string SuppressionComment = "// Don't dispose";
 
             if (node == null) return false;
 
@@ -287,7 +287,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
 
             return comment != default
-                && comment.ToString().IndexOf(SuppressionComment, StringComparison.OrdinalIgnoreCase) >= 0;
+                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
         }
 
 
@@ -677,31 +677,43 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     var leftStx = assignStx.Left;
 
-                    var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                    var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
-
-                    // left hand is indexer?
-                    if (leftStx is ElementAccessExpressionSyntax elementAccessStx)
+                    // Discarding?
+                    if (leftStx.IsKind(SyntaxKind.DiscardDesignation))
                     {
-                        // array[0] returns null, list[0] returns non-null
-                        var nonArraySymbol = model.GetSymbolInfo(elementAccessStx.Expression).Symbol;
-                        if (nonArraySymbol != null)
-                        {
-                            leftSymbol = nonArraySymbol;
-                        }
-                    }
-
-                    // ignore field/property
-                    if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Field or SymbolKind.Property))
-                    {
-                        // don't allow cast and forget
-                        // NG --> m_objectField = (new Disposable()) as object;
-                        if (!isCreationOp
-                        || op.Parent is not IConversionOperation castOp
-                        || (castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
-                        )
+                        // Won't allow silent discard
+                        if (IsSuppressedByComment(assignStx))
                         {
                             goto NO_WARN;
+                        }
+                    }
+                    else
+                    {
+                        var model = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                        var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
+
+                        // left hand is indexer?
+                        if (leftStx is ElementAccessExpressionSyntax elementAccessStx)
+                        {
+                            // array[0] returns null, list[0] returns non-null
+                            var nonArraySymbol = model.GetSymbolInfo(elementAccessStx.Expression).Symbol;
+                            if (nonArraySymbol != null)
+                            {
+                                leftSymbol = nonArraySymbol;
+                            }
+                        }
+
+                        // ignore field/property
+                        if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Field or SymbolKind.Property))
+                        {
+                            // don't allow cast and forget
+                            // NG --> m_objectField = (new Disposable()) as object;
+                            if (!isCreationOp
+                            || op.Parent is not IConversionOperation castOp
+                            || (castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
+                            )
+                            {
+                                goto NO_WARN;
+                            }
                         }
                     }
                 }
@@ -715,38 +727,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         goto NO_WARN;
                     }
                 }
-                // // UNKNOWN EDIT BY AI
-                // else if (op.Parent is IIsPatternOperation isPatternOp) // handles PropertyReference
-                // {
-                //     if (isPatternOp.Pattern is IConstantPatternOperation constantPattern)
-                //     {
-                //         if (constantPattern.Value.ConstantValue.HasValue && constantPattern.Value.ConstantValue.Value == null)
-                //         {
-                //             if (!isCreationOp)
-                //             {
-                //                 goto NO_WARN;
-                //             }
-                //         }
-                //     }
-                // }
-                // else if (op.Parent is IConstantPatternOperation constantPatternOp && constantPatternOp.Parent is IIsPatternOperation) // handles Conversion of null
-                // {
-                //     var conversion = (IConversionOperation)op;
-                //     if (conversion.Operand is ILiteralOperation literalOp)
-                //     {
-                //         if (literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null)
-                //         {
-                //             goto NO_WARN;
-                //         }
-                //     }
-                // }
             }
 
 
             // !! REPORT !!
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
-
 
             //Core.ReportDebugMessage(context.ReportDiagnostic,
             //    "WARN",
@@ -774,7 +760,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             inAllCodePaths = false;
 
-            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax || x is AccessorDeclarationSyntax);
+            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax);
             if (enclosingMember == null) return false;
 
             var semanticModel = context.Operation.SemanticModel;
@@ -801,7 +787,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (expressionBody.Expression is ThrowExpressionSyntax)
                 {
-                   // NOTE: keep consistent with statement syntax.
+                    // NOTE: keep consistent with statement syntax.
                     return false;
                 }
 
@@ -817,7 +803,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (body != null)
             {
-                if (body.DescendantNodes().Any(x => x is ThrowStatementSyntax || x is ThrowExpressionSyntax))
+                if (body.DescendantNodes().Any(x => x is ThrowStatementSyntax or ThrowExpressionSyntax))
                 {
                     // NOTE: keep consistent with '=> ...' syntax.
                     return false;  // assumes that some paths throw (reports generic diagnostic)
