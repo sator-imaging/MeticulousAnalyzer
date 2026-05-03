@@ -334,7 +334,7 @@ d = (new object()) as IDisposable;
 _ = new MyDisposable();
 
 // 以下は最初のコメント行ではないため抑制されません。
-// NOTE:
+// （最初のコメントを検索する際、空白行は無視されます）
 
 // Don't dispose
 var d = new MyDisposable();

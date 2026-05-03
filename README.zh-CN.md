@@ -334,7 +334,7 @@ d = (new object()) as IDisposable;
 _ = new MyDisposable();
 
 // 以下代码不会被抑制，因为它不是第一个注释行。
-// NOTE:
+// （搜索第一个注释时会忽略空白行）
 
 // Don't dispose
 var d = new MyDisposable();

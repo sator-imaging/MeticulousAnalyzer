@@ -334,7 +334,7 @@ Add a single-line comment starting with `// Don't dispose` (case-insensitive but
 _ = new MyDisposable();
 
 // The following WON'T suppress because it's not the first comment line.
-// NOTE:
+// (Blank lines are ignored when searching for the first comment)
 
 // Don't dispose
 var d = new MyDisposable();
