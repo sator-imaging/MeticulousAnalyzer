@@ -49,6 +49,7 @@ namespace Test
         void Method()
         {
             var d = {|#0:new MyDisposable()|};
+
             // Don't dispose
             {|#1:d = null|};
         }
@@ -178,6 +179,7 @@ namespace Test
         {
             // Don't dispose
             var d = new MyDisposable();
+
             if (condition) return d;
             return null;
         }
@@ -201,6 +203,7 @@ namespace Test
         void Method()
         {
             IDisposable d;
+
             // Don't dispose
             d = {|#0:new MyDisposable()|};
         }
