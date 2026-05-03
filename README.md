@@ -324,19 +324,20 @@ Analyzer won't show warning in the following condition:
 
 ## Suppress by Comment
 
-Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment.
+Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
 
 ```cs
 // Don't dispose
 var d = new MyDisposable();
 
-// Multiple single line comments are allowed, but it must be the first line.
+// Multiple single line comments are allowed and blank lines are ignored.
 // Don't dispose
 // - Because it is managed by external library
+
 _ = new MyDisposable();
 
-// Blank lines are ignored, but the following WON'T suppress because it's not the first line.
-// Blah blah blah
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
 
 // Don't dispose
 var d = new MyDisposable();
