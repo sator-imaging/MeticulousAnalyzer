@@ -324,15 +324,27 @@ Analyzer won't show warning in the following condition:
 
 ## Suppress by Comment
 
-Add a single-line comment containing `Don't dispose` (case-insensitive) immediately before the local variable declaration.
+Add a single-line comment starting with `// Don't dispose` (case-insensitive) immediately before the local variable declaration or discard assignment. It must be the first line of the code block's trivia. Multiple single-line comments are allowed as long as the suppression comment is the first.
 
 ```cs
 // Don't dispose
 var d = new MyDisposable();
+
+// Don't dispose
+_ = new MyDisposable();
+```
+
+Line-end comments on the preceding line are also supported if there's no intervening blank line.
+
+```cs
+DoSomething();  // Don't dispose
+var d = new MyDisposable();
 ```
 
 > [!NOTE]
-> This suppression is only effective for initial local variable declarations. Assignments to existing variables cannot be suppressed by comments.
+> - This suppression is effective for initial local variable declarations and discard assignments (`_ = ...`).
+> - Using a variable named `_` (e.g., `var _ = ...`) is not considered a discard and cannot be suppressed.
+> - Assignments to existing named variables cannot be suppressed by comments.
 
 
 
