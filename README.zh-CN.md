@@ -329,8 +329,6 @@ d = (new object()) as IDisposable;
 ```cs
 // Don't dispose because it is managed by external library.
 // - 允许使用多个单行注释，但 '// Don't dispose' 必须是第一行。
-// - 注释与代码之间的空行会被忽略。
-
 _ = new MyDisposable();
 
 // 以下代码不会被抑制，因为它不是第一个注释行。

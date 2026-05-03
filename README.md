@@ -329,8 +329,6 @@ Add a single-line comment starting with `// Don't dispose` (case-insensitive but
 ```cs
 // Don't dispose because it is managed by external library.
 // - Multiple single line comments are allowed but '// Don't dispose' must be the first.
-// - Blank lines between the comment and the code are ignored.
-
 _ = new MyDisposable();
 
 // The following WON'T suppress because it's not the first comment line.

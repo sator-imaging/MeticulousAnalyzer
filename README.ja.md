@@ -329,8 +329,6 @@ d = (new object()) as IDisposable;
 ```cs
 // Don't dispose because it is managed by external library.
 // - 複数行の単一行コメントが許可されますが、'// Don't dispose' が最初である必要があります。
-// - コメントとコードの間の空白行は無視されます。
-
 _ = new MyDisposable();
 
 // 以下は最初のコメント行ではないため抑制されません。
