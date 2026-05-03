@@ -294,7 +294,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_SuppressedByComment_WithNoteAndCustomText()
+        public async Task SMA0040_SuppressedByMultipleSingleLineComments()
         {
             var test = @"
 using System;
@@ -306,7 +306,8 @@ namespace Test
     {
         void Method()
         {
-            // NOTE: Custom comment (don't dispose)
+            // Don't dispose
+            // - Because...
             var d = new MyDisposable();
         }
     }
@@ -314,5 +315,182 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0040_NotSuppressedByComment_WhenNotFirstLine()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            // NOTE:
+            // Don't dispose here because...
+            var d = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_NotSuppressedByPrecedingLineEndComment()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void DoSomething() {}
+        void Method()
+        {
+            DoSomething();  // Don't dispose
+            var d = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_NotSuppressedByComment_WhenBlankLineBetweenComments()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            // Blah blah blah
+
+            // Don't dispose
+            var d = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_VariableNamedUnderscore_IsNotDiscard()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            var _ = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_AssignmentToVariableNamedUnderscore_IsNotDiscard()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            MyDisposable _;
+
+            // Don't dispose
+            _ = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_DiscardWithoutComment_ReportsError()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            _ = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_DiscardWithComment_IsSuppressed()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() {} }
+    class Program
+    {
+        void Method()
+        {
+            // Don't dispose
+            _ = new MyDisposable();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
