@@ -334,6 +334,12 @@ var d = new MyDisposable();
 // Don't dispose
 // - Because it is managed by external library
 _ = new MyDisposable();
+
+// Blank lines are ignored, but the following WON'T suppress because it's not the first line.
+// Blah blah blah
+
+// Don't dispose
+var d = new MyDisposable();
 ```
 
 > [!NOTE]

@@ -334,6 +334,12 @@ var d = new MyDisposable();
 // Don't dispose
 // - 外部ライブラリによって管理されているため
 _ = new MyDisposable();
+
+// 空白行は無視されますが、以下は最初の行ではないため抑制されません。
+// Blah blah blah
+
+// Don't dispose
+var d = new MyDisposable();
 ```
 
 > [!NOTE]

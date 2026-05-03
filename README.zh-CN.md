@@ -334,6 +334,12 @@ var d = new MyDisposable();
 // Don't dispose
 // - 因为它由外部库管理
 _ = new MyDisposable();
+
+// 空白行会被忽略，但以下代码不会被抑制，因为它不是第一行。
+// Blah blah blah
+
+// Don't dispose
+var d = new MyDisposable();
 ```
 
 > [!NOTE]
