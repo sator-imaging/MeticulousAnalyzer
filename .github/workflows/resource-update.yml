@@ -133,4 +133,4 @@ jobs:
 
         ### try push and create PR if any changes otherwise exit successfully
         git push || true
-        gh pr create -B main -t 'release/${{ inputs.release_ver }}' -b '' || true
+        gh pr create -B main -t 'bot: release/${{ inputs.release_ver }}' -b '' || true
