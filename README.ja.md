@@ -327,17 +327,14 @@ d = (new object()) as IDisposable;
 ローカル変数の宣言または破棄（discard）代入の直前に `// Don't dispose` (大文字小文字は区别しないが空白文字は区別する) で始まる 1 行コメントを追加します。抑制コメントを検索する際、空白行は無視されます。
 
 ```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// 複数行の単一行コメントが許可され、空白行は無視されます。
-// Don't dispose
-// - 外部ライブラリによって管理されているため
+// Don't dispose because it is managed by external library.
+// - 複数行の単一行コメントが許可されますが、'// Don't dispose' が最初である必要があります。
+// - コメントとコードの間の空白行は無視されます。
 
 _ = new MyDisposable();
 
 // 以下は最初のコメント行ではないため抑制されません。
-// （最初のコメントを検索する際、空白行は無視されます）
+// NOTE:
 
 // Don't dispose
 var d = new MyDisposable();

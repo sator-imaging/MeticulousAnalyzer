@@ -327,17 +327,14 @@ d = (new object()) as IDisposable;
 在局部变量声明或弃元（discard）赋值的正上方添加以 `// Don't dispose`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
 
 ```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// 允许使用多个单行注释，且空白行会被忽略。
-// Don't dispose
-// - 因为它由外部库管理
+// Don't dispose because it is managed by external library.
+// - 允许使用多个单行注释，但 '// Don't dispose' 必须是第一行。
+// - 注释与代码之间的空行会被忽略。
 
 _ = new MyDisposable();
 
 // 以下代码不会被抑制，因为它不是第一个注释行。
-// （搜索第一个注释时会忽略空白行）
+// NOTE:
 
 // Don't dispose
 var d = new MyDisposable();
