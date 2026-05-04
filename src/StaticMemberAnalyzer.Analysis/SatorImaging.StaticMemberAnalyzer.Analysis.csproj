@@ -40,9 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
-	<!-- unity 2021.2 uses CodeAnalysis.CSharp v3.9, analyzer WON'T work on prior to 2021.2 when built with v3.6 or later. v3.8 is required for GlobalOptions -->
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
+	<!-- unity 2021.2 uses CodeAnalysis.CSharp v3.9, analyzer WON'T work on piror to 2021.2 when built with v3.6 or later -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.8" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.4.0" />
   </ItemGroup>
 
   <ItemGroup>

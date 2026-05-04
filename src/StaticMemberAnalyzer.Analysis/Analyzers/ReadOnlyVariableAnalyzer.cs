@@ -87,7 +87,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
-            if (IsAnalyzerEnabled(context))
+            // For Roslyn 3.4.0, GlobalOptions is not available. Use the first syntax tree as a representative.
+            var tree = context.Compilation.SyntaxTrees.FirstOrDefault();
+            if (tree == null) return;
+
+            var configOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(tree);
+            if (configOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) && IsEnabled(severity))
             {
                 context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
                 context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
@@ -96,30 +101,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
                 context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
             }
-        }
-
-        private static bool IsAnalyzerEnabled(CompilationStartAnalysisContext context)
-        {
-            // Check .editorconfig via AnalyzerConfigOptionsProvider
-            if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity))
-            {
-                return IsEnabled(severity);
-            }
-
-            // Check if enabled via CompilationOptions (ruleset, command line)
-            var specificOptions = context.Compilation.Options.SpecificDiagnosticOptions;
-            return IsEnabled(specificOptions, RuleId_ReadOnlyLocal) ||
-                   IsEnabled(specificOptions, RuleId_ReadOnlyParameter) ||
-                   IsEnabled(specificOptions, RuleId_ReadOnlyArgument) ||
-                   IsEnabled(specificOptions, RuleId_ReadOnlyPropertyArgument);
-        }
-
-        private static bool IsEnabled(ImmutableDictionary<string, ReportDiagnostic> options, string ruleId)
-        {
-            return options.TryGetValue(ruleId, out var severity) &&
-                   !(severity == ReportDiagnostic.Suppress ||
-                     severity == ReportDiagnostic.Default ||
-                     severity == ReportDiagnostic.Hidden);
         }
 
         private static bool IsEnabled(string severity)
