@@ -100,51 +100,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsAnalyzerEnabled(CompilationStartAnalysisContext context)
         {
+            // Check .editorconfig via AnalyzerConfigOptionsProvider
+            if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity))
+            {
+                return IsEnabled(severity);
+            }
+
             // Check if enabled via CompilationOptions (ruleset, command line)
             var specificOptions = context.Compilation.Options.SpecificDiagnosticOptions;
-            if (IsAnyRuleEnabled(specificOptions))
-            {
-                return true;
-            }
-
-            // Check .editorconfig via AnalyzerConfigOptionsProvider
-            // For Roslyn 3.3.1, GlobalOptions is not available. Use the first syntax tree as a representative.
-            var syntaxTree = context.Compilation.SyntaxTrees.FirstOrDefault();
-            if (syntaxTree != null)
-            {
-                var configOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(syntaxTree);
-
-                // Check category-wide severity
-                if (configOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) && IsEnabled(severity))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool IsAnyRuleEnabled(ImmutableDictionary<string, ReportDiagnostic> options)
-        {
-            return IsEnabled(options, RuleId_ReadOnlyLocal) ||
-                   IsEnabled(options, RuleId_ReadOnlyParameter) ||
-                   IsEnabled(options, RuleId_ReadOnlyArgument) ||
-                   IsEnabled(options, RuleId_ReadOnlyPropertyArgument);
+            return IsEnabled(specificOptions, RuleId_ReadOnlyLocal) ||
+                   IsEnabled(specificOptions, RuleId_ReadOnlyParameter) ||
+                   IsEnabled(specificOptions, RuleId_ReadOnlyArgument) ||
+                   IsEnabled(specificOptions, RuleId_ReadOnlyPropertyArgument);
         }
 
         private static bool IsEnabled(ImmutableDictionary<string, ReportDiagnostic> options, string ruleId)
         {
-            return options.TryGetValue(ruleId, out var severity) && severity switch
-            {
-                ReportDiagnostic.Suppress or ReportDiagnostic.Default or ReportDiagnostic.Hidden => false,
-                _ => true,
-            };
+            return options.TryGetValue(ruleId, out var severity) &&
+                   !(severity == ReportDiagnostic.Suppress ||
+                     severity == ReportDiagnostic.Default ||
+                     severity == ReportDiagnostic.Hidden);
         }
 
         private static bool IsEnabled(string severity)
         {
             return !string.IsNullOrEmpty(severity) &&
-                   !string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase);
+                   !(string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(severity, "silent", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(severity, "hidden", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(severity, "suppress", StringComparison.OrdinalIgnoreCase));
         }
 
         private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
