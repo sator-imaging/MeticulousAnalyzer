@@ -10,8 +10,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -78,12 +80,79 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
+#pragma warning disable RS1012
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
+#pragma warning restore RS1012
+        }
+
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+        {
+            if (!IsAnalyzerEnabled(context))
+            {
+                return;
+            }
+
             context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
             context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
             context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
             context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
             context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
             context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+        }
+
+        private static bool IsAnalyzerEnabled(CompilationStartAnalysisContext context)
+        {
+            // Check if enabled via CompilationOptions (ruleset, command line)
+            var specificOptions = context.Compilation.Options.SpecificDiagnosticOptions;
+            if (IsAnyRuleEnabled(specificOptions))
+            {
+                return true;
+            }
+
+            // Check .editorconfig via AnalyzerConfigOptionsProvider
+            // For Roslyn 3.3.1, GlobalOptions is not available. Use the first syntax tree as a representative.
+            var syntaxTree = context.Compilation.SyntaxTrees.FirstOrDefault();
+            if (syntaxTree != null)
+            {
+                var configOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(syntaxTree);
+
+                // Check category-wide severity
+                if (configOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) && IsEnabled(severity))
+                {
+                    return true;
+                }
+
+                // Check individual rule severities
+                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0060.severity", out severity) && IsEnabled(severity)) return true;
+                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0061.severity", out severity) && IsEnabled(severity)) return true;
+                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0062.severity", out severity) && IsEnabled(severity)) return true;
+                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0063.severity", out severity) && IsEnabled(severity)) return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsAnyRuleEnabled(ImmutableDictionary<string, ReportDiagnostic> options)
+        {
+            return IsEnabled(options, RuleId_ReadOnlyLocal) ||
+                   IsEnabled(options, RuleId_ReadOnlyParameter) ||
+                   IsEnabled(options, RuleId_ReadOnlyArgument) ||
+                   IsEnabled(options, RuleId_ReadOnlyPropertyArgument);
+        }
+
+        private static bool IsEnabled(ImmutableDictionary<string, ReportDiagnostic> options, string ruleId)
+        {
+            if (options.TryGetValue(ruleId, out var severity))
+            {
+                return severity != ReportDiagnostic.Suppress && severity != ReportDiagnostic.Default;
+            }
+            return false;
+        }
+
+        private static bool IsEnabled(string severity)
+        {
+            return !string.IsNullOrEmpty(severity) &&
+                   !string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase);
         }
 
         private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)

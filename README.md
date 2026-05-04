@@ -386,6 +386,8 @@ This analyzer helps keep local values and parameters immutable by flagging write
 > [*.cs]
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
+>
+> *Note: Restarting the IDE may be required for `.editorconfig` changes to take effect.*
 
 <details>
 
