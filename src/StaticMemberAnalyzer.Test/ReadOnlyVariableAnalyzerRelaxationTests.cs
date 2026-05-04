@@ -155,6 +155,9 @@ namespace Test
                 TestCode = source,
             };
 
+            test.TestState.AnalyzerConfigFiles.Add(
+                ("/.editorconfig", "root = true\n\n[*.cs]\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
+
             test.SolutionTransforms.Add((solution, projectId) =>
             {
                 var project = solution.GetProject(projectId);
