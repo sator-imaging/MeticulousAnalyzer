@@ -87,17 +87,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
-            if (!IsAnalyzerEnabled(context))
+            if (IsAnalyzerEnabled(context))
             {
-                return;
+                context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+                context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
+                context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
+                context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
+                context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
+                context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
             }
-
-            context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
-            context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
-            context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
-            context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
-            context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
-            context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
         }
 
         private static bool IsAnalyzerEnabled(CompilationStartAnalysisContext context)
@@ -121,12 +119,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     return true;
                 }
-
-                // Check individual rule severities
-                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0060.severity", out severity) && IsEnabled(severity)) return true;
-                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0061.severity", out severity) && IsEnabled(severity)) return true;
-                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0062.severity", out severity) && IsEnabled(severity)) return true;
-                if (configOptions.TryGetValue("dotnet_diagnostic.SMA0063.severity", out severity) && IsEnabled(severity)) return true;
             }
 
             return false;
@@ -142,11 +134,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsEnabled(ImmutableDictionary<string, ReportDiagnostic> options, string ruleId)
         {
-            if (options.TryGetValue(ruleId, out var severity))
+            return options.TryGetValue(ruleId, out var severity) && severity switch
             {
-                return severity != ReportDiagnostic.Suppress && severity != ReportDiagnostic.Default;
-            }
-            return false;
+                ReportDiagnostic.Suppress or ReportDiagnostic.Default or ReportDiagnostic.Hidden => false,
+                _ => true,
+            };
         }
 
         private static bool IsEnabled(string severity)

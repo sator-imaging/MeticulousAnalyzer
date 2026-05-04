@@ -387,7 +387,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
 >
-> ※ `.editorconfig` の変更を反映させるには IDE の再起動が必要な場合があります。
+> ※ `.editorconfig` の変更を反映させるには IDE の再起動が必要な場合があります。また、パフォーマンス上の理由から `.editorconfig` での個別のルール設定はサポートされていません。カテゴリー全体の重要度設定（category-wide severity）を使用してください。
 
 <details>
 
