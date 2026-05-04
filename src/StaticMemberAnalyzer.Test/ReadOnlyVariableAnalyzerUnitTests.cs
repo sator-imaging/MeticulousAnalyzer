@@ -1638,7 +1638,7 @@ namespace Test
             };
 
             test.TestState.AnalyzerConfigFiles.Add(
-                ("/.editorconfig", "root = true\n\n[*.cs]\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
+                ("/.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
 
             test.SolutionTransforms.Add((solution, projectId) =>
             {

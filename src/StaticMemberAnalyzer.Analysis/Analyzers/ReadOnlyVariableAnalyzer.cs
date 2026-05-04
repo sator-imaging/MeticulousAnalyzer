@@ -87,12 +87,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
-            // For Roslyn 3.4.0, GlobalOptions is not available. Use the first syntax tree as a representative.
-            var tree = context.Compilation.SyntaxTrees.FirstOrDefault();
-            if (tree == null) return;
-
-            var configOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(tree);
-            if (configOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) && IsEnabled(severity))
+            if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) &&
+                !(string.IsNullOrEmpty(severity) ||
+                  string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(severity, "silent", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(severity, "hidden", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(severity, "suppress", StringComparison.OrdinalIgnoreCase)))
             {
                 context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
                 context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
@@ -101,15 +101,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
                 context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
             }
-        }
-
-        private static bool IsEnabled(string severity)
-        {
-            return !string.IsNullOrEmpty(severity) &&
-                   !(string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(severity, "silent", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(severity, "hidden", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(severity, "suppress", StringComparison.OrdinalIgnoreCase));
         }
 
         private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
