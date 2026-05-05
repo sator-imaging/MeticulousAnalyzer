@@ -182,16 +182,41 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_ExpressionBodiedProperty_Ignored()
+        public async Task SMA0043_ExpressionBodiedProperty_Detected()
         {
             var test = @"
 using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class TestClass
+class TestClass : IDisposable
 {
     public MyDisposable Prop => null;
+    public void {|#0:Dispose|}()
+    {
+    }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(0)
+                .WithArguments("Prop");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_ExpressionBodiedProperty_Disposed()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+class TestClass : IDisposable
+{
+    public MyDisposable Prop => null;
+    public void Dispose()
+    {
+        Prop?.Dispose();
+    }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }

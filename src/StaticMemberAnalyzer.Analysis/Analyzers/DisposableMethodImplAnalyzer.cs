@@ -60,11 +60,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
                 return;
 
-            var disposableMembers = GetDisposableMembers(typeSymbol).ToImmutableArray();
+            var disposableMembers = GetDisposableMembers(typeSymbol);
             if (disposableMembers.IsEmpty)
                 return;
 
-            var allMethods = typeSymbol.GetMembers().OfType<IMethodSymbol>().ToImmutableArray();
+            var allMethods = typeSymbol.GetMembers().OfType<IMethodSymbol>();
             var disposeMethods = allMethods.Where(IsDisposeImplementation).ToImmutableArray();
 
             if (disposeMethods.IsEmpty)
@@ -73,43 +73,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var targetMethods = new List<IMethodSymbol>();
-            var fullDisposePattern = false;
+            // Find target method in order: Dispose(bool), Dispose(), then explicit IDisposable.Dispose
+            IMethodSymbol? targetMethod = null;
 
-            foreach (var method in disposeMethods)
+            // 1. Check for Full Dispose Pattern (Dispose() calls Dispose(bool))
+            var publicDispose = disposeMethods.FirstOrDefault(m => m.Parameters.Length == 0 && m.DeclaredAccessibility == Accessibility.Public && !m.ExplicitInterfaceImplementations.Any());
+            if (publicDispose != null && IsFullDisposePattern(context.Compilation, publicDispose, out var disposeBoolMethod))
             {
-                if (method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
-                {
-                    // Check for Full Dispose Pattern
-                    if (IsFullDisposePattern(context.Compilation, method, out var disposeBoolMethod))
-                    {
-                        fullDisposePattern = true;
-                        targetMethods.Add(disposeBoolMethod!);
-                    }
-                    else
-                    {
-                        targetMethods.Add(method);
-                    }
-                }
+                targetMethod = disposeBoolMethod;
             }
 
-            // In case of Full Dispose Pattern, we only care about Dispose(bool)
-            // If not, we might have multiple Dispose methods (e.g. explicit interface implementations)
-            if (fullDisposePattern)
+            // 2. Public Dispose()
+            if (targetMethod == null)
             {
-                var disposeBool = targetMethods.First(m => m.Parameters.Length == 1);
-                var undisposed = GetUndisposedMembers(context.Compilation, disposeBool, disposableMembers);
-                ReportUndisposed(context, disposeBool, undisposed);
+                targetMethod = publicDispose;
             }
-            else
+
+            // 3. Explicit interface implementation
+            if (targetMethod == null)
             {
-                // Report on all Dispose methods if they don't dispose everything?
-                // Or just pick the main one? The instructions say "if members remain undisposed... report on each Dispose method declared in the type".
-                foreach (var method in disposeMethods)
-                {
-                    var undisposed = GetUndisposedMembers(context.Compilation, method, disposableMembers);
-                    ReportUndisposed(context, method, undisposed);
-                }
+                targetMethod = disposeMethods.FirstOrDefault(m => m.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName));
+            }
+
+            if (targetMethod != null)
+            {
+                var undisposed = GetUndisposedMembers(context.Compilation, targetMethod, disposableMembers);
+                ReportUndisposed(context, targetMethod, undisposed);
             }
         }
 
@@ -254,8 +243,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
                 else if (member is IPropertySymbol propertySymbol)
                 {
-                    // Only analyze auto-properties (those without a body)
-                    if (IsAutoProperty(propertySymbol) && IsDisposable(propertySymbol.Type))
+                    if (IsDisposable(propertySymbol.Type))
                     {
                         builder.Add(propertySymbol);
                     }
@@ -263,29 +251,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             return builder.ToImmutable();
-        }
-
-        private static bool IsAutoProperty(IPropertySymbol propertySymbol)
-        {
-            foreach (var syntaxRef in propertySymbol.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is Microsoft.CodeAnalysis.CSharp.Syntax.PropertyDeclarationSyntax propertyDeclaration)
-                {
-                    if (propertyDeclaration.ExpressionBody != null)
-                        return false;
-
-                    if (propertyDeclaration.AccessorList == null)
-                        return false;
-
-                    foreach (var accessor in propertyDeclaration.AccessorList.Accessors)
-                    {
-                        if (accessor.Body != null || accessor.ExpressionBody != null)
-                            return false;
-                    }
-                    return true;
-                }
-            }
-            return false;
         }
 
         private static bool IsDisposable(ITypeSymbol typeSymbol)
