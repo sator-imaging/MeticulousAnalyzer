@@ -768,12 +768,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressed(IOperation? current)
         {
-            if (current is IVariableDeclaratorOperation declarator)
+            if (current is IAssignmentOperation assignment &&
+                assignment is IVariableDeclaratorOperation declarator &&
+                declarator.Syntax?.Parent?.Parent is LocalDeclarationStatementSyntax localDecl)
             {
-                if (declarator.Syntax?.Parent?.Parent is LocalDeclarationStatementSyntax localDecl)
-                {
-                    return IsSuppressedByComment(localDecl);
-                }
+                return IsSuppressedByComment(localDecl);
             }
 
             return false;
