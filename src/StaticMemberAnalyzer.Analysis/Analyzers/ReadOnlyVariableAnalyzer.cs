@@ -25,6 +25,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public const string RuleId_ReadOnlyParameter = "SMA0061";
         public const string RuleId_ReadOnlyArgument = "SMA0062";
         public const string RuleId_ReadOnlyPropertyArgument = "SMA0063";
+        public const string RuleId_ReadOnlyMethodCall = "SMA0064";
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyLocal = new(
             RuleId_ReadOnlyLocal,
@@ -62,6 +63,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString("SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
 
+        private static readonly DiagnosticDescriptor Rule_MethodCallCanChangeState = new(
+            RuleId_ReadOnlyMethodCall,
+            new LocalizableResourceString("SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString("SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            ImmutableCategory,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: IsEnabledByDefault,
+            description: new LocalizableResourceString("SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
             Core.Rule_DebugError,
@@ -70,7 +80,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Rule_ReadOnlyLocal,
             Rule_ReadOnlyParameter,
             Rule_ReadOnlyArgument,
-            Rule_PropertyAccessCanChangeState
+            Rule_PropertyAccessCanChangeState,
+            Rule_MethodCallCanChangeState
             );
 
         public override void Initialize(AnalysisContext context)
@@ -96,6 +107,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     ctx.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
                     ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
                     ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+                    ctx.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
+                    ctx.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
                 }
             });
         }
@@ -167,6 +180,58 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             AnalyzeArgument(context, argument);
+        }
+
+        private static void AnalyzePropertyReference(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IPropertyReferenceOperation propRef)
+            {
+                return;
+            }
+
+            if (IsInsideNestedBody(propRef))
+            {
+                return;
+            }
+
+            if (propRef.Property.GetMethod?.IsReadOnly == true)
+            {
+                return;
+            }
+
+            if (TryGetRootLocalOrParameter(propRef, out var rootName, out _) && !HasMutableNamePrefix(rootName))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_PropertyAccessCanChangeState,
+                    propRef.Syntax.GetLocation(),
+                    propRef.Syntax.ToString()));
+            }
+        }
+
+        private static void AnalyzeInvocation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IInvocationOperation invocation)
+            {
+                return;
+            }
+
+            if (IsInsideNestedBody(invocation))
+            {
+                return;
+            }
+
+            if (invocation.TargetMethod.IsReadOnly)
+            {
+                return;
+            }
+
+            if (TryGetRootLocalOrParameter(invocation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_MethodCallCanChangeState,
+                    invocation.Syntax.GetLocation(),
+                    invocation.Syntax.ToString()));
+            }
         }
 
         private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
@@ -293,19 +358,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
                 }
 
-                if (argumentValue is IPropertyReferenceOperation propRef)
-                {
-                    if (propRef.Property.GetMethod?.IsReadOnly == true)
-                    {
-                        return;
-                    }
-
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_PropertyAccessCanChangeState,
-                        argumentValue.Syntax.GetLocation(),
-                        argumentValue.Syntax.ToString()));
-                    return;
-                }
             }
 
             var type = parameter.Type;
@@ -417,6 +469,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return true;
                 }
 
+                if (current is IInvocationOperation invocationOperation)
+                {
+                    current = invocationOperation.Instance;
+                    continue;
+                }
+
                 if (current is IPropertyReferenceOperation propertyReference)
                 {
                     current = propertyReference.Instance;
@@ -435,6 +493,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (current is IConditionalAccessOperation conditionalAccess)
+                {
+                    current = conditionalAccess.Operation;
+                    continue;
+                }
+
                 break;
             }
 
@@ -448,9 +512,50 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
         }
 
+        private static bool IsInsideNestedBody(IOperation operation)
+        {
+            var current = operation.Parent;
+            while (current != null)
+            {
+                // SimpleAssignment and other assignments are handled separately.
+                // If we are at 'foo.Prop = 1', it's ISimpleAssignmentOperation.
+                // Its Target is foo.Prop.
+                // We want to skip AnalyzePropertyReference for foo.Prop because it's reported by AnalyzeSimpleAssignment.
+
+                if (current is ISimpleAssignmentOperation simple && simple.Target == operation) return true;
+                if (current is ICompoundAssignmentOperation compound && compound.Target == operation) return true;
+                if (current is ICoalesceAssignmentOperation coalesce && coalesce.Target == operation) return true;
+                if (current is IIncrementOrDecrementOperation incDec && incDec.Target == operation) return true;
+                if (current is IDeconstructionAssignmentOperation decon && decon.Target == operation) return true;
+
+                if (current is IArgumentOperation argOp && argOp.Value == operation)
+                {
+                    // If it's an argument, AnalyzeArgument will handle it.
+                    // But AnalyzeArgument only reports SMA0062 (ReadOnlyArgument) or SMA0063 (if we didn't remove it).
+                    // We WANT SMA0063/SMA0064 to be reported for arguments too, but via their own analyzers.
+                    // So we should NOT return true here if we want general reporting.
+                    // HOWEVER, SMA0062 might ALSO be reported for the same thing if it's a ref type.
+                }
+
+                if (current is IPropertyReferenceOperation propParent && propParent.Instance == operation)
+                {
+                    return true;
+                }
+
+                if (current is IInvocationOperation invokeParent && invokeParent.Instance == operation)
+                {
+                    return true;
+                }
+
+                current = current.Parent;
+            }
+            return false;
+        }
+
         private static bool IsAllowedArgumentValue(IOperation value)
         {
             return value is IInvocationOperation
+                or IPropertyReferenceOperation
                 or IObjectCreationOperation
                 or IAnonymousObjectCreationOperation
                 or IArrayCreationOperation
