@@ -222,5 +222,47 @@ class {|#0:TestClass|} : IDisposable
                 .WithArguments("_field1, _field2");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0043_PartialType()
+        {
+            var test1 = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+partial class {|#0:TestClass|} : IDisposable
+{
+    private MyDisposable _field1 = new MyDisposable();
+}";
+            var test2 = @"
+using System;
+
+partial class {|#1:TestClass|}
+{
+    private MyDisposable _field2 = new MyDisposable();
+    public void Dispose()
+    {
+        _field1.Dispose();
+    }
+}";
+            var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(0)
+                .WithArguments("_field2");
+            var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(1)
+                .WithArguments("_field2");
+
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { test1, test2 }
+                }
+            };
+            test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            await test.RunAsync();
+        }
     }
 }
