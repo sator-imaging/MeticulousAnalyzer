@@ -37,6 +37,9 @@
 
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
+> [!NOTE]
+> `HasFlag` 方法的调用被有意允许。
+
 ## `TSelf` 类型参数分析
 
 用于分析 CRTP（Curiously Recurring Template Pattern）中 `TSelf` 类型参数不匹配问题。
@@ -169,6 +172,9 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 该分析器可帮助你将 enum 处理集中并封装到统一的工具层中。
 
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
+
+> [!NOTE]
+> `HasFlag` 方法的调用被有意允许。
 
 
 ## 从混淆中排除 `Enum` 类型
