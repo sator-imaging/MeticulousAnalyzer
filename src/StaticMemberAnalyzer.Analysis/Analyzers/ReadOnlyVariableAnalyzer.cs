@@ -10,10 +10,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -80,27 +78,26 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-#pragma warning disable RS1012
-            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
-#pragma warning restore RS1012
-        }
-
-        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
-        {
-            if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) &&
-                !(string.IsNullOrEmpty(severity) ||
-                  string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase) ||
-                  string.Equals(severity, "silent", StringComparison.OrdinalIgnoreCase) ||
-                  string.Equals(severity, "hidden", StringComparison.OrdinalIgnoreCase) ||
-                  string.Equals(severity, "suppress", StringComparison.OrdinalIgnoreCase)))
+            context.RegisterCompilationStartAction(ctx =>
             {
-                context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
-                context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
-                context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
-                context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
-                context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
-                context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
-            }
+                const string GlobalOptionsCategory = "dotnet_analyzer_diagnostic.category-" + ImmutableCategory + ".severity";
+
+                if (!ctx.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(GlobalOptionsCategory, out var severity))
+                {
+                    return;
+                }
+
+                // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level
+                if (severity.ToLowerInvariant() is "error" or "warning" or "suggestion")
+                {
+                    ctx.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+                    ctx.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
+                    ctx.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
+                    ctx.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
+                    ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
+                    ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+                }
+            });
         }
 
         private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
