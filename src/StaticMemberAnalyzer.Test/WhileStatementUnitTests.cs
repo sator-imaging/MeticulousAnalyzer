@@ -20,10 +20,10 @@ namespace Test
 {
     class Program
     {
-        void M(Stream stream)
+        void M(Stream mut_stream)
         {
             int read;
-            while ((read = stream.Read(new byte[0], 0, 0)) > 0)
+            while ((read = mut_stream.Read(new byte[0], 0, 0)) > 0)
             {
             }
         }
@@ -92,10 +92,10 @@ namespace Test
 {
     class Program
     {
-        void M(Stream stream)
+        void M(Stream mut_stream)
         {
             int read;
-            while ((read = stream.Read(new byte[0], 0, 0)) > 0)
+            while ((read = mut_stream.Read(new byte[0], 0, 0)) > 0)
             {
                 {|#0:read|} = 0;
             }
@@ -135,6 +135,12 @@ namespace Test
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
+                    ReportDiagnostic.Error);
+                specificOptions = specificOptions.SetItem(
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReportDiagnostic.Error);
+                specificOptions = specificOptions.SetItem(
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,
                     ReportDiagnostic.Error);
 
                 compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);

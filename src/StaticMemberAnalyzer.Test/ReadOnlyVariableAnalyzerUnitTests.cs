@@ -192,6 +192,31 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task NullConditionalPropertyAccess_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Prop { get; set; } }
+
+    class Program
+    {
+        void M(C foo)
+        {
+            _ = {|#0:foo?.Prop|};
+        }
+    }
+}
+";
+
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(0)
+                .WithArguments("foo?.Prop");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task DeconstructionAssignment_LeftExistingRightDeclared_ReportsDiagnostic()
         {
             var test = @"

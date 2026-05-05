@@ -201,10 +201,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (TryGetRootLocalOrParameter(propRef, out var rootName, out _) && !HasMutableNamePrefix(rootName))
             {
+                var syntax = propRef.Syntax;
+                var location = syntax.GetLocation();
+
+                // Handle null-conditional access
+                if (propRef.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == propRef)
+                {
+                    syntax = cao.Syntax;
+                    location = syntax.GetLocation();
+                }
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_PropertyAccessCanChangeState,
-                    propRef.Syntax.GetLocation(),
-                    propRef.Syntax.ToString()));
+                    location,
+                    syntax.ToString()));
             }
         }
 
@@ -227,10 +237,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (TryGetRootLocalOrParameter(invocation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
             {
+                var syntax = invocation.Syntax;
+                var location = syntax.GetLocation();
+
+                // Handle null-conditional access
+                if (invocation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == invocation)
+                {
+                    syntax = cao.Syntax;
+                    location = syntax.GetLocation();
+                }
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_MethodCallCanChangeState,
-                    invocation.Syntax.GetLocation(),
-                    invocation.Syntax.ToString()));
+                    location,
+                    syntax.ToString()));
             }
         }
 
@@ -497,6 +517,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     current = conditionalAccess.Operation;
                     continue;
+                }
+
+                if (current is IConditionalAccessInstanceOperation)
+                {
+                    var parent = current.Parent;
+                    while (parent != null && parent is not IConditionalAccessOperation)
+                    {
+                        parent = parent.Parent;
+                    }
+
+                    if (parent is IConditionalAccessOperation cao)
+                    {
+                        current = cao.Operation;
+                        continue;
+                    }
                 }
 
                 break;
