@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer
+// https://github.com/sator-imaging/StaticMemberAnalyzer
 
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
@@ -112,6 +112,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         public const string RuleId_EnumLike = "SMA0028";
+#if STMG_ENABLE_KOTLIN_ENUM
         private static readonly DiagnosticDescriptor Rule_EnumLike = new(
             RuleId_EnumLike,
             new LocalizableResourceString(nameof(Resources.SMA0028_Title), Resources.ResourceManager, typeof(Resources)),
@@ -120,6 +121,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0028_Description), Resources.ResourceManager, typeof(Resources)));
+#endif
 
         #endregion
 
@@ -136,8 +138,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Rule_EnumToString,
             Rule_EnumMethod,
             Rule_EnumObfuscation,
-            Rule_UnusualEnum,
-            Rule_EnumLike
+            Rule_UnusualEnum
+#if STMG_ENABLE_KOTLIN_ENUM
+            , Rule_EnumLike
+#endif
             );
 
 
@@ -160,7 +164,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 OperationKind.TypeParameterObjectCreation
                 ));
 
+#if STMG_ENABLE_KOTLIN_ENUM
             context.RegisterSyntaxNodeAction(AnalyzeEnumLikePattern, SyntaxKind.ClassDeclaration);
+#endif
 
             context.RegisterSymbolAction(AnalyzeEnumDeclaration, SymbolKind.NamedType);
         }
@@ -176,6 +182,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType.SpecialType == SpecialType.System_Enum)
             {
+                if (op.TargetMethod.Name == "HasFlag")
+                    return;
+
                 //string??
                 if (op.TargetMethod.ReturnType.SpecialType == SpecialType.System_String)
                 {
@@ -345,6 +354,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         [ThreadStatic] static List<IMethodSymbol>? ts_enumLikePatternEqualsSymbolList;
 #pragma warning restore RS1008
 
+#if STMG_ENABLE_KOTLIN_ENUM
         private static void AnalyzeEnumLikePattern(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not ClassDeclarationSyntax clsDeclStx)
@@ -616,6 +626,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_EnumLike, initializerStx.GetLocation(), entriesContainerSymbolName,
                 "'Entries' doesn't have all of 'public static readonly' field of type '" + entriesContainerSymbolName + "' in declared order"));
         }
+#endif
 
         private static bool IsReadOnlyMemory(ITypeSymbol memoryCandidateType,
                                              ITypeSymbol elementType

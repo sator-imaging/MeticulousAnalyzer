@@ -29,19 +29,19 @@
 
 ## 不稳定初始化分析
 
-![Analyzer in Action](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/InAction.gif)
+![Analyzer in Action](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/InAction.gif)
 
 ## `Enum` 类型分析
 
 限制与整数之间的双向转换，彻底禁止用户代码直接进行 enum 值转换。
 
-![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/EnumAnalyzer.png)
+![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 ## `TSelf` 类型参数分析
 
 用于分析 CRTP（Curiously Recurring Template Pattern）中 `TSelf` 类型参数不匹配问题。
 
-![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/GenericTypeArgTSelf.png)
+![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
 
 
 
@@ -50,13 +50,16 @@
 > [!IMPORTANT]
 > Underlining analyzer 已废弃。如需重新启用，请设置预处理符号 `STMG_ENABLE_UNDERLINING_ANALYZER` 并重新构建。
 
+<details>
 
 这是一个在 Visual Studio 编码时用于增强提示的附加功能。你不再需要通过 `Obsolete` 属性来标注类型、方法、字段和属性。
 
 详见 [该章节](#标注--下划线)。
 
 
-![Draw Underline](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/DrawUnderline.png)
+![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
+
+</details>
 
 
 
@@ -165,20 +168,28 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 
 该分析器可帮助你将 enum 处理集中并封装到统一的工具层中。
 
-![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/EnumAnalyzer.png)
+> [!NOTE]
+> `HasFlag` 方法的调用被有意允许。
+
+![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
 ## 从混淆中排除 `Enum` 类型
 
 提供注解与代码修复，避免混淆工具修改 enum 的字符串表示。
 
-![Enum Code Fix](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/EnumCodeFix.png)
+![Enum Code Fix](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumCodeFix.png)
 
 > [!NOTE]
 > `Obfuscation` 属性来自 C# 基础库，本身不提供混淆功能。它只是向识别该属性的混淆工具传递配置。
 
 
 ## Kotlin 风格 Enum 模式
+
+> [!IMPORTANT]
+> 如需启用，请设置预处理符号 `STMG_ENABLE_KOTLIN_ENUM` 并重新构建。
+
+<details>
 
 用于辅助实现 Kotlin 风格的 enum class 模式。
 
@@ -285,6 +296,8 @@ switch (val)
 
 <!------- End of Details Tag -------></details></p>
 
+</details>
+
 
 
 
@@ -312,7 +325,38 @@ d = (new object()) as IDisposable;
 
 
 
+## 通过注释抑制
+
+在局部变量声明或弃元（discard）赋值的正上方添加以 `// Don't dispose`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+
+// Don't dispose because it is managed by external library.
+// - 允许使用多个单行注释，但 '// Don't dispose' 必须是第一行。
+_ = new MyDisposable();
+
+// 以下代码不会被抑制，因为它不是第一个注释行。
+// （搜索第一个注释时会忽略空白行）
+
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
+>
+> 使用名为 `_` 的变量（例如 `var _ = new Disposable();`）不是弃元，不会被注释抑制。
+
+
+
 ## 抑制 `Disposable` 分析
+
+> [!IMPORTANT]
+> 如需启用，请设置预处理符号 `STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE` 并重新构建。
+
+<details>
 
 若需对指定类型抑制分析，声明名为 `DisposableAnalyzerSuppressor` 的特性并加到程序集上。
 
@@ -325,6 +369,8 @@ sealed class DisposableAnalyzerSuppressor : Attribute
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
 ```
+
+</details>
 
 
 
@@ -344,6 +390,10 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
 
+> [!NOTE]
+> 可能需要重启 IDE 才能使 `.editorconfig` 的修改生效。
+
+<details>
 
 - 赋值
     - `=`
@@ -452,7 +502,7 @@ class Demo
 > [!NOTE]
 > 当赋值根节点是局部变量/参数时会被报告（例如 `foo.Bar.Value = 1` 中的 `foo`）。根节点是字段时不会报告。
 
-
+</details>
 
 
 
@@ -465,13 +515,14 @@ class Demo
 > [!IMPORTANT]
 > Underlining analyzer 已废弃。如需重新启用，请设置预处理符号 `STMG_ENABLE_UNDERLINING_ANALYZER` 并重新构建。
 
+<details>
 
 这是一个可选功能，可在类型、字段、属性、泛型类型/方法参数，以及方法/委托/Lambda 参数上绘制下划线。
 
 由于 Visual Studio 的 UX 设计，`Info` 级别诊断下划线通常只显示在前几个字符上，而不是整个标记区域。为规避此问题，关键字处会绘制虚线下划线。
 
 
-![Draw Underline](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/DrawUnderline.png)
+![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
 
 > [!TIP]
 > 消息以 `!` 开头时，会在关键字上添加 warning 标注，而不是 info 标注。
@@ -525,7 +576,7 @@ public static int Underline_Drawn = 310;
 你可以通过 `#pragma` 预处理指令、`SuppressMessage` 特性等方式屏蔽指定类型的下划线。
 
 
-![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/VerbosityControl.png)
+![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/VerbosityControl.png)
 
 
 
@@ -543,35 +594,4 @@ public static int Underline_Drawn = 310;
 </linker>
 ```
 
-
-
-
-
-&nbsp;
-
-# TODO
-
-## Disposable 分析器
-
-### 已知误检
-
-- Lambda `return` 语句
-    - `MethodArg(() => DisposableProperty);`
-    - `MethodArg(() => { return DisposableProperty; });`
-- `?:` 运算符
-    - `DisposableProperty = condition ? null : disposableList[index];` 
-
-
-## Enum 分析器功能
-- 隐式转换抑制特性
-    - `[assembly: EnumAnalyzer(SuppressImplicitCast = true)]`
-        - ***不要*** 抑制转换到 `object` `Enum` `string` `int` 或其他 blittable 类型
-        - （隐式转换运算符在大多数场景是有设计意图的，是否应默认抑制？）
-- 允许类 Enum 类型存在仅 internal 的条目
-  ```cs
-  sealed class MyEnumLike
-  {
-      public static readonly MyEnumLike PublicEntry = new();
-      internal static readonly MyEnumLike ForDebuggingPurpose = new();
-  }
-  ```
+</details>

@@ -29,19 +29,19 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 
 ## Flaky Initialization Analysis
 
-![Analyzer in Action](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/InAction.gif)
+![Analyzer in Action](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/InAction.gif)
 
 ## Enum Type Analysis
 
 Restrict both cast from/to integer number! Disallow user-level enum value conversion completely!!
 
-![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/EnumAnalyzer.png)
+![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 ## `TSelf` Type Argument Analysis
 
 Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern (CRTP).
 
-![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/GenericTypeArgTSelf.png)
+![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
 
 
 
@@ -50,13 +50,16 @@ Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern 
 > [!IMPORTANT]
 > Underlining analyzer is obsolete: to enable it again, set the preprocessor symbol `STMG_ENABLE_UNDERLINING_ANALYZER` and rebuild.
 
+<details>
 
 There is fancy extra feature to take your attention while coding in Visual Studio. No more need to use `Obsolete` attribute in case of annotating types, methods, fields and properties.
 
 See [the following section](#annotating--underlining) for details.
 
 
-![Draw Underline](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/DrawUnderline.png)
+![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
+
+</details>
 
 
 
@@ -165,20 +168,28 @@ Enum type handling is really headaching. To make enum operation under control, g
 
 This analyzer will help centerizing and encapsulating enum handling in app's central enum utility.
 
-![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/EnumAnalyzer.png)
+> [!NOTE]
+> `HasFlag` method is intentionally allowed to be invoked.
+
+![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
 ## Excluding Enum Type from Obfuscation
 
 Helpful annotation and code fix for enum types which prevents modification of string representation by obfuscation tool.
 
-![Enum Code Fix](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/EnumCodeFix.png)
+![Enum Code Fix](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumCodeFix.png)
 
 > [!NOTE]
 > `Obfuscation` attribute is from C# base library and it does NOT provide feature to obfuscate compiled assembly. It just provides configuration option to obfuscation tools which recognizing this attribute.
 
 
 ## Kotlin-like Enum Pattern
+
+> [!IMPORTANT]
+> To use this feature, set the preprocessor symbol `STMG_ENABLE_KOTLIN_ENUM` and rebuild.
+
+<details>
 
 Analysis to help implementing Kotlin-style enum class.
 
@@ -285,6 +296,8 @@ switch (val)
 
 <!------- End of Details Tag -------></details></p>
 
+</details>
+
 
 
 
@@ -312,7 +325,38 @@ Analyzer won't show warning in the following condition:
 
 
 
+## Suppress by Comment
+
+Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+
+// Don't dispose because it is managed by external library.
+// - Multiple single line comments are allowed but '// Don't dispose' must be the first.
+_ = new MyDisposable();
+
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
+
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+>
+> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+
+
+
 ## Suppress `Disposable` Analysis
+
+> [!IMPORTANT]
+> To use this feature, set the preprocessor symbol `STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE` and rebuild.
+
+<details>
 
 To suppress analysis for specified types, declare attribute named `DisposableAnalyzerSuppressor` and add it to assembly.
 
@@ -325,6 +369,8 @@ sealed class DisposableAnalyzerSuppressor : Attribute
     public DisposableAnalyzerSuppressor(params Type[] _) { }
 }
 ```
+
+</details>
 
 
 
@@ -344,6 +390,10 @@ This analyzer helps keep local values and parameters immutable by flagging write
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
 
+> [!NOTE]
+> Restarting the IDE may be required for `.editorconfig` changes to take effect.
+
+<details>
 
 - Assignment
     - `=`
@@ -452,7 +502,7 @@ class Demo
 > [!NOTE]
 > Member access assignments are reported when rooted at local/parameter (e.g. `foo.Bar.Value = 1` where `foo` is local/parameter), but not when rooted at field.
 
-
+</details>
 
 
 
@@ -465,13 +515,14 @@ class Demo
 > [!IMPORTANT]
 > Underlining analyzer is obsolete: to enable it again, set the preprocessor symbol `STMG_ENABLE_UNDERLINING_ANALYZER` and rebuild.
 
+<details>
 
 There is optional feature to draw underline on selected types, fields, properties, generic type/method arguments and parameters of method, delegate and lambda function.
 
 As of Visual Studio's UX design, `Info` severity diagnostic underlines are drawn only on a few leading chars, not drawn whole marked area. So for workaround, underline on keyword is dashed.
 
 
-![Draw Underline](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/DrawUnderline.png)
+![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
 
 > [!TIP]
 > `!`-starting message will add warning annotation on keyword instead of info diagnostic annotation.
@@ -525,7 +576,7 @@ By default, static field analyzer will draw most verbose underline.
 You can omit specific type of underline by using `#pragma` preprocessor directive or adding `SuppressMessage` attribute or etc.
 
 
-![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/CSharp-StaticFieldAnalyzer/main/assets/VerbosityControl.png)
+![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/VerbosityControl.png)
 
 
 
@@ -543,35 +594,4 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
 </linker>
 ```
 
-
-
-
-
-&nbsp;
-
-# TODO
-
-## Disposable Analyzer
-
-### Known Misdetections
-
-- lambda return statement
-    - `MethodArg(() => DisposableProperty);`
-    - `MethodArg(() => { return DisposableProperty; });`
-- `?:` operator
-    - `DisposableProperty = condition ? null : disposableList[index];` 
-
-
-## Enum Analyzer Features
-- implicit cast suppressor attribute
-    - `[assembly: EnumAnalyzer(SuppressImplicitCast = true)]`
-        - ***DO NOT*** suppress cast to `object` `Enum` `string` `int` or other blittable types
-        - (implicit cast operator is designed function in almost cases. it should be suppressed by default?)
-- allow internal only entry for Enum-like types
-  ```cs
-  sealed class MyEnumLike
-  {
-      public static readonly MyEnumLike PublicEntry = new();
-      internal static readonly MyEnumLike ForDebuggingPurpose = new();
-  }
-  ```
+</details>

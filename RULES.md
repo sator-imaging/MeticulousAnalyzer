@@ -59,11 +59,6 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0062 | Avoid Passing Writable Variables to Calls  | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
 | SMA0063 | Property Access Can Change State           | Avoid passing properties to method/indexer calls as writable arguments because their accessors can have side effects.
 
-## Argument Analysis
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0070 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
-
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------

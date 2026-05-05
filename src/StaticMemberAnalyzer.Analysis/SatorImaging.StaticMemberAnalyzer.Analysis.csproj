@@ -1,15 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+  	<TargetFramework>netstandard2.0</TargetFramework>
     <IsRoslynComponent>true</IsRoslynComponent>
-
-    <!-- Debug settings for Visual Studio -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
     <VSSDKTargetPlatformRegRootSuffix>Roslyn</VSSDKTargetPlatformRegRootSuffix>
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix $(VSSDKTargetPlatformRegRootSuffix)</StartArguments>
 
-  	<TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
 
     <!-- Avoid ID conflicts with the package project. -->
@@ -38,9 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
-	<!-- unity 2021.2 uses CodeAnalysis.CSharp v3.9, analyzer WON'T work on piror to 2021.2 when built with v3.6 or later -->
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.8" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
+	<!-- unity 2021.2 uses CodeAnalysis.CSharp v3.9, analyzer WON'T work on prior to 2021.2 when built with v3.6 or later. v3.8 is required for GlobalOptions -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer
+// https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -1636,6 +1636,9 @@ namespace Test
             {
                 TestCode = source,
             };
+
+            test.TestState.AnalyzerConfigFiles.Add(
+                ("/.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
 
             test.SolutionTransforms.Add((solution, projectId) =>
             {

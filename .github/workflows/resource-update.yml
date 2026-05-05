@@ -77,11 +77,11 @@ jobs:
         ##cache: true
     - name: Restore dependencies
       run: |
-        cd src
+        ##cd src
         dotnet restore  -p:DontReferenceItself=true  # required to avoid cyclic ref error
     - name: Build
       run: |
-        cd src
+        ##cd src
 
         # required to enable deterministic build --> -p:ContinuousIntegrationBuild=true
         # it seems that hash is calculated based on the whole git directory contents
@@ -133,4 +133,4 @@ jobs:
 
         ### try push and create PR if any changes otherwise exit successfully
         git push || true
-        gh pr create -B main -t 'release/${{ inputs.release_ver }}' -b '' || true
+        gh pr create -B main -t 'bot: release/${{ inputs.release_ver }}' -b '' || true

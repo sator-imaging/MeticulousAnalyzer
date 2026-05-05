@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer
+// https://github.com/sator-imaging/StaticMemberAnalyzer
 
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
@@ -78,12 +78,26 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
-            context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
-            context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
-            context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
-            context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
-            context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+            context.RegisterCompilationStartAction(ctx =>
+            {
+                const string GlobalOptionsCategory = "dotnet_analyzer_diagnostic.category-" + ImmutableCategory + ".severity";
+
+                if (!ctx.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(GlobalOptionsCategory, out var severity))
+                {
+                    return;
+                }
+
+                // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level
+                if (severity.ToLowerInvariant() is "error" or "warning" or "suggestion")
+                {
+                    ctx.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+                    ctx.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
+                    ctx.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
+                    ctx.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
+                    ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
+                    ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+                }
+            });
         }
 
         private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)

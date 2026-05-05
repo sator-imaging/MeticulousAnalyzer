@@ -1,8 +1,24 @@
 <Project>
 
+  <!--
   <Import Project="$(MSBuildThisFileDirectory)../Directory.Build.props"
           Condition=" Exists('$(MSBuildThisFileDirectory)../Directory.Build.props') "
   />
+  -->
+
+  <!-- CMD: dotnet restore -p:DontReferenceItself=true  other-options... -->
+  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true' AND '$(MSBuildProjectFile)' != 'AnalyzerCheck.csproj' ">
+
+    <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+  </ItemGroup>
+
+  <Target Name="GetVsixVersion" Outputs="$(GlobalPackageVersion)" />
+  <Target Name="GetVsixPublisher" Outputs="$(GlobalPackageOwner)" />
+  <Target Name="GetVsixRepository" Outputs="$(GlobalPackageRepository)" />
 
   <PropertyGroup>
     <LangVersion>9.0</LangVersion>
@@ -15,35 +31,21 @@
     <GlobalPackageProduct>$(GlobalPackageTitle)</GlobalPackageProduct>
     <GlobalPackageOwner>Sator Imaging</GlobalPackageOwner>
     <GlobalPackageCompany>$(GlobalPackageOwner)</GlobalPackageCompany>
-    <GlobalPackageCopyright>(c) 2024 $(GlobalPackageOwner)</GlobalPackageCopyright>
+    <GlobalPackageCopyright>(c) 2024-2026 $(GlobalPackageOwner)</GlobalPackageCopyright>
     <!-- !!! update vsix manifest too !!! -->
     <GlobalPackageDescription>Roslyn-based analyzer to diagnose static fields and properties initialization.</GlobalPackageDescription>
     <GlobalPackageTags>StaticMemberAnalyzer, Roslyn, analyzer, analyzers, static, field, property, initialization</GlobalPackageTags>
     <GlobalPackageWebsite>https://x.com/sator_imaging</GlobalPackageWebsite>
-    <GlobalPackageRepository>https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer</GlobalPackageRepository>
-    <GlobalPackageReleaseNote>https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer</GlobalPackageReleaseNote>
-    <GlobalPackageLicenseUrl>https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer/blob/main/LICENSE.md</GlobalPackageLicenseUrl>
+    <GlobalPackageRepository>https://github.com/sator-imaging/StaticMemberAnalyzer</GlobalPackageRepository>
+    <GlobalPackageReleaseNote>https://github.com/sator-imaging/StaticMemberAnalyzer</GlobalPackageReleaseNote>
+    <GlobalPackageLicenseUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/blob/main/LICENSE.md</GlobalPackageLicenseUrl>
     <GlobalPackageLicenseSPDX>MIT</GlobalPackageLicenseSPDX>
-    <GlobalPackageIconUrl>https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer/raw/main/assets/icon-128px.png</GlobalPackageIconUrl>
+    <GlobalPackageIconUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/raw/main/assets/icon-128px.png</GlobalPackageIconUrl>
 
     <!-- don't forget to update the following PackageReference version range -->
-    <GlobalPackageVersion>3.3.1</GlobalPackageVersion>
+    <GlobalPackageVersion>4.1.0</GlobalPackageVersion>
     <GlobalPackageVersionSuffix></GlobalPackageVersionSuffix>
 
   </PropertyGroup>
-
-  <!-- CMD: dotnet restore -p:DontReferenceItself=true  other-options... -->
-  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true' and '$(MSBuildProjectFile)' != 'AnalyzerCheck.csproj' ">
-
-    <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-
-  </ItemGroup>
-
-  <Target Name="GetVsixVersion" Outputs="$(GlobalPackageVersion)" />
-  <Target Name="GetVsixPublisher" Outputs="$(GlobalPackageOwner)" />
-  <Target Name="GetVsixRepository" Outputs="$(GlobalPackageRepository)" />
 
 </Project>
