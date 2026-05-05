@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
@@ -113,7 +114,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 var location = syntaxRef.GetSyntax() switch
                 {
-                    Microsoft.CodeAnalysis.CSharp.Syntax.TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
+                    TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
                     var syntax => syntax.GetLocation()
                 };
 
@@ -133,17 +134,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 foreach (var op in operation.Descendants())
                 {
-                    var invocation = op as IInvocationOperation;
-                    var instance = invocation?.Instance;
+                    var conditional = op as IConditionalAccessOperation;
+                    var unwrapped = (conditional?.WhenNotNull ?? op) as IInvocationOperation;
 
-                    if (op is IConditionalAccessOperation conditional && conditional.WhenNotNull is IInvocationOperation condInv)
+                    if (unwrapped != null && IsDisposeCall(unwrapped.TargetMethod))
                     {
-                        invocation = condInv;
-                        instance = conditional.Operation;
-                    }
-
-                    if (invocation != null && IsDisposeCall(invocation.TargetMethod))
-                    {
+                        var instance = conditional?.Operation ?? unwrapped.Instance;
                         if (instance is IConversionOperation conversion)
                         {
                             instance = conversion.Operand;
