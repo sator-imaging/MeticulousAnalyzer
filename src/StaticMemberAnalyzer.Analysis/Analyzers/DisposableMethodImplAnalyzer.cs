@@ -14,6 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     public sealed class DisposableMethodImplAnalyzer : DiagnosticAnalyzer
     {
         public const string DisposeMethodName = "Dispose";
+        private const string AsyncDisposableTypeName = "IAsyncDisposable";
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -60,8 +61,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
                 return;
 
-            var undisposed = new HashSet<ISymbol>(GetDisposableMembers(typeSymbol), SymbolEqualityComparer.Default);
-            if (undisposed.Count == 0)
+            var disposableMembers = GetDisposableMembers(typeSymbol);
+            if (!disposableMembers.Any())
                 return;
 
             IMethodSymbol? targetMethod = null;
@@ -103,10 +104,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            CollectUndisposedMembers(context.Compilation, targetMethod, undisposed);
-            if (undisposed.Count != 0)
+            var undisposedSet = new HashSet<ISymbol>(disposableMembers, SymbolEqualityComparer.Default);
+            CollectUndisposedMembers(context.Compilation, targetMethod, undisposedSet);
+            if (undisposedSet.Count != 0)
             {
-                var joinedNames = string.Join(", ", undisposed.Select(m => m.Name));
+                var joinedNames = string.Join(", ", undisposedSet.Select(m => m.Name));
                 Report(context, Rule_UndisposedMember, typeSymbol, joinedNames);
             }
         }
@@ -179,15 +181,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.ReturnType.SpecialType == SpecialType.System_Void;
         }
 
-        private static bool IsDisposeImplementation(IMethodSymbol method)
-        {
-            if (method.Name == DisposeMethodName) return true;
-
-            if (method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
-                return true;
-
-            return false;
-        }
 
         private static IEnumerable<ISymbol> GetDisposableMembers(INamedTypeSymbol typeSymbol)
         {
@@ -229,7 +222,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsAsyncDisposable(INamedTypeSymbol symbol)
         {
-            return symbol.Name == "IAsyncDisposable" &&
+            return symbol.Name.Length == AsyncDisposableTypeName.Length &&
+                   symbol.Name == AsyncDisposableTypeName &&
                    symbol.ContainingNamespace.Name == "System" &&
                    symbol.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
         }
