@@ -160,26 +160,6 @@ class TestClass : IDisposable
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
-        [TestMethod]
-        public async Task SMA0043_DuckTyping()
-        {
-            var test = @"
-using System;
-
-class MyDisposable { public void Dispose() {} }
-
-class {|#0:TestClass|} : IDisposable
-{
-    private MyDisposable _field = new MyDisposable();
-    public void Dispose()
-    {
-    }
-}";
-            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
-                .WithArguments("_field");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0043_ExpressionBodiedProperty_Detected()

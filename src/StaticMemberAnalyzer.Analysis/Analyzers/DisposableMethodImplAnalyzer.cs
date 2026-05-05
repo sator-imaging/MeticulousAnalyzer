@@ -215,11 +215,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return true;
             }
 
-            // Duck typing: public void Dispose()
-            return named.GetMembers(DisposeMethodName).OfType<IMethodSymbol>()
-                .Any(m => m.Parameters.Length == 0 &&
-                          m.ReturnType.SpecialType == SpecialType.System_Void &&
-                          m.DeclaredAccessibility == Accessibility.Public);
+            return false;
         }
 
         private static bool IsAsyncDisposable(INamedTypeSymbol symbol)
