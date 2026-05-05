@@ -182,6 +182,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType.SpecialType == SpecialType.System_Enum)
             {
+                if (op.TargetMethod.Name == "HasFlag")
+                    return;
+
                 //string??
                 if (op.TargetMethod.ReturnType.SpecialType == SpecialType.System_String)
                 {
