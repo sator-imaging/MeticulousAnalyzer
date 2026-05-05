@@ -64,8 +64,37 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (disposableMembers.IsEmpty)
                 return;
 
-            var allMethods = typeSymbol.GetMembers().OfType<IMethodSymbol>().ToImmutableArray();
-            var disposeMethods = allMethods.Where(IsDisposeImplementation).ToImmutableArray();
+            IMethodSymbol? targetMethod = null;
+            IMethodSymbol? publicDispose = null;
+            IMethodSymbol? explicitDispose = null;
+
+            foreach (var member in typeSymbol.GetMembers())
+            {
+                if (member is not IMethodSymbol method) continue;
+
+                if (method.Name == DisposeMethodName)
+                {
+                    if (method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
+                    {
+                        targetMethod = method;
+                        break;
+                    }
+
+                    if (method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public && !method.ExplicitInterfaceImplementations.Any())
+                    {
+                        publicDispose ??= method;
+                    }
+                }
+                else if (method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                {
+                    if (method.Parameters.Length == 0)
+                    {
+                        explicitDispose ??= method;
+                    }
+                }
+            }
+
+            targetMethod ??= publicDispose ?? explicitDispose;
 
             var location = typeSymbol.Locations[0];
             if (typeSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is Microsoft.CodeAnalysis.CSharp.Syntax.TypeDeclarationSyntax typeDecl)
@@ -73,31 +102,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 location = typeDecl.Identifier.GetLocation();
             }
 
-            if (disposeMethods.IsEmpty)
+            if (targetMethod == null)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_MissingDisposeImplementation, location, typeSymbol.Name));
                 return;
             }
 
-            // Find target method in order: Dispose(bool), Dispose(), then explicit IDisposable.Dispose
-            IMethodSymbol? targetMethod = disposeMethods.FirstOrDefault(m => m.Parameters.Length == 1 && m.Parameters[0].Type.SpecialType == SpecialType.System_Boolean);
-            if (targetMethod == null)
+            var undisposed = GetUndisposedMembers(context.Compilation, targetMethod, disposableMembers);
+            if (undisposed.Any())
             {
-                targetMethod = disposeMethods.FirstOrDefault(m => m.Parameters.Length == 0 && m.DeclaredAccessibility == Accessibility.Public && !m.ExplicitInterfaceImplementations.Any());
-            }
-            if (targetMethod == null)
-            {
-                targetMethod = disposeMethods.FirstOrDefault(m => m.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName));
-            }
-
-            if (targetMethod != null)
-            {
-                var undisposed = GetUndisposedMembers(context.Compilation, targetMethod, disposableMembers);
-                if (undisposed.Any())
-                {
-                    var joinedNames = string.Join(", ", undisposed.Select(m => m.Name));
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, joinedNames));
-                }
+                var joinedNames = string.Join(", ", undisposed.Select(m => m.Name));
+                context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, joinedNames));
             }
         }
 
