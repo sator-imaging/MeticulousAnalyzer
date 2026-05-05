@@ -81,11 +81,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
         {
+            if (context.Operation is not IArgumentOperation op)
+                return;
+
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
             if (op.Syntax is AttributeArgumentSyntax)
                 return;
 
-            if (context.Operation is not IArgumentOperation op || op.IsImplicit)
+            if (op.IsImplicit)
                 return;
 
             // Skip if it's an indexer argument.
