@@ -592,36 +592,3 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
 ```
 
 </details>
-
-
-
-
-
-&nbsp;
-
-# TODO
-
-## Disposable Analyzer
-
-### Known Misdetections
-
-- lambda return statement
-    - `MethodArg(() => DisposableProperty);`
-    - `MethodArg(() => { return DisposableProperty; });`
-- `?:` operator
-    - `DisposableProperty = condition ? null : disposableList[index];` 
-
-
-## Enum Analyzer Features
-- implicit cast suppressor attribute
-    - `[assembly: EnumAnalyzer(SuppressImplicitCast = true)]`
-        - ***DO NOT*** suppress cast to `object` `Enum` `string` `int` or other blittable types
-        - (implicit cast operator is designed function in almost cases. it should be suppressed by default?)
-- allow internal only entry for Enum-like types
-  ```cs
-  sealed class MyEnumLike
-  {
-      public static readonly MyEnumLike PublicEntry = new();
-      internal static readonly MyEnumLike ForDebuggingPurpose = new();
-  }
-  ```

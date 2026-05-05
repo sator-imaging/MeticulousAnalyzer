@@ -592,36 +592,3 @@ public static int Underline_Drawn = 310;
 ```
 
 </details>
-
-
-
-
-
-&nbsp;
-
-# TODO
-
-## Disposable 分析器
-
-### 已知误检
-
-- Lambda `return` 语句
-    - `MethodArg(() => DisposableProperty);`
-    - `MethodArg(() => { return DisposableProperty; });`
-- `?:` 运算符
-    - `DisposableProperty = condition ? null : disposableList[index];` 
-
-
-## Enum 分析器功能
-- 隐式转换抑制特性
-    - `[assembly: EnumAnalyzer(SuppressImplicitCast = true)]`
-        - ***不要*** 抑制转换到 `object` `Enum` `string` `int` 或其他 blittable 类型
-        - （隐式转换运算符在大多数场景是有设计意图的，是否应默认抑制？）
-- 允许类 Enum 类型存在仅 internal 的条目
-  ```cs
-  sealed class MyEnumLike
-  {
-      public static readonly MyEnumLike PublicEntry = new();
-      internal static readonly MyEnumLike ForDebuggingPurpose = new();
-  }
-  ```
