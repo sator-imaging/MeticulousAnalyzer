@@ -479,22 +479,22 @@
     <value>Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.</value>
   </data>
   <data name="SMA0063_Title" xml:space="preserve">
-    <value>Property Access Can Change State</value>
+    <value>Property Access on Immutable Variable</value>
   </data>
   <data name="SMA0063_Description" xml:space="preserve">
-    <value>Avoid accessing properties of immutable variables because their accessors can have side effects.</value>
+    <value>Avoid accessing properties of immutable variables.</value>
   </data>
   <data name="SMA0063_MessageFormat" xml:space="preserve">
-    <value>Property access '{0}' can change internal state (ReadOnlyProperty)</value>
+    <value>Property access '{0}' on immutable variable (ReadOnlyProperty)</value>
   </data>
   <data name="SMA0064_Title" xml:space="preserve">
-    <value>Method Call Can Change State</value>
+    <value>Method Call on Immutable Variable</value>
   </data>
   <data name="SMA0064_Description" xml:space="preserve">
-    <value>Avoid calling non-readonly methods of immutable variables because they can change internal state.</value>
+    <value>Avoid calling methods of immutable variables.</value>
   </data>
   <data name="SMA0064_MessageFormat" xml:space="preserve">
-    <value>Method call '{0}' can change internal state (ReadOnlyMethodCall)</value>
+    <value>Method call '{0}' on immutable variable (ReadOnlyMethodCall)</value>
   </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Argument Analysis</value>

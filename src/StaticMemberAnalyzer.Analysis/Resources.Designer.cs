@@ -746,7 +746,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Avoid accessing properties of immutable variables because their accessors can have side effects. に類似しているローカライズされた文字列を検索します。
+        ///   Avoid accessing properties of immutable variables. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0063_Description {
             get {
@@ -755,7 +755,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Property access &apos;{0}&apos; can change internal state (ReadOnlyProperty) に類似しているローカライズされた文字列を検索します。
+        ///   Property access '{0}' on immutable variable (ReadOnlyProperty) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0063_MessageFormat {
             get {
@@ -764,7 +764,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Property Access Can Change State に類似しているローカライズされた文字列を検索します。
+        ///   Property Access on Immutable Variable に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0063_Title {
             get {
@@ -773,7 +773,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Avoid calling non-readonly methods of immutable variables because they can change internal state. に類似しているローカライズされた文字列を検索します。
+        ///   Avoid calling methods of immutable variables. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0064_Description {
             get {
@@ -782,7 +782,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Method call &apos;{0}&apos; can change internal state (ReadOnlyMethodCall) に類似しているローカライズされた文字列を検索します。
+        ///   Method call '{0}' on immutable variable (ReadOnlyMethodCall) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0064_MessageFormat {
             get {
@@ -791,7 +791,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Method Call Can Change State に類似しているローカライズされた文字列を検索します。
+        ///   Method Call on Immutable Variable に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0064_Title {
             get {

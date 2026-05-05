@@ -351,7 +351,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadOnlyStructGetterOnlyPropertyArgument_IsAllowed()
+        public async Task ReadOnlyStructGetterOnlyPropertyArgument_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -369,13 +369,17 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.Prop);
+            Use({|#0:s.Prop|});
         }
     }
 }
 ";
 
-            await VerifyWithRuleEnabledAsync(test);
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(0)
+                .WithArguments("s.Prop");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
         }
 
         [TestMethod]
@@ -1017,7 +1021,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadOnlyMethodCallOnImmutableLocal_IsAllowed()
+        public async Task ReadOnlyMethodCallOnImmutableLocal_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1029,13 +1033,17 @@ namespace Test
         void M()
         {
             var foo = new S();
-            foo.Do();
+            {|#0:foo.Do()|};
         }
     }
 }
 ";
 
-            await VerifyWithRuleEnabledAsync(test);
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(0)
+                .WithArguments("foo.Do()");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
         }
 
         [TestMethod]
@@ -1064,7 +1072,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructReadOnlyGetterOnlyPropertyAccess_IsAllowed()
+        public async Task StructReadOnlyGetterOnlyPropertyAccess_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1082,13 +1090,17 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.Prop);
+            Use({|#0:s.Prop|});
         }
     }
 }
 ";
 
-            await VerifyWithRuleEnabledAsync(test);
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(0)
+                .WithArguments("s.Prop");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
         }
 
         [TestMethod]

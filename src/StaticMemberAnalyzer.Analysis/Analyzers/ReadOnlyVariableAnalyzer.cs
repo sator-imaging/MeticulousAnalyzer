@@ -194,11 +194,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (propRef.Property.GetMethod?.IsReadOnly == true)
-            {
-                return;
-            }
-
             if (TryGetRootLocalOrParameter(propRef, out var rootName, out _) && !HasMutableNamePrefix(rootName))
             {
                 var syntax = propRef.Syntax;
@@ -226,11 +221,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (IsInsideNestedBody(invocation))
-            {
-                return;
-            }
-
-            if (invocation.TargetMethod.IsReadOnly)
             {
                 return;
             }
