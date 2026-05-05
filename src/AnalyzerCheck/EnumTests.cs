@@ -237,4 +237,13 @@ internal class EnumTests
         _ = (T)(object)310;
         return (int)(object)value;
     }
+
+    void SuppressionComments()
+    {
+        // Allow enum conversion
+        var x1 = (EInt)1;
+
+        // allow enum conversion
+        var x2 = EInt.Value.ToString();
+    }
 }

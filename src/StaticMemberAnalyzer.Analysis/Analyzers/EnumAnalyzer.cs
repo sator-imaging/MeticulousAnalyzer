@@ -180,9 +180,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             var receiverType = op.TargetMethod.ReceiverType;
-            if (receiverType.SpecialType == SpecialType.System_Enum)
+            if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
                 if (op.TargetMethod.Name == "HasFlag")
+                    return;
+
+                if (IsSuppressed(op))
                     return;
 
                 //string??
@@ -278,6 +281,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
                 }
             }
+
+            if (IsSuppressed(op))
+                return;
 
             AnalyzeCast_Impl(context, op);
         }
@@ -626,7 +632,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_EnumLike, initializerStx.GetLocation(), entriesContainerSymbolName,
                 "'Entries' doesn't have all of 'public static readonly' field of type '" + entriesContainerSymbolName + "' in declared order"));
         }
-#endif
 
         private static bool IsReadOnlyMemory(ITypeSymbol memoryCandidateType,
                                              ITypeSymbol elementType
@@ -653,6 +658,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             return true;
         }
+#endif
 
 
         /*  enum declaration  ================================================================ */
@@ -759,6 +765,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  helper  ================================================================ */
+
+        private static bool IsSuppressed(IOperation op)
+        {
+            if (op.Parent is IVariableInitializerOperation initOp &&
+                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
+                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
+                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
+            {
+                return IsSuppressedByComment(localDecl);
+            }
+
+            return false;
+        }
+
+        private static bool IsSuppressedByComment(SyntaxNode? node)
+        {
+            const string SuppressionComment = "// Allow enum conversion";
+
+            if (node == null) return false;
+
+            var comment = node
+                .GetFirstToken()
+                .LeadingTrivia
+                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+
+            return comment != default
+                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsEnumDerivedType(ITypeSymbol symbol)
