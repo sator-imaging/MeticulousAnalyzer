@@ -1,5 +1,5 @@
 ﻿// Licensed under the MIT License
-// https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer
+// https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using System;
 using System.Collections.Generic;

@@ -9,7 +9,7 @@ See official manual for further information.
 
 # Latest Information
 
-https://github.com/sator-imaging/CSharp-StaticFieldAnalyzer
+https://github.com/sator-imaging/StaticMemberAnalyzer
 
 
 # License
