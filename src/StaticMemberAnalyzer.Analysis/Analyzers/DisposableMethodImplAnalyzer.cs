@@ -64,32 +64,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (disposableMembers.IsEmpty)
                 return;
 
-            var allMethods = typeSymbol.GetMembers().OfType<IMethodSymbol>();
+            var allMethods = typeSymbol.GetMembers().OfType<IMethodSymbol>().ToImmutableArray();
             var disposeMethods = allMethods.Where(IsDisposeImplementation).ToImmutableArray();
+
+            var location = typeSymbol.Locations[0];
+            if (typeSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is Microsoft.CodeAnalysis.CSharp.Syntax.TypeDeclarationSyntax typeDecl)
+            {
+                location = typeDecl.Identifier.GetLocation();
+            }
 
             if (disposeMethods.IsEmpty)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingDisposeImplementation, typeSymbol.Locations[0], typeSymbol.Name));
+                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingDisposeImplementation, location, typeSymbol.Name));
                 return;
             }
 
             // Find target method in order: Dispose(bool), Dispose(), then explicit IDisposable.Dispose
-            IMethodSymbol? targetMethod = null;
-
-            // 1. Check for Full Dispose Pattern (Dispose() calls Dispose(bool))
-            var publicDispose = disposeMethods.FirstOrDefault(m => m.Parameters.Length == 0 && m.DeclaredAccessibility == Accessibility.Public && !m.ExplicitInterfaceImplementations.Any());
-            if (publicDispose != null && IsFullDisposePattern(context.Compilation, publicDispose, out var disposeBoolMethod))
-            {
-                targetMethod = disposeBoolMethod;
-            }
-
-            // 2. Public Dispose()
+            IMethodSymbol? targetMethod = disposeMethods.FirstOrDefault(m => m.Parameters.Length == 1 && m.Parameters[0].Type.SpecialType == SpecialType.System_Boolean);
             if (targetMethod == null)
             {
-                targetMethod = publicDispose;
+                targetMethod = disposeMethods.FirstOrDefault(m => m.Parameters.Length == 0 && m.DeclaredAccessibility == Accessibility.Public && !m.ExplicitInterfaceImplementations.Any());
             }
-
-            // 3. Explicit interface implementation
             if (targetMethod == null)
             {
                 targetMethod = disposeMethods.FirstOrDefault(m => m.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName));
@@ -98,56 +93,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (targetMethod != null)
             {
                 var undisposed = GetUndisposedMembers(context.Compilation, targetMethod, disposableMembers);
-                ReportUndisposed(context, targetMethod, undisposed);
-            }
-        }
-
-        private static bool IsFullDisposePattern(Compilation compilation, IMethodSymbol disposeMethod, out IMethodSymbol? disposeBoolMethod)
-        {
-            disposeBoolMethod = null;
-            var typeSymbol = disposeMethod.ContainingType;
-
-            disposeBoolMethod = typeSymbol.GetMembers(DisposeMethodName).OfType<IMethodSymbol>()
-                .FirstOrDefault(m => m.Parameters.Length == 1 &&
-                                     m.Parameters[0].Type.SpecialType == SpecialType.System_Boolean &&
-                                     m.DeclaredAccessibility == Accessibility.Protected);
-
-            if (disposeBoolMethod == null) return false;
-
-            var gcType = compilation.GetTypeByMetadataName("System.GC");
-            if (gcType == null) return false;
-
-            foreach (var syntaxRef in disposeMethod.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                var model = compilation.GetSemanticModel(syntax.SyntaxTree);
-                var operation = model.GetOperation(syntax);
-                if (operation == null) continue;
-
-                foreach (var op in operation.Descendants().OfType<IInvocationOperation>())
+                if (undisposed.Any())
                 {
-                    if (op.TargetMethod.Name == "SuppressFinalize" &&
-                        SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, gcType))
-                    {
-                        return true;
-                    }
+                    var joinedNames = string.Join(", ", undisposed.Select(m => m.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, joinedNames));
                 }
-            }
-
-            return false;
-        }
-
-        private static void ReportUndisposed(SymbolAnalysisContext context, IMethodSymbol method, IEnumerable<ISymbol> undisposed)
-        {
-            var location = method.Locations[0];
-            if (method.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax methodDecl)
-            {
-                location = methodDecl.Identifier.GetLocation();
-            }
-
-            foreach (var member in undisposed)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
             }
         }
 

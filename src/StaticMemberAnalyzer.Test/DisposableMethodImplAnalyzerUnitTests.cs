@@ -21,10 +21,10 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class TestClass : IDisposable
+class {|#0:TestClass|} : IDisposable
 {
     private MyDisposable _field = new MyDisposable();
-    public void {|#0:Dispose|}()
+    public void Dispose()
     {
     }
 }";
@@ -61,10 +61,10 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class TestClass : IDisposable
+class {|#0:TestClass|} : IDisposable
 {
     public MyDisposable Prop { get; } = new MyDisposable();
-    public void {|#0:Dispose|}()
+    public void Dispose()
     {
     }
 }";
@@ -100,7 +100,7 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class TestClass : IDisposable
+class {|#0:TestClass|} : IDisposable
 {
     private MyDisposable _field = new MyDisposable();
 
@@ -110,7 +110,7 @@ class TestClass : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void {|#0:Dispose|}(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
     }
 }";
@@ -128,10 +128,10 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class TestClass : IDisposable
+class {|#0:TestClass|} : IDisposable
 {
     private MyDisposable _field = new MyDisposable();
-    void IDisposable.{|#0:Dispose|}()
+    void IDisposable.Dispose()
     {
     }
 }";
@@ -168,10 +168,10 @@ using System;
 
 class MyDisposable { public void Dispose() {} }
 
-class TestClass : IDisposable
+class {|#0:TestClass|} : IDisposable
 {
     private MyDisposable _field = new MyDisposable();
-    public void {|#0:Dispose|}()
+    public void Dispose()
     {
     }
 }";
@@ -189,10 +189,10 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class TestClass : IDisposable
+class {|#0:TestClass|} : IDisposable
 {
     public MyDisposable Prop => null;
-    public void {|#0:Dispose|}()
+    public void Dispose()
     {
     }
 }";
@@ -219,6 +219,28 @@ class TestClass : IDisposable
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_MultipleUndisposedMembers()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+class {|#0:TestClass|} : IDisposable
+{
+    private MyDisposable _field1 = new MyDisposable();
+    private MyDisposable _field2 = new MyDisposable();
+    public void Dispose()
+    {
+    }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(0)
+                .WithArguments("_field1, _field2");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }
