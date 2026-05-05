@@ -242,6 +242,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
                 return;
 
+            if (IsSuppressed(op))
+                return;
+
             var resultType = op.Type;
 
             if (IsEnumDerivedType(resultType)
@@ -768,12 +771,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressed(IOperation op)
         {
-            if (op.Parent is IVariableInitializerOperation initOp &&
-                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
-                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
-                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
+            IOperation? current = op.Parent;
+            while (current != null)
             {
-                return IsSuppressedByComment(localDecl);
+                if (current is IAssignmentOperation assignmentOp)
+                {
+                    if (assignmentOp.Target is IDiscardOperation)
+                    {
+                        return IsSuppressedByComment(assignmentOp.Syntax);
+                    }
+                    return false;
+                }
+
+                if (current is IVariableInitializerOperation ||
+                    current is IInterpolationOperation ||
+                    current is IInterpolatedStringOperation ||
+                    current is IConversionOperation)
+                {
+                    current = current.Parent;
+                    continue;
+                }
+
+                if (current is IVariableDeclaratorOperation declaratorOp &&
+                    declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
+                    declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
+                {
+                    return IsSuppressedByComment(localDecl);
+                }
+
+                break;
             }
 
             return false;
@@ -785,13 +811,64 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (node == null) return false;
 
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+            var firstToken = node.GetFirstToken();
+            var trivia = firstToken.LeadingTrivia;
 
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
+            int suppressionIndex = -1;
+            bool hasBlankLineBefore = false;
+
+            for (int i = 0; i < trivia.Count; i++)
+            {
+                var t = trivia[i];
+                if (t.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                {
+                    if (t.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase))
+                    {
+                        suppressionIndex = i;
+                        break;
+                    }
+                    return false;
+                }
+                if (t.IsKind(SyntaxKind.MultiLineCommentTrivia)) return false;
+                if (t.IsKind(SyntaxKind.EndOfLineTrivia)) hasBlankLineBefore = true;
+            }
+
+            if (suppressionIndex == -1) return false;
+
+            // Check for blank lines between comments.
+            for (int i = suppressionIndex + 1; i < trivia.Count; i++)
+            {
+                if (trivia[i].IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia[i].IsKind(SyntaxKind.MultiLineCommentTrivia))
+                {
+                    // Found another comment. Check if there was a blank line between suppressionIndex and here.
+                    for (int j = suppressionIndex + 1; j < i; j++)
+                    {
+                        if (trivia[j].IsKind(SyntaxKind.EndOfLineTrivia))
+                        {
+                            for (int k = j + 1; k < i; k++)
+                            {
+                                if (trivia[k].IsKind(SyntaxKind.EndOfLineTrivia)) return false;
+                                if (!trivia[k].IsKind(SyntaxKind.WhitespaceTrivia)) break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!hasBlankLineBefore)
+            {
+                var prevToken = firstToken.GetPreviousToken();
+                if (prevToken != default)
+                {
+                    foreach (var t in prevToken.TrailingTrivia)
+                    {
+                        if (t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia))
+                            return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
 

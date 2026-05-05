@@ -174,6 +174,23 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
+## 通过注释抑制
+
+在局部变量声明或弃元（discard）赋值的正上方添加以 `// Allow enum conversion`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+```cs
+// Allow enum conversion
+var x = (MyEnum)1;
+
+// Allow enum conversion because...
+// - 允许使用多个单行注释，但 '// Allow enum conversion' 必须是第一行。
+_ = (MyEnum)2;
+```
+
+> [!NOTE]
+> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
+
+
 ## 从混淆中排除 `Enum` 类型
 
 提供注解与代码修复，避免混淆工具修改 enum 的字符串表示。

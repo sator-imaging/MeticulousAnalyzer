@@ -367,7 +367,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestSuppression_NotWorkingOnDiscardAssignment()
+        public async Task TestSuppression_NotWorkingOnDiscardAssignment_WithoutComment()
         {
             var test = @"
 using System.Reflection;
@@ -380,7 +380,6 @@ namespace Test
     {
         public void Test()
         {
-            // Allow enum conversion
             _ = {|#0:(ETest)1|};
         }
     }
@@ -437,6 +436,106 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_NotSuppressedByPrecedingLineEndComment()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void DoSomething() {}
+        public void Test()
+        {
+            DoSomething();  // Allow enum conversion
+            var x = {|#0:(ETest)1|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_NotSuppressedByPrecedingLineEndComment_WithBlankLine()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void DoSomething() {}
+        public void Test()
+        {
+            DoSomething();  // Allow enum conversion
+
+            var x = {|#0:(ETest)1|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_NotSuppressedByComment_WhenBlankLineBetweenComments()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            // Blah blah blah
+
+            // Allow enum conversion
+            var x = {|#0:(ETest)1|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_WorkingOnDiscardAssignment()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            // Allow enum conversion
+            _ = (ETest)1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

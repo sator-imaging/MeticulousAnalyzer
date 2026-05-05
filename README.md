@@ -174,6 +174,23 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
+## Suppress by Comment
+
+Add a single-line comment starting with `// Allow enum conversion` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
+
+```cs
+// Allow enum conversion
+var x = (MyEnum)1;
+
+// Allow enum conversion because...
+// - Multiple single line comments are allowed but '// Allow enum conversion' must be the first.
+_ = (MyEnum)2;
+```
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+
+
 ## Excluding Enum Type from Obfuscation
 
 Helpful annotation and code fix for enum types which prevents modification of string representation by obfuscation tool.
