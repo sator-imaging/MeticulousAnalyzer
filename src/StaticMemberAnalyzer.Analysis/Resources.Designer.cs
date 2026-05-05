@@ -1059,5 +1059,59 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA0070_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   All disposable fields and auto-properties must be disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0043_Description {
+            get {
+                return ResourceManager.GetString("SMA0043_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   &apos;{0}&apos; is not disposed (UndisposedMember) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0043_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0043_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Undisposed Member に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0043_Title {
+            get {
+                return ResourceManager.GetString("SMA0043_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Types that own disposable fields or auto-properties should implement the IDisposable pattern. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0044_Description {
+            get {
+                return ResourceManager.GetString("SMA0044_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Type &apos;{0}&apos; has disposable members but does not implement Dispose method (MissingDisposeImplementation) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0044_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0044_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Missing Dispose Implementation に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0044_Title {
+            get {
+                return ResourceManager.GetString("SMA0044_Title", resourceCulture);
+            }
+        }
     }
 }

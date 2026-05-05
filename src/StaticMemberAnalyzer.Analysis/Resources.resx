@@ -499,4 +499,22 @@
   <data name="SMA0070_MessageFormat" xml:space="preserve">
     <value>Literal argument for parameter '{0}' should be passed as named argument (LiteralArgument)</value>
   </data>
+  <data name="SMA0043_Title" xml:space="preserve">
+    <value>Undisposed Member</value>
+  </data>
+  <data name="SMA0043_Description" xml:space="preserve">
+    <value>All disposable fields and auto-properties must be disposed in the Dispose method.</value>
+  </data>
+  <data name="SMA0043_MessageFormat" xml:space="preserve">
+    <value>'{0}' is not disposed (UndisposedMember)</value>
+  </data>
+  <data name="SMA0044_Title" xml:space="preserve">
+    <value>Missing Dispose Implementation</value>
+  </data>
+  <data name="SMA0044_Description" xml:space="preserve">
+    <value>Types that own disposable fields or auto-properties should implement the IDisposable pattern.</value>
+  </data>
+  <data name="SMA0044_MessageFormat" xml:space="preserve">
+    <value>Type '{0}' has disposable members but does not implement Dispose method (MissingDisposeImplementation)</value>
+  </data>
 </root>
