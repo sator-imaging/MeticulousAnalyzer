@@ -10,8 +10,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -78,12 +80,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
-            context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
-            context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
-            context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
-            context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
-            context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+#pragma warning disable RS1012
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
+#pragma warning restore RS1012
+        }
+
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+        {
+            if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue("dotnet_analyzer_diagnostic.category-ImmutableVariable.severity", out var severity) &&
+                !(string.IsNullOrEmpty(severity) ||
+                  string.Equals(severity, "none", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(severity, "silent", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(severity, "hidden", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(severity, "suppress", StringComparison.OrdinalIgnoreCase)))
+            {
+                context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+                context.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
+                context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
+                context.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
+                context.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
+                context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+            }
         }
 
         private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)

@@ -386,6 +386,8 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 > [*.cs]
 > dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
 > ```
+>
+> *注意：可能需要重启 IDE 才能使 `.editorconfig` 的修改生效。此外，由于性能原因，解析操作的注册（Registration）不支持针对单个规则的配置，请在 `.editorconfig` 中使用类别级别的严重程度（category-wide severity）配置。*
 
 <details>
 

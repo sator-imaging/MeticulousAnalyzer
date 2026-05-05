@@ -117,6 +117,9 @@ namespace Test
                 TestCode = source,
             };
 
+            test.TestState.AnalyzerConfigFiles.Add(
+                ("/.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
+
             test.SolutionTransforms.Add((solution, projectId) =>
             {
                 var project = solution.GetProject(projectId);
