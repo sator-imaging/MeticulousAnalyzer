@@ -179,9 +179,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation op)
                 return;
 
-            if (IsSuppressed(op))
-                return;
-
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType.SpecialType == SpecialType.System_Enum)
             {
@@ -191,11 +188,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 //string??
                 if (op.TargetMethod.ReturnType.SpecialType == SpecialType.System_String)
                 {
+                    if (IsSuppressed(op.Parent)) return;
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumToString, op.Syntax.GetLocation(), (op.Instance?.Type ?? receiverType).Name));
                 }
                 else
                 {
+                    if (IsSuppressed(op.Parent)) return;
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumMethod, op.Syntax.GetLocation()));
                 }
@@ -208,9 +207,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeObjectCreation(OperationAnalysisContext context)
         {
             var op = context.Operation;
-
-            if (IsSuppressed(op))
-                return;
 
             if (!IsEnumDerivedType(op.Type)
              && !(op.Type is ITypeParameterSymbol typeParam && HasEnumConstraint(typeParam)))
@@ -228,6 +224,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
+            if (IsSuppressed(op.Parent)) return;
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_CastToEnum, op.Syntax.GetLocation(), op.Type.Name));
         }
@@ -240,9 +237,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // NOTE: no conversion operation is reported by roslyn but cast happens internally
             //       --> $"value: {enumValue}"
 
-            if (IsSuppressed(context.Operation))
-                return;
-
             // NOTE: okay process only first child, expression inside interpolation will be processed by other analyzer
             //       --> $"value: {"" + enumVal + 0}"  // <-- checked by other analyzer code path
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
@@ -254,6 +248,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             || (resultType is ITypeParameterSymbol typeParamSymbol && HasEnumConstraint(typeParamSymbol))
             )
             {
+                if (IsSuppressed(context.Operation.Parent)) return;
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_EnumToString, context.Operation.Syntax.GetLocation(), resultType.Name));
             }
@@ -265,9 +260,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeCast(OperationAnalysisContext context)
         {
             if (context.Operation is not IConversionOperation op)
-                return;
-
-            if (IsSuppressed(op))
                 return;
 
             if (op.IsImplicit)
@@ -309,6 +301,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || (sourceType is ITypeParameterSymbol typeParamSymbol && HasEnumConstraint(typeParamSymbol))
                 )
                 {
+                    if (IsSuppressed(binaryOp.Parent)) return;
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumToString, binaryOp.Syntax.GetLocation(), sourceType.Name));
 
@@ -343,6 +336,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
                 }
 
+                if (IsSuppressed(castOp.Parent)) return;
                 context.ReportDiagnostic(Diagnostic.Create(
                     concreteDescriptor, castOp.Syntax.GetLocation(), symbol.Name));
             }
@@ -772,14 +766,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  helper  ================================================================ */
 
-        private static bool IsSuppressed(IOperation op)
+        private static bool IsSuppressed(IOperation? current)
         {
-            var current = op.Parent;
             if (current is IInterpolationOperation) current = current.Parent;
-            if (current is IInterpolatedStringOperation) current = current?.Parent;
-            if (current is IConversionOperation or IArgumentOperation) current = current?.Parent;
-            if (current is IAssignmentOperation) current = current?.Parent;
-            if (current is IVariableInitializerOperation) current = current?.Parent;
+            if (current is IInterpolatedStringOperation) current = current.Parent;
+            if (current is IConversionOperation or IArgumentOperation) current = current.Parent;
+
+            if (current is IAssignmentOperation) current = current.Parent;
+
+            if (current is IVariableInitializerOperation) current = current.Parent;
 
             if (current is IVariableDeclaratorOperation declarator)
             {
