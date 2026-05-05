@@ -774,20 +774,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressed(IOperation op)
         {
-            var node = op.Syntax;
-            while (node != null)
+            var current = op.Parent;
+            while (current is IConversionOperation or
+                             IArgumentOperation or
+                             IInterpolationOperation or
+                             IInterpolatedStringOperation or
+                             IVariableInitializerOperation or
+                             IAssignmentOperation or
+                             IParenthesizedOperation or
+                             ITupleOperation)
             {
-                if (node is LocalDeclarationStatementSyntax localDecl)
+                current = current.Parent;
+            }
+
+            if (current is IVariableDeclaratorOperation declarator)
+            {
+                if (declarator.Syntax?.Parent?.Parent is LocalDeclarationStatementSyntax localDecl)
                 {
                     return IsSuppressedByComment(localDecl);
                 }
-
-                if (node is StatementSyntax)
-                {
-                    return false;
-                }
-
-                node = node.Parent;
             }
 
             return false;
