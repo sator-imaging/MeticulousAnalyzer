@@ -73,26 +73,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (member is not IMethodSymbol method) continue;
 
-                if (method.Name == DisposeMethodName)
+                if (method.Name == DisposeMethodName && method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
                 {
-                    if (method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
-                    {
-                        targetMethod = method;
-                        break;
-                    }
-
-                    if (method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
-                    {
-                        publicDispose ??= method;
-                    }
+                    targetMethod = method;
+                    break;
                 }
 
-                if (method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                if (publicDispose == null && method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
                 {
-                    if (method.Parameters.Length == 0)
-                    {
-                        explicitDispose ??= method;
-                    }
+                    publicDispose = method;
+                }
+
+                if (explicitDispose == null && method.Parameters.Length == 0 && method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                {
+                    explicitDispose = method;
                 }
             }
 
@@ -139,37 +133,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 foreach (var op in operation.Descendants())
                 {
-                    if (op is IInvocationOperation invocation)
-                    {
-                        if (IsDisposeCall(invocation.TargetMethod))
-                        {
-                            var receiver = invocation.Instance;
-                            if (receiver is IConversionOperation conversion)
-                            {
-                                receiver = conversion.Operand;
-                            }
+                    var invocation = op as IInvocationOperation;
+                    var instance = invocation?.Instance;
 
-                            if (receiver is IMemberReferenceOperation memberRef)
-                            {
-                                undisposed.Remove(memberRef.Member);
-                            }
-                        }
+                    if (op is IConditionalAccessOperation conditional && conditional.WhenNotNull is IInvocationOperation condInv)
+                    {
+                        invocation = condInv;
+                        instance = conditional.Operation;
                     }
-                    else if (op is IConditionalAccessOperation conditionalAccess)
-                    {
-                        if (conditionalAccess.WhenNotNull is IInvocationOperation invocationOnNotNull &&
-                            IsDisposeCall(invocationOnNotNull.TargetMethod))
-                        {
-                            var receiver = conditionalAccess.Operation;
-                            if (receiver is IConversionOperation conversion)
-                            {
-                                receiver = conversion.Operand;
-                            }
 
-                            if (receiver is IMemberReferenceOperation memberRef)
-                            {
-                                undisposed.Remove(memberRef.Member);
-                            }
+                    if (invocation != null && IsDisposeCall(invocation.TargetMethod))
+                    {
+                        if (instance is IConversionOperation conversion)
+                        {
+                            instance = conversion.Operand;
+                        }
+
+                        if (instance is IMemberReferenceOperation memberRef)
+                        {
+                            undisposed.Remove(memberRef.Member);
                         }
                     }
                 }
