@@ -388,7 +388,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 > ```
 
 > [!NOTE]
-> ※ `.editorconfig` の変更を反映させるには IDE の再起動が必要な場合があります。
+> `.editorconfig` の変更を反映させるには IDE の再起動が必要な場合があります。
 
 <details>
 

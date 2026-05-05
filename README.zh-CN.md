@@ -388,7 +388,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 > ```
 
 > [!NOTE]
-> *注意：可能需要重启 IDE 才能使 `.editorconfig` 的修改生效。
+> 可能需要重启 IDE 才能使 `.editorconfig` 的修改生效。
 
 <details>
 
