@@ -333,9 +333,6 @@ namespace Test
 
             // allow enum conversion
             var x2 = ETest.Value.ToString();
-
-            // Allow enum conversion
-            var x3 = $""{ETest.Value}"";
         }
     }
 }
@@ -358,6 +355,7 @@ namespace Test
         public void Test()
         {
             ETest x;
+
             // Allow enum conversion
             x = {|#0:(ETest)1|};
         }

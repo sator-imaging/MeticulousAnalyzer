@@ -180,21 +180,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             var receiverType = op.TargetMethod.ReceiverType;
-            if (receiverType.SpecialType == SpecialType.System_Enum)
+            if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
                 if (op.TargetMethod.Name == "HasFlag")
+                    return;
+
+                if (IsSuppressed(op))
                     return;
 
                 //string??
                 if (op.TargetMethod.ReturnType.SpecialType == SpecialType.System_String)
                 {
-                    if (IsSuppressed(op.Parent)) return;
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumToString, op.Syntax.GetLocation(), (op.Instance?.Type ?? receiverType).Name));
                 }
                 else
                 {
-                    if (IsSuppressed(op.Parent)) return;
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumMethod, op.Syntax.GetLocation()));
                 }
@@ -224,7 +225,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (IsSuppressed(op.Parent)) return;
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_CastToEnum, op.Syntax.GetLocation(), op.Type.Name));
         }
@@ -248,7 +248,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             || (resultType is ITypeParameterSymbol typeParamSymbol && HasEnumConstraint(typeParamSymbol))
             )
             {
-                if (IsSuppressed(context.Operation.Parent)) return;
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_EnumToString, context.Operation.Syntax.GetLocation(), resultType.Name));
             }
@@ -283,6 +282,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
+            if (IsSuppressed(op))
+                return;
+
             AnalyzeCast_Impl(context, op);
         }
 
@@ -301,7 +303,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || (sourceType is ITypeParameterSymbol typeParamSymbol && HasEnumConstraint(typeParamSymbol))
                 )
                 {
-                    if (IsSuppressed(binaryOp.Parent)) return;
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumToString, binaryOp.Syntax.GetLocation(), sourceType.Name));
 
@@ -336,7 +337,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
                 }
 
-                if (IsSuppressed(castOp.Parent)) return;
                 context.ReportDiagnostic(Diagnostic.Create(
                     concreteDescriptor, castOp.Syntax.GetLocation(), symbol.Name));
             }
@@ -632,7 +632,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_EnumLike, initializerStx.GetLocation(), entriesContainerSymbolName,
                 "'Entries' doesn't have all of 'public static readonly' field of type '" + entriesContainerSymbolName + "' in declared order"));
         }
-#endif
 
         private static bool IsReadOnlyMemory(ITypeSymbol memoryCandidateType,
                                              ITypeSymbol elementType
@@ -659,6 +658,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             return true;
         }
+#endif
 
 
         /*  enum declaration  ================================================================ */
@@ -766,18 +766,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  helper  ================================================================ */
 
-        private static bool IsSuppressed(IOperation? current)
+        private static bool IsSuppressed(IOperation op)
         {
-            if (current is IAssignmentOperation assignment &&
-                assignment is IVariableDeclaratorOperation declarator &&
-                declarator.Syntax?.Parent?.Parent is LocalDeclarationStatementSyntax localDecl)
+            if (op.Parent is IVariableInitializerOperation initOp &&
+                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
+                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
+                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
             {
                 return IsSuppressedByComment(localDecl);
             }
 
             return false;
         }
-
 
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
