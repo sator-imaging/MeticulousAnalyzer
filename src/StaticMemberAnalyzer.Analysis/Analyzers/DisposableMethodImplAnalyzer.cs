@@ -222,8 +222,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsAsyncDisposable(INamedTypeSymbol symbol)
         {
-            return symbol.Name.Length == AsyncDisposableTypeName.Length &&
-                   symbol.Name == AsyncDisposableTypeName &&
+            return symbol.Name == AsyncDisposableTypeName &&
                    symbol.ContainingNamespace.Name == "System" &&
                    symbol.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
         }
