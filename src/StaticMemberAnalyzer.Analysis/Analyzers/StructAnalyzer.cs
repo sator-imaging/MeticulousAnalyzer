@@ -39,6 +39,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0031_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_ImplicitBoxing = "SMA0032";
+        private static readonly DiagnosticDescriptor Rule_ImplicitBoxing = new(
+            RuleId_ImplicitBoxing,
+            new LocalizableResourceString(nameof(Resources.SMA0032_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0032_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0032_Description), Resources.ResourceManager, typeof(Resources)));
+
 
         #endregion
 
@@ -49,7 +59,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Core.Rule_DebugWarn,
 #endif
             Rule_InvalidStructCtor,
-            Rule_InvalidReadOnlyField
+            Rule_InvalidReadOnlyField,
+            Rule_ImplicitBoxing
             );
 
 
@@ -65,6 +76,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeAnonymousConstructor, OperationKind.AnonymousObjectCreation);
 
             context.RegisterSymbolAction(AnalyzeMutableStructField, SymbolKind.Field);
+
+            context.RegisterOperationAction(AnalyzeImplicitBoxing, OperationKind.Conversion);
         }
 
 
@@ -145,5 +158,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_InvalidReadOnlyField, fieldSymbol.Locations[0], typeSymbol.Name));
         }
 
+
+        /*  implicit boxing  ================================================================ */
+
+        private static void AnalyzeImplicitBoxing(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IConversionOperation op)
+                return;
+
+            if (!op.IsImplicit || op.Type == null || op.Operand.Type == null)
+                return;
+
+            // Boxing conversion from value type to reference type (including interface)
+            if (op.Operand.Type.IsValueType && op.Type.IsReferenceType)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ImplicitBoxing, op.Syntax.GetLocation(),
+                    op.Operand.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                    op.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
+            }
+        }
     }
 }

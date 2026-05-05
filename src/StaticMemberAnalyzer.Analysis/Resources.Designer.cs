@@ -611,6 +611,33 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
+        ///   Implicit conversion from struct to reference type (including interface) causes boxing. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0032_Description {
+            get {
+                return ResourceManager.GetString("SMA0032_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit boxing conversion from &apos;{0}&apos; to &apos;{1}&apos; (ImplicitBoxing) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0032_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0032_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit Boxing Conversion に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0032_Title {
+            get {
+                return ResourceManager.GetString("SMA0032_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Disposable Analysis に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0040__MD_TITLE__ {

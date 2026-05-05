@@ -38,6 +38,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 |---------|--------------------------------------------|-------------
 | SMA0030 | Invalid Struct Constructor                 | Constructor has declared explicitly so should not use parameter-less one.
 | SMA0031 | Mutable Struct Field marked as Read-Only   | Mutable struct type should not be set to `readonly` field.
+| SMA0032 | Implicit Boxing Conversion                 | Implicit conversion from struct to reference type (including interface) causes boxing.
 
 ## Disposable Analysis
 | ID      | Diagnostic                                 | Description

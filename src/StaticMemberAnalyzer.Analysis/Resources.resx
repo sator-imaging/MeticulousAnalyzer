@@ -439,6 +439,15 @@
   <data name="SMA0031_Description" xml:space="preserve">
     <value>Mutable struct type should not be set to `readonly` field.</value>
   </data>
+  <data name="SMA0032_Title" xml:space="preserve">
+    <value>Implicit Boxing Conversion</value>
+  </data>
+  <data name="SMA0032_Description" xml:space="preserve">
+    <value>Implicit conversion from struct to reference type (including interface) causes boxing.</value>
+  </data>
+  <data name="SMA0032_MessageFormat" xml:space="preserve">
+    <value>Implicit boxing conversion from '{0}' to '{1}' (ImplicitBoxing)</value>
+  </data>
   <data name="SMA0042_Description" xml:space="preserve">
     <value>A locally declared disposable object must be returned on all code paths.</value>
   </data>

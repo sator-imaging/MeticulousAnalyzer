@@ -284,5 +284,117 @@ namespace Test
                 .WithArguments("MyMutableStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task ImplicitBoxing_AssignmentToObject_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            object value = {|#0:1|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
+                .WithLocation(0)
+                .WithArguments("int", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ImplicitBoxing_MethodArgument_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void Foo(object value) {}
+        void Method()
+        {
+            Foo({|#0:2|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
+                .WithLocation(0)
+                .WithArguments("int", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ImplicitBoxing_InterfaceArgument_ReportsDiagnostic()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    struct MyStructDisposable : IDisposable
+    {
+        public void Dispose() {}
+    }
+
+    class Program
+    {
+        void Bar(IDisposable d) {}
+        void Method()
+        {
+            var structDisposable = new MyStructDisposable();
+            Bar({|#0:structDisposable|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
+                .WithLocation(0)
+                .WithArguments("MyStructDisposable", "IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ImplicitBoxing_NullableIntToObject_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            int? i = 1;
+            object value = {|#0:i|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
+                .WithLocation(0)
+                .WithArguments("int?", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ExplicitBoxing_NoDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            object value = (object)1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
