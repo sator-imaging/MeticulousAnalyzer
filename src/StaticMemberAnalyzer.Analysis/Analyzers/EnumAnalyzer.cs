@@ -179,6 +179,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation op)
                 return;
 
+            if (IsSuppressed(op))
+                return;
+
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType.SpecialType == SpecialType.System_Enum)
             {
@@ -205,6 +208,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeObjectCreation(OperationAnalysisContext context)
         {
             var op = context.Operation;
+
+            if (IsSuppressed(op))
+                return;
 
             if (!IsEnumDerivedType(op.Type)
              && !(op.Type is ITypeParameterSymbol typeParam && HasEnumConstraint(typeParam)))
@@ -234,6 +240,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // NOTE: no conversion operation is reported by roslyn but cast happens internally
             //       --> $"value: {enumValue}"
 
+            if (IsSuppressed(context.Operation))
+                return;
+
             // NOTE: okay process only first child, expression inside interpolation will be processed by other analyzer
             //       --> $"value: {"" + enumVal + 0}"  // <-- checked by other analyzer code path
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
@@ -256,6 +265,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeCast(OperationAnalysisContext context)
         {
             if (context.Operation is not IConversionOperation op)
+                return;
+
+            if (IsSuppressed(op))
                 return;
 
             if (op.IsImplicit)
@@ -759,6 +771,44 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  helper  ================================================================ */
+
+        private static bool IsSuppressed(IOperation op)
+        {
+            var node = op.Syntax;
+            while (node != null)
+            {
+                if (node is LocalDeclarationStatementSyntax localDecl)
+                {
+                    return IsSuppressedByComment(localDecl);
+                }
+
+                if (node is StatementSyntax)
+                {
+                    return false;
+                }
+
+                node = node.Parent;
+            }
+
+            return false;
+        }
+
+
+        private static bool IsSuppressedByComment(SyntaxNode? node)
+        {
+            const string SuppressionComment = "// Allow enum conversion";
+
+            if (node == null) return false;
+
+            var comment = node
+                .GetFirstToken()
+                .LeadingTrivia
+                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+
+            return comment != default
+                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsEnumDerivedType(ITypeSymbol symbol)
