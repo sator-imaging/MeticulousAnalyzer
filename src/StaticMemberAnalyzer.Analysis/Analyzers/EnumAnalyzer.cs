@@ -775,17 +775,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsSuppressed(IOperation op)
         {
             var current = op.Parent;
-            while (current is IConversionOperation or
-                             IArgumentOperation or
-                             IInterpolationOperation or
-                             IInterpolatedStringOperation or
-                             IVariableInitializerOperation or
-                             IAssignmentOperation or
-                             IParenthesizedOperation or
-                             ITupleOperation)
-            {
-                current = current.Parent;
-            }
+            if (current is IInterpolationOperation) current = current.Parent;
+            if (current is IInterpolatedStringOperation) current = current?.Parent;
+            if (current is IConversionOperation or IArgumentOperation) current = current?.Parent;
+            if (current is IAssignmentOperation) current = current?.Parent;
+            if (current is IVariableInitializerOperation) current = current?.Parent;
 
             if (current is IVariableDeclaratorOperation declarator)
             {
