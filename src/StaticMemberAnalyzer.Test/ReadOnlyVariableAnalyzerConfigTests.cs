@@ -56,6 +56,38 @@ namespace Test
             await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error", expected);
         }
 
+        [TestMethod]
+        public async Task WhenConfigSeverityIsWarning_DiagnosticReported()
+        {
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+                .WithLocation(0)
+                .WithArguments("foo");
+
+            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning", expected);
+        }
+
+        [TestMethod]
+        public async Task WhenConfigSeverityIsSuggestion_DiagnosticReported()
+        {
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+                .WithLocation(0)
+                .WithArguments("foo");
+
+            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = suggestion", expected);
+        }
+
+        [TestMethod]
+        public async Task WhenConfigSeverityIsSilent_NoDiagnosticReported()
+        {
+            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = silent");
+        }
+
+        [TestMethod]
+        public async Task WhenConfigSeverityIsDefault_NoDiagnosticReported()
+        {
+            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = default");
+        }
+
         private static async Task VerifyWithSettingsAsync(string source, string configContent, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
             var test = new VerifyCS.Test
@@ -68,21 +100,6 @@ namespace Test
                 test.TestState.AnalyzerConfigFiles.Add(("/.globalconfig", configContent));
             }
 
-            test.SolutionTransforms.Add((solution, projectId) =>
-            {
-                var project = solution.GetProject(projectId);
-                var compilationOptions = project?.CompilationOptions;
-                if (compilationOptions == null)
-                    return solution;
-
-                // Force enable the rules in compilation options, but the analyzer itself should check for the config.
-                var specificOptions = compilationOptions.SpecificDiagnosticOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal,
-                    ReportDiagnostic.Error);
-
-                compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);
-                return solution.WithProjectCompilationOptions(projectId, compilationOptions);
-            });
 
             test.ExpectedDiagnostics.AddRange(expected);
             await test.RunAsync();
