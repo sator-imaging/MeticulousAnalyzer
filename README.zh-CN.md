@@ -182,7 +182,8 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 // Allow enum conversion
 var x1 = (ETest)1;
 
-// allow enum conversion
+// Allow enum conversion: because it is managed by external library.
+// - 允许使用多个单行注释，但 '// Allow enum conversion' 必须是第一行。
 var x2 = ETest.Value.ToString();
 
 // 以下代码不会被抑制，因为它不是第一个注释行。

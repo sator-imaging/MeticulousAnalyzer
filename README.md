@@ -182,7 +182,8 @@ Add a single-line comment starting with `// Allow enum conversion` (case-insensi
 // Allow enum conversion
 var x1 = (ETest)1;
 
-// allow enum conversion
+// Allow enum conversion: because it is managed by external library.
+// - Multiple single line comments are allowed but '// Allow enum conversion' must be the first.
 var x2 = ETest.Value.ToString();
 
 // The following WON'T suppress because it's not the first comment line.
