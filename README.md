@@ -174,6 +174,28 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
+## Suppress by Comment
+
+Add a single-line comment starting with `// Allow enum conversion` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
+
+```cs
+// Allow enum conversion
+var x1 = (ETest)1;
+
+// allow enum conversion
+var x2 = ETest.Value.ToString();
+
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
+
+// Allow enum conversion
+var x = (ETest)1;
+```
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations. Regular assignments and discard assignments to existing variables cannot be suppressed by comments.
+
+
 ## Excluding Enum Type from Obfuscation
 
 Helpful annotation and code fix for enum types which prevents modification of string representation by obfuscation tool.
