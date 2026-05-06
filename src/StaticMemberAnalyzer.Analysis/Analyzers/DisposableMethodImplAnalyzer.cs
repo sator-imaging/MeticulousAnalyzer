@@ -143,7 +143,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     var candidate = op;
                     if (candidate is IConditionalAccessOperation conditional)
                     {
-                        candidate = conditional.WhenNotNull;
+                        candidate = conditional.WhenNotNull ?? op;
                         instance = conditional.Operation;
                     }
 
