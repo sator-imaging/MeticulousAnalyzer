@@ -1088,7 +1088,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   All disposable fields and auto-properties must be disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
+        ///   All disposable fields must be disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0043_Description {
             get {

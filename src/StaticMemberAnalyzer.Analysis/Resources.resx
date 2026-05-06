@@ -512,7 +512,7 @@
     <value>Undisposed Member</value>
   </data>
   <data name="SMA0043_Description" xml:space="preserve">
-    <value>All disposable fields and auto-properties must be disposed in the Dispose method.</value>
+    <value>All disposable fields must be disposed in the Dispose method.</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
     <value>'{0}' is not disposed (UndisposedMember)</value>
