@@ -83,14 +83,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (publicDispose == null && method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
                 {
                     publicDispose = method;
+                    break;
                 }
 
                 if (explicitDispose == null && method.Parameters.Length == 0 && method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
                 {
                     explicitDispose = method;
+                    break;
                 }
-
-                if (publicDisposes != null && explicitDispose != null) break;
             }
 
             targetMethod ??= publicDispose ?? explicitDispose;
