@@ -84,7 +84,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (method.Name == DisposeMethodName)
                 {
-                    if (method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
+                    if (method.Parameters.Length == 1 &&
+                        method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
                     {
                         fullDisposeMethod = method;
                         break;
@@ -92,19 +93,26 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (publicDisposeMethod == null &&
                         method.Parameters.Length == 0 &&
-                        method.DeclaredAccessibility == Accessibility.Public)
+                        method.DeclaredAccessibility == Accessibility.Public &&
+                        method.ReturnType.SpecialType == SpecialType.System_Void)
                     {
                         publicDisposeMethod = method;
                     }
                 }
 
                 if (explicitImplMethod == null &&
-                    method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                    method.ExplicitInterfaceImplementations.Any(e =>
+                    {
+                        return e.ContainingType.SpecialType == SpecialType.System_IDisposable
+                            && e.Name == DisposeMethodName;
+                    }))
                 {
                     explicitImplMethod = method;
                 }
 
-                if (publicDisposeMethod != null && explicitImplMethod != null)
+                if (fullDisposeMethod != null &&
+                    publicDisposeMethod != null &&
+                    explicitImplMethod != null)
                 {
                     break;
                 }
@@ -152,7 +160,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                foreach (var op in operation.Descendants())
+                foreach (var op in operation.DescendantsAndSelf())
                 {
                     IOperation? instance = null;
 
