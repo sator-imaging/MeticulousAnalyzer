@@ -61,17 +61,14 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class {|#0:TestClass|} : IDisposable
+class TestClass : IDisposable
 {
     public MyDisposable Prop { get; } = new MyDisposable();
     public void Dispose()
     {
     }
 }";
-            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
-                .WithArguments("Prop");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -169,17 +166,14 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-class {|#0:TestClass|} : IDisposable
+class TestClass : IDisposable
 {
     public MyDisposable Prop => null;
     public void Dispose()
     {
     }
 }";
-            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
-                .WithArguments("Prop");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -196,6 +190,25 @@ class TestClass : IDisposable
     public void Dispose()
     {
         Prop?.Dispose();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_DisposedField_NullConditional()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+class TestClass : IDisposable
+{
+    private MyDisposable _field = new MyDisposable();
+    public void Dispose()
+    {
+        _field?.Dispose();
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);

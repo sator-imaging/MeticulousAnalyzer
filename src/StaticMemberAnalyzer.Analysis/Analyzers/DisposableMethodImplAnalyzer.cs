@@ -186,13 +186,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         yield return fieldSymbol;
                     }
                 }
-                else if (member is IPropertySymbol propertySymbol)
-                {
-                    if (IsDisposable(propertySymbol.Type))
-                    {
-                        yield return propertySymbol;
-                    }
-                }
             }
         }
 
