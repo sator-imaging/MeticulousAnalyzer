@@ -15,7 +15,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     public sealed class DisposableMethodImplAnalyzer : DiagnosticAnalyzer
     {
         public const string DisposeMethodName = "Dispose";
-        private const string AsyncDisposableTypeName = "IAsyncDisposable";
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -57,19 +56,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeNamedType(SymbolAnalysisContext context)
         {
             if (context.Symbol is not INamedTypeSymbol typeSymbol)
+            {
                 return;
+            }
 
             if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+            {
                 return;
+            }
 
             var disposableMembers = GetDisposableMembers(typeSymbol);
             if (!disposableMembers.Any())
+            {
                 return;
+            }
 
             IMethodSymbol? targetMethod = null;
             foreach (var member in typeSymbol.GetMembers())
             {
-                if (member is not IMethodSymbol method) continue;
+                if (member is not IMethodSymbol method)
+                {
+                    continue;
+                }
 
                 if (method.Name == DisposeMethodName)
                 {
@@ -130,12 +138,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var model = compilation.GetSemanticModel(syntax.SyntaxTree);
                 var operation = model.GetOperation(syntax);
 
-                if (operation == null) continue;
+                if (operation == null)
+                {
+                    continue;
+                }
 
                 foreach (var op in operation.Descendants())
                 {
                     IOperation? instance = null;
-                    
+
                     var candidate = op;
                     if (candidate is IConditionalAccessOperation conditional)
                     {
@@ -161,6 +172,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             undisposed.Remove(memberRef.Member);
                         }
                     }
+
+                    if (undisposed.Count == 0)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -177,7 +193,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var member in typeSymbol.GetMembers())
             {
-                if (member.IsStatic || member.IsImplicitlyDeclared) continue;
+                if (member.IsStatic || member.IsImplicitlyDeclared)
+                {
+                    continue;
+                }
 
                 if (member is IFieldSymbol fieldSymbol)
                 {
@@ -192,23 +211,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsDisposable(ITypeSymbol typeSymbol)
         {
             if (typeSymbol is not INamedTypeSymbol named)
+            {
                 return false;
+            }
 
-            // Check IDisposable or IAsyncDisposable
             if (named.SpecialType == SpecialType.System_IDisposable ||
-                named.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_IDisposable || IsAsyncDisposable(i)))
+                named.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_IDisposable))
             {
                 return true;
             }
 
             return false;
-        }
-
-        private static bool IsAsyncDisposable(INamedTypeSymbol symbol)
-        {
-            return symbol.Name == AsyncDisposableTypeName &&
-                   symbol.ContainingNamespace.Name == "System" &&
-                   symbol.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
         }
     }
 }
