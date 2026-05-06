@@ -100,12 +100,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
                 }
 
-                // Don't break if publicDispose found earlier. fullDispose is priority.
-                if (fullDisposeMethod != null && publicDisposeMethod != null)
-                {
-                    break;
-                }
-
                 if (explicitImplMethod == null &&
                     method.ExplicitInterfaceImplementations.Any(e =>
                     {
