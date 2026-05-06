@@ -46,6 +46,8 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0040 | Missing Using Statement                    | `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method.
 | SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.
 | SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths.
+| SMA0043 | Undisposed Member                          | All disposable fields and auto-properties must be disposed in the Dispose method.
+| SMA0044 | Missing Dispose Implementation             | Types that own disposable fields or auto-properties should implement the IDisposable pattern.
 
 ## File Structure Analysis
 | ID      | Diagnostic                                 | Description
@@ -59,6 +61,11 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0061 | Avoid Reassigning Parameters               | Avoid assignments to parameters unless the parameter is intentionally mutable.
 | SMA0062 | Avoid Passing Writable Variables to Calls  | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
 | SMA0063 | Property Access Can Change State           | Avoid passing properties to method/indexer calls as writable arguments because their accessors can have side effects.
+
+## Argument Analysis
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA0070 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
