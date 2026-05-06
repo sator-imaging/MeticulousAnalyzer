@@ -174,7 +174,7 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-## Suppress by Comment
+**Suppress by Comment**
 
 Add a single-line comment starting with `// Allow enum conversion` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
 
@@ -348,6 +348,32 @@ Analyzer won't show warning in the following condition:
 
 
 
+**Suppress by Comment**
+
+Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
+
+```cs
+// Don't dispose
+var d = new MyDisposable();
+
+// Don't dispose because it is managed by external library.
+// - Multiple single line comments are allowed but '// Don't dispose' must be the first.
+_ = new MyDisposable();
+
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
+
+// Don't dispose
+var d = new MyDisposable();
+```
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+>
+> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+
+
+
 ## Disposable Implementation Analysis
 
 Analyze if `IDisposable` members are correctly disposed of in the `Dispose` method.
@@ -376,32 +402,6 @@ class Test : IDisposable
     }
 }
 ```
-
-
-
-## Suppress by Comment
-
-Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
-
-```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// Don't dispose because it is managed by external library.
-// - Multiple single line comments are allowed but '// Don't dispose' must be the first.
-_ = new MyDisposable();
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// Don't dispose
-var d = new MyDisposable();
-```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
->
-> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
 
 
 
