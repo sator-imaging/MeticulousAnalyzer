@@ -348,6 +348,37 @@ d = (new object()) as IDisposable;
 
 
 
+## Disposable 実装の解析
+
+`IDisposable` のメンバーが `Dispose` メソッド内で正しく破棄されているかを解析します。
+
+- 対象となるメンバー
+    - インスタンスフィールド
+    - *注意*: プロパティおよび `IAsyncDisposable` はサポートされていません
+- 対象メソッドの検索順序
+    1. `void Dispose(bool)`
+    2. `public void Dispose()`
+    3. `IDisposable.Dispose` (明示的なインターフェース実装)
+
+### 修正方法
+
+警告が表示されているメンバーの `Dispose()` メソッドを、クラスの破棄メソッド内で呼び出します。
+
+```cs
+class Test : IDisposable
+{
+    private MyDisposable _field = new();
+//          ~~~~~~~~~~~~~~ 警告: 破棄されていないメンバー
+
+    public void Dispose()
+    {
+        _field.Dispose();  // OK: 正しく破棄されるようになりました
+    }
+}
+```
+
+
+
 ## コメントによる抑制
 
 ローカル変数の宣言または破棄（discard）代入の直前に `// Don't dispose` (大文字小文字は区别しないが空白文字は区別する) で始まる 1 行コメントを追加します。抑制コメントを検索する際、空白行は無視されます。

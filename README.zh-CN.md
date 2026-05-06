@@ -348,6 +348,37 @@ d = (new object()) as IDisposable;
 
 
 
+## Disposable 实现分析
+
+分析 `IDisposable` 成员是否在 `Dispose` 方法中被正确释放。
+
+- 目标成员类型
+    - 实例字段
+    - *注意*: 不支持属性和 `IAsyncDisposable`
+- 目标方法查找顺序
+    1. `void Dispose(bool)`
+    2. `public void Dispose()`
+    3. `IDisposable.Dispose` (显式接口实现)
+
+### 如何修复
+
+在类的释放方法中调用被报告成员的 `Dispose()` 方法。
+
+```cs
+class Test : IDisposable
+{
+    private MyDisposable _field = new();
+//          ~~~~~~~~~~~~~~ 警告: 未释放的成员
+
+    public void Dispose()
+    {
+        _field.Dispose();  // OK: 现在已正确释放
+    }
+}
+```
+
+
+
 ## 通过注释抑制
 
 在局部变量声明或弃元（discard）赋值的正上方添加以 `// Don't dispose`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
