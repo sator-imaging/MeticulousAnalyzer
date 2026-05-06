@@ -386,6 +386,9 @@ var d = new MyDisposable();
     2. `public void Dispose()`
     3. `IDisposable.Dispose` (明示的なインターフェース実装)
 
+> [!NOTE]
+> Disposable メンバーを持つ型は、`IDisposable` インターフェースを実装している必要があります。
+
 ### 修正方法
 
 警告が表示されているメンバーの `Dispose()` メソッドを、クラスの破棄メソッド内で呼び出します。

@@ -386,6 +386,9 @@ Analyze if `IDisposable` members are correctly disposed of in the `Dispose` meth
     2. `public void Dispose()`
     3. `IDisposable.Dispose` (explicit interface implementation)
 
+> [!NOTE]
+> Types with disposable members must also implement the `IDisposable` interface.
+
 ### How to Fix
 
 Call the `Dispose()` method of the reported member within the class's disposal method.
