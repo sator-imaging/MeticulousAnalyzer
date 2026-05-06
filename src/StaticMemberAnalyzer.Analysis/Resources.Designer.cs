@@ -1115,7 +1115,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Types that own disposable fields or auto-properties should implement the IDisposable pattern. に類似しているローカライズされた文字列を検索します。
+        ///   Types that own disposable fields should implement the IDisposable pattern. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0044_Description {
             get {
@@ -1142,7 +1142,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Types that own disposable fields or auto-properties should implement IDisposable interface. に類似しているローカライズされた文字列を検索します。
+        ///   Types that own disposable fields should implement IDisposable interface. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0045_Description {
             get {

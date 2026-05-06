@@ -521,7 +521,7 @@
     <value>Missing Dispose Implementation</value>
   </data>
   <data name="SMA0044_Description" xml:space="preserve">
-    <value>Types that own disposable fields or auto-properties should implement the IDisposable pattern.</value>
+    <value>Types that own disposable fields should implement the IDisposable pattern.</value>
   </data>
   <data name="SMA0044_MessageFormat" xml:space="preserve">
     <value>Type '{0}' has disposable members but does not implement Dispose method (MissingDisposeImplementation)</value>
@@ -530,7 +530,7 @@
     <value>Missing IDisposable Interface</value>
   </data>
   <data name="SMA0045_Description" xml:space="preserve">
-    <value>Types that own disposable fields or auto-properties should implement IDisposable interface.</value>
+    <value>Types that own disposable fields should implement IDisposable interface.</value>
   </data>
   <data name="SMA0045_MessageFormat" xml:space="preserve">
     <value>Type '{0}' has disposable members but does not implement IDisposable interface (MissingIDisposableInterface)</value>
