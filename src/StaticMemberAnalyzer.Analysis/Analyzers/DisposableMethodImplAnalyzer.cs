@@ -74,22 +74,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (member is not IMethodSymbol method) continue;
 
-                if (method.Name == DisposeMethodName && method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
+                if (method.Name == DisposeMethodName)
                 {
-                    targetMethod = method;
-                    break;
-                }
+                    if (method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
+                    {
+                        targetMethod = method;
+                        break;
+                    }
 
-                if (method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
-                {
-                    publicDispose = method;
-                    break;
-                }
+                    if (method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
+                    {
+                        publicDispose = method;
+                        break;
+                    }
 
-                if (method.Parameters.Length == 0 && method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
-                {
-                    explicitDispose = method;
-                    break;
+                    if (method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                    {
+                        explicitDispose = method;
+                        break;
+                    }
                 }
             }
 
