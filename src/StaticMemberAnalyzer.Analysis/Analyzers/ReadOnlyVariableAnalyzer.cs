@@ -189,11 +189,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (IsInsideNestedBody(propRef))
-            {
-                return;
-            }
-
             if (TryGetRootLocalOrParameter(propRef, out var rootName, out _) && !HasMutableNamePrefix(rootName))
             {
                 var syntax = propRef.Syntax;
@@ -216,11 +211,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
             if (context.Operation is not IInvocationOperation invocation)
-            {
-                return;
-            }
-
-            if (IsInsideNestedBody(invocation))
             {
                 return;
             }
@@ -535,46 +525,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static DiagnosticDescriptor GetDescriptor(bool isParameter)
         {
             return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
-        }
-
-        private static bool IsInsideNestedBody(IOperation operation)
-        {
-            var current = operation.Parent;
-            while (current != null)
-            {
-                // SimpleAssignment and other assignments are handled separately.
-                // If we are at 'foo.Prop = 1', it's ISimpleAssignmentOperation.
-                // Its Target is foo.Prop.
-                // We want to skip AnalyzePropertyReference for foo.Prop because it's reported by AnalyzeSimpleAssignment.
-
-                if (current is ISimpleAssignmentOperation simple && simple.Target == operation) return true;
-                if (current is ICompoundAssignmentOperation compound && compound.Target == operation) return true;
-                if (current is ICoalesceAssignmentOperation coalesce && coalesce.Target == operation) return true;
-                if (current is IIncrementOrDecrementOperation incDec && incDec.Target == operation) return true;
-                if (current is IDeconstructionAssignmentOperation decon && decon.Target == operation) return true;
-
-                if (current is IArgumentOperation argOp && argOp.Value == operation)
-                {
-                    // If it's an argument, AnalyzeArgument will handle it.
-                    // But AnalyzeArgument only reports SMA0062 (ReadOnlyArgument) or SMA0063 (if we didn't remove it).
-                    // We WANT SMA0063/SMA0064 to be reported for arguments too, but via their own analyzers.
-                    // So we should NOT return true here if we want general reporting.
-                    // HOWEVER, SMA0062 might ALSO be reported for the same thing if it's a ref type.
-                }
-
-                if (current is IPropertyReferenceOperation propParent && propParent.Instance == operation)
-                {
-                    return true;
-                }
-
-                if (current is IInvocationOperation invokeParent && invokeParent.Instance == operation)
-                {
-                    return true;
-                }
-
-                current = current.Parent;
-            }
-            return false;
         }
 
         private static bool IsAllowedArgumentValue(IOperation value)
