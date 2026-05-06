@@ -333,13 +333,13 @@
     <value>'Obfuscation' attribute should be added to prevent name changes (EnumObfuscation)</value>
   </data>
   <data name="SMA0026_Description" xml:space="preserve">
-    <value>Enum obfuscation should have controlled. You can suppress by adding preceding comment "// Allow enum conversion".</value>
+    <value>Enum obfuscation should have controlled.</value>
   </data>
   <data name="SMA0027_Title" xml:space="preserve">
     <value>Unusual Enum Definition</value>
   </data>
   <data name="SMA0027_Description" xml:space="preserve">
-    <value>Enum w/o `Flags` attribute should be defined as usual. You can suppress by adding preceding comment "// Allow enum conversion".</value>
+    <value>Enum w/o `Flags` attribute should be defined as usual.</value>
   </data>
   <data name="SMA0027_MessageFormat" xml:space="preserve">
     <value>Non-Flags enum type should have int-typed and no index initializer (UnusualEnum)</value>
@@ -387,7 +387,7 @@
     <value>'{0}' is assigned null without a preceding `.Dispose()` or `?.Dispose()` call (NullAssignmentToDisposable)</value>
   </data>
   <data name="SMA0041_Description" xml:space="preserve">
-    <value>Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call. You can suppress by adding preceding comment "// Don't dispose".</value>
+    <value>Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.</value>
   </data>
   <data name="SMA0050__MD_TITLE__" xml:space="preserve">
     <value>File Structure Analysis</value>
@@ -405,7 +405,7 @@
     <value>Invalid Enum-like Pattern</value>
   </data>
   <data name="SMA0028_Description" xml:space="preserve">
-    <value>Enum-like pattern implementation is not complete. You can suppress by adding preceding comment "// Allow enum conversion".</value>
+    <value>Enum-like pattern implementation is not complete.</value>
   </data>
   <data name="SMA0028_MessageFormat" xml:space="preserve">
     <value>Enum-like type '{0}' (EnumLike)
@@ -512,7 +512,7 @@
     <value>Undisposed Member</value>
   </data>
   <data name="SMA0043_Description" xml:space="preserve">
-    <value>All disposable fields and auto-properties must be disposed in the Dispose method. You can suppress by adding preceding comment "// Don't dispose".</value>
+    <value>All disposable fields and auto-properties must be disposed in the Dispose method.</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
     <value>'{0}' is not disposed (UndisposedMember)</value>
@@ -521,7 +521,7 @@
     <value>Missing Dispose Implementation</value>
   </data>
   <data name="SMA0044_Description" xml:space="preserve">
-    <value>Types that own disposable fields or auto-properties should implement the IDisposable pattern. You can suppress by adding preceding comment "// Don't dispose".</value>
+    <value>Types that own disposable fields or auto-properties should implement the IDisposable pattern.</value>
   </data>
   <data name="SMA0044_MessageFormat" xml:space="preserve">
     <value>Type '{0}' has disposable members but does not implement Dispose method (MissingDisposeImplementation)</value>

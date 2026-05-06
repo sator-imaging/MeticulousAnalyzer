@@ -29,9 +29,9 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0023 | Cast from Generic Enum Type to Other       | Casting generic enum type to other. You can suppress by adding preceding comment "// Allow enum conversion".
 | SMA0024 | Enum to String                             | Trying to convert enum value to string. You can suppress by adding preceding comment "// Allow enum conversion".
 | SMA0025 | Enum System Method                         | Calling enum system method. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0026 | Enum Obfuscation                           | Enum obfuscation should have controlled. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0027 | Unusual Enum Definition                    | Enum w/o `Flags` attribute should be defined as usual. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0028 | Invalid Enum-like Pattern                  | Enum-like pattern implementation is not complete. You can suppress by adding preceding comment "// Allow enum conversion".
+| SMA0026 | Enum Obfuscation                           | Enum obfuscation should have controlled.
+| SMA0027 | Unusual Enum Definition                    | Enum w/o `Flags` attribute should be defined as usual.
+| SMA0028 | Invalid Enum-like Pattern                  | Enum-like pattern implementation is not complete.
 
 ## Struct Analysis
 | ID      | Diagnostic                                 | Description
@@ -44,10 +44,10 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA0040 | Missing Using Statement                    | `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. You can suppress by adding preceding comment "// Don't dispose".
-| SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call. You can suppress by adding preceding comment "// Don't dispose".
+| SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.
 | SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths. You can suppress by adding preceding comment "// Don't dispose".
-| SMA0043 | Undisposed Member                          | All disposable fields and auto-properties must be disposed in the Dispose method. You can suppress by adding preceding comment "// Don't dispose".
-| SMA0044 | Missing Dispose Implementation             | Types that own disposable fields or auto-properties should implement the IDisposable pattern. You can suppress by adding preceding comment "// Don't dispose".
+| SMA0043 | Undisposed Member                          | All disposable fields and auto-properties must be disposed in the Dispose method.
+| SMA0044 | Missing Dispose Implementation             | Types that own disposable fields or auto-properties should implement the IDisposable pattern.
 
 ## File Structure Analysis
 | ID      | Diagnostic                                 | Description

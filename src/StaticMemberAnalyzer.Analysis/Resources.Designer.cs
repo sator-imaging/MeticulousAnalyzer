@@ -466,7 +466,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Enum obfuscation should have controlled. You can suppress by adding preceding comment "// Allow enum conversion". に類似しているローカライズされた文字列を検索します。
+        ///   Enum obfuscation should have controlled. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0026_Description {
             get {
@@ -493,7 +493,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Enum w/o `Flags` attribute should be defined as usual. You can suppress by adding preceding comment "// Allow enum conversion". に類似しているローカライズされた文字列を検索します。
+        ///   Enum w/o `Flags` attribute should be defined as usual. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0027_Description {
             get {
@@ -520,7 +520,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Enum-like pattern implementation is not complete. You can suppress by adding preceding comment "// Allow enum conversion". に類似しているローカライズされた文字列を検索します。
+        ///   Enum-like pattern implementation is not complete. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0028_Description {
             get {
@@ -674,7 +674,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Disposable object is assigned null without a preceding .Dispose() or ?.Dispose() call. You can suppress by adding preceding comment "// Don't dispose". に類似しているローカライズされた文字列を検索します。
+        ///   Disposable object is assigned null without a preceding .Dispose() or ?.Dispose() call. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0041_Description {
             get {
@@ -1088,7 +1088,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   All disposable fields and auto-properties must be disposed in the Dispose method. You can suppress by adding preceding comment "// Don't dispose". に類似しているローカライズされた文字列を検索します。
+        ///   All disposable fields and auto-properties must be disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0043_Description {
             get {
@@ -1115,7 +1115,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Types that own disposable fields or auto-properties should implement the IDisposable pattern. You can suppress by adding preceding comment "// Don't dispose". に類似しているローカライズされた文字列を検索します。
+        ///   Types that own disposable fields or auto-properties should implement the IDisposable pattern. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0044_Description {
             get {
