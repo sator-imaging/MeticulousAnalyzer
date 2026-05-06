@@ -58,7 +58,6 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0061 | Avoid Reassigning Parameters               | Avoid assignments to parameters unless the parameter is intentionally mutable.
 | SMA0062 | Avoid Passing Writable Variables to Calls  | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
 | SMA0063 | Property Access on Immutable Variable      | Avoid accessing properties of immutable variables.
-| SMA0064 | Method Call on Immutable Variable          | Avoid calling methods of immutable variables.
 
 ## Argument Analysis
 | ID      | Diagnostic                                 | Description

@@ -25,7 +25,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public const string RuleId_ReadOnlyParameter = "SMA0061";
         public const string RuleId_ReadOnlyArgument = "SMA0062";
         public const string RuleId_ReadOnlyPropertyArgument = "SMA0063";
-        public const string RuleId_ReadOnlyMethodCall = "SMA0064";
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyLocal = new(
             RuleId_ReadOnlyLocal,
@@ -63,15 +62,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString("SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
 
-        private static readonly DiagnosticDescriptor Rule_MethodCallCanChangeState = new(
-            RuleId_ReadOnlyMethodCall,
-            new LocalizableResourceString("SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString("SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            ImmutableCategory,
-            DiagnosticSeverity.Error,
-            isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString("SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
             Core.Rule_DebugError,
@@ -80,8 +70,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Rule_ReadOnlyLocal,
             Rule_ReadOnlyParameter,
             Rule_ReadOnlyArgument,
-            Rule_PropertyAccessCanChangeState,
-            Rule_MethodCallCanChangeState
+            Rule_PropertyAccessCanChangeState
             );
 
         public override void Initialize(AnalysisContext context)
@@ -108,7 +97,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
                     ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
                     ctx.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
-                    ctx.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
                 }
             });
         }
@@ -203,32 +191,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_PropertyAccessCanChangeState,
-                    location,
-                    syntax.ToString()));
-            }
-        }
-
-        private static void AnalyzeInvocation(OperationAnalysisContext context)
-        {
-            if (context.Operation is not IInvocationOperation invocation)
-            {
-                return;
-            }
-
-            if (TryGetRootLocalOrParameter(invocation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
-            {
-                var syntax = invocation.Syntax;
-                var location = syntax.GetLocation();
-
-                // Handle null-conditional access
-                if (invocation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == invocation)
-                {
-                    syntax = cao.Syntax;
-                    location = syntax.GetLocation();
-                }
-
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_MethodCallCanChangeState,
                     location,
                     syntax.ToString()));
             }
@@ -467,12 +429,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = parameterReference.Parameter.Name;
                     isParameter = true;
                     return true;
-                }
-
-                if (current is IInvocationOperation invocationOperation)
-                {
-                    current = invocationOperation.Instance;
-                    continue;
                 }
 
                 if (current is IPropertyReferenceOperation propertyReference)

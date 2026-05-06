@@ -487,15 +487,6 @@
   <data name="SMA0063_MessageFormat" xml:space="preserve">
     <value>Property access '{0}' on immutable variable (ReadOnlyProperty)</value>
   </data>
-  <data name="SMA0064_Title" xml:space="preserve">
-    <value>Method Call on Immutable Variable</value>
-  </data>
-  <data name="SMA0064_Description" xml:space="preserve">
-    <value>Avoid calling methods of immutable variables.</value>
-  </data>
-  <data name="SMA0064_MessageFormat" xml:space="preserve">
-    <value>Method call '{0}' on immutable variable (ReadOnlyMethodCall)</value>
-  </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Argument Analysis</value>
   </data>
