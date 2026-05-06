@@ -80,13 +80,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     break;
                 }
 
-                if (publicDispose == null && method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
+                if (method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
                 {
                     publicDispose = method;
                     break;
                 }
 
-                if (explicitDispose == null && method.Parameters.Length == 0 && method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                if (method.Parameters.Length == 0 && method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
                 {
                     explicitDispose = method;
                     break;
