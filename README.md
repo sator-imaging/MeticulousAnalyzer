@@ -382,7 +382,7 @@ Analyze if `IDisposable` members are correctly disposed of in the `Dispose` meth
     - Instance fields
     - *Note*: Properties and `IAsyncDisposable` are not supported
 - Target Method Discovery Order
-    1. `void Dispose(bool)`
+    1. `Dispose(bool)`
     2. `public void Dispose()`
     3. `IDisposable.Dispose` (explicit interface implementation)
 
@@ -394,7 +394,7 @@ Call the `Dispose()` method of the reported member within the class's disposal m
 class Test : IDisposable
 {
     private MyDisposable _field = new();
-//          ~~~~~~~~~~~~~~ WARN: undisposed member
+//          ~~~~~~~~~~~~ WARN: undisposed member
 
     public void Dispose()
     {

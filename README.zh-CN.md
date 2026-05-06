@@ -382,7 +382,7 @@ var d = new MyDisposable();
     - 实例字段
     - *注意*: 不支持属性和 `IAsyncDisposable`
 - 目标方法查找顺序
-    1. `void Dispose(bool)`
+    1. `Dispose(bool)`
     2. `public void Dispose()`
     3. `IDisposable.Dispose` (显式接口实现)
 
@@ -394,7 +394,7 @@ var d = new MyDisposable();
 class Test : IDisposable
 {
     private MyDisposable _field = new();
-//          ~~~~~~~~~~~~~~ 警告: 未释放的成员
+//          ~~~~~~~~~~~~ 警告: 未释放的成员
 
     public void Dispose()
     {

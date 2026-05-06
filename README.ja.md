@@ -382,7 +382,7 @@ var d = new MyDisposable();
     - インスタンスフィールド
     - *注意*: プロパティおよび `IAsyncDisposable` はサポートされていません
 - 対象メソッドの検索順序
-    1. `void Dispose(bool)`
+    1. `Dispose(bool)`
     2. `public void Dispose()`
     3. `IDisposable.Dispose` (明示的なインターフェース実装)
 
@@ -394,7 +394,7 @@ var d = new MyDisposable();
 class Test : IDisposable
 {
     private MyDisposable _field = new();
-//          ~~~~~~~~~~~~~~ 警告: 破棄されていないメンバー
+//          ~~~~~~~~~~~~ 警告: 破棄されていないメンバー
 
     public void Dispose()
     {
