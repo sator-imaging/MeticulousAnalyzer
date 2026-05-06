@@ -140,6 +140,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 foreach (var op in operation.Descendants())
                 {
                     IOperation? instance = null;
+                    
                     var candidate = op;
                     if (candidate is IConditionalAccessOperation conditional)
                     {
@@ -171,7 +172,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsDisposeCall(IMethodSymbol method)
         {
-            return method.Name == DisposeMethodName && method.Parameters.Length == 0 && method.ReturnType.SpecialType == SpecialType.System_Void;
+            return method.Name == DisposeMethodName
+                && method.Parameters.Length == 0
+                && method.ReturnType.SpecialType == SpecialType.System_Void;
         }
 
 
