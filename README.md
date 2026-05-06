@@ -348,6 +348,37 @@ Analyzer won't show warning in the following condition:
 
 
 
+## Disposable Implementation Analysis
+
+Analyze if `IDisposable` or `IAsyncDisposable` members are correctly disposed of in the `Dispose` method.
+
+- Target Member Types
+    - `private` and `protected` instance fields
+    - *Note*: Properties are not analyzed
+- Target Method Discovery Order
+    1. `void Dispose(bool)`
+    2. `public void Dispose()`
+    3. `IDisposable.Dispose` (explicit interface implementation)
+
+### How to Fix
+
+Call the `Dispose()` method of the reported member within the class's disposal method.
+
+```cs
+class Test : IDisposable
+{
+    private MyDisposable _field = new();
+//          ~~~~~~~~~~~~~~ WARN: undisposed member
+
+    public void Dispose()
+    {
+        _field.Dispose();  // OK: now correctly disposed
+    }
+}
+```
+
+
+
 ## Suppress by Comment
 
 Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
