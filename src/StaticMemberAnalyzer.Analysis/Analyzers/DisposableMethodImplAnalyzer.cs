@@ -139,10 +139,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 foreach (var op in operation.Descendants())
                 {
+                    IOperation? instance = null;
                     var candidate = op;
                     if (candidate is IConditionalAccessOperation conditional)
                     {
                         candidate = conditional.WhenNotNull;
+                        instance = conditional.Operation;
                     }
 
                     if (candidate is not IInvocationOperation invocation)
@@ -152,7 +154,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (IsDisposeCall(invocation.TargetMethod))
                     {
-                        var instance = conditional?.Operation ?? invocation.Instance;
+                        instance ??= invocation.Instance;
                         if (instance is IConversionOperation conversion)
                         {
                             instance = conversion.Operand;
