@@ -1140,5 +1140,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA0044_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Types that own disposable fields or auto-properties should implement IDisposable interface. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0045_Description {
+            get {
+                return ResourceManager.GetString("SMA0045_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Type &apos;{0}&apos; has disposable members but does not implement IDisposable interface (MissingIDisposableInterface) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0045_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0045_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Missing IDisposable Interface に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0045_Title {
+            get {
+                return ResourceManager.GetString("SMA0045_Title", resourceCulture);
+            }
+        }
     }
 }

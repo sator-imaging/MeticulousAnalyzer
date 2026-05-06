@@ -386,6 +386,9 @@ var d = new MyDisposable();
     2. `public void Dispose()`
     3. `IDisposable.Dispose` (显式接口实现)
 
+> [!NOTE]
+> 拥有可释放成员的类型必须实现 `IDisposable` 接口。
+
 ### 如何修复
 
 在类的释放方法中调用被报告成员的 `Dispose()` 方法。

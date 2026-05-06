@@ -38,11 +38,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0044_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_MissingIDisposableInterface = "SMA0045";
+        private static readonly DiagnosticDescriptor Rule_MissingIDisposableInterface = new(
+            RuleId_MissingIDisposableInterface,
+            new LocalizableResourceString(nameof(Resources.SMA0045_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0045_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0045_Description), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             Rule_UndisposedMember,
-            Rule_MissingDisposeImplementation
+            Rule_MissingDisposeImplementation,
+            Rule_MissingIDisposableInterface
         );
 
         public override void Initialize(AnalysisContext context)
@@ -109,6 +120,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     explicitImplMethod = method;
                 }
+            }
+
+            if (!typeSymbol.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_IDisposable))
+            {
+                Report(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.Name);
             }
 
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
