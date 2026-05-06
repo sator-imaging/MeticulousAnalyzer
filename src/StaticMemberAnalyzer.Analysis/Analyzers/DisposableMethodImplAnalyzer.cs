@@ -152,7 +152,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (IsDisposeCall(invocation.TargetMethod))
                     {
-                        var instance = invocation.Instance;
+                        var instance = conditional?.Operation ?? invocation.Instance;
                         if (instance is IConversionOperation conversion)
                         {
                             instance = conversion.Operand;
