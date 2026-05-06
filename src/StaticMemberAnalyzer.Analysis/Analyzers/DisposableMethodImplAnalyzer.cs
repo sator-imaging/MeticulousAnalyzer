@@ -67,9 +67,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             IMethodSymbol? targetMethod = null;
-            IMethodSymbol? publicDispose = null;
-            IMethodSymbol? explicitDispose = null;
-
             foreach (var member in typeSymbol.GetMembers())
             {
                 if (member is not IMethodSymbol method) continue;
@@ -84,19 +81,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
                     {
-                        publicDispose = method;
+                        targetMethod = method;
                         break;
                     }
 
                     if (method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
                     {
-                        explicitDispose = method;
+                        targetMethod = method;
                         break;
                     }
                 }
             }
-
-            targetMethod ??= publicDispose ?? explicitDispose;
 
             if (targetMethod == null)
             {
@@ -144,7 +139,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     var candidate = op;
                     if (candidate is IConditionalAccessOperation conditional)
                     {
-                        candidate = conditional.WhenNotNull ?? op;
+                        candidate = conditional.WhenNotNull;
                         instance = conditional.Operation;
                     }
 
