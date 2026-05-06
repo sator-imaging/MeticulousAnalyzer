@@ -461,6 +461,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
+                if (current is ILocalReferenceOperation || current is IParameterReferenceOperation || current is IInstanceReferenceOperation)
+                {
+                    return true;
+                }
+
                 if (current is IConversionOperation conversion)
                 {
                     current = conversion.Operand;
@@ -469,8 +474,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IInvocationOperation invocation)
                 {
-                    if (!invocation.TargetMethod.IsReadOnly)
+                    if (invocation.Instance != null && !invocation.TargetMethod.IsReadOnly)
                         return false;
+
+                    if (invocation.Instance == null)
+                        return true;
 
                     current = invocation.Instance;
                     continue;
@@ -478,8 +486,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IPropertyReferenceOperation propertyReference)
                 {
-                    if (propertyReference.Property.GetMethod?.IsReadOnly != true)
+                    var isReadOnly = propertyReference.Property.IsReadOnly && (propertyReference.Property.GetMethod?.IsReadOnly == true);
+                    if (propertyReference.Instance != null && !isReadOnly)
                         return false;
+
+                    if (propertyReference.Instance == null)
+                        return true;
 
                     current = propertyReference.Instance;
                     continue;
@@ -487,6 +499,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IFieldReferenceOperation fieldReference)
                 {
+                    if (fieldReference.Instance == null)
+                        return true;
+
                     current = fieldReference.Instance;
                     continue;
                 }
@@ -497,9 +512,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IConditionalAccessInstanceOperation)
+                if (current is IConditionalAccessInstanceOperation instanceOp)
                 {
-                    var parent = current.Parent;
+                    var parent = instanceOp.Parent;
                     while (parent != null && parent is not IConditionalAccessOperation)
                     {
                         parent = parent.Parent;
@@ -515,7 +530,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 break;
             }
 
-            return true;
+            return false;
         }
 
         private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
@@ -573,9 +588,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IConditionalAccessInstanceOperation)
+                if (current is IConditionalAccessInstanceOperation instanceOp)
                 {
-                    var parent = current.Parent;
+                    var parent = instanceOp.Parent;
                     while (parent != null && parent is not IConditionalAccessOperation)
                     {
                         parent = parent.Parent;

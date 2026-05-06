@@ -38,17 +38,30 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = {|#0:foo.MutableB.ReadOnlyProp|};
+            _ = foo.MutableB.ReadOnlyProp;
+            _ = foo.MutableB.ReadOnlyProp;
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
+            // Diagnostic is reported for both foo.MutableB (inner) and foo.MutableB.ReadOnlyProp (outer)
+            // on both lines because they are both property references that can change state.
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithSpan(21, 17, 21, 29)
+                .WithArguments("foo.MutableB");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithSpan(21, 17, 21, 42)
                 .WithArguments("foo.MutableB.ReadOnlyProp");
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithSpan(22, 17, 22, 29)
+                .WithArguments("foo.MutableB");
+            var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithSpan(22, 17, 22, 42)
+                .WithArguments("foo.MutableB.ReadOnlyProp");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -101,13 +114,13 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = {|#0:foo.ReadOnlyB.MutableProp|};
+            _ = foo.ReadOnlyB.MutableProp;
         }
     }
 }
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
+                .WithSpan(19, 17, 19, 42)
                 .WithArguments("foo.ReadOnlyB.MutableProp");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -134,13 +147,13 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = {|#0:foo.FieldB.MutableProp|};
+            _ = foo.FieldB.MutableProp;
         }
     }
 }
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
+                .WithSpan(19, 17, 19, 39)
                 .WithArguments("foo.FieldB.MutableProp");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -168,16 +181,27 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = {|#0:foo.GetB().ReadOnlyProp|};
+            _ = foo.GetB().ReadOnlyProp;
+            _ = foo.GetB().ReadOnlyProp;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithSpan(20, 17, 20, 27)
+                .WithArguments("foo.GetB()");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithSpan(20, 17, 20, 40)
                 .WithArguments("foo.GetB().ReadOnlyProp");
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithSpan(21, 17, 21, 27)
+                .WithArguments("foo.GetB()");
+            var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithSpan(21, 17, 21, 40)
+                .WithArguments("foo.GetB().ReadOnlyProp");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -209,6 +233,51 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+        [TestMethod]
+        public async Task ChainedAccess_ThroughThis_NoDiagnosticIfAllReadOnly()
+        {
+            var test = @"
+namespace Test
+{
+    struct B { public readonly int Prop => 1; }
+    struct Program
+    {
+        public readonly B ReadOnlyB => new B();
+        void M()
+        {
+            _ = this.ReadOnlyB.Prop;
+            _ = ReadOnlyB.Prop;
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task ChainedAccess_StaticMember_NoDiagnosticAtStartOfChain()
+        {
+            var test = @"
+namespace Test
+{
+    struct B { public int MutableProp { get; set; } }
+    class S
+    {
+        public static B StaticB => new B();
+    }
+    class Program
+    {
+        void M()
+        {
+            _ = S.StaticB.MutableProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
         private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
             var test = new VerifyCS.Test
@@ -217,7 +286,7 @@ namespace Test
             };
 
             test.TestState.AnalyzerConfigFiles.Add(
-                ("/.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
+                ("//.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
 
             test.SolutionTransforms.Add((solution, projectId) =>
             {
