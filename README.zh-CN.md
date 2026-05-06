@@ -174,6 +174,29 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
+## 通过注释抑制
+
+在局部变量声明的正上方添加以 `// Allow enum conversion`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+```cs
+// Allow enum conversion
+var x1 = (ETest)1;
+
+// Allow enum conversion: because it is managed by external library.
+// - 允许使用多个单行注释，但 '// Allow enum conversion' 必须是第一行。
+var x2 = ETest.Value.ToString();
+
+// 以下代码不会被抑制，因为它不是第一个注释行。
+// （搜索第一个注释时会忽略空白行）
+
+// Allow enum conversion
+var x = (ETest)1;
+```
+
+> [!NOTE]
+> 此抑制方式对局部变量的初始声明有效。对现有变量的常规赋值和弃元（discard）赋值无法通过注释来抑制。
+
+
 ## 从混淆中排除 `Enum` 类型
 
 提供注解与代码修复，避免混淆工具修改 enum 的字符串表示。
