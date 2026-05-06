@@ -65,13 +65,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var disposableMembers = GetDisposableMembers(typeSymbol);
-            if (!disposableMembers.Any())
+            var disposableMemberSet = GetDisposableMembers(typeSymbol);
+            if (disposableMemberSet == null)
             {
                 return;
             }
 
-            IMethodSymbol? targetMethod = null;
+            IMethodSymbol? fullDisposeMethod = null;
+            IMethodSymbol? publicDisposeMethod = null;
+            IMethodSymbol? explicitImplMethod = null;
+
             foreach (var member in typeSymbol.GetMembers())
             {
                 if (member is not IMethodSymbol method)
@@ -83,35 +86,41 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     if (method.Parameters.Length == 1 && method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
                     {
-                        targetMethod = method;
+                        fullDisposeMethod = method;
                         break;
                     }
 
-                    if (method.Parameters.Length == 0 && method.DeclaredAccessibility == Accessibility.Public)
+                    if (publicDisposeMethod == null &&
+                        method.Parameters.Length == 0 &&
+                        method.DeclaredAccessibility == Accessibility.Public)
                     {
-                        targetMethod = method;
-                        break;
+                        publicDisposeMethod = method;
                     }
                 }
 
-                if (method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
+                if (explicitImplMethod == null &&
+                    method.ExplicitInterfaceImplementations.Any(e => e.Name == DisposeMethodName))
                 {
-                    targetMethod = method;
+                    explicitImplMethod = method;
+                }
+
+                if (publicDisposeMethod != null && explicitImplMethod != null)
+                {
                     break;
                 }
             }
 
+            var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
                 Report(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.Name);
                 return;
             }
 
-            var undisposedSet = new HashSet<ISymbol>(disposableMembers, SymbolEqualityComparer.Default);
-            CollectUndisposedMembers(context.Compilation, targetMethod, undisposedSet);
-            if (undisposedSet.Count != 0)
+            AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
+            if (disposableMemberSet.Count != 0)
             {
-                var joinedNames = string.Join(", ", undisposedSet.Select(m => m.Name));
+                var joinedNames = string.Join(", ", disposableMemberSet.Select(m => m.Name));
                 Report(context, Rule_UndisposedMember, typeSymbol, joinedNames);
             }
         }
@@ -130,7 +139,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void CollectUndisposedMembers(Compilation compilation, IMethodSymbol method, HashSet<ISymbol> undisposed)
+        private static void AnalyzeAndUpdateDisposableMemberSet(Compilation compilation, IMethodSymbol method, HashSet<ISymbol> undisposed)
         {
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
@@ -175,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (undisposed.Count == 0)
                     {
-                        break;
+                        return;
                     }
                 }
             }
@@ -189,8 +198,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         }
 
 
-        private static IEnumerable<ISymbol> GetDisposableMembers(INamedTypeSymbol typeSymbol)
+        private static HashSet<ISymbol>? GetDisposableMembers(INamedTypeSymbol typeSymbol)
         {
+            HashSet<ISymbol>? result = null;
+
             foreach (var member in typeSymbol.GetMembers())
             {
                 if (member.IsStatic || member.IsImplicitlyDeclared)
@@ -202,10 +213,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     if (IsDisposable(fieldSymbol.Type))
                     {
-                        yield return fieldSymbol;
+                        result ??= new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+                        result.Add(fieldSymbol);
                     }
                 }
             }
+
+            return result;
         }
 
         private static bool IsDisposable(ITypeSymbol typeSymbol)
