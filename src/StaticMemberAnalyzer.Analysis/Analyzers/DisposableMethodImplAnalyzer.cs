@@ -89,6 +89,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     explicitDispose = method;
                 }
+
+                if (publicDisposes != null && explicitDispose != null) break;
             }
 
             targetMethod ??= publicDispose ?? explicitDispose;
