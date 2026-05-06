@@ -341,7 +341,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestSuppression_NotWorkingOnAssignment()
+        public async Task TestSuppression_IsWorkingOnAssignment()
         {
             var test = @"
 using System.Reflection;
@@ -357,17 +357,16 @@ namespace Test
             ETest x;
 
             // Allow enum conversion
-            x = {|#0:(ETest)1|};
+            x = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task TestSuppression_NotWorkingOnDiscardAssignment()
+        public async Task TestSuppression_IsWorkingOnDiscardAssignment()
         {
             var test = @"
 using System.Reflection;
@@ -381,13 +380,12 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            _ = {|#0:(ETest)1|};
+            _ = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

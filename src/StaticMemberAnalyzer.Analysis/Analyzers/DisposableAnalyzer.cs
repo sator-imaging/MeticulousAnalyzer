@@ -267,7 +267,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
 
                     // If we get here, no preceding dispose call was found. Report the diagnostic.
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignment, assignmentOp.Syntax.GetLocation(), targetTypeSymbol.Name));
+                    if (!IsSuppressedByComment(assignmentOp.Syntax.Parent))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignment, assignmentOp.Syntax.GetLocation(), targetTypeSymbol.Name));
+                    }
                 }
             }
         }

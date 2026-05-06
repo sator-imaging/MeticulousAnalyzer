@@ -215,6 +215,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (IsSuppressed(op))
+                return;
+
             if (op is IDefaultValueOperation)
             {
                 // method has default value of generic type arg T which has T : Enum constraint
@@ -240,6 +243,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // NOTE: okay process only first child, expression inside interpolation will be processed by other analyzer
             //       --> $"value: {"" + enumVal + 0}"  // <-- checked by other analyzer code path
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
+                return;
+
+            if (IsSuppressed(context.Operation))
                 return;
 
             var resultType = op.Type;
@@ -364,6 +370,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeEnumLikePattern(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not ClassDeclarationSyntax clsDeclStx)
+                return;
+
+            if (IsSuppressedByComment(clsDeclStx))
                 return;
 
             var model = context.SemanticModel;
@@ -668,6 +677,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Enum } namedSymbol)
                 return;
 
+            if (namedSymbol.DeclaringSyntaxReferences.Any(x => IsSuppressedByComment(x.GetSyntax())))
+                return;
+
             AnalyzeEnumDeclaration_Impl(context, namedSymbol);
         }
 
@@ -768,12 +780,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressed(IOperation op)
         {
-            if (op.Parent is IVariableInitializerOperation initOp &&
-                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
-                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
-                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
+            var syntax = op.Syntax;
+            while (syntax != null)
             {
-                return IsSuppressedByComment(localDecl);
+                if (syntax is StatementSyntax or MemberDeclarationSyntax)
+                {
+                    if (IsSuppressedByComment(syntax)) return true;
+                }
+                syntax = syntax.Parent;
             }
 
             return false;

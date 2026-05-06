@@ -23,15 +23,15 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Enum Type Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0020 | Unchecked Cast to Enum Type                | Unchecked value conversion to enum type.
-| SMA0021 | Cast from Enum Type to Other               | Casting enum type to other.
-| SMA0022 | Unchecked Cast to Generic Enum Type        | Unchecked value conversion to generic enum type.
-| SMA0023 | Cast from Generic Enum Type to Other       | Casting generic enum type to other.
-| SMA0024 | Enum to String                             | Trying to convert enum value to string.
-| SMA0025 | Enum System Method                         | Calling enum system method.
-| SMA0026 | Enum Obfuscation                           | Enum obfuscation should have controlled.
-| SMA0027 | Unusual Enum Definition                    | Enum w/o `Flags` attribute should be defined as usual.
-| SMA0028 | Invalid Enum-like Pattern                  | Enum-like pattern implementation is not complete.
+| SMA0020 | Unchecked Cast to Enum Type                | Unchecked value conversion to enum type. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0021 | Cast from Enum Type to Other               | Casting enum type to other. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0022 | Unchecked Cast to Generic Enum Type        | Unchecked value conversion to generic enum type. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0023 | Cast from Generic Enum Type to Other       | Casting generic enum type to other. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0024 | Enum to String                             | Trying to convert enum value to string. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0025 | Enum System Method                         | Calling enum system method. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0026 | Enum Obfuscation                           | Enum obfuscation should have controlled. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0027 | Unusual Enum Definition                    | Enum w/o `Flags` attribute should be defined as usual. You can suppress this by adding preceding comment "// Allow enum conversion".
+| SMA0028 | Invalid Enum-like Pattern                  | Enum-like pattern implementation is not complete. You can suppress this by adding preceding comment "// Allow enum conversion".
 
 ## Struct Analysis
 | ID      | Diagnostic                                 | Description
@@ -43,9 +43,9 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Disposable Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0040 | Missing Using Statement                    | `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method.
-| SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.
-| SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths.
+| SMA0040 | Missing Using Statement                    | `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. You can suppress this by adding preceding comment "// Don't dispose".
+| SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call. You can suppress this by adding preceding comment "// Don't dispose".
+| SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths. You can suppress this by adding preceding comment "// Don't dispose".
 
 ## File Structure Analysis
 | ID      | Diagnostic                                 | Description
@@ -59,6 +59,11 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0061 | Avoid Reassigning Parameters               | Avoid assignments to parameters unless the parameter is intentionally mutable.
 | SMA0062 | Avoid Passing Writable Variables to Calls  | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
 | SMA0063 | Property Access Can Change State           | Avoid passing properties to method/indexer calls as writable arguments because their accessors can have side effects.
+
+## Argument Analysis
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA0070 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
