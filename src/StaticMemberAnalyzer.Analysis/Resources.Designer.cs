@@ -772,6 +772,33 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
             }
         }
 
+        /// <summary>
+        ///   Avoid calling methods of immutable variables. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0064_Description {
+            get {
+                return ResourceManager.GetString("SMA0064_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Method call '{0}' on immutable variable (ReadOnlyMethodCall) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0064_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0064_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Method Call on Immutable Variable に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0064_Title {
+            get {
+                return ResourceManager.GetString("SMA0064_Title", resourceCulture);
+            }
+        }
+
 
 
 
