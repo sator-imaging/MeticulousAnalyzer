@@ -350,11 +350,11 @@ Analyzer won't show warning in the following condition:
 
 ## Disposable Implementation Analysis
 
-Analyze if `IDisposable` or `IAsyncDisposable` members are correctly disposed of in the `Dispose` method.
+Analyze if `IDisposable` members are correctly disposed of in the `Dispose` method.
 
 - Target Member Types
-    - `private` and `protected` instance fields
-    - *Note*: Properties are not analyzed
+    - Instance fields
+    - *Note*: Properties and `IAsyncDisposable` are not supported
 - Target Method Discovery Order
     1. `void Dispose(bool)`
     2. `public void Dispose()`

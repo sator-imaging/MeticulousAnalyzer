@@ -350,11 +350,11 @@ d = (new object()) as IDisposable;
 
 ## Disposable 実装の解析
 
-`IDisposable` または `IAsyncDisposable` のメンバーが `Dispose` メソッド内で正しく破棄されているかを解析します。
+`IDisposable` のメンバーが `Dispose` メソッド内で正しく破棄されているかを解析します。
 
 - 対象となるメンバー
-    - `private` および `protected` インスタンスフィールド
-    - *注意*: プロパティは解析されません
+    - インスタンスフィールド
+    - *注意*: プロパティおよび `IAsyncDisposable` はサポートされていません
 - 対象メソッドの検索順序
     1. `void Dispose(bool)`
     2. `public void Dispose()`

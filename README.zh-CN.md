@@ -350,11 +350,11 @@ d = (new object()) as IDisposable;
 
 ## Disposable 实现分析
 
-分析 `IDisposable` 或 `IAsyncDisposable` 成员是否在 `Dispose` 方法中被正确释放。
+分析 `IDisposable` 成员是否在 `Dispose` 方法中被正确释放。
 
 - 目标成员类型
-    - `private` 和 `protected` 实例字段
-    - *注意*: 不分析属性
+    - 实例字段
+    - *注意*: 不支持属性和 `IAsyncDisposable`
 - 目标方法查找顺序
     1. `void Dispose(bool)`
     2. `public void Dispose()`
