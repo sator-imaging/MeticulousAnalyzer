@@ -773,6 +773,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
 
+
+
         /// <summary>
         ///   &apos;{0}&apos; is assigned null without a preceding .Dispose() or ?.Dispose() call (NullAssignmentToDisposable) に類似しているローカライズされた文字列を検索します。
         /// </summary>

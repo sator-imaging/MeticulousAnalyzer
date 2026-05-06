@@ -1700,7 +1700,6 @@ namespace Test
         }
 
 
-
         private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
             var test = new VerifyCS.Test
@@ -1730,6 +1729,7 @@ namespace Test
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
                     ReportDiagnostic.Error);
+
                 compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);
                 return solution.WithProjectCompilationOptions(projectId, compilationOptions);
             });
