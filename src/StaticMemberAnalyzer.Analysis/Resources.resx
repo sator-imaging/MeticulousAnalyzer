@@ -276,13 +276,13 @@
     <value>Unchecked Cast to Enum Type</value>
   </data>
   <data name="SMA0020_Description" xml:space="preserve">
-    <value>Unchecked value conversion to enum type.</value>
+    <value>Unchecked value conversion to enum type. You can suppress by adding preceding comment "// Allow enum conversion".</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
     <value>Unchecked value of '{0}' (CastToEnum)</value>
   </data>
   <data name="SMA0021_Description" xml:space="preserve">
-    <value>Casting enum type to other.</value>
+    <value>Casting enum type to other. You can suppress by adding preceding comment "// Allow enum conversion".</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
@@ -294,7 +294,7 @@
     <value>Unchecked Cast to Generic Enum Type</value>
   </data>
   <data name="SMA0022_Description" xml:space="preserve">
-    <value>Unchecked value conversion to generic enum type.</value>
+    <value>Unchecked value conversion to generic enum type. You can suppress by adding preceding comment "// Allow enum conversion".</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
     <value>Unchecked value of '{0}' (CastToGenericEnum)</value>
@@ -303,7 +303,7 @@
     <value>Cast from Generic Enum Type to Other</value>
   </data>
   <data name="SMA0023_Description" xml:space="preserve">
-    <value>Casting generic enum type to other.</value>
+    <value>Casting generic enum type to other. You can suppress by adding preceding comment "// Allow enum conversion".</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
     <value>Conversion of '{0}' (CastFromGenericEnum)</value>
@@ -312,7 +312,7 @@
     <value>Enum to String</value>
   </data>
   <data name="SMA0024_Description" xml:space="preserve">
-    <value>Trying to convert enum value to string.</value>
+    <value>Trying to convert enum value to string. You can suppress by adding preceding comment "// Allow enum conversion".</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
     <value>String representation of '{0}' may be changed by obfuscation tool (EnumToString)</value>
@@ -321,7 +321,7 @@
     <value>Enum System Method</value>
   </data>
   <data name="SMA0025_Description" xml:space="preserve">
-    <value>Calling enum system method.</value>
+    <value>Calling enum system method. You can suppress by adding preceding comment "// Allow enum conversion".</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
     <value>Enum handling should be encapsulated in utility class (EnumMethod)</value>
@@ -378,7 +378,7 @@
     <value>'{0}' has 'IDisposable' pattern implemented (MissingUsing)</value>
   </data>
   <data name="SMA0040_Description" xml:space="preserve">
-    <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method.</value>
+    <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. You can suppress by adding preceding comment "// Don't dispose".</value>
   </data>
   <data name="SMA0041_Title" xml:space="preserve">
     <value>Null Assignment to Disposable</value>
@@ -449,7 +449,7 @@
     <value>Implicit boxing conversion from '{0}' to '{1}' (ImplicitBoxing)</value>
   </data>
   <data name="SMA0042_Description" xml:space="preserve">
-    <value>A locally declared disposable object must be returned on all code paths.</value>
+    <value>A locally declared disposable object must be returned on all code paths. You can suppress by adding preceding comment "// Don't dispose".</value>
   </data>
   <data name="SMA0042_MessageFormat" xml:space="preserve">
     <value>'{0}' is not returned on all code paths (NotAllCodePathsReturn)</value>
