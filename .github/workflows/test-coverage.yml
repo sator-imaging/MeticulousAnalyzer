@@ -5,9 +5,9 @@ on:
   pull_request:
 
 env:
-  TEST_PROJECT: ./src/StaticMemberAnalyzer.Test
-  TEST_OUTPUT: ./TestResults
-  COV_OUTDIR: ./coveragereport
+  TEST_PROJECT: src/StaticMemberAnalyzer.Test
+  TEST_OUTPUT: TestResults
+  REPORT_OUTPUT: CoverageReport
 
 jobs:
   coverage:
@@ -15,32 +15,53 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Required for worktree
+          path: current
+
+      - if: github.ref != 'refs/heads/main'
+        run: |
+          cd current
+          git fetch origin main
+          git worktree add ../baseline origin/main
+
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
 
-      - run: dotnet restore $TEST_PROJECT
-
       - name: Test with coverage
         run: |
-          dotnet add $TEST_PROJECT package coverlet.collector
+          set -e
 
-          dotnet test $TEST_PROJECT \
-            --collect:"XPlat Code Coverage" \
-            --results-directory $TEST_PROJECT
+          for dir in current baseline; do
+            if [ -d "$dir" ]; then
+              dotnet restore "$dir/$TEST_PROJECT"
+              dotnet add "$dir/$TEST_PROJECT" package coverlet.collector
+
+              dotnet test "$dir/$TEST_PROJECT" \
+                --collect:"XPlat Code Coverage" \
+                --results-directory "$dir/$TEST_OUTPUT"
+            fi
+          done
 
       - name: Generate coverage report
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
 
+          reportDir="$TEST_OUTPUT/**/coverage.cobertura.xml"
+          reportTypes="Html;MarkdownSummary;MarkdownSummaryGithub"
+
+          if [ -d baseline ]; then
+            reportgenerator \
+              -reporttypes:"$reportTypes" \
+              -reports:"current/$reportDir" \
+              -historydir:"baseline/$reportDir" \
+              -targetdir:"$REPORT_OUTPUT/diff"
+            cat "$REPORT_OUTPUT/diff/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
+          fi
+
           reportgenerator \
-            -reports:"$TEST_PROJECT/**/coverage.cobertura.xml" \
-            -targetdir:"$COV_OUTDIR" \
-            -reporttypes:"Html;MarkdownSummaryGithub"
-
-      - run: cat "$COV_OUTDIR/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
-
-      #- uses: actions/upload-artifact@v7
-      #  with:
-      #    name: coverage-report
-      #    path: ${{ env.COV_OUTDIR }}
+            -reporttypes:"$reportTypes" \
+            -reports:"current/$reportDir" \
+            -targetdir:"$REPORT_OUTPUT/full"
+          cat "$REPORT_OUTPUT/full/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
