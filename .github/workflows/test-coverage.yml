@@ -38,7 +38,7 @@ jobs:
             -targetdir:"$COV_OUTDIR" \
             -reporttypes:"Html;MarkdownSummaryGithub"
 
-      - run: cat "$COV_OUTDIR/Summary.md" >> $GITHUB_STEP_SUMMARY
+      - run: cat "$COV_OUTDIR/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
 
       #- uses: actions/upload-artifact@v7
       #  with:
