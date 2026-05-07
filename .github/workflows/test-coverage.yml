@@ -58,6 +58,7 @@ jobs:
             reportgenerator \
               -reporttypes:"$reportTypes" \
               -reports:"current/$reportDir" \
+              -title:"📊 PR Changes" \
               -historydir:"baseline/$reportDir" \
               -targetdir:"$REPORT_OUTPUT/diff"
             cat "$REPORT_OUTPUT/diff/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
@@ -66,5 +67,6 @@ jobs:
           reportgenerator \
             -reporttypes:"$reportTypes" \
             -reports:"current/$reportDir" \
+            -title:"📊 Coverage Report" \
             -targetdir:"$REPORT_OUTPUT/full"
           cat "$REPORT_OUTPUT/full/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
