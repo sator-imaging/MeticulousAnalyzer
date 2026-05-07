@@ -475,8 +475,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IInvocationOperation invocation)
                 {
-                    if (invocation.Instance == null ||
-                        !invocation.TargetMethod.IsReadOnly)
+                    // Static method can change state. Only allow readonly method.
+                    if (!invocation.TargetMethod.IsReadOnly)
                     {
                         return false;
                     }
@@ -487,12 +487,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IPropertyReferenceOperation propertyReference)
                 {
-                    if (propertyReference.Instance == null ||
-                        !(
+                    // 1. No-getter property can only be valid on the left side of assignment
+                    //    and also it's not able to be middle of the chain.
+                    // 2. Assignment is analyzed by other method.
+                    if (!(
                             propertyReference.Property.IsReadOnly ||
-                            // 1. No-getter property can only be valid on the left side of assignment
-                            //    and also it's not able to be middle of the chain.
-                            // 2. Assignment is analyzed by other method.
                             propertyReference.Property.GetMethod?.IsReadOnly != false
                         ))
                     {
@@ -509,11 +508,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     // Mutated: FieldB only
                     // --> Assignment is analyzed by other method.
                     //     Ok to ignore field reference completely.
-                    if (fieldReference.Instance == null)
-                    {
-                        return false;
-                    }
-
                     current = fieldReference.Instance;
                     continue;
                 }
@@ -620,7 +614,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             name = string.Empty;
             isParameter = false;
-            return false;
+
+            // Even if receiver is not found, or this/base is omitted, it can mutate the state.
+            // Don't need to check field access. Assignment is checked by other method.
+            return operation
+                is IPropertyReferenceOperation
+                or IInvocationOperation;
         }
 
         private static DiagnosticDescriptor GetDescriptor(bool isParameter)
