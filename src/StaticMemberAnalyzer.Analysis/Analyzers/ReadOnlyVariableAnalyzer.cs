@@ -474,11 +474,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IInvocationOperation invocation)
                 {
-                    if (invocation.Instance != null && !invocation.TargetMethod.IsReadOnly)
+                    if (invocation.Instance == null || !invocation.TargetMethod.IsReadOnly)
                         return false;
-
-                    if (invocation.Instance == null)
-                        return true;
 
                     current = invocation.Instance;
                     continue;
@@ -487,11 +484,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (current is IPropertyReferenceOperation propertyReference)
                 {
                     var isReadOnly = propertyReference.Property.IsReadOnly && (propertyReference.Property.GetMethod?.IsReadOnly == true);
-                    if (propertyReference.Instance != null && !isReadOnly)
+                    if (propertyReference.Instance == null || !isReadOnly)
                         return false;
-
-                    if (propertyReference.Instance == null)
-                        return true;
 
                     current = propertyReference.Instance;
                     continue;
@@ -500,7 +494,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (current is IFieldReferenceOperation fieldReference)
                 {
                     if (fieldReference.Instance == null)
-                        return true;
+                        return false;
 
                     current = fieldReference.Instance;
                     continue;
