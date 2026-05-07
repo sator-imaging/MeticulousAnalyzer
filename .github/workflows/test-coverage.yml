@@ -36,7 +36,8 @@ jobs:
         run: |
           set -e
 
-          for dir in current baseline; do
+          # Create baseline report first
+          for dir in baseline current; do
             if [ -d "$dir" ]; then
               dotnet restore "$dir/$TEST_PROJECT"
               dotnet add "$dir/$TEST_PROJECT" package coverlet.collector
@@ -61,7 +62,7 @@ jobs:
               -historydir:"baseline/$reportDir" \
               -targetdir:"$REPORT_OUTPUT/diff"
             cat "$REPORT_OUTPUT/diff/SummaryGithub.md" \
-              | sed 's/^# Summary$/📊 PR Changes/' \
+              | sed 's/^# Summary$/# 📊 PR Changes/' \
               >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -70,5 +71,5 @@ jobs:
             -reports:"current/$reportDir" \
             -targetdir:"$REPORT_OUTPUT/full"
           cat "$REPORT_OUTPUT/full/SummaryGithub.md" \
-            | sed 's/^# Summary$/📊 Coverage Report/' \
+            | sed 's/^# Summary$/# 📊 Total Coverage/' \
             >> $GITHUB_STEP_SUMMARY
