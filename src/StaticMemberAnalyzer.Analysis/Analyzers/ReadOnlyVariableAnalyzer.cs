@@ -190,7 +190,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // If the getter is marked as 'readonly', it is safe to access.
-            if (propRef.Property.GetMethod?.IsReadOnly == true)
+            if (IsReadOnlyChain(propRef))
             {
                 return;
             }
@@ -222,7 +222,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // If the method is marked as 'readonly', it is safe to call.
-            if (invocation.TargetMethod.IsReadOnly)
+            if (IsReadOnlyChain(invocation))
             {
                 return;
             }
@@ -456,6 +456,77 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        private static bool IsReadOnlyChain(IOperation? operation)
+        {
+            var current = operation;
+            while (current != null)
+            {
+                if (current is ILocalReferenceOperation || current is IParameterReferenceOperation || current is IInstanceReferenceOperation)
+                {
+                    return true;
+                }
+
+                if (current is IConversionOperation conversion)
+                {
+                    current = conversion.Operand;
+                    continue;
+                }
+
+                if (current is IInvocationOperation invocation)
+                {
+                    if (invocation.Instance == null || !invocation.TargetMethod.IsReadOnly)
+                        return false;
+
+                    current = invocation.Instance;
+                    continue;
+                }
+
+                if (current is IPropertyReferenceOperation propertyReference)
+                {
+                    var isReadOnly = propertyReference.Property.IsReadOnly && (propertyReference.Property.GetMethod?.IsReadOnly == true);
+                    if (propertyReference.Instance == null || !isReadOnly)
+                        return false;
+
+                    current = propertyReference.Instance;
+                    continue;
+                }
+
+                if (current is IFieldReferenceOperation fieldReference)
+                {
+                    if (fieldReference.Instance == null)
+                        return false;
+
+                    current = fieldReference.Instance;
+                    continue;
+                }
+
+                if (current is IConditionalAccessOperation conditionalAccess)
+                {
+                    current = conditionalAccess.Operation;
+                    continue;
+                }
+
+                if (current is IConditionalAccessInstanceOperation instanceOp)
+                {
+                    var parent = instanceOp.Parent;
+                    while (parent != null && parent is not IConditionalAccessOperation)
+                    {
+                        parent = parent.Parent;
+                    }
+
+                    if (parent is IConditionalAccessOperation cao)
+                    {
+                        current = cao.Operation;
+                        continue;
+                    }
+                }
+
+                break;
+            }
+
+            return false;
+        }
+
         private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
         {
             var current = operation;
@@ -511,9 +582,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IConditionalAccessInstanceOperation)
+                if (current is IConditionalAccessInstanceOperation instanceOp)
                 {
-                    var parent = current.Parent;
+                    var parent = instanceOp.Parent;
                     while (parent != null && parent is not IConditionalAccessOperation)
                     {
                         parent = parent.Parent;
