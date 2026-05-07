@@ -36,7 +36,7 @@ jobs:
           reportgenerator \
             -reports:"$TEST_PROJECT/**/coverage.cobertura.xml" \
             -targetdir:"$COV_OUTDIR" \
-            -reporttypes:"Html;MarkdownSummary"
+            -reporttypes:"Html;MarkdownSummaryGithub"
 
       - run: cat "$COV_OUTDIR/Summary.md" >> $GITHUB_STEP_SUMMARY
 
