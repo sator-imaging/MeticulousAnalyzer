@@ -459,12 +459,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
-                // if (current is ILocalReferenceOperation ||
-                //     current is IParameterReferenceOperation ||
-                //     current is IInstanceReferenceOperation)
-                // {
-                //     return false;
-                // }
+                if (current is ILocalReferenceOperation ||
+                    current is IParameterReferenceOperation ||
+                    current is IInstanceReferenceOperation) // <-- 'this.' or 'base.'
+                {
+                    // Cannot prove readonly access here, but assignment is analyzed by other method.
+                    return true;
+                }
 
                 if (current is IConversionOperation conversion)
                 {
