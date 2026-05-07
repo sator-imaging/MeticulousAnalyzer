@@ -19,7 +19,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - run: dotnet restore
+      - run: dotnet restore $TEST_PROJECT
 
       - name: Test with coverage
         run: |
