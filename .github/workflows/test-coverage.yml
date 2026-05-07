@@ -3,6 +3,7 @@ name: '[push,PR] Test Coverage'
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 env:
   TEST_PROJECT: src/StaticMemberAnalyzer.Test
