@@ -599,7 +599,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IConditionalAccessInstanceOperation current)
+                if (current is IConditionalAccessInstanceOperation)
                 {
                     var parent = current.Parent;
                     while (parent != null && parent is not IConditionalAccessOperation)
