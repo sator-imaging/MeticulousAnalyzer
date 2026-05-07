@@ -189,7 +189,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // If the getter is marked as 'readonly', it is safe to access.
             if (IsReadOnlyChain(propRef))
             {
                 return;
@@ -221,7 +220,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // If the method is marked as 'readonly', it is safe to call.
             if (IsReadOnlyChain(invocation))
             {
                 return;
@@ -461,10 +459,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation || current is IParameterReferenceOperation || current is IInstanceReferenceOperation)
-                {
-                    return true;
-                }
+                // if (current is ILocalReferenceOperation ||
+                //     current is IParameterReferenceOperation ||
+                //     current is IInstanceReferenceOperation)
+                // {
+                //     return false;
+                // }
 
                 if (current is IConversionOperation conversion)
                 {
@@ -474,8 +474,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IInvocationOperation invocation)
                 {
-                    if (invocation.Instance == null || !invocation.TargetMethod.IsReadOnly)
+                    if (invocation.Instance == null ||
+                        !invocation.TargetMethod.IsReadOnly)
+                    {
                         return false;
+                    }
 
                     current = invocation.Instance;
                     continue;
@@ -483,9 +486,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IPropertyReferenceOperation propertyReference)
                 {
-                    var isReadOnly = propertyReference.Property.IsReadOnly && (propertyReference.Property.GetMethod?.IsReadOnly == true);
-                    if (propertyReference.Instance == null || !isReadOnly)
+                    if (propertyReference.Instance == null ||
+                        !(
+                            propertyReference.Property.IsReadOnly ||
+                            // 1. No-getter property can only be valid on the left side of assignment
+                            //    and also it's not able to be middle of the chain.
+                            // 2. Assignment is analyzed by other method.
+                            propertyReference.Property.GetMethod?.IsReadOnly != false
+                        ))
+                    {
                         return false;
+                    }
 
                     current = propertyReference.Instance;
                     continue;
@@ -493,8 +504,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IFieldReferenceOperation fieldReference)
                 {
+                    // Given: foo.FieldA.FieldB = bar.FieldC.FieldD;
+                    // Mutated: FieldB only
+                    // --> Assignment is analyzed by other method.
+                    //     Ok to ignore field reference completely.
                     if (fieldReference.Instance == null)
+                    {
                         return false;
+                    }
 
                     current = fieldReference.Instance;
                     continue;
@@ -582,9 +599,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IConditionalAccessInstanceOperation instanceOp)
+                if (current is IConditionalAccessInstanceOperation current)
                 {
-                    var parent = instanceOp.Parent;
+                    var parent = current.Parent;
                     while (parent != null && parent is not IConditionalAccessOperation)
                     {
                         parent = parent.Parent;
