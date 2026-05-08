@@ -192,7 +192,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullConditionalPropertyAccess_ReportsDiagnostic()
+        public async Task AutoPropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -203,17 +203,34 @@ namespace Test
     {
         void M(C foo)
         {
-            _ = {|#0:foo?.Prop|};
+            _ = foo.Prop;
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
-                .WithArguments("foo?.Prop");
+            await VerifyWithRuleEnabledAsync(test);
+        }
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+        [TestMethod]
+        public async Task NullConditionalAutoPropertyAccess_DoesNotReportDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Prop { get; set; } }
+
+    class Program
+    {
+        void M(C foo)
+        {
+            _ = foo?.Prop;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
