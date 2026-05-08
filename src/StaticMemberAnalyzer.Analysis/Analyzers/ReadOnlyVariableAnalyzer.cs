@@ -604,7 +604,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (current is IInstanceReferenceOperation instanceReference &&
                     !instanceReference.Type.IsReadOnly)
                 {
-                    name = "'this' or 'base' is mutable type instance";
+                    name = "`this` (may be omitted) or `base` is mutable type instance";
                     isParameter = false;
 
                     return !instanceReference.Type.IsReadOnly
