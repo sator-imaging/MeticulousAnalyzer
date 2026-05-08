@@ -50,12 +50,12 @@ namespace Test
     class Program
     {
         C _field;
-        public C Prop { get => _field; set => _field = value; }
+        public C ReadWriteProp { get => _field; set => _field = value; }
 
         void M()
         {
             var self = this;
-            _ = {|#0:self.Prop|};
+            _ = {|#0:self.ReadWriteProp|};
         }
     }
 }
@@ -63,7 +63,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(0)
-                .WithArguments("self.Prop");
+                .WithArguments("self.ReadWriteProp");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -366,10 +366,10 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct MutableStruct { public int IntProp; }
+    struct MutableStruct { public int IntField; }
     readonly struct S
     {
-        public MutableStruct ResultProp => new MutableStruct();
+        public MutableStruct ReadOnlyProp => new MutableStruct();
     }
 
     class Program
@@ -379,7 +379,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.ResultProp);
+            Use(s.ReadOnlyProp);
         }
     }
 }
@@ -467,7 +467,7 @@ namespace Test
     {
         int _x;
 
-        public int MyProp
+        public int SetterProp
         {
             set
             {
@@ -511,23 +511,23 @@ namespace Test
 {
     class Box
     {
-        public Box NextProp { get; set; }
-        public int ValueProp { get; set; }
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
     }
 
     class Program
     {
         void M()
         {
-            var foo = new Box { NextProp = new Box() };
-            foo.NextProp.ValueProp = 310;
+            var foo = new Box { AutoPropNext = new Box() };
+            foo.AutoPropNext.AutoPropValue = 310;
         }
     }
 }
 ";
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithSpan(15, 13, 15, 35)
+                .WithSpan(15, 13, 15, 43)
                 .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -541,22 +541,22 @@ namespace Test
 {
     class Box
     {
-        public Box NextProp { get; set; }
-        public int ValueProp { get; set; }
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
     }
 
     class Program
     {
         void M(Box foo)
         {
-            foo.NextProp.ValueProp = 310;
+            foo.AutoPropNext.AutoPropValue = 310;
         }
     }
 }
 ";
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithSpan(14, 13, 14, 35)
+                .WithSpan(14, 13, 14, 43)
                 .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -570,17 +570,17 @@ namespace Test
 {
     class Box
     {
-        public Box NextProp { get; set; }
-        public int ValueProp { get; set; }
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
     }
 
     class Program
     {
-        private Box _foo = new Box { NextProp = new Box() };
+        private Box _foo = new Box { AutoPropNext = new Box() };
 
         void M()
         {
-            _foo.NextProp.ValueProp = 310;
+            _foo.AutoPropNext.AutoPropValue = 310;
         }
     }
 }
@@ -926,12 +926,12 @@ namespace Test
 
     class Program
     {
-        C ResultProp => new C();
+        C ReadOnlyProp => new C();
 
         void M()
         {
             var self = this;
-            _ = self.ResultProp;
+            _ = self.ReadOnlyProp;
         }
     }
 }
@@ -946,10 +946,10 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct MutableStruct { public int IntProp; }
+    struct MutableStruct { public int IntField; }
     struct S
     {
-        public MutableStruct ResultProp => new MutableStruct();
+        public MutableStruct ReadOnlyProp => new MutableStruct();
     }
 
     class Program
@@ -957,7 +957,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            _ = s.ResultProp;
+            _ = s.ReadOnlyProp;
         }
     }
 }
@@ -1067,10 +1067,10 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct MutableStruct { public int IntProp; }
+    struct MutableStruct { public int IntField; }
     struct S
     {
-        public readonly MutableStruct ResultProp => new MutableStruct();
+        public readonly MutableStruct ReadOnlyProp => new MutableStruct();
     }
 
     class Program
@@ -1080,7 +1080,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.ResultProp);
+            Use(s.ReadOnlyProp);
         }
     }
 }
@@ -1533,7 +1533,7 @@ namespace Test
 {
     class Program
     {
-        public int MyProp
+        public int ReadWriteProp
         {
             get
             {
@@ -1660,7 +1660,7 @@ namespace Test
 {
     class Program
     {
-        public int MyProp
+        public int ReadWriteProp
         {
             get
             {

@@ -29,8 +29,8 @@ namespace Test
 
     struct C
     {
-        public B AutoBProp { get; set; }
-        public readonly B ReadOnlyBProp => new B();
+        public B AutoPropB { get; set; }
+        public readonly B ReadOnlyPropB => new B();
     }
 
     class Program
@@ -38,8 +38,8 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.AutoBProp.ReadOnlyProp;
-            _ = foo.AutoBProp.ReadOnlyProp;
+            _ = foo.AutoPropB.ReadOnlyProp;
+            _ = foo.AutoPropB.ReadOnlyProp;
         }
     }
 }
@@ -90,7 +90,7 @@ namespace Test
 
     struct C
     {
-        public readonly B ReadOnlyBProp => new B();
+        public readonly B ReadOnlyPropB => new B();
     }
 
     class Program
@@ -98,7 +98,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyBProp.AutoProp;
+            _ = foo.ReadOnlyPropB.AutoProp;
         }
     }
 }
@@ -220,11 +220,11 @@ namespace Test
     struct B { public readonly int ReadOnlyProp => 1; }
     struct Program
     {
-        public readonly B ReadOnlyBProp => new B();
+        public readonly B ReadOnlyPropB => new B();
         void M()
         {
-            _ = this.ReadOnlyBProp.ReadOnlyProp;
-            _ = ReadOnlyBProp.ReadOnlyProp;
+            _ = this.ReadOnlyPropB.ReadOnlyProp;
+            _ = ReadOnlyPropB.ReadOnlyProp;
         }
     }
 }
@@ -241,13 +241,13 @@ namespace Test
     struct B { public int AutoProp { get; set; } }
     class S
     {
-        public static B StaticProp => new B();
+        public static B ReadOnlyPropStatic => new B();
     }
     class Program
     {
         void M()
         {
-            _ = S.StaticProp.AutoProp;
+            _ = S.ReadOnlyPropStatic.AutoProp;
         }
     }
 }
