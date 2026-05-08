@@ -16,20 +16,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ChainingReadOnlyTests
     {
         [TestMethod]
-        public async Task ChainedAccess_WithMutableMiddleProp_DoesNotReportDiagnostic()
+        public async Task ChainedAccess_WithMiddleAutoProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int MutableAutoProp { get; set; }
+        public int AutoProp { get; set; }
         public readonly int ReadOnlyAutoProp => 1;
     }
 
     struct C
     {
-        public B MutableAutoB { get; set; }
+        public B AutoB { get; set; }
         public readonly B ReadOnlyB => new B();
     }
 
@@ -38,8 +38,8 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.MutableAutoB.ReadOnlyAutoProp;
-            _ = foo.MutableAutoB.ReadOnlyAutoProp;
+            _ = foo.AutoB.ReadOnlyAutoProp;
+            _ = foo.AutoB.ReadOnlyAutoProp;
         }
     }
 }
@@ -78,14 +78,14 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithMutableEndProp_DoesNotReportDiagnostic()
+        public async Task ChainedAccess_WithEndAutoProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int MutableAutoProp { get; set; }
+        public int AutoProp { get; set; }
     }
 
     struct C
@@ -98,7 +98,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.MutableAutoProp;
+            _ = foo.ReadOnlyB.AutoProp;
         }
     }
 }
@@ -115,7 +115,7 @@ namespace Test
 {
     struct B
     {
-        public int MutableAutoProp { get; set; }
+        public int AutoProp { get; set; }
     }
 
     struct C
@@ -128,7 +128,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.FieldB.MutableAutoProp;
+            _ = foo.FieldB.AutoProp;
         }
     }
 }
@@ -138,7 +138,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithMutableMethodInChain_ReportsDiagnostic()
+        public async Task ChainedAccess_WithMethodInChain_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -238,7 +238,7 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public int MutableAutoProp { get; set; } }
+    struct B { public int AutoProp { get; set; } }
     class S
     {
         public static B StaticB => new B();
@@ -247,7 +247,7 @@ namespace Test
     {
         void M()
         {
-            _ = S.StaticB.MutableAutoProp;
+            _ = S.StaticB.AutoProp;
         }
     }
 }
