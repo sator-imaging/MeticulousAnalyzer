@@ -314,7 +314,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StringPropertyAndMethodAccess_IsStillReported_BecauseNotReadonly()
+        public async Task StringPropertyAndMethodAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -790,7 +790,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IndexerArgument_ReferenceType_ReportsDiagnostic()
+        public async Task IndexerArgument_ReferenceType_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -917,7 +917,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task PropertyAccess_ReportsDiagnostic()
+        public async Task PropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -941,7 +941,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructGetterOnlyPropertyAccess_ReportsDiagnostic()
+        public async Task StructGetterOnlyPropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
