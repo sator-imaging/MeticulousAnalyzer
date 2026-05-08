@@ -50,12 +50,12 @@ namespace Test
     class Program
     {
         C _field;
-        public C AutoProp { get => _field; set => _field = value; }
+        public C AutoProps { get => _field; set => _field = value; }
 
         void M()
         {
             var self = this;
-            _ = {|#0:self.AutoProp|};
+            _ = {|#0:self.AutoProps|};
         }
     }
 }
@@ -63,7 +63,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(0)
-                .WithArguments("self.AutoProp");
+                .WithArguments("self.AutoProps");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -192,18 +192,18 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AutoPropertyAccess_DoesNotReportDiagnostic()
+        public async Task AutoPropsertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
-    class C { public int AutoProp { get; set; } }
+    class C { public int AutoProps { get; set; } }
 
     class Program
     {
         void M(C foo)
         {
-            _ = foo.AutoProp;
+            _ = foo.AutoProps;
         }
     }
 }
@@ -213,18 +213,18 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullConditionalAutoPropertyAccess_DoesNotReportDiagnostic()
+        public async Task NullConditionalAutoPropsertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
-    class C { public int AutoProp { get; set; } }
+    class C { public int AutoProps { get; set; } }
 
     class Program
     {
         void M(C foo)
         {
-            _ = foo?.AutoProp;
+            _ = foo?.AutoProps;
         }
     }
 }
@@ -369,7 +369,7 @@ namespace Test
     struct MutableStruct { public int X; }
     readonly struct S
     {
-        public MutableStruct AutoProp => new MutableStruct();
+        public MutableStruct AutoProps => new MutableStruct();
     }
 
     class Program
@@ -379,7 +379,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.AutoProp);
+            Use(s.AutoProps);
         }
     }
 }
@@ -467,7 +467,7 @@ namespace Test
     {
         int _x;
 
-        public int MyAutoProp
+        public int MyAutoProps
         {
             set
             {
@@ -511,23 +511,23 @@ namespace Test
 {
     class Box
     {
-        public Box NextAutoProp { get; set; }
-        public int ValueAutoProp { get; set; }
+        public Box NextAutoProps { get; set; }
+        public int ValueAutoProps { get; set; }
     }
 
     class Program
     {
         void M()
         {
-            var foo = new Box { NextAutoProp = new Box() };
-            foo.NextAutoProp.ValueAutoProp = 310;
+            var foo = new Box { NextAutoProps = new Box() };
+            foo.NextAutoProps.ValueAutoProps = 310;
         }
     }
 }
 ";
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithSpan(15, 13, 15, 43)
+                .WithSpan(15, 13, 15, 45)
                 .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -541,22 +541,22 @@ namespace Test
 {
     class Box
     {
-        public Box NextAutoProp { get; set; }
-        public int ValueAutoProp { get; set; }
+        public Box NextAutoProps { get; set; }
+        public int ValueAutoProps { get; set; }
     }
 
     class Program
     {
         void M(Box foo)
         {
-            foo.NextAutoProp.ValueAutoProp = 310;
+            foo.NextAutoProps.ValueAutoProps = 310;
         }
     }
 }
 ";
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithSpan(14, 13, 14, 43)
+                .WithSpan(14, 13, 14, 45)
                 .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -570,17 +570,17 @@ namespace Test
 {
     class Box
     {
-        public Box NextAutoProp { get; set; }
-        public int ValueAutoProp { get; set; }
+        public Box NextAutoProps { get; set; }
+        public int ValueAutoProps { get; set; }
     }
 
     class Program
     {
-        private Box _foo = new Box { NextAutoProp = new Box() };
+        private Box _foo = new Box { NextAutoProps = new Box() };
 
         void M()
         {
-            _foo.NextAutoProp.ValueAutoProp = 310;
+            _foo.NextAutoProps.ValueAutoProps = 310;
         }
     }
 }
@@ -738,12 +738,12 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructArgument_ReadOnlyByValue_IsAllowed()
+        public async Task StructArgument_ReadOnlyBPropsyValue_IsAllowed()
         {
             var test = @"
 namespace Test
 {
-    readonly struct S { public int XAutoProp { get; } }
+    readonly struct S { public int XAutoProps { get; } }
 
     class Program
     {
@@ -926,12 +926,12 @@ namespace Test
 
     class Program
     {
-        C AutoProp => new C();
+        C AutoProps => new C();
 
         void M()
         {
             var self = this;
-            _ = self.AutoProp;
+            _ = self.AutoProps;
         }
     }
 }
@@ -949,7 +949,7 @@ namespace Test
     struct MutableStruct { public int X; }
     struct S
     {
-        public MutableStruct AutoProp => new MutableStruct();
+        public MutableStruct AutoProps => new MutableStruct();
     }
 
     class Program
@@ -957,7 +957,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            _ = s.AutoProp;
+            _ = s.AutoProps;
         }
     }
 }
@@ -1070,7 +1070,7 @@ namespace Test
     struct MutableStruct { public int X; }
     struct S
     {
-        public readonly MutableStruct AutoProp => new MutableStruct();
+        public readonly MutableStruct AutoProps => new MutableStruct();
     }
 
     class Program
@@ -1080,7 +1080,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.AutoProp);
+            Use(s.AutoProps);
         }
     }
 }
@@ -1533,7 +1533,7 @@ namespace Test
 {
     class Program
     {
-        public int MyAutoProp
+        public int MyAutoProps
         {
             get
             {
@@ -1660,7 +1660,7 @@ namespace Test
 {
     class Program
     {
-        public int MyAutoProp
+        public int MyAutoProps
         {
             get
             {

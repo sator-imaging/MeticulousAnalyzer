@@ -16,21 +16,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ChainingReadOnlyTests
     {
         [TestMethod]
-        public async Task ChainedAccess_WithMiddleAutoProp_DoesNotReportDiagnostic()
+        public async Task ChainedAccess_WithMiddleAutoProps_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int AutoProp { get; set; }
-        public readonly int ReadOnlyAutoProp => 1;
+        public int AutoProps { get; set; }
+        public readonly int ReadOnlyAutoProps => 1;
     }
 
     struct C
     {
-        public B AutoB { get; set; }
-        public readonly B ReadOnlyB => new B();
+        public B AutoBProps { get; set; }
+        public readonly B ReadOnlyBProps => new B();
     }
 
     class Program
@@ -38,8 +38,8 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.AutoB.ReadOnlyAutoProp;
-            _ = foo.AutoB.ReadOnlyAutoProp;
+            _ = foo.AutoBProps.ReadOnlyAutoProps;
+            _ = foo.AutoBProps.ReadOnlyAutoProps;
         }
     }
 }
@@ -56,12 +56,12 @@ namespace Test
 {
     struct B
     {
-        public readonly int ReadOnlyAutoProp => 1;
+        public readonly int ReadOnlyAutoProps => 1;
     }
 
     struct C
     {
-        public readonly B ReadOnlyB => new B();
+        public readonly B ReadOnlyBProps => new B();
     }
 
     class Program
@@ -69,7 +69,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.ReadOnlyAutoProp;
+            _ = foo.ReadOnlyBProps.ReadOnlyAutoProps;
         }
     }
 }
@@ -78,19 +78,19 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithEndAutoProp_DoesNotReportDiagnostic()
+        public async Task ChainedAccess_WithEndAutoProps_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int AutoProp { get; set; }
+        public int AutoProps { get; set; }
     }
 
     struct C
     {
-        public readonly B ReadOnlyB => new B();
+        public readonly B ReadOnlyBProps => new B();
     }
 
     class Program
@@ -98,7 +98,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.AutoProp;
+            _ = foo.ReadOnlyBProps.AutoProps;
         }
     }
 }
@@ -115,7 +115,7 @@ namespace Test
 {
     struct B
     {
-        public int AutoProp { get; set; }
+        public int AutoProps { get; set; }
     }
 
     struct C
@@ -128,7 +128,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.FieldB.AutoProp;
+            _ = foo.FieldB.AutoProps;
         }
     }
 }
@@ -145,7 +145,7 @@ namespace Test
 {
     struct B
     {
-        public readonly int ReadOnlyAutoProp => 1;
+        public readonly int ReadOnlyAutoProps => 1;
     }
 
     struct C
@@ -159,8 +159,8 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.GetB().ReadOnlyAutoProp;
-            _ = foo.GetB().ReadOnlyAutoProp;
+            _ = foo.GetB().ReadOnlyAutoProps;
+            _ = foo.GetB().ReadOnlyAutoProps;
         }
     }
 }
@@ -169,15 +169,15 @@ namespace Test
                 .WithSpan(20, 17, 20, 27)
                 .WithArguments("foo.GetB()");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(20, 17, 20, 44)
-                .WithArguments("foo.GetB().ReadOnlyAutoProp");
+                .WithSpan(20, 17, 20, 45)
+                .WithArguments("foo.GetB().ReadOnlyAutoProps");
 
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(21, 17, 21, 27)
                 .WithArguments("foo.GetB()");
             var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(21, 17, 21, 44)
-                .WithArguments("foo.GetB().ReadOnlyAutoProp");
+                .WithSpan(21, 17, 21, 45)
+                .WithArguments("foo.GetB().ReadOnlyAutoProps");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
         }
@@ -190,7 +190,7 @@ namespace Test
 {
     struct B
     {
-        public readonly int ReadOnlyAutoProp => 1;
+        public readonly int ReadOnlyAutoProps => 1;
     }
 
     struct C
@@ -203,7 +203,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.GetBReadOnly().ReadOnlyAutoProp;
+            _ = foo.GetBReadOnly().ReadOnlyAutoProps;
         }
     }
 }
@@ -217,14 +217,14 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public readonly int AutoProp => 1; }
+    struct B { public readonly int AutoProps => 1; }
     struct Program
     {
-        public readonly B ReadOnlyB => new B();
+        public readonly B ReadOnlyBProps => new B();
         void M()
         {
-            _ = this.ReadOnlyB.AutoProp;
-            _ = ReadOnlyB.AutoProp;
+            _ = this.ReadOnlyBProps.AutoProps;
+            _ = ReadOnlyBProps.AutoProps;
         }
     }
 }
@@ -238,7 +238,7 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public int AutoProp { get; set; } }
+    struct B { public int AutoProps { get; set; } }
     class S
     {
         public static B StaticB => new B();
@@ -247,7 +247,7 @@ namespace Test
     {
         void M()
         {
-            _ = S.StaticB.AutoProp;
+            _ = S.StaticB.AutoProps;
         }
     }
 }
