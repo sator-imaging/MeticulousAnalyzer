@@ -615,6 +615,8 @@ namespace Test
     {
         public readonly C ReadOnlyAutoProp { get; }
         public readonly C ReadOnlyMethod() => null;
+        public readonly C ReadOnlyBlockMethod() { return null; }
+        public readonly C ReadOnlyBlockProp { get { return null; } }
         public C MutableMethod() { return null; }
         public C MutableProp { get => null; set {} }
     }
@@ -626,6 +628,8 @@ namespace Test
             var s = new S();
             _ = s.ReadOnlyAutoProp;
             _ = s.ReadOnlyMethod();
+            _ = s.ReadOnlyBlockMethod();
+            _ = s.ReadOnlyBlockProp;
             _ = {|#0:s.MutableMethod()|};
             _ = {|#1:s.MutableProp|};
         }
