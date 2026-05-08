@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -459,9 +460,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation ||
-                    current is IParameterReferenceOperation ||
-                    current is IInstanceReferenceOperation) // <-- 'this.' or 'base.'
+                if (current is ILocalReferenceOperation
+                            or IParameterReferenceOperation
+                            or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
                 {
                     // Cannot prove readonly access here, but assignment is analyzed by other method.
                     return true;
@@ -475,6 +476,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IInvocationOperation invocation)
                 {
+                    // Analyzer is checking only variable mutability. Ignore static member access.
+                    if (invocation.Instance == null)
+                    {
+                        return true;
+                    }
+
                     if (!invocation.TargetMethod.IsReadOnly)
                     {
                         return false;
@@ -486,12 +493,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IPropertyReferenceOperation propertyReference)
                 {
-                    // 1. No-getter property can only be valid on the left side of assignment
-                    //    and also it's not able to be middle of the chain.
-                    // 2. Assignment is analyzed by other method.
+                    // Analyzer is checking only variable mutability. Ignore static member access.
+                    if (propertyReference.Instance == null)
+                    {
+                        return true;
+                    }
+
                     if (!(
+                            // 1. No-getter property can only be valid on the left side of assignment
+                            //    and also it's not able to be middle of the chain.
+                            // 2. Assignment is analyzed by other method.
                             propertyReference.Property.IsReadOnly ||
-                            propertyReference.Property.GetMethod?.IsReadOnly != false
+                            propertyReference.Property.GetMethod == null ||
+                            propertyReference.Property.GetMethod.IsReadOnly ||
+                            IsAutoProperty(propertyReference.Property)
                         ))
                     {
                         return false;
@@ -501,13 +516,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IFieldReferenceOperation fieldReference)
+                // Reference of event, field, property and method (not invocation)
+                if (current is IMemberReferenceOperation memberReference)
                 {
+                    // Analyzer is checking only variable mutability. Ignore static member access.
+                    if (memberReference.Instance == null)
+                    {
+                        return true;
+                    }
+
                     // Given: foo.FieldA.FieldB = bar.FieldC.FieldD;
                     // Mutated: FieldB only
                     // --> Assignment is analyzed by other method.
                     //     Ok to ignore field reference completely.
-                    current = fieldReference.Instance;
+                    current = memberReference.Instance;
                     continue;
                 }
 
@@ -520,7 +542,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (current is IConditionalAccessInstanceOperation instanceOp)
                 {
                     var parent = instanceOp.Parent;
-                    while (parent != null && parent is not IConditionalAccessOperation)
+                    while (parent is not null and not IConditionalAccessOperation)
                     {
                         parent = parent.Parent;
                     }
@@ -536,6 +558,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             return false;
+        }
+
+        private static bool IsAutoProperty(IPropertySymbol property)
+        {
+            return property
+                .ContainingType
+                .GetMembers()
+                .OfType<IFieldSymbol>()
+                .Any(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, property));
         }
 
         private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
@@ -564,7 +595,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 // 'this.' or 'base.'
-                if (current is IInstanceReferenceOperation instanceReference)
+                if (current is IInstanceReferenceOperation instanceReference &&
+                    !instanceReference.Type.IsReadOnly)
                 {
                     name = string.Empty;
                     isParameter = false;
@@ -577,15 +609,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IPropertyReferenceOperation propertyReference)
+                // Reference of event, field, property and method (not invocation)
+                if (current is IMemberReferenceOperation memberReference)
                 {
-                    current = propertyReference.Instance;
-                    continue;
-                }
-
-                if (current is IFieldReferenceOperation fieldReference)
-                {
-                    current = fieldReference.Instance;
+                    current = memberReference.Instance;
                     continue;
                 }
 
@@ -604,7 +631,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (current is IConditionalAccessInstanceOperation)
                 {
                     var parent = current.Parent;
-                    while (parent != null && parent is not IConditionalAccessOperation)
+                    while (parent is not null and not IConditionalAccessOperation)
                     {
                         parent = parent.Parent;
                     }
@@ -631,7 +658,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsAllowedArgumentValue(IOperation value)
         {
-            return value is IInvocationOperation
+            return value
+                is IInvocationOperation
                 or IPropertyReferenceOperation
                 or IObjectCreationOperation
                 or IAnonymousObjectCreationOperation
