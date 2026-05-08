@@ -464,7 +464,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             or IParameterReferenceOperation
                             or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
                 {
-                    return false;  // To proceed variable name check
+                    return true;  // Entire chain is readonly. Don't need to check variable naming.
                 }
 
                 if (current is IConversionOperation conversion)
