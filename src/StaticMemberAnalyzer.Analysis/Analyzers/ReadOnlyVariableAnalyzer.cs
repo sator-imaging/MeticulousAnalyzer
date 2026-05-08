@@ -644,16 +644,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         && parameterReference.Type.SpecialType is not SpecialType.System_String;
                 }
 
-                // 'this.' or 'base.'
-                if (current is IInstanceReferenceOperation instanceReference &&
-                    !instanceReference.Type.IsReadOnly)
-                {
-                    name = "`this` (may be omitted) or `base` is mutable type instance";
-                    isParameter = false;
+                // NOTE: Analyzer is checking only variable mutability. Ignore instance access.
+                // TODO: Should support field mutation prefix?
 
-                    return !instanceReference.Type.IsReadOnly
-                        && instanceReference.Type.SpecialType is not SpecialType.System_String;
-                }
+                // // 'this.' or 'base.'
+                // if (current is IInstanceReferenceOperation instanceReference &&
+                //     !instanceReference.Type.IsReadOnly)
+                // {
+                //     name = "`this` (may be omitted) or `base` is mutable type instance";
+                //     isParameter = false;
+
+                //     return !instanceReference.Type.IsReadOnly
+                //         && instanceReference.Type.SpecialType is not SpecialType.System_String;
+                // }
 
                 break;
             }
