@@ -23,13 +23,13 @@ namespace Test
 {
     struct B
     {
-        public int MutableProp { get; set; }
-        public readonly int ReadOnlyProp => 1;
+        public int MutableAutoProp { get; set; }
+        public readonly int ReadOnlyAutoProp => 1;
     }
 
     struct C
     {
-        public B MutableB { get; set; }
+        public B MutableAutoB { get; set; }
         public readonly B ReadOnlyB => new B();
     }
 
@@ -38,8 +38,8 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.MutableB.ReadOnlyProp;
-            _ = foo.MutableB.ReadOnlyProp;
+            _ = foo.MutableAutoB.ReadOnlyAutoProp;
+            _ = foo.MutableAutoB.ReadOnlyAutoProp;
         }
     }
 }
@@ -56,7 +56,7 @@ namespace Test
 {
     struct B
     {
-        public readonly int ReadOnlyProp => 1;
+        public readonly int ReadOnlyAutoProp => 1;
     }
 
     struct C
@@ -69,7 +69,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.ReadOnlyProp;
+            _ = foo.ReadOnlyB.ReadOnlyAutoProp;
         }
     }
 }
@@ -85,7 +85,7 @@ namespace Test
 {
     struct B
     {
-        public int MutableProp { get; set; }
+        public int MutableAutoProp { get; set; }
     }
 
     struct C
@@ -98,7 +98,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.MutableProp;
+            _ = foo.ReadOnlyB.MutableAutoProp;
         }
     }
 }
@@ -115,7 +115,7 @@ namespace Test
 {
     struct B
     {
-        public int MutableProp { get; set; }
+        public int MutableAutoProp { get; set; }
     }
 
     struct C
@@ -128,7 +128,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.FieldB.MutableProp;
+            _ = foo.FieldB.MutableAutoProp;
         }
     }
 }
@@ -145,7 +145,7 @@ namespace Test
 {
     struct B
     {
-        public readonly int ReadOnlyProp => 1;
+        public readonly int ReadOnlyAutoProp => 1;
     }
 
     struct C
@@ -159,8 +159,8 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.GetB().ReadOnlyProp;
-            _ = foo.GetB().ReadOnlyProp;
+            _ = foo.GetB().ReadOnlyAutoProp;
+            _ = foo.GetB().ReadOnlyAutoProp;
         }
     }
 }
@@ -169,15 +169,15 @@ namespace Test
                 .WithSpan(20, 17, 20, 27)
                 .WithArguments("foo.GetB()");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(20, 17, 20, 40)
-                .WithArguments("foo.GetB().ReadOnlyProp");
+                .WithSpan(20, 17, 20, 44)
+                .WithArguments("foo.GetB().ReadOnlyAutoProp");
 
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(21, 17, 21, 27)
                 .WithArguments("foo.GetB()");
             var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(21, 17, 21, 40)
-                .WithArguments("foo.GetB().ReadOnlyProp");
+                .WithSpan(21, 17, 21, 44)
+                .WithArguments("foo.GetB().ReadOnlyAutoProp");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
         }
@@ -190,7 +190,7 @@ namespace Test
 {
     struct B
     {
-        public readonly int ReadOnlyProp => 1;
+        public readonly int ReadOnlyAutoProp => 1;
     }
 
     struct C
@@ -203,7 +203,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.GetBReadOnly().ReadOnlyProp;
+            _ = foo.GetBReadOnly().ReadOnlyAutoProp;
         }
     }
 }
@@ -217,14 +217,14 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public readonly int Prop => 1; }
+    struct B { public readonly int AutoProp => 1; }
     struct Program
     {
         public readonly B ReadOnlyB => new B();
         void M()
         {
-            _ = this.ReadOnlyB.Prop;
-            _ = ReadOnlyB.Prop;
+            _ = this.ReadOnlyB.AutoProp;
+            _ = ReadOnlyB.AutoProp;
         }
     }
 }
@@ -238,7 +238,7 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public int MutableProp { get; set; } }
+    struct B { public int MutableAutoProp { get; set; } }
     class S
     {
         public static B StaticB => new B();
@@ -247,7 +247,7 @@ namespace Test
     {
         void M()
         {
-            _ = S.StaticB.MutableProp;
+            _ = S.StaticB.MutableAutoProp;
         }
     }
 }
