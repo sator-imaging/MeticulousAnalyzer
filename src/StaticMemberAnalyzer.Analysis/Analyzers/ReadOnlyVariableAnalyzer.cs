@@ -586,35 +586,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is ILocalReferenceOperation localReference)
-                {
-                    name = localReference.Local.Name;
-                    isParameter = false;
-
-                    return !localReference.Type.IsReadOnly
-                        && localReference.Type.SpecialType is not SpecialType.System_String;
-                }
-
-                if (current is IParameterReferenceOperation parameterReference)
-                {
-                    name = parameterReference.Parameter.Name;
-                    isParameter = true;
-
-                    return !parameterReference.Type.IsReadOnly
-                        && parameterReference.Type.SpecialType is not SpecialType.System_String;
-                }
-
-                // 'this.' or 'base.'
-                if (current is IInstanceReferenceOperation instanceReference &&
-                    !instanceReference.Type.IsReadOnly)
-                {
-                    name = "`this` (may be omitted) or `base` is mutable type instance";
-                    isParameter = false;
-
-                    return !instanceReference.Type.IsReadOnly
-                        && instanceReference.Type.SpecialType is not SpecialType.System_String;
-                }
-
                 if (current is IInvocationOperation invocationOperation)
                 {
                     current = invocationOperation.Instance;
@@ -653,6 +624,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         current = cao.Operation;
                         continue;
                     }
+                }
+
+                if (current is ILocalReferenceOperation localReference)
+                {
+                    name = localReference.Local.Name;
+                    isParameter = false;
+
+                    return !localReference.Type.IsReadOnly
+                        && localReference.Type.SpecialType is not SpecialType.System_String;
+                }
+
+                if (current is IParameterReferenceOperation parameterReference)
+                {
+                    name = parameterReference.Parameter.Name;
+                    isParameter = true;
+
+                    return !parameterReference.Type.IsReadOnly
+                        && parameterReference.Type.SpecialType is not SpecialType.System_String;
+                }
+
+                // 'this.' or 'base.'
+                if (current is IInstanceReferenceOperation instanceReference &&
+                    !instanceReference.Type.IsReadOnly)
+                {
+                    name = "`this` (may be omitted) or `base` is mutable type instance";
+                    isParameter = false;
+
+                    return !instanceReference.Type.IsReadOnly
+                        && instanceReference.Type.SpecialType is not SpecialType.System_String;
                 }
 
                 break;
