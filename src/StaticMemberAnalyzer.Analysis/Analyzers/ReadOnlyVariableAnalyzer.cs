@@ -473,6 +473,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (current is IConditionalAccessOperation conditionalAccess)
+                {
+                    current = conditionalAccess.Operation;
+                    continue;
+                }
+
+                if (current is IConditionalAccessInstanceOperation instanceOp)
+                {
+                    var parent = instanceOp.Parent;
+                    while (parent is not null and not IConditionalAccessOperation)
+                    {
+                        parent = parent.Parent;
+                    }
+
+                    if (parent is IConditionalAccessOperation cao)
+                    {
+                        current = cao.Operation;
+                        continue;
+                    }
+                }
+
                 if (current is IInvocationOperation invocation)
                 {
                     // Analyzer is checking only variable mutability. Ignore static member access.
@@ -539,27 +560,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IConditionalAccessOperation conditionalAccess)
-                {
-                    current = conditionalAccess.Operation;
-                    continue;
-                }
-
-                if (current is IConditionalAccessInstanceOperation instanceOp)
-                {
-                    var parent = instanceOp.Parent;
-                    while (parent is not null and not IConditionalAccessOperation)
-                    {
-                        parent = parent.Parent;
-                    }
-
-                    if (parent is IConditionalAccessOperation cao)
-                    {
-                        current = cao.Operation;
-                        continue;
-                    }
-                }
-
                 break;
             }
 
@@ -586,25 +586,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is IInvocationOperation invocationOperation)
-                {
-                    current = invocationOperation.Instance;
-                    continue;
-                }
-
-                // Reference of event, field, property and method (not invocation)
-                if (current is IMemberReferenceOperation memberReference)
-                {
-                    current = memberReference.Instance;
-                    continue;
-                }
-
-                if (current is IArrayElementReferenceOperation arrayElementReference)
-                {
-                    current = arrayElementReference.ArrayReference;
-                    continue;
-                }
-
                 if (current is IConditionalAccessOperation conditionalAccess)
                 {
                     current = conditionalAccess.Operation;
@@ -624,6 +605,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         current = cao.Operation;
                         continue;
                     }
+                }
+
+                if (current is IInvocationOperation invocationOperation)
+                {
+                    current = invocationOperation.Instance;
+                    continue;
+                }
+
+                // Reference of event, field, property and method (not invocation)
+                if (current is IMemberReferenceOperation memberReference)
+                {
+                    current = memberReference.Instance;
+                    continue;
+                }
+
+                if (current is IArrayElementReferenceOperation arrayElementReference)
+                {
+                    current = arrayElementReference.ArrayReference;
+                    continue;
                 }
 
                 if (current is ILocalReferenceOperation localReference)
