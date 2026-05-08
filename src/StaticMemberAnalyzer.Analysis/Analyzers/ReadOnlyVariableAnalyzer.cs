@@ -504,9 +504,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             // 1. No-getter property can only be valid on the left side of assignment
                             //    and also it's not able to be middle of the chain.
                             // 2. Assignment is analyzed by other method.
-                            propertyReference.Property.IsReadOnly ||
                             propertyReference.Property.GetMethod == null ||
-                            propertyReference.Property.GetMethod.IsReadOnly ||
+                            // NOTE: Roslyn sets IsReadOnly if the method can take 'ref readonly this'.
+                            //       e.g. int Prop => 0;
+                            //            int Prop => (StaticField = 0);  // Even if it has side effect
+                            //       Means that this behavior is incorrect for this analyzer use case.
+                            //       Don't check them.
+                            //propertyReference.Property.IsReadOnly ||
+                            //propertyReference.Property.GetMethod.IsReadOnly ||
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
