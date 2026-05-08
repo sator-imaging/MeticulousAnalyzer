@@ -464,8 +464,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             or IParameterReferenceOperation
                             or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
                 {
-                    // Cannot prove readonly access here, but assignment is analyzed by other method.
-                    return true;
+                    return false;  // To proceed variable name check
                 }
 
                 if (current is IConversionOperation conversion)
