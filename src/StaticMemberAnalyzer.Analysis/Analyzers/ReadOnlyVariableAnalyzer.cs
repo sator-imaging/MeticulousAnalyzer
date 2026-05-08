@@ -475,7 +475,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IInvocationOperation invocation)
                 {
-                    // Static method can change state. Only allow readonly method.
                     if (!invocation.TargetMethod.IsReadOnly)
                     {
                         return false;
@@ -564,6 +563,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return true;
                 }
 
+                // 'this.' or 'base.'
+                if (current is IInstanceReferenceOperation instanceReference)
+                {
+                    name = string.Empty;
+                    isParameter = false;
+                    return true;
+                }
+
                 if (current is IInvocationOperation invocationOperation)
                 {
                     current = invocationOperation.Instance;
@@ -614,12 +621,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             name = string.Empty;
             isParameter = false;
-
-            // Even if receiver is not found, or this/base is omitted, it can mutate the state.
-            // Don't need to check field access. Assignment is checked by other method.
-            return operation
-                is IPropertyReferenceOperation
-                or IInvocationOperation;
+            return false;
         }
 
         private static DiagnosticDescriptor GetDescriptor(bool isParameter)
