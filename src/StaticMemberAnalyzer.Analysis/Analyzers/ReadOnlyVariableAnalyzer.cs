@@ -502,6 +502,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
+                    // NOTE: Roslyn may set IsReadOnly if the method can take 'ref readonly this'.
+                    //       e.g. int Foo() => 0;
+                    //            int Foo() => (StaticField = 0);  // Even if it has side effect
+                    //       It can change observable state but allow it.
+                    //       This analyzer just checks variable mutation.
                     if (!invocation.TargetMethod.IsReadOnly &&
                         invocation.TargetMethod.ContainingType.SpecialType is not SpecialType.System_String)
                     {
@@ -526,13 +531,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             //    and also it's not able to be middle of the chain.
                             // 2. Assignment is analyzed by other method.
                             propertyReference.Property.GetMethod == null ||
-                            // NOTE: Roslyn sets IsReadOnly if the method can take 'ref readonly this'.
+                            // NOTE: Roslyn may set IsReadOnly if the method can take 'ref readonly this'.
                             //       e.g. int Prop => 0;
                             //            int Prop => (StaticField = 0);  // Even if it has side effect
-                            //       Means that this behavior is incorrect for this analyzer use case.
-                            //       Don't check them.
-                            //propertyReference.Property.IsReadOnly ||
-                            //propertyReference.Property.GetMethod.IsReadOnly ||
+                            //       It can change observable state but allow it.
+                            //       This analyzer just checks variable mutation.
+                            propertyReference.Property.IsReadOnly ||
+                            propertyReference.Property.GetMethod.IsReadOnly ||
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
