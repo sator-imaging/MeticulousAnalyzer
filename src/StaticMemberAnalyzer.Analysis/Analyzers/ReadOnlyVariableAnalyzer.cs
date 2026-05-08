@@ -527,16 +527,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (propertyReference.Property.ContainingType.SpecialType is not SpecialType.System_String
                         && !(
-                            // 1. No-getter property can only be valid on the left side of assignment
-                            //    and also it's not able to be middle of the chain.
-                            // 2. Assignment is analyzed by other method.
-                            propertyReference.Property.GetMethod == null ||
                             // NOTE: Roslyn may set IsReadOnly if the method can take 'ref readonly this'.
                             //       e.g. int Prop => 0;
                             //            int Prop => (StaticField = 0);  // Even if it has side effect
                             //       It can change observable state but allow it.
                             //       This analyzer just checks variable mutation.
                             propertyReference.Property.IsReadOnly ||
+                            // 1. No-getter property can only be valid on the left side of assignment
+                            //    and also it's not able to be middle of the chain.
+                            // 2. Assignment is analyzed by other method.
+                            propertyReference.Property.GetMethod == null ||
                             propertyReference.Property.GetMethod.IsReadOnly ||
                             IsAutoProperty(propertyReference.Property)
                         ))
