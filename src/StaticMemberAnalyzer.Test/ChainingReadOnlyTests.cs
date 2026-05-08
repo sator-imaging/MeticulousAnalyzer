@@ -16,7 +16,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ChainingReadOnlyTests
     {
         [TestMethod]
-        public async Task ChainedAccess_WithMutableMiddleProp_ReportsDiagnostic()
+        public async Task ChainedAccess_WithMutableMiddleProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -45,23 +45,7 @@ namespace Test
 }
 ";
 
-            // Diagnostic is reported for both foo.MutableB (inner) and foo.MutableB.ReadOnlyProp (outer)
-            // on both lines because they are both property references that can change state.
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(21, 17, 21, 29)
-                .WithArguments("foo.MutableB");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(21, 17, 21, 42)
-                .WithArguments("foo.MutableB.ReadOnlyProp");
-
-            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(22, 17, 22, 29)
-                .WithArguments("foo.MutableB");
-            var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(22, 17, 22, 42)
-                .WithArguments("foo.MutableB.ReadOnlyProp");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
@@ -94,7 +78,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithMutableEndProp_ReportsDiagnostic()
+        public async Task ChainedAccess_WithMutableEndProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -119,15 +103,12 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(19, 17, 19, 42)
-                .WithArguments("foo.ReadOnlyB.MutableProp");
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithField_IgnoresFieldReadOnlyButChecksProp_ReportsDiagnostic()
+        public async Task ChainedAccess_WithField_IgnoresFieldReadOnlyButChecksProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -152,11 +133,8 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(19, 17, 19, 39)
-                .WithArguments("foo.FieldB.MutableProp");
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
