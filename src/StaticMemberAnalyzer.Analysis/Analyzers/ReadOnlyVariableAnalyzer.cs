@@ -482,7 +482,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!invocation.TargetMethod.IsReadOnly)
+                    if (!invocation.TargetMethod.IsReadOnly &&
+                        invocation.TargetMethod.ContainingType.SpecialType is not SpecialType.System_String)
                     {
                         return false;
                     }
@@ -499,7 +500,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!(
+                    if (propertyReference.Property.ContainingType.SpecialType is not SpecialType.System_String
+                        && !(
                             // 1. No-getter property can only be valid on the left side of assignment
                             //    and also it's not able to be middle of the chain.
                             // 2. Assignment is analyzed by other method.
@@ -584,14 +586,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     name = localReference.Local.Name;
                     isParameter = false;
-                    return true;
+
+                    return !localReference.Type.IsReadOnly
+                        && localReference.Type.SpecialType is not SpecialType.System_String;
                 }
 
                 if (current is IParameterReferenceOperation parameterReference)
                 {
                     name = parameterReference.Parameter.Name;
                     isParameter = true;
-                    return true;
+
+                    return !parameterReference.Type.IsReadOnly
+                        && parameterReference.Type.SpecialType is not SpecialType.System_String;
                 }
 
                 // 'this.' or 'base.'
@@ -600,7 +606,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     name = string.Empty;
                     isParameter = false;
-                    return true;
+
+                    return !instanceReference.Type.IsReadOnly
+                        && instanceReference.Type.SpecialType is not SpecialType.System_String;
                 }
 
                 if (current is IInvocationOperation invocationOperation)
