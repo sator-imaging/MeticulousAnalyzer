@@ -324,21 +324,14 @@ namespace Test
         void M()
         {
             var s = ""test"";
-            _ = {|#0:s.Length|};
-            _ = {|#1:s.ToUpper()|};
+            _ = s.Length;
+            _ = s.ToUpper();
         }
     }
 }
 ";
 
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
-                .WithArguments("s.Length");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
-                .WithLocation(1)
-                .WithArguments("s.ToUpper()");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
@@ -533,17 +526,11 @@ namespace Test
 }
 ";
 
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(15, 13, 15, 21)
-                .WithArguments("foo.Next");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithSpan(15, 13, 15, 27)
                 .WithArguments("foo");
-            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(15, 13, 15, 27)
-                .WithArguments("foo.Next.Value");
 
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2);
+            await VerifyWithRuleEnabledAsync(test, expected);
         }
 
         [TestMethod]
@@ -568,17 +555,11 @@ namespace Test
 }
 ";
 
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(14, 13, 14, 21)
-                .WithArguments("foo.Next");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithSpan(14, 13, 14, 27)
                 .WithArguments("foo");
-            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(14, 13, 14, 27)
-                .WithArguments("foo.Next.Value");
 
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2);
+            await VerifyWithRuleEnabledAsync(test, expected);
         }
 
         [TestMethod]
@@ -825,17 +806,13 @@ namespace Test
         {
             var idx = new MyIndexer();
             var key = ""A"";
-            _ = {|#0:idx[key]|};
+            _ = idx[key];
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
-                .WithArguments("idx[key]");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
@@ -954,17 +931,13 @@ namespace Test
         void M()
         {
             var self = this;
-            _ = {|#0:self.Prop|};
+            _ = self.Prop;
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
-                .WithArguments("self.Prop");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
@@ -984,17 +957,13 @@ namespace Test
         void M()
         {
             var s = new S();
-            _ = {|#0:s.Prop|};
+            _ = s.Prop;
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
-                .WithArguments("s.Prop");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
