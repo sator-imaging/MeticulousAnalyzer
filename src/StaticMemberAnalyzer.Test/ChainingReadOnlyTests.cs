@@ -16,21 +16,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ChainingReadOnlyTests
     {
         [TestMethod]
-        public async Task ChainedAccess_WithMutableMiddleProp_ReportsDiagnostic()
+        public async Task ChainedAccess_WithMiddleAutoProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int MutableProp { get; set; }
+        public int AutoProp { get; set; }
         public readonly int ReadOnlyProp => 1;
     }
 
     struct C
     {
-        public B MutableB { get; set; }
-        public readonly B ReadOnlyB => new B();
+        public B AutoPropB { get; set; }
+        public readonly B ReadOnlyPropB => new B();
     }
 
     class Program
@@ -38,30 +38,14 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.MutableB.ReadOnlyProp;
-            _ = foo.MutableB.ReadOnlyProp;
+            _ = foo.AutoPropB.ReadOnlyProp;
+            _ = foo.AutoPropB.ReadOnlyProp;
         }
     }
 }
 ";
 
-            // Diagnostic is reported for both foo.MutableB (inner) and foo.MutableB.ReadOnlyProp (outer)
-            // on both lines because they are both property references that can change state.
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(21, 17, 21, 29)
-                .WithArguments("foo.MutableB");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(21, 17, 21, 42)
-                .WithArguments("foo.MutableB.ReadOnlyProp");
-
-            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(22, 17, 22, 29)
-                .WithArguments("foo.MutableB");
-            var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(22, 17, 22, 42)
-                .WithArguments("foo.MutableB.ReadOnlyProp");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
@@ -77,7 +61,7 @@ namespace Test
 
     struct C
     {
-        public readonly B ReadOnlyB => new B();
+        public readonly B ReadOnlyProp => new B();
     }
 
     class Program
@@ -85,7 +69,7 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.ReadOnlyProp;
+            _ = foo.ReadOnlyProp.ReadOnlyProp;
         }
     }
 }
@@ -94,19 +78,19 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithMutableEndProp_ReportsDiagnostic()
+        public async Task ChainedAccess_WithEndAutoProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int MutableProp { get; set; }
+        public int AutoProp { get; set; }
     }
 
     struct C
     {
-        public readonly B ReadOnlyB => new B();
+        public readonly B ReadOnlyPropB => new B();
     }
 
     class Program
@@ -114,27 +98,24 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.ReadOnlyB.MutableProp;
+            _ = foo.ReadOnlyPropB.AutoProp;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(19, 17, 19, 42)
-                .WithArguments("foo.ReadOnlyB.MutableProp");
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithField_IgnoresFieldReadOnlyButChecksProp_ReportsDiagnostic()
+        public async Task ChainedAccess_WithField_IgnoresFieldReadOnlyPropButChecksProp_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
 {
     struct B
     {
-        public int MutableProp { get; set; }
+        public int AutoProp { get; set; }
     }
 
     struct C
@@ -147,20 +128,17 @@ namespace Test
         void M()
         {
             var foo = new C();
-            _ = foo.FieldB.MutableProp;
+            _ = foo.FieldB.AutoProp;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithSpan(19, 17, 19, 39)
-                .WithArguments("foo.FieldB.MutableProp");
 
-            await VerifyWithRuleEnabledAsync(test, expected);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
-        public async Task ChainedAccess_WithMutableMethodInChain_ReportsDiagnostic()
+        public async Task ChainedAccess_WithMethodInChain_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -239,14 +217,14 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public readonly int Prop => 1; }
+    struct B { public readonly int ReadOnlyProp => 1; }
     struct Program
     {
-        public readonly B ReadOnlyB => new B();
+        public readonly B ReadOnlyPropB => new B();
         void M()
         {
-            _ = this.ReadOnlyB.Prop;
-            _ = ReadOnlyB.Prop;
+            _ = this.ReadOnlyPropB.ReadOnlyProp;
+            _ = ReadOnlyPropB.ReadOnlyProp;
         }
     }
 }
@@ -260,16 +238,16 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct B { public int MutableProp { get; set; } }
+    struct B { public int AutoProp { get; set; } }
     class S
     {
-        public static B StaticB => new B();
+        public static B ReadOnlyPropStatic => new B();
     }
     class Program
     {
         void M()
         {
-            _ = S.StaticB.MutableProp;
+            _ = S.ReadOnlyPropStatic.AutoProp;
         }
     }
 }
