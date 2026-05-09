@@ -165,6 +165,7 @@ namespace Test
     }
 }
 ";
+            // Diagnostic spans overlap and cannot use markers.
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(20, 17, 20, 27)
                 .WithArguments("foo.GetB()");
@@ -172,6 +173,7 @@ namespace Test
                 .WithSpan(20, 17, 20, 40)
                 .WithArguments("foo.GetB().ReadOnlyProp");
 
+            // Diagnostic spans overlap and cannot use markers.
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(21, 17, 21, 27)
                 .WithArguments("foo.GetB()");
@@ -180,6 +182,112 @@ namespace Test
                 .WithArguments("foo.GetB().ReadOnlyProp");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task ChainedAccess_MutablePropertyAndMethod_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C
+    {
+        public int Value { get; set; }
+    }
+
+    struct B
+    {
+        private C _c;
+        public C Prop { get => _c; set => _c = value; }
+        public C GetC() => _c;
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new B();
+            _ = {|#0:foo.Prop|};
+            _ = {|#1:foo.GetC()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(0)
+                .WithArguments("foo.Prop");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(1)
+                .WithArguments("foo.GetC()");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task ChainedAccess_BlockBodiedMutable_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value { get; set; } }
+    struct B
+    {
+        private C _c;
+        public C Prop
+        {
+            get { return _c; }
+            set { _c = value; }
+        }
+        public C GetC()
+        {
+            return _c;
+        }
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new B();
+            _ = {|#0:foo.Prop|};
+            _ = {|#1:foo.GetC()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(0)
+                .WithArguments("foo.Prop");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(1)
+                .WithArguments("foo.GetC()");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task ChainedAccess_ReadOnlyAutoProperty_WithMutableReturnType_DoesNotReportDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value { get; set; } }
+    struct B
+    {
+        public readonly C AutoProp { get; }
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new B();
+            _ = foo.AutoProp;
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]

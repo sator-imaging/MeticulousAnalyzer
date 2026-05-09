@@ -257,6 +257,7 @@ namespace Test
                 .WithLocation(1)
                 .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
+            // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8184")
                 .WithSpan(9, 13, 9, 30);
 
@@ -287,6 +288,7 @@ namespace Test
                 .WithLocation(1)
                 .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
+            // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8184")
                 .WithSpan(9, 13, 9, 30);
 
@@ -520,14 +522,14 @@ namespace Test
         void M()
         {
             var foo = new Box { AutoPropNext = new Box() };
-            foo.AutoPropNext.AutoPropValue = 310;
+            {|#0:foo.AutoPropNext.AutoPropValue|} = 310;
         }
     }
 }
 ";
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithSpan(15, 13, 15, 43)
+                .WithLocation(0)
                 .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -549,17 +551,99 @@ namespace Test
     {
         void M(Box foo)
         {
-            foo.AutoPropNext.AutoPropValue = 310;
+            {|#0:foo.AutoPropNext.AutoPropValue|} = 310;
         }
     }
 }
 ";
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithSpan(14, 13, 14, 43)
+                .WithLocation(0)
                 .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task MutableMembers_NonStringType_ReportDiagnostics()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value; }
+    class B
+    {
+        public C Field;
+        public C Prop { get => Field; set => Field = value; }
+        public void Do() { }
+    }
+
+    class Program
+    {
+        static void Use(C c) { }
+        void M()
+        {
+            var foo = new B();
+            Use({|#0:foo.Field|});
+            _ = {|#1:foo.Prop|};
+            {|#2:foo.Do()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument)
+                .WithLocation(0)
+                .WithArguments("foo");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(1)
+                .WithArguments("foo.Prop");
+            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(2)
+                .WithArguments("foo.Do()");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task Combinations_MutableReturn_ReadOnly_AutoProp_Tests()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value; }
+    struct S
+    {
+        public readonly C ReadOnlyAutoProp { get; }
+        public readonly C ReadOnlyMethod() => null;
+        public readonly C ReadOnlyBlockMethod() { return null; }
+        public readonly C ReadOnlyBlockProp { get { return null; } }
+        public C MutableMethod() { return null; }
+        public C MutableProp { get => null; set {} }
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var s = new S();
+            _ = s.ReadOnlyAutoProp;
+            _ = s.ReadOnlyMethod();
+            _ = s.ReadOnlyBlockMethod();
+            _ = s.ReadOnlyBlockProp;
+            _ = {|#0:s.MutableMethod()|};
+            _ = {|#1:s.MutableProp|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(0)
+                .WithArguments("s.MutableMethod()");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(1)
+                .WithArguments("s.MutableProp");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
 
         [TestMethod]
