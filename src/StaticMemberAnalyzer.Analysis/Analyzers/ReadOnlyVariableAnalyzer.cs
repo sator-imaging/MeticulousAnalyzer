@@ -571,11 +571,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsAutoProperty(IPropertySymbol property)
         {
-            return property
-                .ContainingType
-                .GetMembers()
+            return property.ContainingType?.GetMembers()
                 .OfType<IFieldSymbol>()
-                .Any(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, property));
+                .Any(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, property)) ?? false;
         }
 
         private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
