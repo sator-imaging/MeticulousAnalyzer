@@ -46,23 +46,6 @@ Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern 
 
 
 
-# Analysis for Code Review
-
-## Literal Argument Analysis
-
-Literal arguments can be difficult to understand without IDE assistance, especially during code reviews in a web browser. Using named arguments or variables for literals makes the code self-documenting and easier to review.
-
-```cs
-Foo(0, 0, true);
-//  ~  ~  ~~~~ literal arguments are difficult to understand
-
-Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
-//  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
-//  Now arguments are self-explanatory!
-```
-
-
-
 ## Annotation for Type, Field and Property 💯
 
 > [!IMPORTANT]
@@ -453,6 +436,22 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 &nbsp;
 
+# Analysis for Code Review
+
+## Literal Argument Analysis
+
+Literal arguments can be difficult to understand without IDE assistance, especially during code reviews in a web browser. Using named arguments or variables for literals makes the code self-documenting and easier to review.
+
+```cs
+Foo(0, 0, true);
+//  ~  ~  ~~~~ literal arguments are difficult to understand
+
+Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
+//  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
+//  Now arguments are self-explanatory!
+```
+
+&nbsp;
 # Read-Only Variable Analysis
 
 This analyzer helps keep local values and parameters immutable by flagging write operations.  
