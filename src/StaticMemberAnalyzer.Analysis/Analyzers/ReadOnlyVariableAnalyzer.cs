@@ -502,11 +502,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    // NOTE: Roslyn may set IsReadOnly if the method can take 'ref readonly this'.
-                    //       e.g. int Foo() => 0;
-                    //            int Foo() => (StaticField = 0);  // Even if it has side effect
-                    //       It can change observable state but allow it.
-                    //       This analyzer just checks variable mutation.
+                    // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
+                    //         e.g. int Foo() => 0;
+                    //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
+                    //       Anyway this analyzer just checks variable mutation. Allows those cases.
                     if (!invocation.TargetMethod.IsReadOnly &&
                         invocation.TargetMethod.ContainingType.SpecialType is not SpecialType.System_String)
                     {
@@ -527,11 +526,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (propertyReference.Property.ContainingType.SpecialType is not SpecialType.System_String
                         && !(
-                            // NOTE: Roslyn may set IsReadOnly if the method can take 'ref readonly this'.
-                            //       e.g. int Prop => 0;
-                            //            int Prop => (StaticField = 0);  // Even if it has side effect
-                            //       It can change observable state but allow it.
-                            //       This analyzer just checks variable mutation.
+                            // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
+                            //         e.g. int Foo() => 0;
+                            //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
+                            //       Anyway this analyzer just checks variable mutation. Allows those cases.
                             propertyReference.Property.IsReadOnly ||
                             // 1. No-getter property can only be valid on the left side of assignment
                             //    and also it's not able to be middle of the chain.
