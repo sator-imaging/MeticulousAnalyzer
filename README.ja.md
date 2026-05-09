@@ -52,7 +52,7 @@ CRTP (Curiously Recurring Template Pattern) 向けに `TSelf` 型引数の不一
 
 - **Bad**: `Foo(0, 0, true);`
 - **Good**: `Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);`
-    - IDE の支援がない環境（Web ブラウザなど）でも、コードレビュー時に引数の意味を理解できるようになります。
+    - リテラル引数は、IDE の支援がない環境（Web ブラウザでのコードレビューなど）では、その意味を理解するのが困難です。名前付き引数や変数を使用することで、コードが自己文書化され、レビューが容易になります。
 
 
 

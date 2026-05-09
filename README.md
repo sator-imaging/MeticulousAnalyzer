@@ -52,7 +52,7 @@ Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern 
 
 - **Bad**: `Foo(0, 0, true);`
 - **Good**: `Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);`
-    - Code reviewer can understand arguments without IDE assist (ie. Web Browser).
+    - Literal arguments can be difficult to understand without IDE assistance, especially during code reviews in a web browser. Using named arguments or variables for literals makes the code self-documenting and easier to review.
 
 
 

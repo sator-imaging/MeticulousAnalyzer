@@ -52,7 +52,7 @@
 
 - **Bad**: `Foo(0, 0, true);`
 - **Good**: `Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);`
-    - 代码审查人员可以在没有 IDE 辅助的情况下（如 Web 浏览器）理解参数含义。
+    - 在没有 IDE 辅助的情况下（例如在 Web 浏览器中进行代码审查时），字面量参数可能难以理解。使用命名参数或变量可以使代码具有自解释性，从而使审查过程更加顺畅。
 
 
 
