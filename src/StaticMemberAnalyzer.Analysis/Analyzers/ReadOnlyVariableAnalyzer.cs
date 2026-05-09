@@ -477,10 +477,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
                     //       Anyway this analyzer just checks variable mutation. Allows those cases.
                     if (!invocation.TargetMethod.IsReadOnly &&
-                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String &&
                         !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        TryGetRootLocalOrParameter(invocation, out rootName, out _);
                         return false;
                     }
 
@@ -496,8 +494,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String &&
-                        !IsKnownImmutableType(propertyReference.Property.ContainingType) &&
+                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType) &&
                         !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
@@ -512,7 +509,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        TryGetRootLocalOrParameter(propertyReference, out rootName, out _);
                         return false;
                     }
 
