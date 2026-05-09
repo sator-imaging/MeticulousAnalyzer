@@ -430,10 +430,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation
-                            or IParameterReferenceOperation
-                            or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
-                {
                 if (current is ILocalReferenceOperation localReference)
                 {
                     rootName = localReference.Local.Name;
