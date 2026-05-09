@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -102,59 +103,61 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level
                 if (severity.ToLowerInvariant() is "error" or "warning" or "suggestion")
                 {
-                    ctx.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
-                    ctx.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
-                    ctx.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
-                    ctx.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
-                    ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
-                    ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
-                    ctx.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
-                    ctx.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
+                    var autoPropertyCache = new ConcurrentDictionary<IPropertySymbol, bool>(SymbolEqualityComparer.Default);
+
+                    ctx.RegisterOperationAction(c => AnalyzeSimpleAssignment(c, autoPropertyCache), OperationKind.SimpleAssignment);
+                    ctx.RegisterOperationAction(c => AnalyzeCoalesceAssignment(c, autoPropertyCache), OperationKind.CoalesceAssignment);
+                    ctx.RegisterOperationAction(c => AnalyzeCompoundAssignment(c, autoPropertyCache), OperationKind.CompoundAssignment);
+                    ctx.RegisterOperationAction(c => AnalyzeIncrementOrDecrement(c, autoPropertyCache), OperationKind.Increment, OperationKind.Decrement);
+                    ctx.RegisterOperationAction(c => AnalyzeDeconstructionAssignment(c, autoPropertyCache), OperationKind.DeconstructionAssignment);
+                    ctx.RegisterOperationAction(c => AnalyzeArgumentOperation(c, autoPropertyCache), OperationKind.Argument);
+                    ctx.RegisterOperationAction(c => AnalyzePropertyReference(c, autoPropertyCache), OperationKind.PropertyReference);
+                    ctx.RegisterOperationAction(c => AnalyzeInvocation(c, autoPropertyCache), OperationKind.Invocation);
                 }
             });
         }
 
-        private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
+        private static void AnalyzeSimpleAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is not ISimpleAssignmentOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target);
+            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
         }
 
-        private static void AnalyzeCompoundAssignment(OperationAnalysisContext context)
+        private static void AnalyzeCompoundAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is not ICompoundAssignmentOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target);
+            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
         }
 
-        private static void AnalyzeCoalesceAssignment(OperationAnalysisContext context)
+        private static void AnalyzeCoalesceAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is not ICoalesceAssignmentOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target);
+            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
         }
 
-        private static void AnalyzeIncrementOrDecrement(OperationAnalysisContext context)
+        private static void AnalyzeIncrementOrDecrement(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is not IIncrementOrDecrementOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target);
+            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
         }
 
-        private static void AnalyzeDeconstructionAssignment(OperationAnalysisContext context)
+        private static void AnalyzeDeconstructionAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is not IDeconstructionAssignmentOperation op)
             {
@@ -170,43 +173,48 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, target);
+            ReportIfDisallowedMutation(context, op, target, autoPropertyCache);
         }
 
-        private static void AnalyzeArgumentOperation(OperationAnalysisContext context)
+        private static void AnalyzeArgumentOperation(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is not IArgumentOperation argument)
             {
                 return;
             }
 
-            AnalyzeArgument(context, argument);
+            AnalyzeArgument(context, argument, autoPropertyCache);
         }
 
-        private static void AnalyzePropertyReference(OperationAnalysisContext context)
+        private static void AnalyzePropertyReference(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is IPropertyReferenceOperation propRef)
             {
-                AnalyzeStateChange(context, propRef, Rule_PropertyAccessCanChangeState);
+                AnalyzeStateChange(context, propRef, Rule_PropertyAccessCanChangeState, autoPropertyCache);
             }
         }
 
-        private static void AnalyzeInvocation(OperationAnalysisContext context)
+        private static void AnalyzeInvocation(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (context.Operation is IInvocationOperation invocation)
             {
-                AnalyzeStateChange(context, invocation, Rule_ReadOnlyMethodCall);
+                AnalyzeStateChange(context, invocation, Rule_ReadOnlyMethodCall, autoPropertyCache);
             }
         }
 
-        private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
+        private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
-            if (IsReadOnlyChain(operation))
+            if (!TryGetRootInfo(operation, autoPropertyCache, out var rootName, out _, out var isReadOnlyChain))
             {
                 return;
             }
 
-            if (TryGetRootLocalOrParameter(operation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
+            if (isReadOnlyChain)
+            {
+                return;
+            }
+
+            if (rootName != null && !HasMutableNamePrefix(rootName))
             {
                 var syntax = operation.Syntax;
                 var location = syntax.GetLocation();
@@ -225,10 +233,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
+        private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             var reported = new HashSet<string>();
-            foreach (var (name, isParameter, isOutParameter, location, syntax) in EnumerateAssignedLocalsAndParameters(target))
+            foreach (var (name, isParameter, isOutParameter, location, syntax) in EnumerateAssignedLocalsAndParameters(target, autoPropertyCache))
             {
                 if (HasMutableNamePrefix(name))
                 {
@@ -255,7 +263,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static IEnumerable<(string name, bool isParameter, bool isOutParameter, Location location, SyntaxNode syntax)> EnumerateAssignedLocalsAndParameters(IOperation op)
+        private static IEnumerable<(string name, bool isParameter, bool isOutParameter, Location location, SyntaxNode syntax)> EnumerateAssignedLocalsAndParameters(IOperation op, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             if (op is ILocalReferenceOperation localReference)
             {
@@ -272,7 +280,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (op is IPropertyReferenceOperation or IFieldReferenceOperation)
             {
-                if (TryGetRootLocalOrParameter(op, out var name, out var isParameter))
+                if (TryGetRootInfo(op, autoPropertyCache, out var name, out var isParameter, out _) && name != null)
                 {
                     yield return (name, isParameter, false, op.Syntax.GetLocation(), op.Syntax);
                 }
@@ -281,7 +289,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 foreach (var element in tupleOperation.Elements)
                 {
-                    foreach (var nested in EnumerateAssignedLocalsAndParameters(element))
+                    foreach (var nested in EnumerateAssignedLocalsAndParameters(element, autoPropertyCache))
                     {
                         yield return nested;
                     }
@@ -293,7 +301,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (op is IDeclarationExpressionOperation declarationExpression)
             {
-                foreach (var nested in EnumerateAssignedLocalsAndParameters(declarationExpression.Expression))
+                foreach (var nested in EnumerateAssignedLocalsAndParameters(declarationExpression.Expression, autoPropertyCache))
                 {
                     yield return nested;
                 }
@@ -310,7 +318,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return name.StartsWith("mut_");
         }
 
-        private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument)
+        private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
         {
             // The analysis precedence in this method is intentionally designed and must not be changed.
             var argumentValue = argument.Value;
@@ -336,8 +344,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var hasRoot = TryGetRootLocalOrParameter(argumentValue, out var rootName, out _);
-            if (hasRoot)
+            var hasRoot = TryGetRootInfo(argumentValue, autoPropertyCache, out var rootName, out _, out _);
+            if (hasRoot && rootName != null)
             {
                 if (HasMutableNamePrefix(rootName))
                 {
@@ -423,16 +431,125 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsReadOnlyChain(IOperation? operation)
+        private static bool IsAutoProperty(IPropertySymbol property, ConcurrentDictionary<IPropertySymbol, bool> cache)
         {
+            if (cache.TryGetValue(property, out var result)) return result;
+
+            result = IsAutoPropertyImpl(property);
+            cache.TryAdd(property, result);
+            return result;
+        }
+
+        private static bool IsAutoPropertyImpl(IPropertySymbol property)
+        {
+            // Check syntax first for source properties.
+            if (property.DeclaringSyntaxReferences.Length > 0)
+            {
+                foreach (var syntaxRef in property.DeclaringSyntaxReferences)
+                {
+                    if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax propertyDeclaration)
+                    {
+                        if (propertyDeclaration.AccessorList != null)
+                        {
+                            var allAuto = true;
+                            foreach (var accessor in propertyDeclaration.AccessorList.Accessors)
+                            {
+                                if (accessor.Body != null || accessor.ExpressionBody != null)
+                                {
+                                    allAuto = false;
+                                    break;
+                                }
+                            }
+                            if (allAuto) return true;
+                        }
+                    }
+                }
+            }
+
+            // Fallback for metadata or non-conclusive syntax.
+            if (property.ContainingType == null) return false;
+            foreach (var member in property.ContainingType.GetMembers())
+            {
+                if (member is IFieldSymbol field && SymbolEqualityComparer.Default.Equals(field.AssociatedSymbol, property))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static DiagnosticDescriptor GetDescriptor(bool isParameter)
+        {
+            return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
+        }
+
+        private static bool IsKnownImmutableType(ITypeSymbol? type)
+        {
+            if (type == null) return false;
+
+            if (type.IsReadOnly
+                || type.SpecialType == SpecialType.System_String
+                || type.SpecialType == SpecialType.System_Collections_IEnumerable
+                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
+                || type.TypeKind == TypeKind.Enum)
+            {
+                return true;
+            }
+
+            if (type.Name is "Uri" or "Version" or "Type" or "Guid")
+            {
+                var ns = type.ContainingNamespace;
+                return ns != null && ns.Name == "System" && ns.ContainingNamespace.IsGlobalNamespace;
+            }
+
+            return false;
+        }
+
+        private static bool IsAllowedArgumentValue(IOperation value)
+        {
+            return value
+                is IInvocationOperation
+                or IPropertyReferenceOperation
+                or IObjectCreationOperation
+                or IAnonymousObjectCreationOperation
+                or IArrayCreationOperation
+                or ILiteralOperation
+                or IDefaultValueOperation
+                or IAnonymousFunctionOperation
+                or IDelegateCreationOperation;
+        }
+
+        private static bool TryGetRootInfo(
+            IOperation? operation,
+            ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache,
+            out string? name,
+            out bool isParameter,
+            out bool isReadOnlyChain)
+        {
+            name = null;
+            isParameter = false;
+            isReadOnlyChain = true;
+
             var current = operation;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation
-                            or IParameterReferenceOperation
-                            or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
+                if (current is ILocalReferenceOperation localReference)
                 {
-                    return true;  // Entire chain is readonly. Don't need to check variable naming.
+                    name = localReference.Local.Name;
+                    isParameter = false;
+                    return !IsKnownImmutableType(localReference.Type);
+                }
+
+                if (current is IParameterReferenceOperation parameterReference)
+                {
+                    name = parameterReference.Parameter.Name;
+                    isParameter = true;
+                    return !IsKnownImmutableType(parameterReference.Type);
+                }
+
+                if (current is IInstanceReferenceOperation) // <-- 'this.' or 'base.'
+                {
+                    return true;
                 }
 
                 if (current is IConversionOperation conversion)
@@ -470,14 +587,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
-                    //         e.g. int Foo() => 0;
-                    //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
-                    //       Anyway this analyzer just checks variable mutation. Allows those cases.
-                    if (!invocation.TargetMethod.IsReadOnly &&
-                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
+                    if (isReadOnlyChain)
                     {
-                        return false;
+                        if (!invocation.TargetMethod.IsReadOnly &&
+                            invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
+                        {
+                            isReadOnlyChain = false;
+                        }
                     }
 
                     current = invocation.Instance;
@@ -492,113 +608,31 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
-                        && !(
-                            // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
-                            //         e.g. int Foo() => 0;
-                            //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
-                            //       Anyway this analyzer just checks variable mutation. Allows those cases.
-                            propertyReference.Property.IsReadOnly ||
-                            // 1. No-getter property can only be valid on the left side of assignment
-                            //    and also it's not able to be middle of the chain.
-                            // 2. Assignment is analyzed by other method.
-                            propertyReference.Property.GetMethod == null ||
-                            propertyReference.Property.GetMethod.IsReadOnly ||
-                            IsAutoProperty(propertyReference.Property)
-                        ))
+                    if (isReadOnlyChain)
                     {
-                        return false;
+                        if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
+                            && !(
+                                propertyReference.Property.IsReadOnly ||
+                                propertyReference.Property.GetMethod == null ||
+                                propertyReference.Property.GetMethod.IsReadOnly ||
+                                IsAutoProperty(propertyReference.Property, autoPropertyCache)
+                            ))
+                        {
+                            isReadOnlyChain = false;
+                        }
                     }
 
                     current = propertyReference.Instance;
                     continue;
                 }
 
-                // Reference of event, field, property and method (not invocation)
                 if (current is IMemberReferenceOperation memberReference)
                 {
-                    // Analyzer is checking only variable mutability. Ignore static member access.
                     if (memberReference.Instance == null)
                     {
                         return true;
                     }
 
-                    // Given: foo.FieldA.FieldB = bar.FieldC.FieldD;
-                    // Mutated: FieldB only
-                    // --> Assignment is analyzed by other method.
-                    //     Ok to ignore field reference completely.
-                    current = memberReference.Instance;
-                    continue;
-                }
-
-                if (current is IArrayElementReferenceOperation arrayElementReference)
-                {
-                    // Assignment is analyzed by other method.
-                    // Ok to ignore field reference completely.
-                    current = arrayElementReference.ArrayReference;
-                    continue;
-                }
-
-                break;
-            }
-
-            return false;
-        }
-
-        private static bool IsAutoProperty(IPropertySymbol property)
-        {
-            if (property.ContainingType == null) return false;
-            foreach (var member in property.ContainingType.GetMembers())
-            {
-                if (member is IFieldSymbol field && SymbolEqualityComparer.Default.Equals(field.AssociatedSymbol, property))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
-        {
-            var current = operation;
-            while (current != null)
-            {
-                if (current is IConversionOperation conversion)
-                {
-                    current = conversion.Operand;
-                    continue;
-                }
-
-                if (current is IConditionalAccessOperation conditionalAccess)
-                {
-                    current = conditionalAccess.Operation;
-                    continue;
-                }
-
-                if (current is IConditionalAccessInstanceOperation)
-                {
-                    var parent = current.Parent;
-                    while (parent is not null and not IConditionalAccessOperation)
-                    {
-                        parent = parent.Parent;
-                    }
-
-                    if (parent is IConditionalAccessOperation cao)
-                    {
-                        current = cao.Operation;
-                        continue;
-                    }
-                }
-
-                if (current is IInvocationOperation invocationOperation)
-                {
-                    current = invocationOperation.Instance;
-                    continue;
-                }
-
-                // Reference of event, field, property and method (not invocation)
-                if (current is IMemberReferenceOperation memberReference)
-                {
                     current = memberReference.Instance;
                     continue;
                 }
@@ -609,77 +643,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is ILocalReferenceOperation localReference)
-                {
-                    name = localReference.Local.Name;
-                    isParameter = false;
-
-                    if (IsKnownImmutableType(localReference.Type)) return false;
-
-                    return true;
-                }
-
-                if (current is IParameterReferenceOperation parameterReference)
-                {
-                    name = parameterReference.Parameter.Name;
-                    isParameter = true;
-
-                    if (IsKnownImmutableType(parameterReference.Type)) return false;
-
-                    return true;
-                }
-
-                // NOTE: Analyzer is checking only variable mutability. Ignore instance access.
-                // TODO: Should support field mutation prefix?
-
-                // // 'this.' or 'base.'
-                // if (current is IInstanceReferenceOperation instanceReference &&
-                //     !instanceReference.Type.IsReadOnly)
-                // {
-                //     name = "`this` (may be omitted) or `base` is mutable type instance";
-                //     isParameter = false;
-
-                //     return !instanceReference.Type.IsReadOnly
-                //         && instanceReference.Type.SpecialType is not SpecialType.System_String;
-                // }
-
                 break;
             }
 
-            name = string.Empty;
-            isParameter = false;
             return false;
-        }
-
-        private static DiagnosticDescriptor GetDescriptor(bool isParameter)
-        {
-            return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
-        }
-
-        private static bool IsKnownImmutableType(ITypeSymbol? type)
-        {
-            if (type == null) return false;
-
-            return type.IsReadOnly
-                || type.SpecialType == SpecialType.System_String
-                || type.SpecialType == SpecialType.System_Collections_IEnumerable
-                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
-                || type.TypeKind == TypeKind.Enum
-                ;
-        }
-
-        private static bool IsAllowedArgumentValue(IOperation value)
-        {
-            return value
-                is IInvocationOperation
-                or IPropertyReferenceOperation
-                or IObjectCreationOperation
-                or IAnonymousObjectCreationOperation
-                or IArrayCreationOperation
-                or ILiteralOperation
-                or IDefaultValueOperation
-                or IAnonymousFunctionOperation
-                or IDelegateCreationOperation;
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using System.Linq;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
@@ -15,31 +16,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ReadOnlyVariableAnalyzerRelaxationTests
     {
         [TestMethod]
-        public async Task IEnumerableArgument_IsAllowed()
+        public async Task UriMethodCall_DoesNotReportDiagnostic()
         {
             var test = @"
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 namespace Test
 {
     class Program
     {
-        static void Use(IEnumerable value) { }
-        static void UseGeneric(IEnumerable<int> value) { }
-
-        void M(IEnumerable eParam, IEnumerable<int> egParam)
+        void M(Uri uri)
         {
-            IEnumerable e = null;
-            IEnumerable<int> eg = null;
-            Use(e);
-            UseGeneric(eg);
-            Use(eParam);
-            UseGeneric(egParam);
-
-            // LINQ methods
-            eg.Any();
-            egParam.Any();
+            _ = uri.ToString();
+            _ = uri.GetHashCode();
         }
     }
 }
@@ -48,21 +36,18 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task EnumArgument_IsAllowed()
+        public async Task VersionMethodCall_DoesNotReportDiagnostic()
         {
             var test = @"
+using System;
 namespace Test
 {
-    enum E { A }
     class Program
     {
-        static void Use(E value) { }
-
-        void M(E eParam)
+        void M(Version v)
         {
-            E e = E.A;
-            Use(e);
-            Use(eParam);
+            _ = v.ToString();
+            _ = v.GetHashCode();
         }
     }
 }
@@ -71,7 +56,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task LambdaArgument_IsAllowed_ButViolationInsideReported()
+        public async Task TypeMethodCall_DoesNotReportDiagnostic()
         {
             var test = @"
 using System;
@@ -79,25 +64,19 @@ namespace Test
 {
     class Program
     {
-        static void Use(Action action) { }
-
-        void M()
+        void M(Type t)
         {
-            Use(() => {
-                int x = 0;
-                {|#0:x|} = 1;
-            });
+            _ = t.ToString();
+            _ = t.GetHashCode();
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(0).WithArguments("x");
-
-            await VerifyWithRuleEnabledAsync(test, expected0);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         [TestMethod]
-        public async Task AnonymousMethodArgument_IsAllowed()
+        public async Task GuidMethodCall_DoesNotReportDiagnostic()
         {
             var test = @"
 using System;
@@ -105,47 +84,15 @@ namespace Test
 {
     class Program
     {
-        static void Use(Action action) { }
-
-        void M()
+        void M(Guid g)
         {
-            Use(delegate {
-                int x = 0;
-                {|#0:x|} = 1;
-            });
+            _ = g.ToString();
+            _ = g.ToByteArray();
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(0).WithArguments("x");
-
-            await VerifyWithRuleEnabledAsync(test, expected0);
-        }
-
-        [TestMethod]
-        public async Task ActionVariable_ReportsDiagnostic()
-        {
-            var test = @"
-using System;
-namespace Test
-{
-    class Program
-    {
-        static void Use(Action action) { }
-
-        void M(Action aParam)
-        {
-            Action a = () => { };
-            Use({|#0:a|});
-            Use({|#1:aParam|});
-        }
-    }
-}
-";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument).WithLocation(0).WithArguments("a");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument).WithLocation(1).WithArguments("aParam");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
+            await VerifyWithRuleEnabledAsync(test);
         }
 
         private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
@@ -166,13 +113,7 @@ namespace Test
                     return solution;
 
                 var specificOptions = compilationOptions.SpecificDiagnosticOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal,
-                    ReportDiagnostic.Error);
-                specificOptions = specificOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter,
-                    ReportDiagnostic.Error);
-                specificOptions = specificOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,
                     ReportDiagnostic.Error);
 
                 compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);
