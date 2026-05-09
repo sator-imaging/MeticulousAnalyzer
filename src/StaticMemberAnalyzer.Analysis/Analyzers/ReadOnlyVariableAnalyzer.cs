@@ -536,6 +536,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (current is ILocalReferenceOperation
+                            or IParameterReferenceOperation
+                            or IInstanceReferenceOperation)  // <-- 'this.' or 'base.'
+                {
+                    // Analyzer is checking only variable mutability. Ignore instance access.
+                    // And also rootName is not required to be set because entire chain is readonly.
+                    return true;
+                }
+
                 break;
             }
 
