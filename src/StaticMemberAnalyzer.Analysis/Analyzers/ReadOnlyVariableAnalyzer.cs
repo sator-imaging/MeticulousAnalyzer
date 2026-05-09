@@ -536,22 +536,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is ILocalReferenceOperation localReference)
+                if (current is ILocalReferenceOperation
+                            or IParameterReferenceOperation
+                            or IInstanceReferenceOperation)  // <-- 'this.' or 'base.'
                 {
-                    rootName = localReference.Local.Name;
+                    // Analyzer is checking only variable mutability. Ignore instance access.
+                    // And also rootName is not required to be set because entire chain is readonly.
                     return true;
-                }
-
-                if (current is IParameterReferenceOperation parameterReference)
-                {
-                    rootName = parameterReference.Parameter.Name;
-                    return true;
-                }
-
-                // 'this.' or 'base.'
-                if (current is IInstanceReferenceOperation)
-                {
-                    return true;  // Analyzer is checking only variable mutability. Ignore instance access.
                 }
 
                 break;
