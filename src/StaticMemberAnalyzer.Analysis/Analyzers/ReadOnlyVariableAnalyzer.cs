@@ -185,61 +185,41 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzePropertyReference(OperationAnalysisContext context)
         {
-            if (context.Operation is not IPropertyReferenceOperation propRef)
+            if (context.Operation is IPropertyReferenceOperation propRef)
             {
-                return;
-            }
-
-            if (IsReadOnlyChain(propRef))
-            {
-                return;
-            }
-
-            if (TryGetRootLocalOrParameter(propRef, out var rootName, out _) && !HasMutableNamePrefix(rootName))
-            {
-                var syntax = propRef.Syntax;
-                var location = syntax.GetLocation();
-
-                // Handle null-conditional access
-                if (propRef.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == propRef)
-                {
-                    syntax = cao.Syntax;
-                    location = syntax.GetLocation();
-                }
-
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_PropertyAccessCanChangeState,
-                    location,
-                    syntax.ToString()));
+                AnalyzeStateChange(context, propRef, Rule_PropertyAccessCanChangeState);
             }
         }
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
-            if (context.Operation is not IInvocationOperation invocation)
+            if (context.Operation is IInvocationOperation invocation)
+            {
+                AnalyzeStateChange(context, invocation, Rule_ReadOnlyMethodCall);
+            }
+        }
+
+        private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
+        {
+            if (IsReadOnlyChain(operation))
             {
                 return;
             }
 
-            if (IsReadOnlyChain(invocation))
+            if (TryGetRootLocalOrParameter(operation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
             {
-                return;
-            }
-
-            if (TryGetRootLocalOrParameter(invocation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
-            {
-                var syntax = invocation.Syntax;
+                var syntax = operation.Syntax;
                 var location = syntax.GetLocation();
 
                 // Handle null-conditional access
-                if (invocation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == invocation)
+                if (operation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == operation)
                 {
                     syntax = cao.Syntax;
                     location = syntax.GetLocation();
                 }
 
                 context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_ReadOnlyMethodCall,
+                    rule,
                     location,
                     syntax.ToString()));
             }
