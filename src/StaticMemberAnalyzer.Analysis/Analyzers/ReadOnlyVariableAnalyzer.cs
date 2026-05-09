@@ -372,21 +372,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var type = parameter.Type;
-            var isString = type.SpecialType == SpecialType.System_String;
-
-            // Relax for IEnumerable and Enum
-            var isIEnumerable = type.SpecialType == SpecialType.System_Collections_IEnumerable
-                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T;
-            var isEnum = type.TypeKind == TypeKind.Enum;
-
-            if (isIEnumerable || isEnum)
+            if (IsKnownImmutableType(type))
             {
-                return;
+                if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
+                    type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                    type.TypeKind == TypeKind.Enum)
+                {
+                    return;
+                }
+
+                if (parameter.RefKind is RefKind.None or RefKind.In)
+                {
+                    return;
+                }
             }
 
-            var readOnlyStructLike = isString || (!type.IsReferenceType && type.IsReadOnly);
-
-            if (type.IsReferenceType && !isString)
+            if (type.IsReferenceType && type.SpecialType != SpecialType.System_String)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ReadOnlyArgument,
@@ -396,11 +397,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (parameter.RefKind == RefKind.In)
-            {
-                return;
-            }
-
-            if (parameter.RefKind == RefKind.None && readOnlyStructLike)
             {
                 return;
             }
@@ -507,7 +503,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
                     //       Anyway this analyzer just checks variable mutation. Allows those cases.
                     if (!invocation.TargetMethod.IsReadOnly &&
-                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
+                        !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
                         return false;
                     }
@@ -524,7 +520,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
+                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType)
                         && !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
@@ -647,14 +643,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     isParameter = false;
 
                     var type = localReference.Type;
-                    if (type.IsReadOnly || type.SpecialType == SpecialType.System_String) return false;
-
-                    if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
-                        type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
-                        type.TypeKind == TypeKind.Enum)
-                    {
-                        return false;
-                    }
+                    if (IsKnownImmutableType(type)) return false;
 
                     return true;
                 }
@@ -665,14 +654,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     isParameter = true;
 
                     var type = parameterReference.Type;
-                    if (type.IsReadOnly || type.SpecialType == SpecialType.System_String) return false;
-
-                    if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
-                        type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
-                        type.TypeKind == TypeKind.Enum)
-                    {
-                        return false;
-                    }
+                    if (IsKnownImmutableType(type)) return false;
 
                     return true;
                 }
@@ -716,6 +698,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 or IDefaultValueOperation
                 or IAnonymousFunctionOperation
                 or IDelegateCreationOperation;
+        }
+
+        private static bool IsKnownImmutableType(ITypeSymbol? type)
+        {
+            if (type == null) return false;
+
+            return type.IsReadOnly ||
+                   type.SpecialType == SpecialType.System_String ||
+                   type.SpecialType == SpecialType.System_Collections_IEnumerable ||
+                   type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                   type.TypeKind == TypeKind.Enum;
         }
     }
 }
