@@ -61,9 +61,11 @@ jobs:
               -reports:"current/$reportDir" \
               -historydir:"baseline/$reportDir" \
               -targetdir:"$REPORT_OUTPUT/diff"
-            cat "$REPORT_OUTPUT/diff/SummaryGithub.md" \
-              | sed 's/^# Summary$/# 📊 PR Changes/' \
-              >> $GITHUB_STEP_SUMMARY
+            {
+              cat "$REPORT_OUTPUT/diff/SummaryGithub.md" \
+                | sed 's/^# Summary$/# 📊 PR Changes/'
+              echo
+            } >> $GITHUB_STEP_SUMMARY
           fi
 
           reportgenerator \
