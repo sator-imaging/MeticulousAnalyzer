@@ -375,16 +375,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var isString = type.SpecialType == SpecialType.System_String;
 
             // Relax for IEnumerable and Enum
-            var isIEnumerable = type.SpecialType == SpecialType.System_Collections_IEnumerable
-                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T;
-            var isEnum = type.TypeKind == TypeKind.Enum;
-
-            if (isIEnumerable || isEnum)
+            if (IsIEnumerableOrEnum(type))
             {
                 return;
             }
 
-            var readOnlyStructLike = isString || (!type.IsReferenceType && type.IsReadOnly);
+            var readOnlyStructLike = isString || (!type.IsReferenceType && IsReadOnlyStructOrString(type));
 
             if (type.IsReferenceType && !isString)
             {
@@ -646,15 +642,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = localReference.Local.Name;
                     isParameter = false;
 
-                    var type = localReference.Type;
-                    if (type.IsReadOnly || type.SpecialType == SpecialType.System_String) return false;
-
-                    if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
-                        type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
-                        type.TypeKind == TypeKind.Enum)
-                    {
-                        return false;
-                    }
+                    if (IsKnownImmutableType(localReference.Type)) return false;
 
                     return true;
                 }
@@ -664,15 +652,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = parameterReference.Parameter.Name;
                     isParameter = true;
 
-                    var type = parameterReference.Type;
-                    if (type.IsReadOnly || type.SpecialType == SpecialType.System_String) return false;
-
-                    if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
-                        type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
-                        type.TypeKind == TypeKind.Enum)
-                    {
-                        return false;
-                    }
+                    if (IsKnownImmutableType(parameterReference.Type)) return false;
 
                     return true;
                 }
@@ -702,6 +682,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static DiagnosticDescriptor GetDescriptor(bool isParameter)
         {
             return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
+        }
+
+        private static bool IsKnownImmutableType(ITypeSymbol? type)
+        {
+            if (type == null) return false;
+
+            return IsReadOnlyStructOrString(type) || IsIEnumerableOrEnum(type);
+        }
+
+        private static bool IsReadOnlyStructOrString(ITypeSymbol type)
+        {
+            return type.IsReadOnly || type.SpecialType == SpecialType.System_String;
+        }
+
+        private static bool IsIEnumerableOrEnum(ITypeSymbol type)
+        {
+            return type.SpecialType == SpecialType.System_Collections_IEnumerable ||
+                   type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                   type.TypeKind == TypeKind.Enum;
         }
 
         private static bool IsAllowedArgumentValue(IOperation value)
