@@ -372,17 +372,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var type = parameter.Type;
-            var isString = type.SpecialType == SpecialType.System_String;
 
-            // Relax for IEnumerable and Enum
-            if (IsIEnumerableOrEnum(type))
+            // Relax for known immutable types
+            if (IsKnownImmutableType(type))
             {
                 return;
             }
 
-            var readOnlyStructLike = isString || (!type.IsReferenceType && IsReadOnlyStructOrString(type));
-
-            if (type.IsReferenceType && !isString)
+            if (type.IsReferenceType)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ReadOnlyArgument,
@@ -392,11 +389,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (parameter.RefKind == RefKind.In)
-            {
-                return;
-            }
-
-            if (parameter.RefKind == RefKind.None && readOnlyStructLike)
             {
                 return;
             }
