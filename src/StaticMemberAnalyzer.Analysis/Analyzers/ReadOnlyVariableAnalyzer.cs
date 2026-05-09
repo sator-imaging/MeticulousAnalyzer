@@ -574,6 +574,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         }
 
         private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
+
+        private static bool TryGetRootLocalOrParameter(IOperation operation?, out string name, out bool isParameter)
         {
             var current = operation;
             while (current != null)
