@@ -372,19 +372,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var type = parameter.Type;
-            if (IsKnownImmutableType(type))
+            if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
+                type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                type.TypeKind == TypeKind.Enum)
             {
-                if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
-                    type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
-                    type.TypeKind == TypeKind.Enum)
-                {
-                    return;
-                }
+                return;
+            }
 
-                if (parameter.RefKind is RefKind.None or RefKind.In)
-                {
-                    return;
-                }
+            if (parameter.RefKind == RefKind.In)
+            {
+                return;
+            }
+
+            if (parameter.RefKind == RefKind.None && IsKnownImmutableType(type))
+            {
+                return;
             }
 
             if (type.IsReferenceType && type.SpecialType != SpecialType.System_String)
@@ -393,11 +395,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     Rule_ReadOnlyArgument,
                     argumentValue.Syntax.GetLocation(),
                     hasRoot ? rootName : argumentValue.Syntax.ToString()));
-                return;
-            }
-
-            if (parameter.RefKind == RefKind.In)
-            {
                 return;
             }
 
@@ -502,14 +499,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //         e.g. int Foo() => 0;
                     //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
                     //       Anyway this analyzer just checks variable mutation. Allows those cases.
-                    if (!invocation.TargetMethod.IsReadOnly &&
-                        !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
+                    if (invocation.TargetMethod.IsReadOnly ||
+                        IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        return false;
+                        current = invocation.Instance;
+                        continue;
                     }
 
-                    current = invocation.Instance;
-                    continue;
+                    return false;
                 }
 
                 if (current is IPropertyReferenceOperation propertyReference)
@@ -520,8 +517,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType)
-                        && !(
+                    if (IsKnownImmutableType(propertyReference.Property.ContainingType)
+                        || (
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
                             //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
@@ -535,11 +532,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        return false;
+                        current = propertyReference.Instance;
+                        continue;
                     }
 
-                    current = propertyReference.Instance;
-                    continue;
+                    return false;
                 }
 
                 // Reference of event, field, property and method (not invocation)
@@ -642,8 +639,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = localReference.Local.Name;
                     isParameter = false;
 
-                    var type = localReference.Type;
-                    if (IsKnownImmutableType(type)) return false;
+                    if (IsKnownImmutableType(localReference.Type)) return false;
 
                     return true;
                 }
@@ -653,8 +649,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = parameterReference.Parameter.Name;
                     isParameter = true;
 
-                    var type = parameterReference.Type;
-                    if (IsKnownImmutableType(type)) return false;
+                    if (IsKnownImmutableType(parameterReference.Type)) return false;
 
                     return true;
                 }
