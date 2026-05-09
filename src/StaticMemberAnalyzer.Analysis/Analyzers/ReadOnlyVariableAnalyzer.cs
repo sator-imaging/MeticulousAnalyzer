@@ -206,7 +206,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (rootName != null && !HasMutableNamePrefix(rootName))
+            if (!HasMutableNamePrefix(rootName))
             {
                 var syntax = operation.Syntax;
                 var location = syntax.GetLocation();
@@ -494,8 +494,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType) &&
-                        !(
+                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType)
+                        && !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
                             //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
