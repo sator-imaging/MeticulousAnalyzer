@@ -573,8 +573,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
-
         private static bool TryGetRootLocalOrParameter(IOperation operation?, out string name, out bool isParameter)
         {
             var current = operation;
