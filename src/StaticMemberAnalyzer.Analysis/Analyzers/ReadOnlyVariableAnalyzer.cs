@@ -646,8 +646,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = localReference.Local.Name;
                     isParameter = false;
 
-                    return !localReference.Type.IsReadOnly
-                        && localReference.Type.SpecialType is not SpecialType.System_String;
+                    var type = localReference.Type;
+                    if (type.IsReadOnly || type.SpecialType == SpecialType.System_String) return false;
+
+                    if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
+                        type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                        type.TypeKind == TypeKind.Enum)
+                    {
+                        return false;
+                    }
+
+                    return true;
                 }
 
                 if (current is IParameterReferenceOperation parameterReference)
@@ -655,8 +664,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = parameterReference.Parameter.Name;
                     isParameter = true;
 
-                    return !parameterReference.Type.IsReadOnly
-                        && parameterReference.Type.SpecialType is not SpecialType.System_String;
+                    var type = parameterReference.Type;
+                    if (type.IsReadOnly || type.SpecialType == SpecialType.System_String) return false;
+
+                    if (type.SpecialType == SpecialType.System_Collections_IEnumerable ||
+                        type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
+                        type.TypeKind == TypeKind.Enum)
+                    {
+                        return false;
+                    }
+
+                    return true;
                 }
 
                 // NOTE: Analyzer is checking only variable mutability. Ignore instance access.
