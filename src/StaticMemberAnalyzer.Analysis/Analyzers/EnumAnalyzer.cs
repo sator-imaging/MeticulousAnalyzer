@@ -353,6 +353,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  enum-like pattern  ================================================================ */
+#if STMG_ENABLE_KOTLIN_ENUM
 
 #pragma warning disable RS1008
         [ThreadStatic] static List<IFieldSymbol>? ts_enumLikePatternFieldSymbolList;
@@ -360,7 +361,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         [ThreadStatic] static List<IMethodSymbol>? ts_enumLikePatternEqualsSymbolList;
 #pragma warning restore RS1008
 
-#if STMG_ENABLE_KOTLIN_ENUM
         private static void AnalyzeEnumLikePattern(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not ClassDeclarationSyntax clsDeclStx)
