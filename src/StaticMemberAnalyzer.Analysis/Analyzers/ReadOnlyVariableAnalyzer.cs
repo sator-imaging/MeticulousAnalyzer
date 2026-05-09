@@ -537,13 +537,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (current is ILocalReferenceOperation localReference)
                 {
                     rootName = localReference.Local.Name;
-                    return false;  // Entire chain is readonly. But require variable name check.
+                    return true;
                 }
 
                 if (current is IParameterReferenceOperation parameterReference)
                 {
                     rootName = parameterReference.Parameter.Name;
-                    return false;  // Entire chain is readonly. But require variable name check.
+                    return true;
                 }
 
                 // 'this.' or 'base.'
