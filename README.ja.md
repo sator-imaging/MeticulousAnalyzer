@@ -14,6 +14,7 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
     - 静的フィールド/プロパティ宣言順の誤り
     - partial 型でのファイル跨ぎ参照
     - 型を跨ぐ静的フィールドの [相互参照問題](#相互参照問題)
+- [コードレビュー向けの解析](#コードレビュー向けの解析) (リテラル引数の解析)
 - [読み取り専用変数解析](#読み取り専用変数解析) でローカル/引数への代入と可変な引数受け渡しを検出
 - [`Enum` アナライザーとコード修正プロバイダー](#enum-アナライザーとコード修正プロバイダー) でユーザー側の値変換を禁止し、[Kotlin 風 Enum パターン](#kotlin-風-enum-パターン) も検査
 - [Disposable アナライザー](#disposable-アナライザー) で `using` の欠落を検出
@@ -42,6 +43,16 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 CRTP (Curiously Recurring Template Pattern) 向けに `TSelf` 型引数の不一致を解析します。
 
 ![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
+
+
+
+## コードレビュー向けの解析
+
+### リテラル引数の解析
+
+- **Bad**: `Foo(0, 0, true);`
+- **Good**: `Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);`
+    - IDE の支援がない環境（Web ブラウザなど）でも、コードレビュー時に引数の意味を理解できるようになります。
 
 
 

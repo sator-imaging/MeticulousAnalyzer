@@ -69,11 +69,6 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 |---------|--------------------------------------------|-------------
 | SMA0070 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 
-## Argument Analysis
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0070 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
-
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------

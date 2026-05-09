@@ -14,6 +14,7 @@
     - 静态字段与属性声明顺序错误
     - partial 类型跨文件成员引用
     - 跨类型静态字段的 [交叉引用问题](#交叉引用问题)
+- [代码审查分析](#代码审查分析) (字面量参数分析)
 - [只读变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
 - [`Enum` 分析器与代码修复提供程序](#enum-分析器与代码修复提供程序) 防止用户层面的值转换，并支持 [Kotlin 风格 Enum 模式](#kotlin-风格-enum-模式)
 - [Disposable 分析器](#disposable-分析器) 检测缺少 `using` 语句
@@ -42,6 +43,16 @@
 用于分析 CRTP（Curiously Recurring Template Pattern）中 `TSelf` 类型参数不匹配问题。
 
 ![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
+
+
+
+## 代码审查分析
+
+### 字面量参数分析
+
+- **Bad**: `Foo(0, 0, true);`
+- **Good**: `Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);`
+    - 代码审查人员可以在没有 IDE 辅助的情况下（如 Web 浏览器）理解参数含义。
 
 
 

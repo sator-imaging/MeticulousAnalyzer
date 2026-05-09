@@ -14,6 +14,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
     - Wrong order of static field and property declaration
     - Partial type member reference across files
     - [Cross-Referencing Problem](#cross-referencing-problem) of static field across type
+- [Analysis for Code Review](#analysis-for-code-review) (Literal Argument Analysis)
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
@@ -42,6 +43,16 @@ Restrict both cast from/to integer number! Disallow user-level enum value conver
 Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern (CRTP).
 
 ![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
+
+
+
+## Analysis for Code Review
+
+### Literal Argument Analysis
+
+- **Bad**: `Foo(0, 0, true);`
+- **Good**: `Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);`
+    - Code reviewer can understand arguments without IDE assist (ie. Web Browser).
 
 
 
