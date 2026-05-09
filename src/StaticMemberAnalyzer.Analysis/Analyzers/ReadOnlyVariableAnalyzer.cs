@@ -434,7 +434,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             or IParameterReferenceOperation
                             or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
                 {
-                    return true;  // Entire chain is readonly. Don't need to check variable naming.
                 if (current is ILocalReferenceOperation localReference)
                 {
                     rootName = localReference.Local.Name;
