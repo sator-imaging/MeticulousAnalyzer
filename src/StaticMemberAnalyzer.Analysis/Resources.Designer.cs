@@ -683,6 +683,153 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
+        ///   Read-Only Variable Analysis に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0060__MD_TITLE__ {
+            get {
+                return ResourceManager.GetString("SMA0060__MD_TITLE__", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid assignments to locals unless the local is intentionally mutable. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0060_Description {
+            get {
+                return ResourceManager.GetString("SMA0060_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Cannot modify immutable local &apos;{0}&apos;. Rename it to &apos;mut_{0}&apos; to make it mutable. (ReadOnlyLocal) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0060_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0060_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid Reassigning Locals に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0060_Title {
+            get {
+                return ResourceManager.GetString("SMA0060_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid assignments to parameters unless the parameter is intentionally mutable. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0061_Description {
+            get {
+                return ResourceManager.GetString("SMA0061_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Cannot modify immutable parameter &apos;{0}&apos;. Rename it to &apos;mut_{0}&apos; to make it mutable. (ReadOnlyParameter) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0061_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0061_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid Reassigning Parameters に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0061_Title {
+            get {
+                return ResourceManager.GetString("SMA0061_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0062_Description {
+            get {
+                return ResourceManager.GetString("SMA0062_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Cannot pass immutable variable &apos;{0}&apos; as a writable argument (ReadOnlyArgument) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0062_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0062_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid Passing Writable Variables to Calls に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0062_Title {
+            get {
+                return ResourceManager.GetString("SMA0062_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid accessing properties of immutable variables. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0063_Description {
+            get {
+                return ResourceManager.GetString("SMA0063_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Property access '{0}' on immutable variable (ReadOnlyProperty) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0063_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0063_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Property Access on Immutable Variable に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0063_Title {
+            get {
+                return ResourceManager.GetString("SMA0063_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Avoid calling methods of immutable variables. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0064_Description {
+            get {
+                return ResourceManager.GetString("SMA0064_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Method call '{0}' on immutable variable (ReadOnlyMethodCall) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0064_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0064_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Method Call on Immutable Variable に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0064_Title {
+            get {
+                return ResourceManager.GetString("SMA0064_Title", resourceCulture);
+            }
+        }
+
+
+
+
+        /// <summary>
         ///   &apos;{0}&apos; is assigned null without a preceding .Dispose() or ?.Dispose() call (NullAssignmentToDisposable) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0041_MessageFormat {

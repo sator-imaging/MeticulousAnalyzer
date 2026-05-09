@@ -467,6 +467,14 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 - 複合代入
     - `+=`, `-=`, `*=`, `/=`, `%=`
     - `&=`, `|=`, `^=`, `<<=`, `>>=`
+- プロパティへのアクセス
+    - 以下の場合を除き、プロパティへのアクセスに対して警告を表示します。
+        - 自動プロパティである場合。
+        - ゲッターのみのプロパティである場合。
+        - プロパティまたはそのゲッターに `readonly` 修飾子が付与されている場合。
+- メソッドの呼び出し
+    - インスタンスメソッドの呼び出しに対して、メソッドに `readonly` 修飾子が付与されていない場合に警告を表示します。
+    - *注*: 参照型のメソッドには `readonly` 修飾子を付与できないため、常に報告されます。
 - 引数処理
     - 許可: メソッド呼び出し/オブジェクト生成 (例: `Use(Create())`, `Use(new C())`)
     - 許可: 匿名オブジェクト/配列生成 (例: `Use(new { X = 1 })`, `Use(new[] { 1, 2 })`)
@@ -486,7 +494,16 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 class Demo
 {
     readonly struct ReadOnlyS { }
-    struct MutableS { }
+    struct MutableS
+    {
+        public int AutoProp { get; set; }
+        public int ReadOnlyProp => 0;
+        public void MutableMethod() { }
+        public readonly void ReadOnlyMethod() { }
+
+        // 自動プロパティではない、セッターを持つプロパティ
+        public int CustomProp { get => 0; set { } }
+    }
 
     static object Create() => new object();
     static void UseRefType(object value) { }
@@ -552,6 +569,12 @@ class Demo
         UseReadOnly(rs);           // 許可: 修飾子なしの読み取り専用構造体
         UseRefType(Create());      // 許可: 引数がメソッド呼び出し
         UseRefType(new object());  // 許可: 引数がオブジェクト生成
+
+        s.AutoProp = 1;       // 報告: 引数への代入
+        _ = s.CustomProp;     // 報告: プロパティアクセスによる状態変化の可能性
+        _ = s.ReadOnlyProp;   // 許可: ゲッターのみ、または自動プロパティ
+        s.MutableMethod();    // 報告: メソッド呼び出しによる状態変化の可能性
+        s.ReadOnlyMethod();   // 許可: readonly メソッド
     }
 }
 ```

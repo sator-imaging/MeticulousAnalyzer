@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -25,6 +26,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public const string RuleId_ReadOnlyParameter = "SMA0061";
         public const string RuleId_ReadOnlyArgument = "SMA0062";
         public const string RuleId_ReadOnlyPropertyArgument = "SMA0063";
+        public const string RuleId_ReadOnlyMethodCall = "SMA0064";
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyLocal = new(
             RuleId_ReadOnlyLocal,
@@ -62,6 +64,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString("SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
 
+        private static readonly DiagnosticDescriptor Rule_ReadOnlyMethodCall = new(
+            RuleId_ReadOnlyMethodCall,
+            new LocalizableResourceString("SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString("SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            ImmutableCategory,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: IsEnabledByDefault,
+            description: new LocalizableResourceString("SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
             Core.Rule_DebugError,
@@ -70,7 +81,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Rule_ReadOnlyLocal,
             Rule_ReadOnlyParameter,
             Rule_ReadOnlyArgument,
-            Rule_PropertyAccessCanChangeState
+            Rule_PropertyAccessCanChangeState,
+            Rule_ReadOnlyMethodCall
             );
 
         public override void Initialize(AnalysisContext context)
@@ -96,6 +108,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     ctx.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
                     ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
                     ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+                    ctx.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
+                    ctx.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
                 }
             });
         }
@@ -167,6 +181,48 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             AnalyzeArgument(context, argument);
+        }
+
+        private static void AnalyzePropertyReference(OperationAnalysisContext context)
+        {
+            if (context.Operation is IPropertyReferenceOperation propRef)
+            {
+                AnalyzeStateChange(context, propRef, Rule_PropertyAccessCanChangeState);
+            }
+        }
+
+        private static void AnalyzeInvocation(OperationAnalysisContext context)
+        {
+            if (context.Operation is IInvocationOperation invocation)
+            {
+                AnalyzeStateChange(context, invocation, Rule_ReadOnlyMethodCall);
+            }
+        }
+
+        private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
+        {
+            if (IsReadOnlyChain(operation))
+            {
+                return;
+            }
+
+            if (TryGetRootLocalOrParameter(operation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
+            {
+                var syntax = operation.Syntax;
+                var location = syntax.GetLocation();
+
+                // Handle null-conditional access
+                if (operation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == operation)
+                {
+                    syntax = cao.Syntax;
+                    location = syntax.GetLocation();
+                }
+
+                context.ReportDiagnostic(Diagnostic.Create(
+                    rule,
+                    location,
+                    syntax.ToString()));
+            }
         }
 
         private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
@@ -293,37 +349,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
                 }
 
-                if (argumentValue is IPropertyReferenceOperation propRef)
-                {
-                    if (propRef.Property.GetMethod?.IsReadOnly == true)
-                    {
-                        return;
-                    }
-
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_PropertyAccessCanChangeState,
-                        argumentValue.Syntax.GetLocation(),
-                        argumentValue.Syntax.ToString()));
-                    return;
-                }
             }
 
             var type = parameter.Type;
-            var isString = type.SpecialType == SpecialType.System_String;
 
-            // Relax for IEnumerable and Enum
-            var isIEnumerable = type.SpecialType == SpecialType.System_Collections_IEnumerable
-                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T;
-            var isEnum = type.TypeKind == TypeKind.Enum;
-
-            if (isIEnumerable || isEnum)
+            // Relax for known immutable types
+            if (IsKnownImmutableType(type))
             {
                 return;
             }
 
-            var readOnlyStructLike = isString || (!type.IsReferenceType && type.IsReadOnly);
-
-            if (type.IsReferenceType && !isString)
+            if (type.IsReferenceType)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ReadOnlyArgument,
@@ -333,11 +369,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (parameter.RefKind == RefKind.In)
-            {
-                return;
-            }
-
-            if (parameter.RefKind == RefKind.None && readOnlyStructLike)
             {
                 return;
             }
@@ -392,6 +423,141 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        private static bool IsReadOnlyChain(IOperation? operation)
+        {
+            var current = operation;
+            while (current != null)
+            {
+                if (current is ILocalReferenceOperation
+                            or IParameterReferenceOperation
+                            or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
+                {
+                    return true;  // Entire chain is readonly. Don't need to check variable naming.
+                }
+
+                if (current is IConversionOperation conversion)
+                {
+                    current = conversion.Operand;
+                    continue;
+                }
+
+                if (current is IConditionalAccessOperation conditionalAccess)
+                {
+                    current = conditionalAccess.Operation;
+                    continue;
+                }
+
+                if (current is IConditionalAccessInstanceOperation instanceOp)
+                {
+                    var parent = instanceOp.Parent;
+                    while (parent is not null and not IConditionalAccessOperation)
+                    {
+                        parent = parent.Parent;
+                    }
+
+                    if (parent is IConditionalAccessOperation cao)
+                    {
+                        current = cao.Operation;
+                        continue;
+                    }
+                }
+
+                if (current is IInvocationOperation invocation)
+                {
+                    // Analyzer is checking only variable mutability. Ignore static member access.
+                    if (invocation.Instance == null)
+                    {
+                        return true;
+                    }
+
+                    // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
+                    //         e.g. int Foo() => 0;
+                    //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
+                    //       Anyway this analyzer just checks variable mutation. Allows those cases.
+                    if (!invocation.TargetMethod.IsReadOnly &&
+                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
+                    {
+                        return false;
+                    }
+
+                    current = invocation.Instance;
+                    continue;
+                }
+
+                if (current is IPropertyReferenceOperation propertyReference)
+                {
+                    // Analyzer is checking only variable mutability. Ignore static member access.
+                    if (propertyReference.Instance == null)
+                    {
+                        return true;
+                    }
+
+                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
+                        && !(
+                            // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
+                            //         e.g. int Foo() => 0;
+                            //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
+                            //       Anyway this analyzer just checks variable mutation. Allows those cases.
+                            propertyReference.Property.IsReadOnly ||
+                            // 1. No-getter property can only be valid on the left side of assignment
+                            //    and also it's not able to be middle of the chain.
+                            // 2. Assignment is analyzed by other method.
+                            propertyReference.Property.GetMethod == null ||
+                            propertyReference.Property.GetMethod.IsReadOnly ||
+                            IsAutoProperty(propertyReference.Property)
+                        ))
+                    {
+                        return false;
+                    }
+
+                    current = propertyReference.Instance;
+                    continue;
+                }
+
+                // Reference of event, field, property and method (not invocation)
+                if (current is IMemberReferenceOperation memberReference)
+                {
+                    // Analyzer is checking only variable mutability. Ignore static member access.
+                    if (memberReference.Instance == null)
+                    {
+                        return true;
+                    }
+
+                    // Given: foo.FieldA.FieldB = bar.FieldC.FieldD;
+                    // Mutated: FieldB only
+                    // --> Assignment is analyzed by other method.
+                    //     Ok to ignore field reference completely.
+                    current = memberReference.Instance;
+                    continue;
+                }
+
+                if (current is IArrayElementReferenceOperation arrayElementReference)
+                {
+                    // Assignment is analyzed by other method.
+                    // Ok to ignore field reference completely.
+                    current = arrayElementReference.ArrayReference;
+                    continue;
+                }
+
+                break;
+            }
+
+            return false;
+        }
+
+        private static bool IsAutoProperty(IPropertySymbol property)
+        {
+            if (property.ContainingType == null) return false;
+            foreach (var member in property.ContainingType.GetMembers())
+            {
+                if (member is IFieldSymbol field && SymbolEqualityComparer.Default.Equals(field.AssociatedSymbol, property))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
         {
             var current = operation;
@@ -403,29 +569,37 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (current is ILocalReferenceOperation localReference)
+                if (current is IConditionalAccessOperation conditionalAccess)
                 {
-                    name = localReference.Local.Name;
-                    isParameter = false;
-                    return true;
-                }
-
-                if (current is IParameterReferenceOperation parameterReference)
-                {
-                    name = parameterReference.Parameter.Name;
-                    isParameter = true;
-                    return true;
-                }
-
-                if (current is IPropertyReferenceOperation propertyReference)
-                {
-                    current = propertyReference.Instance;
+                    current = conditionalAccess.Operation;
                     continue;
                 }
 
-                if (current is IFieldReferenceOperation fieldReference)
+                if (current is IConditionalAccessInstanceOperation)
                 {
-                    current = fieldReference.Instance;
+                    var parent = current.Parent;
+                    while (parent is not null and not IConditionalAccessOperation)
+                    {
+                        parent = parent.Parent;
+                    }
+
+                    if (parent is IConditionalAccessOperation cao)
+                    {
+                        current = cao.Operation;
+                        continue;
+                    }
+                }
+
+                if (current is IInvocationOperation invocationOperation)
+                {
+                    current = invocationOperation.Instance;
+                    continue;
+                }
+
+                // Reference of event, field, property and method (not invocation)
+                if (current is IMemberReferenceOperation memberReference)
+                {
+                    current = memberReference.Instance;
                     continue;
                 }
 
@@ -434,6 +608,40 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     current = arrayElementReference.ArrayReference;
                     continue;
                 }
+
+                if (current is ILocalReferenceOperation localReference)
+                {
+                    name = localReference.Local.Name;
+                    isParameter = false;
+
+                    if (IsKnownImmutableType(localReference.Type)) return false;
+
+                    return true;
+                }
+
+                if (current is IParameterReferenceOperation parameterReference)
+                {
+                    name = parameterReference.Parameter.Name;
+                    isParameter = true;
+
+                    if (IsKnownImmutableType(parameterReference.Type)) return false;
+
+                    return true;
+                }
+
+                // NOTE: Analyzer is checking only variable mutability. Ignore instance access.
+                // TODO: Should support field mutation prefix?
+
+                // // 'this.' or 'base.'
+                // if (current is IInstanceReferenceOperation instanceReference &&
+                //     !instanceReference.Type.IsReadOnly)
+                // {
+                //     name = "`this` (may be omitted) or `base` is mutable type instance";
+                //     isParameter = false;
+
+                //     return !instanceReference.Type.IsReadOnly
+                //         && instanceReference.Type.SpecialType is not SpecialType.System_String;
+                // }
 
                 break;
             }
@@ -448,9 +656,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
         }
 
+        private static bool IsKnownImmutableType(ITypeSymbol? type)
+        {
+            if (type == null) return false;
+
+            return type.IsReadOnly
+                || type.SpecialType == SpecialType.System_String
+                || type.SpecialType == SpecialType.System_Collections_IEnumerable
+                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
+                || type.TypeKind == TypeKind.Enum
+                ;
+        }
+
         private static bool IsAllowedArgumentValue(IOperation value)
         {
-            return value is IInvocationOperation
+            return value
+                is IInvocationOperation
+                or IPropertyReferenceOperation
                 or IObjectCreationOperation
                 or IAnonymousObjectCreationOperation
                 or IArrayCreationOperation

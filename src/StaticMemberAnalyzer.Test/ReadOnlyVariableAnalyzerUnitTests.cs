@@ -40,7 +40,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadWritePropertyArgument_ReportsDiagnostic()
+        public async Task ReadWritePropertyAccess_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -50,13 +50,12 @@ namespace Test
     class Program
     {
         C _field;
-        public C Prop { get => _field; set => _field = value; }
-        static void Use(C value) { }
+        public C ReadWriteProp { get => _field; set => _field = value; }
 
         void M()
         {
             var self = this;
-            Use({|#0:self.Prop|});
+            _ = {|#0:self.ReadWriteProp|};
         }
     }
 }
@@ -64,7 +63,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(0)
-                .WithArguments("self.Prop");
+                .WithArguments("self.ReadWriteProp");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -193,6 +192,48 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task AutoPropertyAccess_DoesNotReportDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int AutoProp { get; set; } }
+
+    class Program
+    {
+        void M(C foo)
+        {
+            _ = foo.AutoProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task NullConditionalAutoPropertyAccess_DoesNotReportDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int AutoProp { get; set; } }
+
+    class Program
+    {
+        void M(C foo)
+        {
+            _ = foo?.AutoProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
         public async Task DeconstructionAssignment_LeftExistingRightDeclared_ReportsDiagnostic()
         {
             var test = @"
@@ -216,6 +257,7 @@ namespace Test
                 .WithLocation(1)
                 .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
+            // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8184")
                 .WithSpan(9, 13, 9, 30);
 
@@ -246,6 +288,7 @@ namespace Test
                 .WithLocation(1)
                 .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
+            // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8184")
                 .WithSpan(9, 13, 9, 30);
 
@@ -264,6 +307,27 @@ namespace Test
         {
             var tuple = (1, 2);
             var (leftValue, rightValue) = tuple;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task StringPropertyAndMethodAccess_DoesNotReportDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void M()
+        {
+            var s = ""test"";
+            _ = s.Length;
+            _ = s.ToUpper();
         }
     }
 }
@@ -304,10 +368,10 @@ namespace Test
             var test = @"
 namespace Test
 {
-    struct MutableStruct { public int X; }
+    struct MutableStruct { public int IntField; }
     readonly struct S
     {
-        public MutableStruct Prop => new MutableStruct();
+        public MutableStruct ReadOnlyProp => new MutableStruct();
     }
 
     class Program
@@ -317,7 +381,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use(s.Prop);
+            Use(s.ReadOnlyProp);
         }
     }
 }
@@ -405,7 +469,7 @@ namespace Test
     {
         int _x;
 
-        public int MyProp
+        public int SetterProp
         {
             set
             {
@@ -449,16 +513,16 @@ namespace Test
 {
     class Box
     {
-        public Box Next { get; set; }
-        public int Value { get; set; }
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
     }
 
     class Program
     {
         void M()
         {
-            var foo = new Box { Next = new Box() };
-            {|#0:foo.Next.Value|} = 310;
+            var foo = new Box { AutoPropNext = new Box() };
+            {|#0:foo.AutoPropNext.AutoPropValue|} = 310;
         }
     }
 }
@@ -479,15 +543,15 @@ namespace Test
 {
     class Box
     {
-        public Box Next { get; set; }
-        public int Value { get; set; }
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
     }
 
     class Program
     {
         void M(Box foo)
         {
-            {|#0:foo.Next.Value|} = 310;
+            {|#0:foo.AutoPropNext.AutoPropValue|} = 310;
         }
     }
 }
@@ -501,6 +565,88 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task MutableMembers_NonStringType_ReportDiagnostics()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value; }
+    class B
+    {
+        public C Field;
+        public C Prop { get => Field; set => Field = value; }
+        public void Do() { }
+    }
+
+    class Program
+    {
+        static void Use(C c) { }
+        void M()
+        {
+            var foo = new B();
+            Use({|#0:foo.Field|});
+            _ = {|#1:foo.Prop|};
+            {|#2:foo.Do()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument)
+                .WithLocation(0)
+                .WithArguments("foo");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(1)
+                .WithArguments("foo.Prop");
+            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(2)
+                .WithArguments("foo.Do()");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task Combinations_MutableReturn_ReadOnly_AutoProp_Tests()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value; }
+    struct S
+    {
+        public readonly C ReadOnlyAutoProp { get; }
+        public readonly C ReadOnlyMethod() => null;
+        public readonly C ReadOnlyBlockMethod() { return null; }
+        public readonly C ReadOnlyBlockProp { get { return null; } }
+        public C MutableMethod() { return null; }
+        public C MutableProp { get => null; set {} }
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var s = new S();
+            _ = s.ReadOnlyAutoProp;
+            _ = s.ReadOnlyMethod();
+            _ = s.ReadOnlyBlockMethod();
+            _ = s.ReadOnlyBlockProp;
+            _ = {|#0:s.MutableMethod()|};
+            _ = {|#1:s.MutableProp|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(0)
+                .WithArguments("s.MutableMethod()");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(1)
+                .WithArguments("s.MutableProp");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
         public async Task MemberAccessRootedAtField_NoDiagnostic()
         {
             var test = @"
@@ -508,17 +654,17 @@ namespace Test
 {
     class Box
     {
-        public Box Next { get; set; }
-        public int Value { get; set; }
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
     }
 
     class Program
     {
-        private Box _foo = new Box { Next = new Box() };
+        private Box _foo = new Box { AutoPropNext = new Box() };
 
         void M()
         {
-            _foo.Next.Value = 310;
+            _foo.AutoPropNext.AutoPropValue = 310;
         }
     }
 }
@@ -681,7 +827,7 @@ namespace Test
             var test = @"
 namespace Test
 {
-    readonly struct S { public int X { get; } }
+    readonly struct S { public int AutoProp { get; } }
 
     class Program
     {
@@ -728,7 +874,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IndexerArgument_ReferenceType_ReportsDiagnostic()
+        public async Task IndexerArgument_ReferenceType_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -855,7 +1001,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task PropertyArgument_ReportsDiagnostic()
+        public async Task PropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -864,35 +1010,151 @@ namespace Test
 
     class Program
     {
-        C Prop => new C();
-        static void Use(C value) { }
+        C ReadOnlyProp => new C();
 
         void M()
         {
             var self = this;
-            Use({|#0:self.Prop|});
+            _ = self.ReadOnlyProp;
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task StructGetterOnlyPropertyAccess_DoesNotReportDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    struct MutableStruct { public int IntField; }
+    struct S
+    {
+        public MutableStruct ReadOnlyProp => new MutableStruct();
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var s = new S();
+            _ = s.ReadOnlyProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task MethodCallOnRootLocal_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public void Do() { } }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new C();
+            {|#0:foo.Do()|};
+        }
+    }
+}
+";
+
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(0)
-                .WithArguments("self.Prop");
+                .WithArguments("foo.Do()");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
         [TestMethod]
-        public async Task StructGetterOnlyPropertyArgument_ReportsDiagnostic()
+        public async Task MethodCallOnMutPrefixLocal_IsAllowed()
         {
             var test = @"
 namespace Test
 {
-    struct MutableStruct { public int X; }
+    class C { public void Do() { } }
+
+    class Program
+    {
+        void M()
+        {
+            var mut_foo = new C();
+            mut_foo.Do();
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task ReadOnlyMethodCallOnRootLocal_IsAllowed()
+        {
+            var test = @"
+namespace Test
+{
+    struct S { public readonly void Do() { } }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new S();
+            foo.Do();
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
+        public async Task MethodCallOnRootParameter_ReportsDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public void Do() { } }
+
+    class Program
+    {
+        void M(C foo)
+        {
+            {|#0:foo.Do()|};
+        }
+    }
+}
+";
+
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(0)
+                .WithArguments("foo.Do()");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task StructReadOnlyGetterOnlyPropertyAccess_IsAllowed()
+        {
+            var test = @"
+namespace Test
+{
+    struct MutableStruct { public int IntField; }
     struct S
     {
-        public MutableStruct Prop => new MutableStruct();
+        public readonly MutableStruct ReadOnlyProp => new MutableStruct();
     }
 
     class Program
@@ -902,39 +1164,7 @@ namespace Test
         void M()
         {
             var s = new S();
-            Use({|#0:s.Prop|});
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(0)
-                .WithArguments("s.Prop");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task StructReadOnlyGetterOnlyPropertyArgument_IsAllowed()
-        {
-            var test = @"
-namespace Test
-{
-    struct MutableStruct { public int X; }
-    struct S
-    {
-        public readonly MutableStruct Prop => new MutableStruct();
-    }
-
-    class Program
-    {
-        static void Use(MutableStruct s) { }
-
-        void M()
-        {
-            var s = new S();
-            Use(s.Prop);
+            Use(s.ReadOnlyProp);
         }
     }
 }
@@ -1387,7 +1617,7 @@ namespace Test
 {
     class Program
     {
-        public int MyProp
+        public int ReadWriteProp
         {
             get
             {
@@ -1514,7 +1744,7 @@ namespace Test
 {
     class Program
     {
-        public int MyProp
+        public int ReadWriteProp
         {
             get
             {
@@ -1629,6 +1859,14 @@ namespace Test
             }
         }
 
+        [TestMethod]
+        public void MethodCallRuleIsDisabledByDefault()
+        {
+            var analyzer = new ReadOnlyVariableAnalyzer();
+            var descriptor = analyzer.SupportedDiagnostics.First(d => d.Id == ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall);
+            Assert.IsFalse(descriptor.IsEnabledByDefault, $"{ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall} should be disabled by default");
+        }
+
 
         private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
@@ -1658,6 +1896,9 @@ namespace Test
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReportDiagnostic.Error);
+                specificOptions = specificOptions.SetItem(
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,
                     ReportDiagnostic.Error);
 
                 compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);

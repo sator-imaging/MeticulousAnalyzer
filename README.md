@@ -467,6 +467,14 @@ This analyzer helps keep local values and parameters immutable by flagging write
 - Compound assignment
     - `+=`, `-=`, `*=`, `/=`, `%=`
     - `&=`, `|=`, `^=`, `<<=`, `>>=`
+- Property access
+    - Warn on property access unless:
+        - It's an auto-property.
+        - It's a getter-only property.
+        - The property or its getter is marked with the `readonly` modifier.
+- Method call
+    - Warn on instance method calls unless the method is marked with the `readonly` modifier.
+    - *Note*: Reference type methods cannot have the `readonly` modifier and are always flagged.
 - Argument handling
     - Allowed: Method invocation and object creation (e.g. `Use(Create())`, `Use(new C())`)
     - Allowed: Anonymous object and array creation (e.g. `Use(new { X = 1 })`, `Use(new[] { 1, 2 })`)
@@ -486,7 +494,16 @@ This analyzer helps keep local values and parameters immutable by flagging write
 class Demo
 {
     readonly struct ReadOnlyS { }
-    struct MutableS { }
+    struct MutableS
+    {
+        public int AutoProp { get; set; }
+        public int ReadOnlyProp => 0;
+        public void MutableMethod() { }
+        public readonly void ReadOnlyMethod() { }
+
+        // Non-auto property with setter
+        public int CustomProp { get => 0; set { } }
+    }
 
     static object Create() => new object();
     static void UseRefType(object value) { }
@@ -552,6 +569,12 @@ class Demo
         UseReadOnly(rs);           // Allowed: readonly struct with no modifier
         UseRefType(Create());      // Allowed: argument value is invocation
         UseRefType(new object());  // Allowed: argument value is object creation
+
+        s.AutoProp = 1;       // Reported: parameter assignment
+        _ = s.CustomProp;     // Reported: property access can change state
+        _ = s.ReadOnlyProp;   // Allowed: getter-only or auto-property
+        s.MutableMethod();    // Reported: method call can change state
+        s.ReadOnlyMethod();   // Allowed: readonly method
     }
 }
 ```

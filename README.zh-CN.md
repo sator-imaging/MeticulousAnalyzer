@@ -467,6 +467,14 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 - 复合赋值
     - `+=`, `-=`, `*=`, `/=`, `%=`
     - `&=`, `|=`, `^=`, `<<=`, `>>=`
+- 属性访问
+    - 除非符合以下情况，否则会对属性访问发出警告：
+        - 它是自动属性（auto-property）。
+        - 它是只读（getter-only）属性。
+        - 属性或其 getter 标记有 `readonly` 修饰符。
+- 方法调用
+    - 除非方法标记有 `readonly` 修饰符，否则会对实例方法调用发出警告。
+    - *注*：引用类型的方法不能拥有 `readonly` 修饰符，因此始终会被报告。
 - 参数处理
     - 允许: 方法调用和对象创建（如 `Use(Create())`, `Use(new C())`）
     - 允许: 匿名对象和数组创建（如 `Use(new { X = 1 })`, `Use(new[] { 1, 2 })`）
@@ -486,7 +494,16 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 class Demo
 {
     readonly struct ReadOnlyS { }
-    struct MutableS { }
+    struct MutableS
+    {
+        public int AutoProp { get; set; }
+        public int ReadOnlyProp => 0;
+        public void MutableMethod() { }
+        public readonly void ReadOnlyMethod() { }
+
+        // 带有 setter 的非自动属性
+        public int CustomProp { get => 0; set { } }
+    }
 
     static object Create() => new object();
     static void UseRefType(object value) { }
@@ -552,6 +569,12 @@ class Demo
         UseReadOnly(rs);           // 允许：无修饰符的只读结构体
         UseRefType(Create());      // 允许：参数值为方法调用
         UseRefType(new object());  // 允许：参数值为对象创建
+
+        s.AutoProp = 1;       // 报告：对参数赋值
+        _ = s.CustomProp;     // 报告：属性访问可能改变状态
+        _ = s.ReadOnlyProp;   // 允许：只读或自动属性
+        s.MutableMethod();    // 报告：方法调用可能改变状态
+        s.ReadOnlyMethod();   // 允许：readonly 方法
     }
 }
 ```
