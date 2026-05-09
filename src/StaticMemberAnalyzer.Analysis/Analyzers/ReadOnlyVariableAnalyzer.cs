@@ -201,12 +201,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
         {
-            if (IsReadOnlyChain(operation))
+            if (IsReadOnlyChain(operation, out var rootName, out _))
             {
                 return;
             }
 
-            if (TryGetRootLocalOrParameter(operation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
+            if (rootName != null && !HasMutableNamePrefix(rootName))
             {
                 var syntax = operation.Syntax;
                 var location = syntax.GetLocation();
@@ -423,16 +423,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsReadOnlyChain(IOperation? operation)
+        private static bool IsReadOnlyChain(IOperation? operation, out string? rootName, out bool isParameter)
         {
+            rootName = null;
+            isParameter = false;
+
             var current = operation;
+            var stateChanged = false;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation
-                            or IParameterReferenceOperation
-                            or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
+                if (current is ILocalReferenceOperation localReference)
                 {
-                    return true;  // Entire chain is readonly. Don't need to check variable naming.
+                    rootName = localReference.Local.Name;
+                    isParameter = false;
+                    return !stateChanged || IsKnownImmutableType(localReference.Type);
+                }
+
+                if (current is IParameterReferenceOperation parameterReference)
+                {
+                    rootName = parameterReference.Parameter.Name;
+                    isParameter = true;
+                    return !stateChanged || IsKnownImmutableType(parameterReference.Type);
+                }
+
+                if (current is IInstanceReferenceOperation)
+                {
+                    return true;
                 }
 
                 if (current is IConversionOperation conversion)
@@ -470,14 +486,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
-                    //         e.g. int Foo() => 0;
-                    //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
-                    //       Anyway this analyzer just checks variable mutation. Allows those cases.
-                    if (!invocation.TargetMethod.IsReadOnly &&
-                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
+                    if (!stateChanged && !invocation.TargetMethod.IsReadOnly && !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        return false;
+                        stateChanged = true;
                     }
 
                     current = invocation.Instance;
@@ -492,8 +503,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
-                        && !(
+                    if (!stateChanged && !IsKnownImmutableType(propertyReference.Property.ContainingType) &&
+                        !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
                             //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
@@ -507,7 +518,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        return false;
+                        stateChanged = true;
                     }
 
                     current = propertyReference.Instance;
@@ -542,7 +553,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 break;
             }
 
-            return false;
+            return true;
         }
 
         private static bool IsAutoProperty(IPropertySymbol property)
@@ -665,6 +676,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || type.SpecialType == SpecialType.System_Collections_IEnumerable
                 || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
                 || type.TypeKind == TypeKind.Enum
+                || (type.ContainingNamespace?.Name == "System" &&
+                    type.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true &&
+                    type.Name is "Uri" or "Version" or "Type" or "Guid")
                 ;
         }
 
