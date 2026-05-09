@@ -40,7 +40,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadWritePropertyAccess_DoesNotReportDiagnostic()
+        public async Task ReadWritePropertyAccess_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
