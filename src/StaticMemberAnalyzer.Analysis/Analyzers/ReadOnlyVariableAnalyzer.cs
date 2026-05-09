@@ -673,7 +673,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || type.TypeKind == TypeKind.Enum
                 || (type.ContainingNamespace?.Name == "System" &&
                     type.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true &&
-                    type.Name is "Uri" or "Version" or "Type" or "Guid")
+                    // Known reference types from System (don't include struct)
+                    type.Name is "Uri" or "Version" or "Type")
                 ;
         }
 
