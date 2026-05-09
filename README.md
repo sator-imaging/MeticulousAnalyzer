@@ -14,6 +14,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
     - Wrong order of static field and property declaration
     - Partial type member reference across files
     - [Cross-Referencing Problem](#cross-referencing-problem) of static field across type
+- [Analysis for Code Review](#analysis-for-code-review) (Literal Argument Analysis)
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
@@ -435,6 +436,22 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 &nbsp;
 
+# Analysis for Code Review
+
+## Literal Argument Analysis
+
+Literal arguments can be difficult to understand without IDE assistance, especially during code reviews in a web browser. Using named arguments or variables for literals makes the code self-documenting and easier to review.
+
+```cs
+Foo(0, 0, true);
+//  ~  ~  ~~~~ literal arguments are difficult to understand
+
+Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
+//  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
+//  Now arguments are self-explanatory!
+```
+
+&nbsp;
 # Read-Only Variable Analysis
 
 This analyzer helps keep local values and parameters immutable by flagging write operations.  
