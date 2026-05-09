@@ -685,6 +685,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             bool hasFlagsAttr = false;
             foreach (var attr in attrs)
             {
+                if (attr.AttributeClass == null) continue;
+
                 var attrName = attr.AttributeClass.Name;
                 switch (attrName)
                 {
@@ -739,7 +741,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             //underlyingType
-            if (namedSymbol.EnumUnderlyingType.SpecialType != SpecialType.System_Int32)
+            if (namedSymbol.EnumUnderlyingType?.SpecialType != SpecialType.System_Int32)
             {
                 var baseStx = declareStx.DescendantNodes().OfType<BaseTypeSyntax>().FirstOrDefault();
                 if (baseStx != null)

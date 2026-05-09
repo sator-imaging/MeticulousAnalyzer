@@ -37,6 +37,8 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             if (root == null)
                 return;
             var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            if (model == null)
+                return;
 
             // TODO: Replace the following code with your own analysis, generating a CodeAction for each fix to suggest
             // NOTE: this method is called when Alt+Enter is pressed on source code where diagnostic reported.
@@ -66,12 +68,14 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var typeDecl = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<EnumDeclarationSyntax>().FirstOrDefault();
+            var typeDecl = root.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<EnumDeclarationSyntax>().FirstOrDefault();
             if (typeDecl == null || !typeDecl.Span.IntersectsWith(diagnosticSpan))
                 return document;
 
             // Get the symbol representing the type to be renamed.
             var typeSymbol = model.GetDeclaredSymbol(typeDecl, token);
+            if (typeSymbol == null)
+                return document;
 
             // add using statement
             const string NS_OBFUSCATION = nameof(System) + "." + nameof(System.Reflection);
@@ -93,7 +97,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var attr = typeSymbol.GetAttributes()
                 .FirstOrDefault(attr =>
                 {
-                    if (attr.AttributeClass.Name == nameof(ObfuscationAttribute)
+                    if (attr.AttributeClass?.Name == nameof(ObfuscationAttribute)
                      && attr.AttributeClass.ToString() == NS_OBFUSCATION + "." + nameof(ObfuscationAttribute))
                     {
                         return true;
@@ -154,11 +158,14 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     })
                     ;
 
+                if (foundAttr == null)
+                    return document;
+
                 // NOTE: to prevent error on no parentheses syntax --> `[Obfuscation]` (no '()' at end)
                 var updatedArgList = foundAttr.ArgumentList ?? SyntaxFactory.AttributeArgumentList();
                 var updatedArgs = updatedArgList.Arguments.Where(static x =>
                 {
-                    return x.NameEquals.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers);
+                    return x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers);
                 });
 
                 updatedArgs = updatedArgs.ToImmutableArray()

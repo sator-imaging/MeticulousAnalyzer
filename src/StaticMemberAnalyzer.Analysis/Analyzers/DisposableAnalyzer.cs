@@ -398,7 +398,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             foreach (var attr in context.Compilation.Assembly.GetAttributes())
             {
-                if (attr.AttributeClass.Name == ATTR_NAME)
+                if (attr.AttributeClass?.Name == ATTR_NAME)
                 {
                     foreach (var ctorArg in attr.ConstructorArguments)
                     {
