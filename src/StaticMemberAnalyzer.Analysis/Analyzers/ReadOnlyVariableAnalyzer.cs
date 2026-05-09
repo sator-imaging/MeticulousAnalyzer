@@ -507,7 +507,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
                     //       Anyway this analyzer just checks variable mutation. Allows those cases.
                     if (!invocation.TargetMethod.IsReadOnly &&
-                        invocation.TargetMethod.ContainingType.SpecialType is not SpecialType.System_String)
+                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
                     {
                         return false;
                     }
