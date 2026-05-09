@@ -429,26 +429,40 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isParameter = false;
 
             var current = operation;
-            var stateChanged = false;
+            var isReadOnly = true;
             while (current != null)
             {
                 if (current is ILocalReferenceOperation localReference)
                 {
                     rootName = localReference.Local.Name;
                     isParameter = false;
-                    return !stateChanged || IsKnownImmutableType(localReference.Type);
+
+                    if (IsKnownImmutableType(localReference.Type))
+                    {
+                        rootName = null;
+                        return true;
+                    }
+
+                    return isReadOnly;
                 }
 
                 if (current is IParameterReferenceOperation parameterReference)
                 {
                     rootName = parameterReference.Parameter.Name;
                     isParameter = true;
-                    return !stateChanged || IsKnownImmutableType(parameterReference.Type);
+
+                    if (IsKnownImmutableType(parameterReference.Type))
+                    {
+                        rootName = null;
+                        return true;
+                    }
+
+                    return isReadOnly;
                 }
 
-                if (current is IInstanceReferenceOperation)
+                if (current is IInstanceReferenceOperation) // <-- 'this.' or 'base.'
                 {
-                    return true;
+                    return isReadOnly;
                 }
 
                 if (current is IConversionOperation conversion)
@@ -486,9 +500,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!stateChanged && !invocation.TargetMethod.IsReadOnly && !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
+                    // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
+                    //         e.g. int Foo() => 0;
+                    //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
+                    //       Anyway this analyzer just checks variable mutation. Allows those cases.
+                    if (isReadOnly && !invocation.TargetMethod.IsReadOnly &&
+                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String &&
+                        !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        stateChanged = true;
+                        isReadOnly = false;
                     }
 
                     current = invocation.Instance;
@@ -503,8 +523,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!stateChanged && !IsKnownImmutableType(propertyReference.Property.ContainingType) &&
-                        !(
+                    if (isReadOnly && propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
+                        && !IsKnownImmutableType(propertyReference.Property.ContainingType)
+                        && !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
                             //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
@@ -518,7 +539,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        stateChanged = true;
+                        isReadOnly = false;
                     }
 
                     current = propertyReference.Instance;
@@ -553,7 +574,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 break;
             }
 
-            return true;
+            return false;
         }
 
         private static bool IsAutoProperty(IPropertySymbol property)
