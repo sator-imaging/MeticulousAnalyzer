@@ -472,7 +472,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     if (!invocation.TargetMethod.IsReadOnly &&
                         !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        return false;
+                        return TryGetRootLocalOrParameter(invocation, out rootName, out _);
                     }
 
                     current = invocation.Instance;
@@ -502,7 +502,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        return false;
+                        return TryGetRootLocalOrParameter(propertyReference, out rootName, out _);
                     }
 
                     current = propertyReference.Instance;
