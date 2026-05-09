@@ -680,19 +680,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (type == null) return false;
 
-            return IsReadOnlyStructOrString(type) || IsIEnumerableOrEnum(type);
-        }
-
-        private static bool IsReadOnlyStructOrString(ITypeSymbol type)
-        {
-            return type.IsReadOnly || type.SpecialType == SpecialType.System_String;
-        }
-
-        private static bool IsIEnumerableOrEnum(ITypeSymbol type)
-        {
-            return type.SpecialType == SpecialType.System_Collections_IEnumerable ||
-                   type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
-                   type.TypeKind == TypeKind.Enum;
+            return type.IsReadOnly
+                || type.SpecialType == SpecialType.System_String
+                || type.SpecialType == SpecialType.System_Collections_IEnumerable
+                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
+                || type.TypeKind == TypeKind.Enum
+                ;
         }
 
         private static bool IsAllowedArgumentValue(IOperation value)
