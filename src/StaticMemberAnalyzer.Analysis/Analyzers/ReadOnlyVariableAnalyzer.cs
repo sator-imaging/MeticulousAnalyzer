@@ -300,7 +300,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool HasMutableNamePrefix(string name)
+        private static bool HasMutableNamePrefix(string? name)
         {
             if (string.IsNullOrEmpty(name))
             {
