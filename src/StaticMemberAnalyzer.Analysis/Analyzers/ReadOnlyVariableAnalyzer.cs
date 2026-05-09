@@ -563,6 +563,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (current is IArrayElementReferenceOperation arrayElementReference)
+                {
+                    // Assignment is analyzed by other method.
+                    // Ok to ignore field reference completely.
+                    current = arrayElementReference.ArrayReference;
+                    continue;
+                }
+
                 break;
             }
 
