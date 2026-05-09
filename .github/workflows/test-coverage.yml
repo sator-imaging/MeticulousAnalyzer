@@ -2,8 +2,11 @@ name: '[push,PR] Test Coverage'
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths: [ 'src/**/*' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'src/**/*' ]
   pull_request:
   workflow_dispatch:
 
