@@ -10,7 +10,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -103,61 +102,59 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level
                 if (severity.ToLowerInvariant() is "error" or "warning" or "suggestion")
                 {
-                    var autoPropertyCache = new ConcurrentDictionary<IPropertySymbol, bool>(SymbolEqualityComparer.Default);
-
-                    ctx.RegisterOperationAction(c => AnalyzeSimpleAssignment(c, autoPropertyCache), OperationKind.SimpleAssignment);
-                    ctx.RegisterOperationAction(c => AnalyzeCoalesceAssignment(c, autoPropertyCache), OperationKind.CoalesceAssignment);
-                    ctx.RegisterOperationAction(c => AnalyzeCompoundAssignment(c, autoPropertyCache), OperationKind.CompoundAssignment);
-                    ctx.RegisterOperationAction(c => AnalyzeIncrementOrDecrement(c, autoPropertyCache), OperationKind.Increment, OperationKind.Decrement);
-                    ctx.RegisterOperationAction(c => AnalyzeDeconstructionAssignment(c, autoPropertyCache), OperationKind.DeconstructionAssignment);
-                    ctx.RegisterOperationAction(c => AnalyzeArgumentOperation(c, autoPropertyCache), OperationKind.Argument);
-                    ctx.RegisterOperationAction(c => AnalyzePropertyReference(c, autoPropertyCache), OperationKind.PropertyReference);
-                    ctx.RegisterOperationAction(c => AnalyzeInvocation(c, autoPropertyCache), OperationKind.Invocation);
+                    ctx.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+                    ctx.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);
+                    ctx.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
+                    ctx.RegisterOperationAction(AnalyzeIncrementOrDecrement, OperationKind.Increment, OperationKind.Decrement);
+                    ctx.RegisterOperationAction(AnalyzeDeconstructionAssignment, OperationKind.DeconstructionAssignment);
+                    ctx.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
+                    ctx.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
+                    ctx.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
                 }
             });
         }
 
-        private static void AnalyzeSimpleAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
         {
             if (context.Operation is not ISimpleAssignmentOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
+            ReportIfDisallowedMutation(context, op, op.Target);
         }
 
-        private static void AnalyzeCompoundAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeCompoundAssignment(OperationAnalysisContext context)
         {
             if (context.Operation is not ICompoundAssignmentOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
+            ReportIfDisallowedMutation(context, op, op.Target);
         }
 
-        private static void AnalyzeCoalesceAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeCoalesceAssignment(OperationAnalysisContext context)
         {
             if (context.Operation is not ICoalesceAssignmentOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
+            ReportIfDisallowedMutation(context, op, op.Target);
         }
 
-        private static void AnalyzeIncrementOrDecrement(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeIncrementOrDecrement(OperationAnalysisContext context)
         {
             if (context.Operation is not IIncrementOrDecrementOperation op)
             {
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, op.Target, autoPropertyCache);
+            ReportIfDisallowedMutation(context, op, op.Target);
         }
 
-        private static void AnalyzeDeconstructionAssignment(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeDeconstructionAssignment(OperationAnalysisContext context)
         {
             if (context.Operation is not IDeconstructionAssignmentOperation op)
             {
@@ -173,38 +170,38 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            ReportIfDisallowedMutation(context, op, target, autoPropertyCache);
+            ReportIfDisallowedMutation(context, op, target);
         }
 
-        private static void AnalyzeArgumentOperation(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeArgumentOperation(OperationAnalysisContext context)
         {
             if (context.Operation is not IArgumentOperation argument)
             {
                 return;
             }
 
-            AnalyzeArgument(context, argument, autoPropertyCache);
+            AnalyzeArgument(context, argument);
         }
 
-        private static void AnalyzePropertyReference(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzePropertyReference(OperationAnalysisContext context)
         {
             if (context.Operation is IPropertyReferenceOperation propRef)
             {
-                AnalyzeStateChange(context, propRef, Rule_PropertyAccessCanChangeState, autoPropertyCache);
+                AnalyzeStateChange(context, propRef, Rule_PropertyAccessCanChangeState);
             }
         }
 
-        private static void AnalyzeInvocation(OperationAnalysisContext context, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
             if (context.Operation is IInvocationOperation invocation)
             {
-                AnalyzeStateChange(context, invocation, Rule_ReadOnlyMethodCall, autoPropertyCache);
+                AnalyzeStateChange(context, invocation, Rule_ReadOnlyMethodCall);
             }
         }
 
-        private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
         {
-            if (!TryGetRootInfo(operation, autoPropertyCache, out var rootName, out _, out var isReadOnlyChain))
+            if (!TryGetRootInfo(operation, out var rootName, out _, out var isReadOnlyChain))
             {
                 return;
             }
@@ -233,10 +230,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
         {
             var reported = new HashSet<string>();
-            foreach (var (name, isParameter, isOutParameter, location, syntax) in EnumerateAssignedLocalsAndParameters(target, autoPropertyCache))
+            foreach (var (name, isParameter, isOutParameter, location, syntax) in EnumerateAssignedLocalsAndParameters(target))
             {
                 if (HasMutableNamePrefix(name))
                 {
@@ -263,7 +260,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static IEnumerable<(string name, bool isParameter, bool isOutParameter, Location location, SyntaxNode syntax)> EnumerateAssignedLocalsAndParameters(IOperation op, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static IEnumerable<(string name, bool isParameter, bool isOutParameter, Location location, SyntaxNode syntax)> EnumerateAssignedLocalsAndParameters(IOperation op)
         {
             if (op is ILocalReferenceOperation localReference)
             {
@@ -280,7 +277,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (op is IPropertyReferenceOperation or IFieldReferenceOperation)
             {
-                if (TryGetRootInfo(op, autoPropertyCache, out var name, out var isParameter, out _) && name != null)
+                if (TryGetRootInfo(op, out var name, out var isParameter, out _) && name != null)
                 {
                     yield return (name, isParameter, false, op.Syntax.GetLocation(), op.Syntax);
                 }
@@ -289,7 +286,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 foreach (var element in tupleOperation.Elements)
                 {
-                    foreach (var nested in EnumerateAssignedLocalsAndParameters(element, autoPropertyCache))
+                    foreach (var nested in EnumerateAssignedLocalsAndParameters(element))
                     {
                         yield return nested;
                     }
@@ -301,7 +298,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (op is IDeclarationExpressionOperation declarationExpression)
             {
-                foreach (var nested in EnumerateAssignedLocalsAndParameters(declarationExpression.Expression, autoPropertyCache))
+                foreach (var nested in EnumerateAssignedLocalsAndParameters(declarationExpression.Expression))
                 {
                     yield return nested;
                 }
@@ -318,7 +315,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return name.StartsWith("mut_");
         }
 
-        private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument, ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache)
+        private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument)
         {
             // The analysis precedence in this method is intentionally designed and must not be changed.
             var argumentValue = argument.Value;
@@ -344,7 +341,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var hasRoot = TryGetRootInfo(argumentValue, autoPropertyCache, out var rootName, out _, out _);
+            var hasRoot = TryGetRootInfo(argumentValue, out var rootName, out _, out _);
             if (hasRoot && rootName != null)
             {
                 if (HasMutableNamePrefix(rootName))
@@ -431,16 +428,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsAutoProperty(IPropertySymbol property, ConcurrentDictionary<IPropertySymbol, bool> cache)
-        {
-            if (cache.TryGetValue(property, out var result)) return result;
-
-            result = IsAutoPropertyImpl(property);
-            cache.TryAdd(property, result);
-            return result;
-        }
-
-        private static bool IsAutoPropertyImpl(IPropertySymbol property)
+        private static bool IsAutoProperty(IPropertySymbol property)
         {
             // Check syntax first for source properties.
             if (property.DeclaringSyntaxReferences.Length > 0)
@@ -521,7 +509,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool TryGetRootInfo(
             IOperation? operation,
-            ConcurrentDictionary<IPropertySymbol, bool> autoPropertyCache,
             out string? name,
             out bool isParameter,
             out bool isReadOnlyChain)
@@ -615,7 +602,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 propertyReference.Property.IsReadOnly ||
                                 propertyReference.Property.GetMethod == null ||
                                 propertyReference.Property.GetMethod.IsReadOnly ||
-                                IsAutoProperty(propertyReference.Property, autoPropertyCache)
+                                IsAutoProperty(propertyReference.Property)
                             ))
                         {
                             isReadOnlyChain = false;
