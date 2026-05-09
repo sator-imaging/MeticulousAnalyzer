@@ -430,24 +430,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation localReference)
-                {
-                    rootName = localReference.Local.Name;
-                    return true;
-                }
-
-                if (current is IParameterReferenceOperation parameterReference)
-                {
-                    rootName = parameterReference.Parameter.Name;
-                    return true;
-                }
-
-                // 'this.' or 'base.'
-                if (current is IInstanceReferenceOperation)
-                {
-                    return true;  // Analyzer is checking only variable mutability. Ignore instance access.
-                }
-
                 if (current is IConversionOperation conversion)
                 {
                     current = conversion.Operand;
@@ -550,6 +532,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     // Ok to ignore field reference completely.
                     current = arrayElementReference.ArrayReference;
                     continue;
+                }
+
+                if (current is ILocalReferenceOperation localReference)
+                {
+                    rootName = localReference.Local.Name;
+                    return true;
+                }
+
+                if (current is IParameterReferenceOperation parameterReference)
+                {
+                    rootName = parameterReference.Parameter.Name;
+                    return true;
+                }
+
+                // 'this.' or 'base.'
+                if (current is IInstanceReferenceOperation)
+                {
+                    return true;  // Analyzer is checking only variable mutability. Ignore instance access.
                 }
 
                 break;
