@@ -430,7 +430,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = operation;
             while (current != null)
             {
-
                 if (current is IConversionOperation conversion)
                 {
                     current = conversion.Operand;
