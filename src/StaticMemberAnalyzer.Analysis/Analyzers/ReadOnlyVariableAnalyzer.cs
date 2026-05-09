@@ -524,7 +524,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (propertyReference.Property.ContainingType.SpecialType is not SpecialType.System_String
+                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
                         && !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
