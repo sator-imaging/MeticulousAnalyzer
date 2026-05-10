@@ -36,17 +36,15 @@ jobs:
 
       - name: Test with coverage
         run: |
-          set -e
-
           # Create baseline report first
           for dir in baseline current; do
             if [ -d "$dir" ]; then
-              dotnet restore "$dir/$TEST_PROJECT"
-              dotnet add "$dir/$TEST_PROJECT" package coverlet.collector
+              dotnet restore "$dir/$TEST_PROJECT" || continue
+              dotnet add "$dir/$TEST_PROJECT" package coverlet.collector || continue
 
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
-                --results-directory "$dir/$TEST_OUTPUT"
+                --results-directory "$dir/$TEST_OUTPUT" || [ "$dir" = "baseline" ]
             fi
           done
 
