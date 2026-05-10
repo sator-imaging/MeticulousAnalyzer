@@ -62,13 +62,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             string parameterName = "unknown";
             if (argStx.Parent is AttributeArgumentListSyntax argListStx && argListStx.Parent is AttributeSyntax attrStx)
             {
+                if (argListStx.Arguments.Count <= 1)
+                    return;
+
                 var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
                 if (attrSymbol != null)
                 {
                     int index = argListStx.Arguments.IndexOf(argStx);
                     if (index >= 0 && index < attrSymbol.Parameters.Length)
                     {
-                        parameterName = attrSymbol.Parameters[index].Name;
+                        var param = attrSymbol.Parameters[index];
+                        if (param.IsParams) return;
+                        parameterName = param.Name;
                     }
                 }
             }
@@ -102,6 +107,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (value is not ILiteralOperation)
+                return;
+
+            // Exempt if it's a params argument
+            if (op.Parameter?.IsParams == true)
+                return;
+
+            // Exempt if it's a method on System.String
+            if (op.Parameter?.ContainingType?.SpecialType == SpecialType.System_String)
+                return;
+
+            // Exempt if there is only one argument in the call
+            if (op.Parent is IInvocationOperation invocation && invocation.Arguments.Length <= 1)
+                return;
+            if (op.Parent is IObjectCreationOperation objectCreation && objectCreation.Arguments.Length <= 1)
                 return;
 
             bool isNamed = false;

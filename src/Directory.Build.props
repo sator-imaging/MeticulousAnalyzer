@@ -7,7 +7,7 @@
   -->
 
   <!-- CMD: dotnet restore -p:DontReferenceItself=true  other-options... -->
-  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true' AND '$(MSBuildProjectFile)' != 'AnalyzerCheck.csproj' ">
+  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true' AND '$(MSBuildProjectFile)' != 'AnalyzerCheck.csproj' AND '$(MSBuildProjectFile)' != 'SatorImaging.StaticMemberAnalyzer.Test.csproj' AND '$(MSBuildProjectFile)' != 'DocsGen.csproj' AND '$(MSBuildProjectFile)' != 'SatorImaging.StaticMemberAnalyzer.Test.csproj' AND '$(MSBuildProjectFile)' != 'DocsGen.csproj' ">
 
     <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>

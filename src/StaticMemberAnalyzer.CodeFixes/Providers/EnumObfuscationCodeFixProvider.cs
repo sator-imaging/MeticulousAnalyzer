@@ -33,10 +33,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) as CompilationUnitSyntax;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
             if (root == null)
                 return;
-            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (model == null)
                 return;
 
@@ -56,7 +56,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
 
         readonly static string ATTR_OBFUSCATION_SHORT_NAME
-            = nameof(ObfuscationAttribute).Substring(0, (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
+            = nameof(ObfuscationAttribute).Substring(startIndex: 0, length: (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
 
         private async Task<Document> ExcludeEnumFromObfuscation(Diagnostic diagnostic,
                                                                 Document document,
@@ -81,7 +81,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             const string NS_OBFUSCATION = nameof(System) + "." + nameof(System.Reflection);
 
             var updatedUsings = root.Usings;
-            if (!updatedUsings.Any(static x => x.Name.Span.Length == NS_OBFUSCATION.Length && x.Name.ToString() == NS_OBFUSCATION))
+            if (!HasObfuscationUsing(updatedUsings, NS_OBFUSCATION))
             {
                 updatedUsings = updatedUsings.Add(
                     SyntaxFactory.UsingDirective(
@@ -119,15 +119,15 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                                             SyntaxFactory.NameEquals(
                                                 SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
                                             ),
-                                            null,
-                                            SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                                            nameColon: null,
+                                            expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                                         ),
                                         SyntaxFactory.AttributeArgument(
                                             SyntaxFactory.NameEquals(
                                                 SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
                                             ),
-                                            null,
-                                            SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                                            nameColon: null,
+                                            expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                                         ),
                                     })
                                 )
@@ -141,9 +141,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             // update existing
             else
             {
-                var foundAttr = typeDecl.AttributeLists
-                    .SelectMany(static x => x.Attributes)
-                    .FirstOrDefault(static x =>
+                AttributeSyntax? foundAttr = null;
+                foreach (var list in typeDecl.AttributeLists)
+                {
+                    foreach (var x in list.Attributes)
                     {
                         var name = x.Name.ToString();
                         if (name == ATTR_OBFUSCATION_SHORT_NAME
@@ -152,40 +153,42 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                          || name.EndsWith(nameof(ObfuscationAttribute), StringComparison.Ordinal)
                         )
                         {
-                            return true;
+                            foundAttr = x;
+                            break;
                         }
-                        return false;
-                    })
-                    ;
+                    }
+                    if (foundAttr != null) break;
+                }
 
                 if (foundAttr == null)
                     return document;
 
                 // NOTE: to prevent error on no parentheses syntax --> `[Obfuscation]` (no '()' at end)
                 var updatedArgList = foundAttr.ArgumentList ?? SyntaxFactory.AttributeArgumentList();
-                var updatedArgs = updatedArgList.Arguments.Where(static x =>
+                var updatedArgsList = new System.Collections.Generic.List<AttributeArgumentSyntax>();
+                foreach (var x in updatedArgList.Arguments)
                 {
-                    return x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers);
-                });
+                    if (x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers))
+                    {
+                        updatedArgsList.Add(x);
+                    }
+                }
 
-                updatedArgs = updatedArgs.ToImmutableArray()
-                    //1st
-                    .Insert(0, SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.NameEquals(
-                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
-                        ),
-                        null,
-                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                    ))
-                    //2nd
-                    .Insert(1, SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.NameEquals(
-                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
-                        ),
-                        null,
-                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                    ))
-                    ;
+                // 1st & 2nd
+                updatedArgsList.Insert(index: 0, item: SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals(
+                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
+                    ),
+                    nameColon: null,
+                    expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                ));
+                updatedArgsList.Insert(index: 1, item: SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals(
+                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
+                    ),
+                    nameColon: null,
+                    expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                ));
 
                 root = root.ReplaceNode(
                     typeDecl,
@@ -193,7 +196,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                         foundAttr,
                         foundAttr.WithArgumentList(
                             updatedArgList.WithArguments(
-                                SyntaxFactory.SeparatedList(updatedArgs.ToImmutableArray())
+                                SyntaxFactory.SeparatedList(updatedArgsList)
                             )
                         )
                     )
@@ -201,6 +204,15 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             }
 
             return document.WithSyntaxRoot(root.WithUsings(updatedUsings));
+        }
+
+        private static bool HasObfuscationUsing(SyntaxList<UsingDirectiveSyntax> usings, string ns)
+        {
+            foreach (var u in usings)
+            {
+                if (u.Name.Span.Length == ns.Length && u.Name.ToString() == ns) return true;
+            }
+            return false;
         }
     }
 }

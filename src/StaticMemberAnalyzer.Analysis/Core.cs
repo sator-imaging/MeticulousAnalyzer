@@ -107,6 +107,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
+            // Allow enum conversion
+            // Allow enum conversion
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Symbol: {symbol.Name} ({symbol})",
                 "> " + new string(symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().ToString().Take(count: 72).ToArray())
@@ -131,6 +133,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             op = UnwrapNullCoalesceOperation(op);
 
+            // Allow enum conversion
+            // Allow enum conversion
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Op: {op.Kind} ({op.Type?.Name})",
                 $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
@@ -156,6 +160,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
+            // Allow enum conversion
+            // Allow enum conversion
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(syntax.GetLocation()),
                 $"Syntax: {syntax.Kind()}",
                 $"Parent: {syntax.Parent?.Kind()}",
