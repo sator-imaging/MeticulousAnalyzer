@@ -782,7 +782,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Property access '{0}' on immutable variable (ReadOnlyProperty) に類似しているローカライズされた文字列を検索します。
+        ///   Property access '{0}' can change state of immutable variable '{1}'. Rename it to 'mut_{1}' to make it mutable. (ReadOnlyProperty) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0063_MessageFormat {
             get {
@@ -809,7 +809,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Method call '{0}' on immutable variable (ReadOnlyMethodCall) に類似しているローカライズされた文字列を検索します。
+        ///   Method call '{0}' can change state of immutable variable '{1}'. Rename it to 'mut_{1}' to make it mutable. (ReadOnlyMethodCall) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0064_MessageFormat {
             get {

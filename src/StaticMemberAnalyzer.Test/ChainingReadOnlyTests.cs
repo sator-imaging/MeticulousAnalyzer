@@ -168,18 +168,18 @@ namespace Test
             // Diagnostic spans overlap and cannot use markers.
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(20, 17, 20, 27)
-                .WithArguments("foo.GetB()");
+                .WithArguments("foo.GetB()", "foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithSpan(20, 17, 20, 40)
-                .WithArguments("foo.GetB().ReadOnlyProp");
+                .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
             // Diagnostic spans overlap and cannot use markers.
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(21, 17, 21, 27)
-                .WithArguments("foo.GetB()");
+                .WithArguments("foo.GetB()", "foo");
             var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithSpan(21, 17, 21, 40)
-                .WithArguments("foo.GetB().ReadOnlyProp");
+                .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
         }
@@ -215,10 +215,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(0)
-                .WithArguments("foo.Prop");
+                .WithArguments("foo.Prop", "foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(1)
-                .WithArguments("foo.GetC()");
+                .WithArguments("foo.GetC()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -257,10 +257,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(0)
-                .WithArguments("foo.Prop");
+                .WithArguments("foo.Prop", "foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(1)
-                .WithArguments("foo.GetC()");
+                .WithArguments("foo.GetC()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }

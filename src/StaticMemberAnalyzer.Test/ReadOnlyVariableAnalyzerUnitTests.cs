@@ -63,7 +63,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(0)
-                .WithArguments("self.ReadWriteProp");
+                .WithArguments("self.ReadWriteProp", "self");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -596,10 +596,10 @@ namespace Test
                 .WithArguments("foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(1)
-                .WithArguments("foo.Prop");
+                .WithArguments("foo.Prop", "foo");
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(2)
-                .WithArguments("foo.Do()");
+                .WithArguments("foo.Do()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2);
         }
@@ -638,10 +638,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(0)
-                .WithArguments("s.MutableMethod()");
+                .WithArguments("s.MutableMethod()", "s");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
                 .WithLocation(1)
-                .WithArguments("s.MutableProp");
+                .WithArguments("s.MutableProp", "s");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -1071,7 +1071,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(0)
-                .WithArguments("foo.Do()");
+                .WithArguments("foo.Do()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1140,7 +1140,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(0)
-                .WithArguments("foo.Do()");
+                .WithArguments("foo.Do()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }

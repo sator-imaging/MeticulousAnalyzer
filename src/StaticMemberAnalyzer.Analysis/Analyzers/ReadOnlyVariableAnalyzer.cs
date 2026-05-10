@@ -219,7 +219,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ReportDiagnostic(Diagnostic.Create(
                 rule,
                 location,
-                syntax.ToString()));
+                syntax.ToString(),
+                rootName));
         }
 
         private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
