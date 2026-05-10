@@ -116,7 +116,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation op)
                 return;
 
-            var interlockedType = context.Compilation.GetTypeByMetadataName("System.Threading.Interlocked");
+            var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
             if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
             {
                 return;
@@ -481,7 +481,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     if (argumentOp.Parent is IInvocationOperation invocationOp)
                     {
-                        var interlockedType = context.Compilation.GetTypeByMetadataName("System.Threading.Interlocked");
+                        var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
                         if (interlockedType != null && SymbolEqualityComparer.Default.Equals(invocationOp.TargetMethod.ContainingType, interlockedType))
                         {
                             goto NO_WARN;

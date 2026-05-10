@@ -209,7 +209,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 filePathToModel[crossField.SyntaxTree.FilePath] = crossModel;
                             }
 
-                            ClearAndCollectFieldInfo(crossField, crossModel, null, null, crossRefOperatorList, token);
+                            ClearAndCollectFieldInfo(crossField, crossModel, declaredSymbolSet: null, declaredWithInitializerSymbolList: null, crossRefOperatorList, token);
 
                             for (int c = 0; c < crossRefOperatorList.Count; c++)
                             {

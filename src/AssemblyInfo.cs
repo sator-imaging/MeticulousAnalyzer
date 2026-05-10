@@ -16,4 +16,4 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyInformationalVersion("")]
 //[assembly: Guid("")]
 //[assembly: NeutralResourcesLanguage("en-US")]
-[assembly: ComVisible(false)]
+[assembly: ComVisible(visibility: false)]
