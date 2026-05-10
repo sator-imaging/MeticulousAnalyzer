@@ -35,7 +35,6 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Test with coverage
-        continue-on-error: true  # Test on main branch may fail
         run: |
           set -e
 
@@ -47,7 +46,8 @@ jobs:
 
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
-                --results-directory "$dir/$TEST_OUTPUT"
+                --results-directory "$dir/$TEST_OUTPUT" \
+                || true  # Test on main branch may fail
             fi
           done
 
@@ -71,6 +71,7 @@ jobs:
             } >> $GITHUB_STEP_SUMMARY
           fi
 
+          # Ignore test failure on main brunch, but PR branch
           reportgenerator \
             -reporttypes:"$reportTypes" \
             -reports:"current/$reportDir" \
