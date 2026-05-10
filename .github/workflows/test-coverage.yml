@@ -39,12 +39,13 @@ jobs:
           # Create baseline report first
           for dir in baseline current; do
             if [ -d "$dir" ]; then
-              dotnet restore "$dir/$TEST_PROJECT" || continue
+              dotnet restore "$dir/$TEST_PROJECT" -p:DontReferenceItself=true || continue
               dotnet add "$dir/$TEST_PROJECT" package coverlet.collector || continue
 
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
-                --results-directory "$dir/$TEST_OUTPUT" || [ "$dir" = "baseline" ]
+                --results-directory "$dir/$TEST_OUTPUT" \
+                -p:DontReferenceItself=true || [ "$dir" = "baseline" ]
             fi
           done
 

@@ -184,24 +184,21 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     }
                 }
 
-                var updatedArgs = updatedArgsList.ToImmutableArray()
-                    //1st
-                    .Insert(index: 0, item: SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.NameEquals(
-                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
-                        ),
-                        nameColon: null,
-                        expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                    ))
-                    //2nd
-                    .Insert(index: 1, item: SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.NameEquals(
-                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
-                        ),
-                        nameColon: null,
-                        expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                    ))
-                    ;
+                // 1st & 2nd
+                updatedArgsList.Insert(index: 0, item: SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals(
+                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
+                    ),
+                    nameColon: null,
+                    expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                ));
+                updatedArgsList.Insert(index: 1, item: SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals(
+                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
+                    ),
+                    nameColon: null,
+                    expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                ));
 
                 root = root.ReplaceNode(
                     typeDecl,
@@ -209,7 +206,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                         foundAttr,
                         foundAttr.WithArgumentList(
                             updatedArgList.WithArguments(
-                                SyntaxFactory.SeparatedList(updatedArgs.ToImmutableArray())
+                                SyntaxFactory.SeparatedList(updatedArgsList)
                             )
                         )
                     )
