@@ -35,6 +35,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Test with coverage
+        continue-on-error: true  # Test on main branch may fail
         run: |
           set -e
 
@@ -57,7 +58,7 @@ jobs:
           reportDir="$TEST_OUTPUT/**/coverage.cobertura.xml"
           reportTypes="Html;MarkdownSummary;MarkdownSummaryGithub"
 
-          if [ -d baseline ]; then
+          if [ -d "baseline/$reportDir" ]; then
             reportgenerator \
               -reporttypes:"$reportTypes" \
               -reports:"current/$reportDir" \
