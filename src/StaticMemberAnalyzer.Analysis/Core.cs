@@ -131,7 +131,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             op = UnwrapNullCoalesceOperation(op);
 
-            // Allow enum conversion
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Op: {op.Kind} ({op.Type?.Name})",
                 $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",

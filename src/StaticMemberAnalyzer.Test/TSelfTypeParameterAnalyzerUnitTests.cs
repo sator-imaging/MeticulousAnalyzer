@@ -21,7 +21,7 @@ namespace Test
     public class MyValue : IValue<{|#0:object|}> { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(0).WithArguments("Test.MyValue");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(markupKey: 0).WithArguments("Test.MyValue");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -55,7 +55,7 @@ namespace Test
     public class MyValue1 : MyValue0, IValue<{|#0:MyValueOther|}> { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfCovariant).WithLocation(0).WithArguments("Test.MyValue1");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfCovariant).WithLocation(markupKey: 0).WithArguments("Test.MyValue1");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -93,7 +93,7 @@ namespace Test
     public class MyClass : MyValue1, IValue<{|#0:MyValue0|}> { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfContravariant).WithLocation(0).WithArguments("Test.MyClass");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfContravariant).WithLocation(markupKey: 0).WithArguments("Test.MyClass");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -129,7 +129,7 @@ namespace Test
     public class MyClass<TSelf> {|#0:where TSelf : SomeOtherClass|} { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfPointingOther).WithLocation(0).WithArguments("Test.MyClass<TSelf>");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfPointingOther).WithLocation(markupKey: 0).WithArguments("Test.MyClass<TSelf>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -159,7 +159,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(0).WithArguments("Test.Outer<T>.Nested");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(markupKey: 0).WithArguments("Test.Outer<T>.Nested");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

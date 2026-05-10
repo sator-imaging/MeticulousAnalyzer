@@ -26,7 +26,7 @@ namespace Test
     class MyClass { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -43,7 +43,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -86,7 +86,7 @@ namespace Test
     class MyClass { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -100,7 +100,7 @@ namespace Test
     class MyClass { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -143,7 +143,7 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithSpan("test.cs", 1, 1, 1, 14);
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithSpan(path: "test.cs", startLine: 1, startColumn: 1, endLine: 1, endColumn: 14);
             var verifier = new CSharpAnalyzerVerifier<FileHeaderCommentAnalyzer>.Test
             {
                 TestCode = test,
@@ -154,7 +154,7 @@ namespace Test
             {
                 var project = solution.GetProject(projectId);
                 var document = project.Documents.First();
-                return solution.WithDocumentFilePath(document.Id, "test.cs");
+                return solution.WithDocumentFilePath(document.Id, filePath: "test.cs");
             });
             await verifier.RunAsync(CancellationToken.None);
         }

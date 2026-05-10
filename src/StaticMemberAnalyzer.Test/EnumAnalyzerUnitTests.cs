@@ -28,7 +28,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -51,7 +51,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -73,7 +73,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(0).WithArguments("T");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -95,7 +95,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(0).WithArguments("T");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -118,7 +118,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -142,7 +142,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -155,7 +155,7 @@ namespace Test
     public enum {|#0:ETest|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -171,7 +171,7 @@ namespace Test
     public enum ETest : {|#0:byte|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 #if STMG_ENABLE_KOTLIN_ENUM
@@ -191,7 +191,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumLike).WithLocation(0).WithArguments("ETest", "constructor is not 'private' or 'protected'");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumLike).WithLocation(markupKey: 0).WithArguments("ETest", "constructor is not 'private' or 'protected'");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 #endif
@@ -362,7 +362,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -386,7 +386,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -410,7 +410,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -435,7 +435,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -460,7 +460,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -486,7 +486,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -512,7 +512,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }

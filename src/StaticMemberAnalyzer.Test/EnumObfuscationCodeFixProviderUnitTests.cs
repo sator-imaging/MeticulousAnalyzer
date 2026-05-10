@@ -28,7 +28,7 @@ namespace Test
     public enum ETest { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -56,7 +56,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -84,7 +84,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments("ETest");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -130,7 +130,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult().TrimStart());  // trim start is required due to codefix automatically remove starting newline
         }
@@ -146,7 +146,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult());
         }
@@ -166,7 +166,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult());
         }
@@ -183,7 +183,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult());
         }
@@ -203,7 +203,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult());
         }
@@ -220,7 +220,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult());
         }
@@ -237,7 +237,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult());
         }
@@ -257,9 +257,9 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
-                GetExpectedResult("[Obfuscation(Exclude = true, ApplyToMembers = true, StripAfterObfuscation = true)]"));
+                GetExpectedResult(expectedAttrExpression: "[Obfuscation(Exclude = true, ApplyToMembers = true, StripAfterObfuscation = true)]"));
         }
 
 
@@ -278,7 +278,7 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
                 GetExpectedResult(@"[System.ComponentModel.Category]
     [Obfuscation(Exclude = true, ApplyToMembers = true, StripAfterObfuscation = true)]"));
@@ -299,9 +299,9 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
-                GetExpectedResult("[System.Reflection.ObfuscationAttribute(Exclude = true, ApplyToMembers = true)]"));
+                GetExpectedResult(expectedAttrExpression: "[System.Reflection.ObfuscationAttribute(Exclude = true, ApplyToMembers = true)]"));
         }
 
         [TestMethod]
@@ -316,9 +316,9 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
-                GetExpectedResult("[System.Reflection.Obfuscation(Exclude = true, ApplyToMembers = true)]"));
+                GetExpectedResult(expectedAttrExpression: "[System.Reflection.Obfuscation(Exclude = true, ApplyToMembers = true)]"));
         }
 
         // NOTE: partial namespace not work...? (C# lang spec?)
@@ -335,9 +335,9 @@ namespace Test
     public enum {|#0:" + TEST_ENUM_NAME + @"|} { Value }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(0).WithArguments(TEST_ENUM_NAME);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments(TEST_ENUM_NAME);
             await VerifyCS.VerifyCodeFixAsync(test, expected,
-                GetExpectedResult("[Reflection.ObfuscationAttribute(Exclude = true, ApplyToMembers = true)]", "using System;"));
+                GetExpectedResult(expectedAttrExpression: "[Reflection.ObfuscationAttribute(Exclude = true, ApplyToMembers = true)]", additionalUsings: "using System;"));
         }
         */
     }

@@ -33,10 +33,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) as CompilationUnitSyntax;
             if (root == null)
                 return;
-            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
             if (model == null)
                 return;
 
@@ -56,7 +56,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
 
         readonly static string ATTR_OBFUSCATION_SHORT_NAME
-            = nameof(ObfuscationAttribute).Substring(startIndex: 0, length: (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
+            = nameof(ObfuscationAttribute).Substring(0, (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
 
         private async Task<Document> ExcludeEnumFromObfuscation(Diagnostic diagnostic,
                                                                 Document document,
@@ -81,17 +81,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             const string NS_OBFUSCATION = nameof(System) + "." + nameof(System.Reflection);
 
             var updatedUsings = root.Usings;
-            var hasObfuscationUsing = false;
-            foreach (var u in updatedUsings)
-            {
-                if (u.Name.Span.Length == NS_OBFUSCATION.Length && u.Name.ToString() == NS_OBFUSCATION)
-                {
-                    hasObfuscationUsing = true;
-                    break;
-                }
-            }
-
-            if (!hasObfuscationUsing)
+            if (!updatedUsings.Any(static x => x.Name.Span.Length == NS_OBFUSCATION.Length && x.Name.ToString() == NS_OBFUSCATION))
             {
                 updatedUsings = updatedUsings.Add(
                     SyntaxFactory.UsingDirective(
@@ -129,15 +119,15 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                                             SyntaxFactory.NameEquals(
                                                 SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
                                             ),
-                                            nameColon: null,
-                                            expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                                            null,
+                                            SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                                         ),
                                         SyntaxFactory.AttributeArgument(
                                             SyntaxFactory.NameEquals(
                                                 SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
                                             ),
-                                            nameColon: null,
-                                            expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                                            null,
+                                            SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                                         ),
                                     })
                                 )
@@ -151,10 +141,9 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             // update existing
             else
             {
-                AttributeSyntax? foundAttr = null;
-                foreach (var list in typeDecl.AttributeLists)
-                {
-                    foreach (var x in list.Attributes)
+                var foundAttr = typeDecl.AttributeLists
+                    .SelectMany(static x => x.Attributes)
+                    .FirstOrDefault(static x =>
                     {
                         var name = x.Name.ToString();
                         if (name == ATTR_OBFUSCATION_SHORT_NAME
@@ -163,42 +152,40 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                          || name.EndsWith(nameof(ObfuscationAttribute), StringComparison.Ordinal)
                         )
                         {
-                            foundAttr = x;
-                            break;
+                            return true;
                         }
-                    }
-                    if (foundAttr != null) break;
-                }
+                        return false;
+                    })
+                    ;
 
                 if (foundAttr == null)
                     return document;
 
                 // NOTE: to prevent error on no parentheses syntax --> `[Obfuscation]` (no '()' at end)
                 var updatedArgList = foundAttr.ArgumentList ?? SyntaxFactory.AttributeArgumentList();
-                var updatedArgsList = new System.Collections.Generic.List<AttributeArgumentSyntax>();
-                foreach (var x in updatedArgList.Arguments)
+                var updatedArgs = updatedArgList.Arguments.Where(static x =>
                 {
-                    if (x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers))
-                    {
-                        updatedArgsList.Add(x);
-                    }
-                }
+                    return x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers);
+                });
 
-                // 1st & 2nd
-                updatedArgsList.Insert(index: 0, item: SyntaxFactory.AttributeArgument(
-                    SyntaxFactory.NameEquals(
-                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
-                    ),
-                    nameColon: null,
-                    expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                ));
-                updatedArgsList.Insert(index: 1, item: SyntaxFactory.AttributeArgument(
-                    SyntaxFactory.NameEquals(
-                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
-                    ),
-                    nameColon: null,
-                    expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                ));
+                updatedArgs = updatedArgs.ToImmutableArray()
+                    //1st
+                    .Insert(0, SyntaxFactory.AttributeArgument(
+                        SyntaxFactory.NameEquals(
+                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
+                        ),
+                        null,
+                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                    ))
+                    //2nd
+                    .Insert(1, SyntaxFactory.AttributeArgument(
+                        SyntaxFactory.NameEquals(
+                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
+                        ),
+                        null,
+                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                    ))
+                    ;
 
                 root = root.ReplaceNode(
                     typeDecl,
@@ -206,7 +193,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                         foundAttr,
                         foundAttr.WithArgumentList(
                             updatedArgList.WithArguments(
-                                SyntaxFactory.SeparatedList(updatedArgsList)
+                                SyntaxFactory.SeparatedList(updatedArgs.ToImmutableArray())
                             )
                         )
                     )

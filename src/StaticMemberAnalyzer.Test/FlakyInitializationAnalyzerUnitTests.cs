@@ -26,8 +26,8 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(0).WithArguments("B");
-            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(1).WithArguments("A");
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
@@ -47,8 +47,8 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_CrossRef).WithLocation(0).WithArguments("C2", "C1");
-            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_CrossRef).WithLocation(1).WithArguments("C1", "C2");
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_CrossRef).WithLocation(markupKey: 0).WithArguments("C2", "C1");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_CrossRef).WithLocation(markupKey: 1).WithArguments("C1", "C2");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
@@ -73,7 +73,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(0).WithArguments("B");
+            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("B");
 
             var test = new VerifyCS.Test
             {
@@ -130,8 +130,8 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(0).WithArguments("B");
-            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(1).WithArguments("A");
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
     }
