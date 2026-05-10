@@ -33,10 +33,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) as CompilationUnitSyntax;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
             if (root == null)
                 return;
-            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (model == null)
                 return;
 
@@ -56,7 +56,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
 
         readonly static string ATTR_OBFUSCATION_SHORT_NAME
-            = nameof(ObfuscationAttribute).Substring(0, (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
+            = nameof(ObfuscationAttribute).Substring(startIndex: 0, length: (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
 
         private async Task<Document> ExcludeEnumFromObfuscation(Diagnostic diagnostic,
                                                                 Document document,
@@ -119,14 +119,14 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                                             SyntaxFactory.NameEquals(
                                                 SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
                                             ),
-                                            null,
+                                            nameColon: null,
                                             SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                                         ),
                                         SyntaxFactory.AttributeArgument(
                                             SyntaxFactory.NameEquals(
                                                 SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
                                             ),
-                                            null,
+                                            nameColon: null,
                                             SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                                         ),
                                     })
@@ -170,20 +170,20 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
                 updatedArgs = updatedArgs.ToImmutableArray()
                     //1st
-                    .Insert(0, SyntaxFactory.AttributeArgument(
+                    .Insert(index: 0, item: SyntaxFactory.AttributeArgument(
                         SyntaxFactory.NameEquals(
                             SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
                         ),
-                        null,
-                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                        nameColon: null,
+                        expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                     ))
                     //2nd
-                    .Insert(1, SyntaxFactory.AttributeArgument(
+                    .Insert(index: 1, item: SyntaxFactory.AttributeArgument(
                         SyntaxFactory.NameEquals(
                             SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
                         ),
-                        null,
-                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                        nameColon: null,
+                        expression: SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
                     ))
                     ;
 
