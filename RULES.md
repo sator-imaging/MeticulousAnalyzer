@@ -67,7 +67,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0070 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
+| SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description

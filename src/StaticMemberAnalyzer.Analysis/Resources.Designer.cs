@@ -1201,36 +1201,36 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         /// <summary>
         ///   Argument Analysis に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SMA0070__MD_TITLE__ {
+        internal static string SMA8000__MD_TITLE__ {
             get {
-                return ResourceManager.GetString("SMA0070__MD_TITLE__", resourceCulture);
+                return ResourceManager.GetString("SMA8000__MD_TITLE__", resourceCulture);
             }
         }
 
         /// <summary>
         ///   Literal arguments should be passed as named arguments to express their meaning. に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SMA0070_Description {
+        internal static string SMA8000_Description {
             get {
-                return ResourceManager.GetString("SMA0070_Description", resourceCulture);
+                return ResourceManager.GetString("SMA8000_Description", resourceCulture);
             }
         }
 
         /// <summary>
         ///   Literal argument for parameter &apos;{0}&apos; should be passed as named argument (LiteralArgument) に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SMA0070_MessageFormat {
+        internal static string SMA8000_MessageFormat {
             get {
-                return ResourceManager.GetString("SMA0070_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("SMA8000_MessageFormat", resourceCulture);
             }
         }
 
         /// <summary>
         ///   Literal should be passed as named argument に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SMA0070_Title {
+        internal static string SMA8000_Title {
             get {
-                return ResourceManager.GetString("SMA0070_Title", resourceCulture);
+                return ResourceManager.GetString("SMA8000_Title", resourceCulture);
             }
         }
 

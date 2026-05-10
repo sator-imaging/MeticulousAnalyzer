@@ -14,16 +14,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ArgumentAnalyzer : DiagnosticAnalyzer
     {
-        public const string RuleId_LiteralArgument = "SMA0070";
+        public const string RuleId_LiteralArgument = "SMA8000";
 
         private static readonly DiagnosticDescriptor Rule_LiteralArgument = new(
             RuleId_LiteralArgument,
-            new LocalizableResourceString(nameof(Resources.SMA0070_Title), Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString(nameof(Resources.SMA0070_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8000_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8000_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0070_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8000_Description), Resources.ResourceManager, typeof(Resources)));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_LiteralArgument);
 
