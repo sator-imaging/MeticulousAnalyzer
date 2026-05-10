@@ -62,6 +62,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             string parameterName = "unknown";
             if (argStx.Parent is AttributeArgumentListSyntax argListStx && argListStx.Parent is AttributeSyntax attrStx)
             {
+                if (argListStx.Arguments.Count(a => a.NameEquals == null) <= 1)
+                    return;
+
                 var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
                 if (attrSymbol != null)
                 {
@@ -94,6 +97,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // Skip if it's an indexer argument.
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
+
+            if (op.Parent is IInvocationOperation invocation)
+            {
+                if (invocation.TargetMethod.ContainingType.SpecialType == SpecialType.System_String)
+                    return;
+
+                if (invocation.Arguments.Count(a => !a.IsImplicit) <= 1)
+                    return;
+            }
+            else if (op.Parent is IObjectCreationOperation creation)
+            {
+                if (creation.Arguments.Count(a => !a.IsImplicit) <= 1)
+                    return;
+            }
 
             var value = op.Value;
             while (value is IConversionOperation conversion)

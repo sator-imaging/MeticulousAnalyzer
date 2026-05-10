@@ -106,18 +106,19 @@ namespace Test
 {
     public class MyAttribute : Attribute
     {
-        public MyAttribute(int index) {}
+        public MyAttribute(int index, bool b) {}
         public string Name { get; set; }
     }
 
-    [My({|#0:1|}, Name = ""test"")]
+    [My({|#0:1|}, {|#1:true|}, Name = ""test"")]
     public class CTest
     {
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(0).WithArguments("index");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(0).WithArguments("index");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(1).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
