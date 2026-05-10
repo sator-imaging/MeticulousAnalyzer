@@ -201,28 +201,26 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
         {
-            if (IsReadOnlyChain(operation))
+            if (IsReadOnlyChainOrVariableWithMutablePrefix(operation, out var rootName))
             {
                 return;
             }
 
-            if (TryGetRootLocalOrParameter(operation, out var rootName, out _) && !HasMutableNamePrefix(rootName))
+            var syntax = operation.Syntax;
+            var location = syntax.GetLocation();
+
+            // Handle null-conditional access
+            if (operation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == operation)
             {
-                var syntax = operation.Syntax;
-                var location = syntax.GetLocation();
-
-                // Handle null-conditional access
-                if (operation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == operation)
-                {
-                    syntax = cao.Syntax;
-                    location = syntax.GetLocation();
-                }
-
-                context.ReportDiagnostic(Diagnostic.Create(
-                    rule,
-                    location,
-                    syntax.ToString()));
+                syntax = cao.Syntax;
+                location = syntax.GetLocation();
             }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                rule,
+                location,
+                syntax.ToString(),
+                rootName));
         }
 
         private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
@@ -302,11 +300,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool HasMutableNamePrefix(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return false;
-            }
-
             return name.StartsWith("mut_");
         }
 
@@ -423,18 +416,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsReadOnlyChain(IOperation? operation)
+        private static bool IsReadOnlyChainOrVariableWithMutablePrefix(IOperation? operation, out string rootName)
         {
+            rootName = string.Empty;
+
             var current = operation;
             while (current != null)
             {
-                if (current is ILocalReferenceOperation
-                            or IParameterReferenceOperation
-                            or IInstanceReferenceOperation) // <-- 'this.' or 'base.'
-                {
-                    return true;  // Entire chain is readonly. Don't need to check variable naming.
-                }
-
                 if (current is IConversionOperation conversion)
                 {
                     current = conversion.Operand;
@@ -475,9 +463,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
                     //       Anyway this analyzer just checks variable mutation. Allows those cases.
                     if (!invocation.TargetMethod.IsReadOnly &&
-                        invocation.TargetMethod.ContainingType?.SpecialType is not SpecialType.System_String)
+                        !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        return false;
+                        return TryGetRootLocalOrParameter(invocation, out rootName, out _)
+                                    ? HasMutableNamePrefix(rootName) : true;  // Analyzer checks only variable mutability.
                     }
 
                     current = invocation.Instance;
@@ -492,7 +481,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (propertyReference.Property.ContainingType?.SpecialType is not SpecialType.System_String
+                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType)
                         && !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
@@ -507,7 +496,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        return false;
+                        return TryGetRootLocalOrParameter(propertyReference, out rootName, out _)
+                                        ? HasMutableNamePrefix(rootName) : true;  // Analyzer checks only variable mutability.
                     }
 
                     current = propertyReference.Instance;
@@ -539,6 +529,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (current is ILocalReferenceOperation
+                            or IParameterReferenceOperation
+                            or IInstanceReferenceOperation)  // <-- 'this.' or 'base.'
+                {
+                    // Analyzer is checking only variable mutability. Ignore instance access.
+                    // And also rootName is not required to be set because entire chain is readonly.
+                    return true;
+                }
+
                 break;
             }
 
@@ -558,7 +557,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool TryGetRootLocalOrParameter(IOperation operation, out string name, out bool isParameter)
+        private static bool TryGetRootLocalOrParameter(IOperation? operation, out string name, out bool isParameter)
         {
             var current = operation;
             while (current != null)
@@ -665,6 +664,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || type.SpecialType == SpecialType.System_Collections_IEnumerable
                 || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
                 || type.TypeKind == TypeKind.Enum
+                || (type.ContainingNamespace?.Name == "System" &&
+                    type.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true &&
+                    // Known readonly reference types from System (don't include struct)
+                    type.Name is "Uri" or "Version" or "Type")
                 ;
         }
 

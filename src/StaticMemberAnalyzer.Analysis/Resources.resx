@@ -494,7 +494,7 @@
     <value>Avoid accessing properties of immutable variables as it can change their internal state.</value>
   </data>
   <data name="SMA0063_MessageFormat" xml:space="preserve">
-    <value>Property access '{0}' can change state of immutable variable (ReadOnlyProperty)</value>
+    <value>Property access '{0}' can change state of immutable variable '{1}'. Rename it to 'mut_{1}' to make it mutable. (ReadOnlyProperty)</value>
   </data>
   <data name="SMA0064_Title" xml:space="preserve">
     <value>Method Call Can Change State</value>
@@ -503,7 +503,7 @@
     <value>Avoid calling methods of immutable variables as it can change their internal state.</value>
   </data>
   <data name="SMA0064_MessageFormat" xml:space="preserve">
-    <value>Method call '{0}' can change state of immutable variable (ReadOnlyMethodCall)</value>
+    <value>Method call '{0}' can change state of immutable variable '{1}'. Rename it to 'mut_{1}' to make it mutable. (ReadOnlyMethodCall)</value>
   </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Readability and Maintainability Analysis</value>
