@@ -201,28 +201,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeStateChange(OperationAnalysisContext context, IOperation operation, DiagnosticDescriptor rule)
         {
-            if (IsReadOnlyChain(operation, out var rootName))
+            if (IsReadOnlyChainOrVariableWithMutablePrefix(operation, out var rootName))
             {
                 return;
             }
 
-            if (!HasMutableNamePrefix(rootName))
+            var syntax = operation.Syntax;
+            var location = syntax.GetLocation();
+
+            // Handle null-conditional access
+            if (operation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == operation)
             {
-                var syntax = operation.Syntax;
-                var location = syntax.GetLocation();
-
-                // Handle null-conditional access
-                if (operation.Parent is IConditionalAccessOperation cao && cao.WhenNotNull == operation)
-                {
-                    syntax = cao.Syntax;
-                    location = syntax.GetLocation();
-                }
-
-                context.ReportDiagnostic(Diagnostic.Create(
-                    rule,
-                    location,
-                    syntax.ToString()));
+                syntax = cao.Syntax;
+                location = syntax.GetLocation();
             }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                rule,
+                location,
+                syntax.ToString()));
         }
 
         private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
@@ -418,7 +415,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsReadOnlyChain(IOperation? operation, out string rootName)
+        private static bool IsReadOnlyChainOrVariableWithMutablePrefix(IOperation? operation, out string rootName)
         {
             rootName = string.Empty;
 
@@ -467,8 +464,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     if (!invocation.TargetMethod.IsReadOnly &&
                         !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
-                        TryGetRootLocalOrParameter(invocation, out rootName, out _);  // Find rootName
-                        return false;
+                        TryGetRootLocalOrParameter(invocation, out rootName, out _);
+                        return HasMutableNamePrefix(rootName);
                     }
 
                     current = invocation.Instance;
@@ -498,8 +495,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             IsAutoProperty(propertyReference.Property)
                         ))
                     {
-                        TryGetRootLocalOrParameter(propertyReference, out rootName, out _);  // Find rootName
-                        return false;
+                        TryGetRootLocalOrParameter(propertyReference, out rootName, out _);
+                        return HasMutableNamePrefix(rootName);
                     }
 
                     current = propertyReference.Instance;
