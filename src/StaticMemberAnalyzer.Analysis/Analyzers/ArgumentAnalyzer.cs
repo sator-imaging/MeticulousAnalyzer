@@ -44,6 +44,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
+            if (argStx.Parent is AttributeArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
+                return;
+
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -60,12 +63,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // For attributes, if it's not named/equaled, it must be a positional argument.
             // We need to find the parameter name.
             string parameterName = "unknown";
-            if (argStx.Parent is AttributeArgumentListSyntax argListStx && argListStx.Parent is AttributeSyntax attrStx)
+            if (argStx.Parent is AttributeArgumentListSyntax listStx && listStx.Parent is AttributeSyntax attrStx)
             {
                 var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
                 if (attrSymbol != null)
                 {
-                    int index = argListStx.Arguments.IndexOf(argStx);
+                    if (attrSymbol.ContainingType?.SpecialType == SpecialType.System_String)
+                        return;
+
+                    int index = listStx.Arguments.IndexOf(argStx);
                     if (index >= 0 && index < attrSymbol.Parameters.Length)
                     {
                         parameterName = attrSymbol.Parameters[index].Name;
@@ -93,6 +99,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // Skip if it's an indexer argument.
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
+                return;
+
+            if (op.Parameter?.ContainingType?.SpecialType == SpecialType.System_String)
+                return;
+
+            if (op.Syntax.Parent is ArgumentListSyntax argList && argList.Arguments.Count == 1)
                 return;
 
             var value = op.Value;
