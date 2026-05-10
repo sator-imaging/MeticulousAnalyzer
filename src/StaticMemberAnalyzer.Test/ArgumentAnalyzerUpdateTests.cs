@@ -139,5 +139,47 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(1).WithArguments("strict");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task TestConfigureAwait_NoDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+namespace Test
+{
+    public class CTest
+    {
+        public async Task Foo()
+        {
+            await Task.Delay(1).ConfigureAwait(false);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestAttributeArgumentWithNullLiteral_ReportsDiagnostic()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(string name, string value) {}
+    }
+
+    [My({|#0:""test""|}, {|#1:null|})]
+    public class CTest
+    {
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(0).WithArguments("name");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(1).WithArguments("value");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
