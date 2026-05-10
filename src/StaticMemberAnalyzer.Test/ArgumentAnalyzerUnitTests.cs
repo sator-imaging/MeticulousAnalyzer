@@ -181,5 +181,92 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task TestStringMethods()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = string.Join("","", new string[] { ""a"", ""b"" });
+            var y = string.Concat(""a"", ""b"");
+        }
+    }
+}
+";
+            // Should not report diagnostics for string methods
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestSingleArgument()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a, int b = 0) {}
+        public void Bar(int a) {}
+
+        public void Test()
+        {
+            Foo(1);
+            Bar(2);
+        }
+    }
+}
+";
+            // Should not report diagnostics for calls with only one argument
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestMultipleArgumentsWithDefaults()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a, int b, int c = 0) {}
+
+        public void Test()
+        {
+            Foo({|#0:1|}, {|#1:2|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(1).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task TestAttributeSingleArgument()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(int index) {}
+    }
+
+    [My(1)]
+    public class CTest
+    {
+    }
+}
+";
+            // Should not report diagnostics for attribute with only one argument
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

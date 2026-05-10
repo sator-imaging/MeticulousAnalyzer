@@ -57,6 +57,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
+            if (argStx.Parent is AttributeArgumentListSyntax { Arguments: { Count: 1 } })
+                return;
+
             // For attributes, if it's not named/equaled, it must be a positional argument.
             // We need to find the parameter name.
             string parameterName = "unknown";
@@ -102,6 +105,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (value is not ILiteralOperation)
+                return;
+
+            if (op.Parameter?.ContainingType?.SpecialType == SpecialType.System_String)
+                return;
+
+            if (op.Syntax.Parent is ArgumentListSyntax { Arguments: { Count: 1 } })
                 return;
 
             bool isNamed = false;
