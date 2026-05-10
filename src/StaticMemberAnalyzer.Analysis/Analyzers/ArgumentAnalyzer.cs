@@ -44,6 +44,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
+            if (argStx.Parent is AttributeArgumentListSyntax argList && argList.Arguments.Count <= 1)
+                return;
+
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -65,6 +68,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
                 if (attrSymbol != null)
                 {
+                    if (attrSymbol.ContainingType.SpecialType == SpecialType.System_String)
+                        return;
+
                     int index = argListStx.Arguments.IndexOf(argStx);
                     if (index >= 0 && index < attrSymbol.Parameters.Length)
                     {
@@ -82,6 +88,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeArgument(OperationAnalysisContext context)
         {
             if (context.Operation is not IArgumentOperation op)
+                return;
+
+            var method = op.Parameter?.ContainingSymbol as IMethodSymbol;
+            if (method?.ContainingType?.SpecialType == SpecialType.System_String)
+                return;
+
+            var parent = op.Parent;
+            while (parent is IConversionOperation)
+            {
+                parent = parent.Parent;
+            }
+
+            int argCount = 0;
+            if (parent is IInvocationOperation invocation) argCount = invocation.Arguments.Count(x => !x.IsImplicit);
+            else if (parent is IObjectCreationOperation creation) argCount = creation.Arguments.Count(x => !x.IsImplicit);
+
+            if (argCount == 1)
                 return;
 
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.

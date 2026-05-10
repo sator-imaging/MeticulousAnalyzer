@@ -181,5 +181,75 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task TestStringMethodArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var s1 = string.Format(""{0} {1}"", 1, 2);
+            var s2 = string.Join("","", ""a"", ""b"");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestSingleArgumentCalls()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a) {}
+        public void Bar(int a, int b = 0, int c = 0) {}
+        public void Baz(int a, int b) {}
+
+        public void Test()
+        {
+            Foo(1);
+            Bar(1);
+            Baz({|#0:1|}, {|#1:2|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(1).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task TestSingleArgumentAttribute()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(int a) {}
+        public MyAttribute(int a, int b) {}
+    }
+
+    [My(1)]
+    public class C1 {}
+
+    [My({|#0:1|}, {|#1:2|})]
+    public class C2 {}
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(1).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
