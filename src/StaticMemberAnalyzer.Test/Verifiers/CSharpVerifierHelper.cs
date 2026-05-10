@@ -27,8 +27,8 @@ namespace StaticMemberAnalyzer.Test
 
             // Workaround for https://github.com/dotnet/roslyn/issues/41610
             nullableWarnings = nullableWarnings
-                .SetItem("CS8632", ReportDiagnostic.Error)
-                .SetItem("CS8669", ReportDiagnostic.Error);
+                .SetItem(key: "CS8632", ReportDiagnostic.Error)
+                .SetItem(key: "CS8669", ReportDiagnostic.Error);
 
             return nullableWarnings;
         }

@@ -31,61 +31,61 @@ namespace Test
         [TestMethod]
         public async Task WhenNoConfig_NoDiagnosticReported()
         {
-            await VerifyWithSettingsAsync(TestCode, null);
+            await VerifyWithSettingsAsync(TestCode, configContent: null);
         }
 
         [TestMethod]
         public async Task WhenConfigMissingSeverity_NoDiagnosticReported()
         {
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\nsome_other_option = true");
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = true");
         }
 
         [TestMethod]
         public async Task WhenConfigSeverityIsNone_NoDiagnosticReported()
         {
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = none");
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = none");
         }
 
         [TestMethod]
         public async Task WhenConfigSeverityIsError_DiagnosticReported()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("foo");
 
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error", expected);
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error", expected);
         }
 
         [TestMethod]
         public async Task WhenConfigSeverityIsWarning_DiagnosticReported()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("foo");
 
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning", expected);
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning", expected);
         }
 
         [TestMethod]
         public async Task WhenConfigSeverityIsSuggestion_DiagnosticReported()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("foo");
 
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = suggestion", expected);
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = suggestion", expected);
         }
 
         [TestMethod]
         public async Task WhenConfigSeverityIsSilent_NoDiagnosticReported()
         {
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = silent");
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = silent");
         }
 
         [TestMethod]
         public async Task WhenConfigSeverityIsDefault_NoDiagnosticReported()
         {
-            await VerifyWithSettingsAsync(TestCode, "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = default");
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = default");
         }
 
         private static async Task VerifyWithSettingsAsync(string source, string configContent, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
