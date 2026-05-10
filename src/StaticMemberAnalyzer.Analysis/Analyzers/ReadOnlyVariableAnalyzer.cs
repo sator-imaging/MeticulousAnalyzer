@@ -300,13 +300,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool HasMutableNamePrefix(string? name)
+        private static bool HasMutableNamePrefix(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return false;
-            }
-
             return name.StartsWith("mut_");
         }
 
@@ -423,9 +418,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsReadOnlyChain(IOperation? operation, out string? rootName)
+        private static bool IsReadOnlyChain(IOperation? operation, out string rootName)
         {
-            rootName = null;
+            rootName = string.Empty;
 
             var current = operation;
             while (current != null)
