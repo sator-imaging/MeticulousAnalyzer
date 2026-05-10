@@ -30,48 +30,48 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyLocal = new(
             RuleId_ReadOnlyLocal,
-            new LocalizableResourceString("SMA0060_Title", Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString("SMA0060_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_MessageFormat", Resources.ResourceManager, typeof(Resources)),
             ImmutableCategory,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString("SMA0060_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Description", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyParameter = new(
             RuleId_ReadOnlyParameter,
-            new LocalizableResourceString("SMA0061_Title", Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString("SMA0061_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_MessageFormat", Resources.ResourceManager, typeof(Resources)),
             ImmutableCategory,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString("SMA0061_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Description", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyArgument = new(
             RuleId_ReadOnlyArgument,
-            new LocalizableResourceString("SMA0062_Title", Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString("SMA0062_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_MessageFormat", Resources.ResourceManager, typeof(Resources)),
             ImmutableCategory,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString("SMA0062_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Description", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_PropertyAccessCanChangeState = new(
             RuleId_ReadOnlyPropertyArgument,
-            new LocalizableResourceString("SMA0063_Title", Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString("SMA0063_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_MessageFormat", Resources.ResourceManager, typeof(Resources)),
             ImmutableCategory,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString("SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyMethodCall = new(
             RuleId_ReadOnlyMethodCall,
-            new LocalizableResourceString("SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString("SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
             ImmutableCategory,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString("SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
@@ -300,7 +300,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool HasMutableNamePrefix(string name)
         {
-            return name.StartsWith("mut_");
+            return name.StartsWith(value: "mut_");
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument)

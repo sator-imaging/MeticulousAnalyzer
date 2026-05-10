@@ -37,7 +37,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         internal static readonly DiagnosticDescriptor Rule_DebugError = new(
             RuleId_DebugError,
             RuleId_DebugError,
-            "{0}",
+            messageFormat: "{0}",
             Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
@@ -47,7 +47,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         internal static readonly DiagnosticDescriptor Rule_DebugWarn = new(
             RuleId_DebugWarn,
             RuleId_DebugWarn,
-            "{0}",
+            messageFormat: "{0}",
             Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
@@ -101,7 +101,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  DEBUG  ================================================================ */
 
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, ISymbol symbol, Location location,
             [CallerMemberName] string? callerMember = null,
             [CallerLineNumber] int lineNumber = -1
@@ -109,12 +109,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Symbol: {symbol.Name} ({symbol})",
-                "> " + new string(symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().ToString().Take(72).ToArray())
+                "> " + new string(symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().ToString().Take(count: 72).ToArray())
                 );
         }
 
 
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, IOperation op,
             [CallerMemberName] string? callerMember = null,
             [CallerLineNumber] int lineNumber = -1
@@ -123,7 +123,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             ReportDebugMessage(reportMethod, op, op.Syntax.GetLocation(), callerMember, lineNumber);
         }
 
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, IOperation op, Location location,
             [CallerMemberName] string? callerMember = null,
             [CallerLineNumber] int lineNumber = -1
@@ -135,13 +135,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 $"Op: {op.Kind} ({op.Type?.Name})",
                 $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
                 $"Grand Parent: {op.Parent?.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Parent?.Type?.Name})",
-                "> " + new string(op.Syntax?.ToString().Take(72).ToArray()),
+                "> " + new string(op.Syntax?.ToString().Take(count: 72).ToArray()),
                 $"Child: {op.Children?.FirstOrDefault()?.UnwrapNullCoalesceOperation().Kind} ({op.Children?.FirstOrDefault()?.Type?.Name})"
                 );
         }
 
 
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, SyntaxNode syntax,
             [CallerMemberName] string? callerMember = null,
             [CallerLineNumber] int lineNumber = -1
@@ -150,7 +150,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             ReportDebugMessage(reportMethod, syntax, syntax.GetLocation(), callerMember, lineNumber);
         }
 
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, SyntaxNode syntax, Location location,
             [CallerMemberName] string? callerMember = null,
             [CallerLineNumber] int lineNumber = -1
@@ -160,8 +160,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 $"Syntax: {syntax.Kind()}",
                 $"Parent: {syntax.Parent?.Kind()}",
                 $"Grand Parent: {syntax.Parent?.Parent?.Kind()}",
-                "> " + new string(syntax.ToString().Take(72).ToArray()),
-                $"Children: {string.Join(", ", syntax.ChildNodes().Select(x => x.Kind().ToString()))}"
+                "> " + new string(syntax.ToString().Take(count: 72).ToArray()),
+                $"Children: {string.Join(separator: ", ", syntax.ChildNodes().Select(x => x.Kind().ToString()))}"
                 );
         }
 
@@ -169,13 +169,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         /* =====  internal  ===== */
 
         [Obsolete]
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, string title, Location location, params string[]? messages)
         {
             ReportDebugMessage(reportMethod, title, ImmutableArray.Create(location), messages);
         }
 
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage<T>(Action<Diagnostic> reportMethod, string title, T locations, params string[]? messages)
             where T : IEnumerable<Location>
         {
@@ -183,7 +183,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 return;
 
             messages ??= Array.Empty<string>();
-            var message = messages.Length > 0 ? title + "\n" + string.Join("\n", messages) : title;
+            var message = messages.Length > 0 ? title + "\n" + string.Join(separator: "\n", messages) : title;
 
             foreach (var loc in locations)
             {
@@ -193,14 +193,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
 
         [Obsolete]
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, string title, string? message, Location location)
         {
             ReportDebugMessage(reportMethod, title, message, ImmutableArray.Create(location));
         }
 
         [Obsolete]
-        [Conditional("STMG_DEBUG_MESSAGE")]
+        [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage<T>(Action<Diagnostic> reportMethod, string title, string? message, T locations)
             where T : IEnumerable<Location>
         {
@@ -248,10 +248,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 switch (parent)
                 {
                     case TypeDeclarationSyntax type:
-                        sb.Insert(0, type.Identifier.Text);
+                        sb.Insert(index: 0, type.Identifier.Text);
                         break;
                     case NamespaceDeclarationSyntax ns:
-                        sb.Insert(0, ns.Name.ToString());
+                        sb.Insert(index: 0, ns.Name.ToString());
                         break;
                 }
                 parent = parent.Parent;

@@ -140,7 +140,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (baseSymbol == null)
                 {
                     Core.ReportDebugMessage(context.ReportDiagnostic,
-                        "cannot get baseType symbol", null, targetTypeDeclStx.GetLocation());
+                        title: "cannot get baseType symbol", message: null, targetTypeDeclStx.GetLocation());
 
                     continue;
                 }
@@ -184,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var foundTypeArgSymbol = baseTypeModel.GetTypeInfo(foundTypeArgNode).ConvertedType;
                 if (foundTypeArgSymbol == null)
                 {
-                    Core.ReportDebugMessage(context.ReportDiagnostic, "[NOT FOUND] TypeArg Symbol", null, foundTypeArgNode.GetLocation());
+                    Core.ReportDebugMessage(context.ReportDiagnostic, title: "[NOT FOUND] TypeArg Symbol", message: null, foundTypeArgNode.GetLocation());
                     continue;
                 }
 
@@ -195,7 +195,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                     if (targetTypeSymbol == null)
                     {
-                        Core.ReportDebugMessage(context.ReportDiagnostic, "[NOT FOUND] Target Symbol", null, targetTypeDeclStx.Identifier.GetLocation());
+                        Core.ReportDebugMessage(context.ReportDiagnostic, title: "[NOT FOUND] Target Symbol", message: null, targetTypeDeclStx.Identifier.GetLocation());
                         continue;
                     }
                 }

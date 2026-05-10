@@ -137,7 +137,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
             if (disposableMemberSet.Count != 0)
             {
-                var joinedNames = string.Join(", ", disposableMemberSet.Select(m => m.Name));
+                var joinedNames = string.Join(separator: ", ", disposableMemberSet.Select(m => m.Name));
                 Report(context, Rule_UndisposedMember, typeSymbol, joinedNames);
             }
         }
