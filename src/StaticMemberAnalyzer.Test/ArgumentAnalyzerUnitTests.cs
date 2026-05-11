@@ -183,9 +183,10 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestStringMethodsOmitNamed()
+        public async Task TestAllowedNamespacesOmitNamed()
         {
             var test = @"
+using System.IO;
 namespace Test
 {
     public class CTest
@@ -194,6 +195,8 @@ namespace Test
         {
             var s = string.Join("","", ""a"", ""b"");
             var s2 = string.Format(""{0} {1}"", 1, 2);
+            var f = File.ReadAllText(""path"");
+            var p = Path.Combine(""a"", ""b"");
         }
     }
 }
@@ -291,15 +294,14 @@ namespace Test
         public MyAttribute(string a) {}
     }
 
-    [My({|#0:1|})]
+    [My(1)]
     [My(""a"")]
     public class CTest
     {
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

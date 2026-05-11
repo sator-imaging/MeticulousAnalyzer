@@ -56,11 +56,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             var parameter = attrSymbol.Parameters[index];
+
+            // For attribute syntax, we do not check the argument type because it's too complicated.
             if (argListStx.Arguments.Count <= 1)
-            {
-                if (parameter.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
-                    return;
-            }
+                return;
 
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
@@ -100,9 +99,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
 
-            // String method is intentionally allowed.
-            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType?.SpecialType == SpecialType.System_String)
-                return;
+            // String and System.IO methods are intentionally allowed.
+            if (op.Parent is IInvocationOperation inv)
+            {
+                var type = inv.TargetMethod.ContainingType;
+                if (type?.SpecialType == SpecialType.System_String)
+                    return;
+
+                if (type?.ContainingNamespace?.ToDisplayString() == "System.IO")
+                    return;
+            }
 
             if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
             {
