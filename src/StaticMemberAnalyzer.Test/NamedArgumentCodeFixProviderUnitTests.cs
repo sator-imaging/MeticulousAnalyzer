@@ -175,15 +175,18 @@ namespace Test
 {
     public class CTest
     {
-        void Foo(int a, float b) {}
+        int Foo(int a, float b) => 0;
         float Bar(float x, float y) => 0;
         float Baz(string s, float f) => 0;
 
         public void Test()
         {
-            Foo({|#0:0|}, Bar(Baz({|#1:""message""|}, {|#2:2.2f|}), {|#3:11f|}));
+            var x = Foo({|#0:0|}, Bar(Baz({|#1:""message""|}, {|#2:2.2f|}), {|#3:11f|}));
+        }
 
-            Foo({|#4:0|},
+        public void TestMultiline()
+        {
+            var x = Foo({|#4:0|},
                         Bar(Baz({|#5:""message""|},
                             {|#6:2.2f|}),
                         {|#7:11f|}));
@@ -196,15 +199,18 @@ namespace Test
 {
     public class CTest
     {
-        void Foo(int a, float b) {}
+        int Foo(int a, float b) => 0;
         float Bar(float x, float y) => 0;
         float Baz(string s, float f) => 0;
 
         public void Test()
         {
-            Foo(a: 0, Bar(Baz(s: ""message"", f: 2.2f), y: 11f));
+            var x = Foo(a: 0, Bar(Baz(s: ""message"", f: 2.2f), y: 11f));
+        }
 
-            Foo(a: 0,
+        public void TestMultiline()
+        {
+            var x = Foo(a: 0,
                         Bar(Baz(s: ""message"",
                             f: 2.2f),
                         y: 11f));

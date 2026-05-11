@@ -58,7 +58,8 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
 
-            var argumentNode = root.FindNode(argumentSpan, getInnermostNodeForTie: true).AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
+            var node = root.FindNode(argumentSpan, getInnermostNodeForTie: true);
+            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
             if (argumentNode == null) return document;
 
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
