@@ -60,7 +60,7 @@ jobs:
 
           if [ ! -d "baseline/$reportDir" ]; then
             {
-              echo "⛔ Baseline test was failed or skipped."
+              echo "⚠ Baseline test for coverage diff generation was failed or skipped."
               echo
             } >> $GITHUB_STEP_SUMMARY
           else
