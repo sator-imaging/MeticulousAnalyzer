@@ -90,8 +90,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IArgumentOperation op)
                 return;
 
+            if (op.Syntax is not ArgumentSyntax argStx)
+                return;
+
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
-            if (op.Syntax is AttributeArgumentSyntax)
+            if (argStx.Kind() == SyntaxKind.AttributeArgument)
                 return;
 
             if (op.IsImplicit)
@@ -101,21 +104,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
 
-            int explicitArgumentCount = 0;
-            if (op.Parent is IInvocationOperation inv)
-            {
-                if (inv.TargetMethod.ContainingType?.SpecialType == SpecialType.System_String)
-                    return;
-                explicitArgumentCount = inv.Arguments.Count(a => !a.IsImplicit);
-            }
-            else if (op.Parent is IObjectCreationOperation creation)
-            {
-                if (creation.Constructor?.ContainingType?.SpecialType == SpecialType.System_String)
-                    return;
-                explicitArgumentCount = creation.Arguments.Count(a => !a.IsImplicit);
-            }
+            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType?.SpecialType == SpecialType.System_String)
+                return;
 
-            if (explicitArgumentCount == 1)
+            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
                 return;
 
             var value = op.Value;
@@ -127,11 +119,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
-            bool isNamed = false;
-            if (op.Syntax is ArgumentSyntax argStx)
-            {
-                isNamed = argStx.NameColon != null;
-            }
+            bool isNamed = argStx.NameColon != null;
 
             if (!isNamed)
             {
