@@ -297,12 +297,15 @@ namespace Test
 using System;
 namespace Test
 {
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class MyAttribute : Attribute
     {
         public MyAttribute(int a, int b) {}
+        public MyAttribute(int a, int b, int c = 0) {}
     }
 
     [My({|#0:1|}, {|#1:2|})]
+    [My({|#2:1|}, {|#3:2|}, {|#4:3|})]
     public class CTest
     {
     }
@@ -310,7 +313,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
             var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("b");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
+            var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("b");
+            var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("c");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
         }
     }
 }
