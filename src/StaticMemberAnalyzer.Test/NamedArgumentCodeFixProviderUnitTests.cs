@@ -19,11 +19,11 @@ namespace Test
 {
     public class CTest
     {
-        public int Foo(int index, bool strict, string message) => 0;
+        public void Foo(int index, bool strict, string message) {}
 
         public void Test()
         {
-            var x = Foo({|#0:1|}, {|#1:true|}, {|#2:""message""|});
+            Foo({|#0:1|}, {|#1:true|}, {|#2:""message""|});
         }
     }
 }
@@ -33,11 +33,11 @@ namespace Test
 {
     public class CTest
     {
-        public int Foo(int index, bool strict, string message) => 0;
+        public void Foo(int index, bool strict, string message) {}
 
         public void Test()
         {
-            var x = Foo(index: 1, strict: true, message: ""message"");
+            Foo(index: 1, strict: true, message: ""message"");
         }
     }
 }
@@ -132,11 +132,11 @@ namespace Test
 {
     public class CTest
     {
-        public int Foo(int index, bool strict, string message) => 0;
+        public void Foo(int index, bool strict, string message) {}
 
         public void Test()
         {
-            var x = Foo({|#0:0|},
+            Foo({|#0:0|},
                 {|#1:false|},
                 {|#2:""bar""|}
             );
@@ -149,11 +149,11 @@ namespace Test
 {
     public class CTest
     {
-        public int Foo(int index, bool strict, string message) => 0;
+        public void Foo(int index, bool strict, string message) {}
 
         public void Test()
         {
-            var x = Foo(index: 0,
+            Foo(index: 0,
                 strict: false,
                 message: ""bar""
             );
@@ -175,15 +175,15 @@ namespace Test
 {
     public class CTest
     {
-        int Foo(int a, float b) => 0;
+        void Foo(int a, float b) {}
         float Bar(float x, float y) => 0;
         float Baz(string s, float f) => 0;
 
         public void Test()
         {
-            var x = Foo({|#0:0|}, Bar(Baz({|#1:""message""|}, {|#2:2.2f|}), {|#3:11f|}));
+            Foo({|#0:0|}, Bar(Baz({|#1:""message""|}, {|#2:2.2f|}), {|#3:11f|}));
 
-            var y = Foo({|#4:0|},
+            Foo({|#4:0|},
                         Bar(Baz({|#5:""message""|},
                             {|#6:2.2f|}),
                         {|#7:11f|}));
@@ -196,15 +196,15 @@ namespace Test
 {
     public class CTest
     {
-        int Foo(int a, float b) => 0;
+        void Foo(int a, float b) {}
         float Bar(float x, float y) => 0;
         float Baz(string s, float f) => 0;
 
         public void Test()
         {
-            var x = Foo(a: 0, Bar(Baz(s: ""message"", f: 2.2f), y: 11f));
+            Foo(a: 0, Bar(Baz(s: ""message"", f: 2.2f), y: 11f));
 
-            var y = Foo(a: 0,
+            Foo(a: 0,
                         Bar(Baz(s: ""message"",
                             f: 2.2f),
                         y: 11f));
