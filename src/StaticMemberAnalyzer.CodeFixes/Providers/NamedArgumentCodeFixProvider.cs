@@ -31,7 +31,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return;
 
             var diagnostic = context.Diagnostics.First();
@@ -53,7 +53,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         private async Task<Document> AddNamedArgumentAsync(Document document, SyntaxNode argumentNode, CancellationToken cancellationToken)
         {
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (semanticModel == null) return document;
 
             string? parameterName = null;
@@ -103,7 +103,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
             if (newNode == null) return document;
 
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
 
             var newRoot = root.ReplaceNode(argumentNode, newNode);
