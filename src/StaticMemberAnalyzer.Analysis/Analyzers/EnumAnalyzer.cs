@@ -179,25 +179,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation op)
                 return;
 
+            if (Core.IsExemptedEnumMethod(op.TargetMethod))
+                return;
+
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
-                switch (op.TargetMethod.Name)
-                {
-                    case "HasFlag":
-                    case "Parse":
-                    case "TryParse":
-                    case "IsDefined":
-                    case "GetName":
-                    case "GetNames":
-                    case "GetValues":
-                    case "ToObject":
-                    case "Format":
-                    case "GetUnderlyingType":
-                        return;
-                }
-
-                if (IsSuppressed(op))
+                if (Core.IsSuppressed(op))
                     return;
 
                 //string??
@@ -294,7 +282,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (IsSuppressed(op))
+            if (Core.IsSuppressed(op))
                 return;
 
             AnalyzeCast_Impl(context, op);
@@ -779,34 +767,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  helper  ================================================================ */
-
-        private static bool IsSuppressed(IOperation op)
-        {
-            if (op.Parent is IVariableInitializerOperation initOp &&
-                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
-                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
-                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
-            {
-                return IsSuppressedByComment(localDecl);
-            }
-
-            return false;
-        }
-
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Allow enum conversion";
-
-            if (node == null) return false;
-
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
-        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -272,5 +272,79 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             return buffer.ToString();
         }
 
+
+        /*  Enum & Suppression  ================================================================ */
+
+        internal static bool IsExemptedEnumMethod(IMethodSymbol method)
+        {
+            if (method.ReceiverType?.SpecialType != SpecialType.System_Enum)
+                return false;
+
+            switch (method.Name)
+            {
+                case "HasFlag":
+                case "Parse":
+                case "TryParse":
+                case "IsDefined":
+                case "GetName":
+                case "GetNames":
+                case "GetValues":
+                case "ToObject":
+                case "Format":
+                case "GetUnderlyingType":
+                    return true;
+            }
+
+            return false;
+        }
+
+
+        internal static bool IsSuppressed(IOperation op)
+        {
+            // Search upward until suppression candidate found.
+            var node = op.Syntax;
+            while (node != null)
+            {
+                if (node is LocalDeclarationStatementSyntax localDecl)
+                {
+                    return IsSuppressedByComment(localDecl);
+                }
+
+                if (node is ExpressionStatementSyntax exprStmt)
+                {
+                    // Regular and discard assignments are explicitly excluded from comment-based suppression
+                    // per README instructions.
+                    var inner = exprStmt.Expression;
+                    if (inner is AssignmentExpressionSyntax)
+                        return false;
+
+                    return IsSuppressedByComment(exprStmt);
+                }
+
+                // If we reach a block or method, stop.
+                if (node is BlockSyntax or MethodDeclarationSyntax or ConstructorDeclarationSyntax or AccessorDeclarationSyntax)
+                    break;
+
+                node = node.Parent;
+            }
+
+            return false;
+        }
+
+        internal static bool IsSuppressedByComment(SyntaxNode? node)
+        {
+            const string SuppressionComment = "// Allow enum conversion";
+
+            if (node == null) return false;
+
+            var comment = node
+                .GetFirstToken()
+                .LeadingTrivia
+                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+
+            return comment != default
+                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
     }
 }

@@ -84,6 +84,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IArgumentOperation op)
                 return;
 
+            if (Core.IsSuppressed(op))
+                return;
+
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
             if (op.Syntax is AttributeArgumentSyntax)
                 return;
@@ -92,21 +95,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Skip if it's a System.Enum method call.
-            if (op.Parent is IInvocationOperation invocation && invocation.TargetMethod.ReceiverType?.SpecialType == SpecialType.System_Enum)
+            if (op.Parent is IInvocationOperation invocation && Core.IsExemptedEnumMethod(invocation.TargetMethod))
             {
-                switch (invocation.TargetMethod.Name)
-                {
-                    case "Parse":
-                    case "TryParse":
-                    case "IsDefined":
-                    case "GetName":
-                    case "GetNames":
-                    case "GetValues":
-                    case "ToObject":
-                    case "Format":
-                    case "GetUnderlyingType":
-                        return;
-                }
+                return;
             }
 
             // Skip if it's an indexer argument.
