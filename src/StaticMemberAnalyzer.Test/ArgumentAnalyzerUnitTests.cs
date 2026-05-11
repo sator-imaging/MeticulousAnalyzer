@@ -181,5 +181,121 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task TestStringMethodsOmitNamed()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var s = string.Join("","", ""a"", ""b"");
+            var s2 = string.Format(""{0} {1}"", 1, 2);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestSingleArgumentOmitNamed()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a) {}
+        public void Bar(int a, int b = 0) {}
+
+        public void Test()
+        {
+            Foo(1);
+            Bar(1);
+            var x = new CTest(1);
+        }
+
+        public CTest(int a) {}
+        public CTest(int a, int b = 0) {}
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestMultipleArgumentsStillReported()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a, int b) {}
+
+        public void Test()
+        {
+            Foo({|#0:1|}, {|#1:2|});
+            var x = new CTest({|#2:1|}, {|#3:2|});
+        }
+
+        public CTest(int a, int b) {}
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("b");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
+            var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task TestAttributeSingleArgumentOmitNamed()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(int index) {}
+    }
+
+    [My(1)]
+    public class CTest
+    {
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestAttributeMultiplePositionalArguments()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(int a, int b) {}
+    }
+
+    [My({|#0:1|}, {|#1:2|})]
+    public class CTest
+    {
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }

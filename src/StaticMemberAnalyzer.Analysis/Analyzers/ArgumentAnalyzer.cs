@@ -44,6 +44,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
+                return;
+
+            if (argListStx.Arguments.Count <= 1)
+                return;
+
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -60,7 +66,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // For attributes, if it's not named/equaled, it must be a positional argument.
             // We need to find the parameter name.
             string parameterName = "unknown";
-            if (argStx.Parent is AttributeArgumentListSyntax argListStx && argListStx.Parent is AttributeSyntax attrStx)
+            if (argListStx.Parent is AttributeSyntax attrStx)
             {
                 var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
                 if (attrSymbol != null)
@@ -93,6 +99,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // Skip if it's an indexer argument.
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
+                return;
+
+            int explicitArgumentCount = 0;
+            if (op.Parent is IInvocationOperation inv)
+            {
+                if (inv.TargetMethod.ContainingType?.SpecialType == SpecialType.System_String)
+                    return;
+                explicitArgumentCount = inv.Arguments.Count(a => !a.IsImplicit);
+            }
+            else if (op.Parent is IObjectCreationOperation creation)
+            {
+                if (creation.Constructor?.ContainingType?.SpecialType == SpecialType.System_String)
+                    return;
+                explicitArgumentCount = creation.Arguments.Count(a => !a.IsImplicit);
+            }
+
+            if (explicitArgumentCount == 1)
                 return;
 
             var value = op.Value;
