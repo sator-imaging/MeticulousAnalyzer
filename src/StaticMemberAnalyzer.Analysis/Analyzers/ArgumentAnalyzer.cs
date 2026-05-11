@@ -47,6 +47,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.Parent is not AttributeArgumentListSyntax argListStx || argListStx.Parent is not AttributeSyntax attrStx)
                 return;
 
+            // For attribute syntax, we do not check the argument type because it's too complicated.
+            if (argListStx.Arguments.Count <= 1)
+                return;
+
             var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
             if (attrSymbol == null)
                 return;
@@ -56,10 +60,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             var parameter = attrSymbol.Parameters[index];
-
-            // For attribute syntax, we do not check the argument type because it's too complicated.
-            if (argListStx.Arguments.Count <= 1)
-                return;
 
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
@@ -106,7 +106,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (type?.SpecialType == SpecialType.System_String)
                     return;
 
-                if (type?.ContainingNamespace?.ToDisplayString() == "System.IO")
+                if (type?.ContainingNamespace is INamespaceSymbol ns &&
+                    ns.Name == "IO" &&
+                    ns.ContainingNamespace is INamespaceSymbol parentNs &&
+                    parentNs.Name == "System" &&
+                    parentNs.ContainingNamespace?.IsGlobalNamespace == true)
                     return;
             }
 
