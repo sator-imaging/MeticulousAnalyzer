@@ -778,6 +778,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return IsSuppressedByComment(localDecl);
             }
 
+            if (op.Syntax.Parent is StatementSyntax statement)
+            {
+                return IsSuppressedByComment(statement);
+            }
+
             return false;
         }
 
