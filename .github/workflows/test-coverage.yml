@@ -71,6 +71,8 @@ jobs:
               -targetdir:"$REPORT_OUTPUT/diff"
             {
               cat "$REPORT_OUTPUT/diff/SummaryGithub.md" \
+                | sed 's/<details open>/<details>/g' \
+                | sed -E 's/- ([0-9.]+%)<\/summary>/- __\1__<\/summary>/g' \
                 | sed 's/^# Summary$/# 📊 PR Changes/'
               echo
             } >> $GITHUB_STEP_SUMMARY
@@ -82,5 +84,7 @@ jobs:
             -reports:"current/$reportDir" \
             -targetdir:"$REPORT_OUTPUT/full"
           cat "$REPORT_OUTPUT/full/SummaryGithub.md" \
+            | sed 's/<details open>/<details>/g' \
+            | sed -E 's/- ([0-9.]+%)<\/summary>/- __\1__<\/summary>/g' \
             | sed 's/^# Summary$/# 📊 Total Coverage/' \
             >> $GITHUB_STEP_SUMMARY
