@@ -44,17 +44,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
-            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx || argListStx.Parent is not AttributeSyntax attrStx)
                 return;
 
-            var operation = context.SemanticModel.GetOperation(argStx.Expression);
+            var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
+            if (attrSymbol == null)
+                return;
 
+            int index = argListStx.Arguments.IndexOf(argStx);
+            if (index < 0 || index >= attrSymbol.Parameters.Length)
+                return;
+
+            var parameter = attrSymbol.Parameters[index];
             if (argListStx.Arguments.Count <= 1)
             {
-                var type = operation?.Type;
-                if (type != null && (type.SpecialType == SpecialType.System_String || type.SpecialType == SpecialType.System_Char))
+                if (parameter.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                     return;
             }
+
+            var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
 
@@ -67,26 +75,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
-            // For attributes, if it's not named/equaled, it must be a positional argument.
-            // We need to find the parameter name.
-            string parameterName = "unknown";
-            if (argListStx.Parent is AttributeSyntax attrStx)
-            {
-                var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
-                if (attrSymbol != null)
-                {
-                    int index = argListStx.Arguments.IndexOf(argStx);
-                    if (index >= 0 && index < attrSymbol.Parameters.Length)
-                    {
-                        parameterName = attrSymbol.Parameters[index].Name;
-                    }
-                }
-            }
-
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_LiteralArgument,
                 argStx.GetLocation(),
-                parameterName));
+                parameter.Name));
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
@@ -114,8 +106,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
             {
-                var type = op.Value.Type;
-                if (type != null && (type.SpecialType == SpecialType.System_String || type.SpecialType == SpecialType.System_Char))
+                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                     return;
             }
 
