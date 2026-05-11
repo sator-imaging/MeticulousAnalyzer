@@ -52,7 +52,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("i");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -77,7 +77,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("i");
 
             await VerifyWithRuleEnabledAsync(test, expected);
@@ -104,7 +104,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("read");
 
             await VerifyWithRuleEnabledAsync(test, expected);

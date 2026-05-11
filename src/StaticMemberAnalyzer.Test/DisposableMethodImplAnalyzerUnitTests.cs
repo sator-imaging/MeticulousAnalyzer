@@ -29,7 +29,7 @@ class {|#0:TestClass|} : IDisposable
     }
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("_field");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -84,10 +84,10 @@ class {|#0:TestClass|}
     private MyDisposable _field = new MyDisposable();
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("TestClass");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("TestClass");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
@@ -115,7 +115,7 @@ class {|#0:TestClass|} : IDisposable
     }
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("_field");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -136,7 +136,7 @@ class {|#0:TestClass|} : IDisposable
     }
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("_field");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -234,7 +234,7 @@ class {|#0:TestClass|} : IDisposable
     }
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("_field1, _field2");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -263,10 +263,10 @@ partial class {|#1:TestClass|}
     }
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("_field2");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
-                .WithLocation(1)
+                .WithLocation(markupKey: 1)
                 .WithArguments("_field2");
 
             var test = new VerifyCS.Test
@@ -298,7 +298,7 @@ class {|#0:TestClass|}
     }
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("TestClass");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }

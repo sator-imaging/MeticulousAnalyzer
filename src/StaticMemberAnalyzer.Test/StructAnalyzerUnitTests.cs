@@ -35,7 +35,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidStructCtor)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -82,7 +82,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidReadOnlyField)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MutableStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -129,7 +129,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidStructCtor)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -159,7 +159,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidStructCtor)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("NestedStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -183,7 +183,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidReadOnlyField)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MutableStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -210,7 +210,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidReadOnlyField)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("NestedStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -280,7 +280,7 @@ namespace Test
 ";
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidReadOnlyField)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyMutableStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -301,7 +301,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("int", "object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -323,7 +323,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("int", "object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -352,7 +352,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyStructDisposable", "IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
@@ -374,7 +374,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ImplicitBoxing)
-                .WithLocation(0)
+                .WithLocation(markupKey: 0)
                 .WithArguments("int?", "object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
