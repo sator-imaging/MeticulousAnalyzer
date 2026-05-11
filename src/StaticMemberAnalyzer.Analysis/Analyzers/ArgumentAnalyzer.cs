@@ -47,10 +47,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
                 return;
 
-            if (argListStx.Arguments.Count <= 1)
-                return;
-
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
+
+            if (argListStx.Arguments.Count <= 1)
+            {
+                var type = operation?.Type;
+                if (type != null && (type.SpecialType == SpecialType.System_String || type.SpecialType == SpecialType.System_Char))
+                    return;
+            }
             if (operation == null)
                 return;
 
@@ -104,11 +108,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
 
+            // String method is intentionally allowed.
             if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType?.SpecialType == SpecialType.System_String)
                 return;
 
             if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
-                return;
+            {
+                var type = op.Value.Type;
+                if (type != null && (type.SpecialType == SpecialType.System_String || type.SpecialType == SpecialType.System_Char))
+                    return;
+            }
 
             var value = op.Value;
             while (value is IConversionOperation conversion)

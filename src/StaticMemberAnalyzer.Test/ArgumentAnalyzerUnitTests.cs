@@ -210,23 +210,31 @@ namespace Test
     public class CTest
     {
         public void Foo(int a) {}
-        public void Bar(int a, int b = 0) {}
-        public void Baz(int a, int b = 0, int c = 0) {}
+        public void Bar(string a) {}
+        public void Baz(char a) {}
+        public void Qux(bool a) {}
+        public void Default(string a, int b = 0) {}
 
         public void Test()
         {
-            Foo(1);
-            Bar(1);
-            Baz(1);
-            var x = new CTest(1);
+            Foo({|#0:1|});
+            Bar(""a"");
+            Baz('a');
+            Qux({|#1:true|});
+            Default(""a"");
+            var x = new CTest({|#2:1|});
+            var y = new CTest(""a"");
         }
 
         public CTest(int a) {}
-        public CTest(int a, int b = 0, int c = 0) {}
+        public CTest(string a) {}
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("a");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
@@ -276,18 +284,22 @@ namespace Test
 using System;
 namespace Test
 {
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class MyAttribute : Attribute
     {
-        public MyAttribute(int a, int b = 0, int c = 0) {}
+        public MyAttribute(int a) {}
+        public MyAttribute(string a) {}
     }
 
-    [My(1)]
+    [My({|#0:1|})]
+    [My(""a"")]
     public class CTest
     {
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
