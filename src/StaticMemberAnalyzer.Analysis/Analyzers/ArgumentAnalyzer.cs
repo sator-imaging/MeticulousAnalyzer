@@ -44,7 +44,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
-            if (argStx.Parent is not AttributeArgumentListSyntax argListStx || argListStx.Parent is not AttributeSyntax attrStx)
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
                 return;
 
             // For attribute syntax, we do not check the argument type because it's too complicated.
@@ -65,18 +65,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Getting semantic model should be done right before emitting diagnostic for performance.
-            var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
+            var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
             if (attrSymbol == null)
                 return;
 
             int index = argListStx.Arguments.IndexOf(argStx);
-            if (index < 0 || index >= attrSymbol.Parameters.Length)
-                return;
-
-            context.ReportDiagnostic(Diagnostic.Create(
-                Rule_LiteralArgument,
-                argStx.GetLocation(),
-                attrSymbol.Parameters[index].Name));
+            if (index >= 0 && index < attrSymbol.Parameters.Length)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_LiteralArgument,
+                    argStx.GetLocation(),
+                    attrSymbol.Parameters[index].Name));
+            }
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
