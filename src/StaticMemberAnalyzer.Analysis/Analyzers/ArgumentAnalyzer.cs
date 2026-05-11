@@ -91,6 +91,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.IsImplicit)
                 return;
 
+            // Skip if it's a System.Enum method call.
+            if (op.Parent is IInvocationOperation invocation && invocation.TargetMethod.ReceiverType?.SpecialType == SpecialType.System_Enum)
+            {
+                switch (invocation.TargetMethod.Name)
+                {
+                    case "Parse":
+                    case "TryParse":
+                    case "IsDefined":
+                    case "GetName":
+                    case "GetNames":
+                    case "GetValues":
+                    case "ToObject":
+                    case "Format":
+                    case "GetUnderlyingType":
+                        return;
+                }
+            }
+
             // Skip if it's an indexer argument.
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;

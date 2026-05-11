@@ -123,7 +123,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestEnumMethod()
+        public async Task TestEnumMethod_ShouldNotReportExempted()
         {
             var test = @"
 using System;
@@ -137,13 +137,20 @@ namespace Test
     {
         public void Test()
         {
-            var x = {|#0:Enum.GetValues(typeof(ETest))|};
+            var a = Enum.GetValues(typeof(ETest));
+            var b = Enum.GetNames(typeof(ETest));
+            var c = Enum.GetName(typeof(ETest), 0);
+            var d = Enum.IsDefined(typeof(ETest), 0);
+            var e = Enum.Parse(typeof(ETest), ""Value"");
+            Enum.TryParse(typeof(ETest), ""Value"", out var res);
+            var f = Enum.ToObject(typeof(ETest), 0);
+            var g = Enum.Format(typeof(ETest), 0, ""G"");
+            var h = Enum.GetUnderlyingType(typeof(ETest));
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
