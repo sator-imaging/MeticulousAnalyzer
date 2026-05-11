@@ -99,13 +99,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // String and System.IO methods are intentionally allowed.
-            if (op.Parent is IInvocationOperation inv)
+            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType is INamedTypeSymbol type)
             {
-                var type = inv.TargetMethod.ContainingType;
-                if (type?.SpecialType == SpecialType.System_String)
+                if (type.SpecialType == SpecialType.System_String)
                     return;
 
-                if (type?.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
                     return;
             }
 
