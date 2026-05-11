@@ -211,16 +211,18 @@ namespace Test
     {
         public void Foo(int a) {}
         public void Bar(int a, int b = 0) {}
+        public void Baz(int a, int b = 0, int c = 0) {}
 
         public void Test()
         {
             Foo(1);
             Bar(1);
+            Baz(1);
             var x = new CTest(1);
         }
 
         public CTest(int a) {}
-        public CTest(int a, int b = 0) {}
+        public CTest(int a, int b = 0, int c = 0) {}
     }
 }
 ";
@@ -236,14 +238,19 @@ namespace Test
     public class CTest
     {
         public void Foo(int a, int b) {}
+        public void Bar(int a, int b = 0, int c = 0) {}
 
         public void Test()
         {
             Foo({|#0:1|}, {|#1:2|});
-            var x = new CTest({|#2:1|}, {|#3:2|});
+            Bar({|#2:1|}, {|#3:2|});
+            Bar({|#4:1|}, {|#5:2|}, {|#6:3|});
+            var x = new CTest({|#7:1|}, {|#8:2|});
+            var y = new CTest({|#9:1|}, {|#10:2|}, {|#11:3|});
         }
 
         public CTest(int a, int b) {}
+        public CTest(int a, int b = 0, int c = 0) {}
     }
 }
 ";
@@ -251,7 +258,15 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("b");
             var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
             var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("b");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+            var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("a");
+            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("b");
+            var expected6 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 6).WithArguments("c");
+            var expected7 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 7).WithArguments("a");
+            var expected8 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 8).WithArguments("b");
+            var expected9 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 9).WithArguments("a");
+            var expected10 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 10).WithArguments("b");
+            var expected11 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 11).WithArguments("c");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7, expected8, expected9, expected10, expected11);
         }
 
         [TestMethod]
