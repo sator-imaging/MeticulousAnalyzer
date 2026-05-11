@@ -278,7 +278,7 @@ namespace Test
 {
     public class MyAttribute : Attribute
     {
-        public MyAttribute(int index) {}
+        public MyAttribute(int a, int b = 0, int c = 0) {}
     }
 
     [My(1)]
