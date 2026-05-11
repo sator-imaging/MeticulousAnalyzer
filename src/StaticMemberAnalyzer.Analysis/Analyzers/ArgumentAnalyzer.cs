@@ -51,16 +51,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argListStx.Arguments.Count <= 1)
                 return;
 
-            var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
-            if (attrSymbol == null)
-                return;
-
-            int index = argListStx.Arguments.IndexOf(argStx);
-            if (index < 0 || index >= attrSymbol.Parameters.Length)
-                return;
-
-            var parameter = attrSymbol.Parameters[index];
-
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -74,10 +64,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
+            // Getting semantic model should be done right before emitting diagnostic for performance.
+            var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
+            if (attrSymbol == null)
+                return;
+
+            int index = argListStx.Arguments.IndexOf(argStx);
+            if (index < 0 || index >= attrSymbol.Parameters.Length)
+                return;
+
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_LiteralArgument,
                 argStx.GetLocation(),
-                parameter.Name));
+                attrSymbol.Parameters[index].Name));
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
@@ -106,11 +105,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (type?.SpecialType == SpecialType.System_String)
                     return;
 
-                if (type?.ContainingNamespace is INamespaceSymbol ns &&
-                    ns.Name == "IO" &&
-                    ns.ContainingNamespace is INamespaceSymbol parentNs &&
-                    parentNs.Name == "System" &&
-                    parentNs.ContainingNamespace?.IsGlobalNamespace == true)
+                if (type?.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
                     return;
             }
 
