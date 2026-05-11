@@ -1,12 +1,12 @@
 name: test
 
 on:
-  push:
-    branches: [ main ]
-    paths: [ 'src/**/*' ]
-  pull_request:
-    branches: [ main ]
-    paths: [ 'src/**/*' ]
+  #push:
+  #  branches: [ main ]
+  #  paths: [ 'src/**/*' ]
+  #pull_request:
+  #  branches: [ main ]
+  #  paths: [ 'src/**/*' ]
   workflow_call:
   workflow_dispatch:
 

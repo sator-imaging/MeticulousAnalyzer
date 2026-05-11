@@ -58,7 +58,12 @@ jobs:
           reportDir="$TEST_OUTPUT/**/coverage.cobertura.xml"
           reportTypes="Html;MarkdownSummary;MarkdownSummaryGithub"
 
-          if [ -d "baseline/$reportDir" ]; then
+          if [ ! -d "baseline/$reportDir" ]; then
+            {
+              echo "⛔ Baseline test was failed or skipped."
+              echo
+            } >> $GITHUB_STEP_SUMMARY
+          else
             reportgenerator \
               -reporttypes:"$reportTypes" \
               -reports:"current/$reportDir" \
