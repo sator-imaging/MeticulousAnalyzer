@@ -1,4 +1,4 @@
-name: '[push,PR] Test Coverage'
+name: 'Test and Coverage Report'
 
 on:
   push:
