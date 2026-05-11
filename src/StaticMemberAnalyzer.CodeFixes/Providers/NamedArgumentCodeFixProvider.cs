@@ -34,25 +34,33 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return;
 
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
+            foreach (var diagnostic in context.Diagnostics)
+            {
+                var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
-            if (node == null) return;
+                var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
+                if (node == null) continue;
 
-            var argumentNode = node.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
-            if (argumentNode == null) return;
+                var argumentNode = node.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
+                if (argumentNode == null) continue;
 
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: CodeFixResources.CodeFix_NamedArgument,
-                    createChangedDocument: c => AddNamedArgumentAsync(context.Document, argumentNode, c),
-                    equivalenceKey: nameof(CodeFixResources.CodeFix_NamedArgument)),
-                diagnostic);
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: CodeFixResources.CodeFix_NamedArgument,
+                        createChangedDocument: c => AddNamedArgumentAsync(context.Document, argumentNode.Span, c),
+                        equivalenceKey: nameof(CodeFixResources.CodeFix_NamedArgument)),
+                    diagnostic);
+            }
         }
 
-        private async Task<Document> AddNamedArgumentAsync(Document document, SyntaxNode argumentNode, CancellationToken cancellationToken)
+        private async Task<Document> AddNamedArgumentAsync(Document document, Microsoft.CodeAnalysis.Text.TextSpan argumentSpan, CancellationToken cancellationToken)
         {
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            if (root == null) return document;
+
+            var argumentNode = root.FindNode(argumentSpan, getInnermostNodeForTie: true).AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
+            if (argumentNode == null) return document;
+
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (semanticModel == null) return document;
 
@@ -102,9 +110,6 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             }
 
             if (newNode == null) return document;
-
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            if (root == null) return document;
 
             var newRoot = root.ReplaceNode(argumentNode, newNode);
             return document.WithSyntaxRoot(newRoot);
