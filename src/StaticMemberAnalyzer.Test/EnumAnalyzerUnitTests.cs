@@ -587,5 +587,105 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task TestSuppression_NestedInvocation_ExpectError()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(bool some)
+        {
+            // Allow enum conversion
+            if (some && {|#0:Enum.IsDefined(typeof(ETest), 0)|}) { }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_LinqInvocation_ExpectError()
+        {
+            var test = @"
+using System;
+using System.Linq;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(int[] some)
+        {
+            // Allow enum conversion
+            foreach (var v in some.Where(x => {|#0:Enum.IsDefined(typeof(ETest), x)|})) { }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_DiscardAssignment_ExpectError()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            // Allow enum conversion
+            _ = {|#0:Enum.GetValues(typeof(ETest))|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSuppression_VariableDeclaration_ExpectNoError()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            // Allow enum conversion
+            var some = Enum.GetValues(typeof(ETest));
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
