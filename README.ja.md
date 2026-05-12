@@ -442,9 +442,6 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 リテラル引数は、IDE の支援がない環境（Web ブラウザでのコードレビューなど）では、その意味を理解するのが困難です。名前付き引数や変数を使用することで、コードが自己文書化され、レビューが容易になります。
 
-> [!NOTE]
-> `string` および `System.IO` のメソッドは意図的に許可されています。また、`string` または `char` の引数が 1 つのみの場合は、名前付き引数を省略できます。
-
 ```cs
 Foo(0, 0, true);
 //  ~  ~  ~~~~ リテラル引数は意味が分かりにくい
@@ -453,6 +450,9 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 //  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
 //  引数の意味が自己説明的になりました！
 ```
+
+> [!NOTE]
+> `string` および `System.IO` のメソッドは意図的に許可されています。また、`string` または `char` の引数が 1 つのみの場合は、名前付き引数を省略できます。
 
 
 

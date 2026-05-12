@@ -442,9 +442,6 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 在没有 IDE 辅助的情况下（例如在 Web 浏览器中进行代码审查时），字面量参数可能难以理解。使用命名参数或变量可以使代码具有自解释性，从而使审查过程更加顺畅。
 
-> [!NOTE]
-> `string` 和 `System.IO` 方法被有意允许。此外，当仅有一个 `string` 或 `char` 参数时，可以省略命名参数。
-
 ```cs
 Foo(0, 0, true);
 //  ~  ~  ~~~~ 字面量参数难以理解其含义
@@ -453,6 +450,9 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 //  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
 //  现在参数含义一目了然！
 ```
+
+> [!NOTE]
+> `string` 和 `System.IO` 方法被有意允许。此外，当仅有一个 `string` 或 `char` 参数时，可以省略命名参数。
 
 
 
