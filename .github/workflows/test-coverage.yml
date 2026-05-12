@@ -58,7 +58,7 @@ jobs:
           reportDir="$TEST_OUTPUT/**/coverage.cobertura.xml"
           reportTypes="Html;MarkdownSummary;MarkdownSummaryGithub"
 
-          if [ ! -d "baseline/$reportDir" ]; then
+          if [ ! -d "baseline/$TEST_OUTPUT" ]; then
             {
               echo "⚠ Baseline test for coverage diff generation was failed or skipped."
               echo
