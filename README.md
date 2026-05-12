@@ -452,7 +452,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string` and `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `int`, `string` or `char` can omit named argument.
+> `string` and `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument but only for method calls.
 
 
 

@@ -59,7 +59,7 @@ namespace Test
 
         public void Test()
         {
-            var x = new CTest(1, {|#1:true|}, {|#2:""message""|});
+            var x = new CTest({|#0:1|}, {|#1:true|}, {|#2:""message""|});
         }
     }
 }
@@ -73,14 +73,15 @@ namespace Test
 
         public void Test()
         {
-            var x = new CTest(1, strict: true, message: ""message"");
+            var x = new CTest(index: 1, strict: true, message: ""message"");
         }
     }
 }
 ";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("index");
             var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("strict");
             var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("message");
-            await VerifyCS.VerifyCodeFixAsync(test, new[] { expected1, expected2 }, fixtest);
+            await VerifyCS.VerifyCodeFixAsync(test, new[] { expected0, expected1, expected2 }, fixtest);
         }
 
         [TestMethod]
@@ -184,7 +185,7 @@ namespace Test
         public void TestMultiline()
         {
             var x = Foo(0,
-                        Bar(Baz({|#5:""message""|},
+                        Bar(Baz(""message"",
                             {|#6:2.2f|}),
                         {|#7:11f|}));
         }

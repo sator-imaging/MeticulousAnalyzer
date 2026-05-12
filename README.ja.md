@@ -452,7 +452,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string` および `System.IO` のメソッドとコンストラクタは意図的に許可されています。また、最初の引数が `int`、`string` または `char` 型の場合は、名前付き引数を省略できます。
+> `string` および `System.IO` のメソッドとコンストラクタは意図的に許可されています。また、最初の引数が `string` または `char` 型の場合は、名前付き引数を省略できます。`int` 型の最初の引数も名前付き引数を省略できますが、メソッド呼び出しのみに限定されます。
 
 
 

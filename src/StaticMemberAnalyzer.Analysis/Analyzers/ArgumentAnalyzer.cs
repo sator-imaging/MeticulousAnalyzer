@@ -105,18 +105,31 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation)
                 return;
 
+            var invocationOp = op.Parent as IInvocationOperation;
+
             // int, string or char is allowed if it's the first argument.
             if (argStx.Parent is ArgumentListSyntax argListStx)
             {
-                if (argListStx.Arguments.IndexOf(argStx) == 0)
+                if (argListStx.Arguments.IndexOf(argStx) == 0 &&
+                    op.Parameter?.Type is ITypeSymbol firstArgType)
                 {
-                    if (op.Parameter?.Type.SpecialType is SpecialType.System_Int32 or SpecialType.System_String or SpecialType.System_Char)
+                    // First string or char argument is allowed for both method and constructor.
+                    //   ex. throw new Exception("Message", innerError);
+                    if (firstArgType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                    {
                         return;
+                    }
+                    // but, don't allow omitting first int argument for constructor.
+                    //   ex. list = new(0);  // Expect: new(capacity: 0);
+                    else if (firstArgType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
+                    {
+                        return;
+                    }
                 }
             }
 
-            // String and System.IO methods and constructors are intentionally allowed.
-            var containingType = (op.Parent as IInvocationOperation)?.TargetMethod.ContainingType
+            // System.IO methods and constructors are intentionally allowed.
+            var containingType = invocationOp?.TargetMethod.ContainingType
                 ?? (op.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
 
             if (containingType is INamedTypeSymbol type)
