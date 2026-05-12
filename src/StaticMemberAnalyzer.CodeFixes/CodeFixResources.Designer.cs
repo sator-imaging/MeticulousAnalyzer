@@ -68,5 +68,14 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes {
                 return ResourceManager.GetString("CodeFix_EnumObfuscation", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Use named argument に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CodeFix_NamedArgument {
+            get {
+                return ResourceManager.GetString("CodeFix_NamedArgument", resourceCulture);
+            }
+        }
     }
 }

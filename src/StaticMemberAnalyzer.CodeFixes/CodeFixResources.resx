@@ -121,4 +121,8 @@
     <value>Exclude Enum Member from Obfuscation</value>
     <comment>The title of the code fix.</comment>
   </data>
+  <data name="CodeFix_NamedArgument" xml:space="preserve">
+    <value>Use named argument</value>
+    <comment>The title of the code fix.</comment>
+  </data>
 </root>
