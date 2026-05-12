@@ -332,5 +332,33 @@ namespace Test
             var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("c");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
         }
+
+        [TestMethod]
+        public async Task TestNamedArgumentsSuppressError()
+        {
+            var test = @"
+using System.IO;
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a, int b) {}
+        public void Bar(string a) {}
+
+        public void Test()
+        {
+            Foo(a: 1, b: 2);
+            Bar(a: ""a"");
+            var x = new CTest(a: 1);
+            var s = string.Join(separator: "","", ""a"", ""b"");
+            var f = File.ReadAllText(path: ""path"");
+        }
+
+        public CTest(int a) {}
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

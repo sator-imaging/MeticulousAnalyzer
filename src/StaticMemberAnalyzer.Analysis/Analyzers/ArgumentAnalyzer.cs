@@ -65,7 +65,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Getting semantic model should be done right before emitting diagnostic for performance.
-            var attrSymbol = operation.SemanticModel?.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
+            var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
             if (attrSymbol == null)
                 return;
 
