@@ -105,12 +105,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation)
                 return;
 
-            // String or char is allowed if it's the first argument.
+            // int, string or char is allowed if it's the first argument.
             if (argStx.Parent is ArgumentListSyntax argListStx)
             {
                 if (argListStx.Arguments.IndexOf(argStx) == 0)
                 {
-                    if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                    if (op.Parameter?.Type.SpecialType is SpecialType.System_Int32 or SpecialType.System_String or SpecialType.System_Char)
                         return;
                 }
             }
