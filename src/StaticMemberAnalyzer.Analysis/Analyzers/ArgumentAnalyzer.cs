@@ -101,11 +101,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation)
                 return;
 
-            // Always allow first argument if it's string or char.
-            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.IndexOf(argStx) == 0)
+            // String or char is allowed if it's the only argument OR it's the first argument.
+            if (argStx.Parent is ArgumentListSyntax argListStx)
             {
-                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
-                    return;
+                if (argListStx.Arguments.Count == 1 || argListStx.Arguments.IndexOf(argStx) == 0)
+                {
+                    if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                        return;
+                }
             }
 
             // String and System.IO methods and constructors are intentionally allowed.
