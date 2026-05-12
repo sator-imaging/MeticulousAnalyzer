@@ -79,10 +79,10 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-{|#0:class TestClass
+class {|#0:TestClass|}
 {
     private MyDisposable _field = new MyDisposable();
-}|}";
+}";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
                 .WithLocation(markupKey: 0)
                 .WithArguments("TestClass");
@@ -288,14 +288,14 @@ using System;
 
 class MyDisposable : IDisposable { public void Dispose() {} }
 
-{|#0:class TestClass
+class {|#0:TestClass|}
 {
     private MyDisposable _field = new MyDisposable();
     public void Dispose()
     {
         _field.Dispose();
     }
-}|}";
+}";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
                 .WithLocation(markupKey: 0)
                 .WithArguments("TestClass");

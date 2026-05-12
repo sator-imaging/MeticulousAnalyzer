@@ -148,17 +148,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var reported = false;
                 foreach (var syntaxRef in member.DeclaringSyntaxReferences)
                 {
-                    var location = syntaxRef.GetSyntax() switch
-                    {
-                        VariableDeclaratorSyntax varDecl => varDecl.Identifier.GetLocation(),
-                        _ => null
-                    };
-
-                    if (location == null)
+                    if (syntaxRef.GetSyntax() is not VariableDeclaratorSyntax varDecl)
                     {
                         continue;
                     }
 
+                    var location = varDecl.Identifier.GetLocation();
                     context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
                     reported = true;
                 }
@@ -174,11 +169,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
-                var location = syntaxRef.GetSyntax() switch
+                var syntax = syntaxRef.GetSyntax();
+                var location = syntax switch
                 {
-                    TypeDeclarationSyntax typeDecl => typeDecl.GetLocation(),
-                    var syntax => syntax.GetLocation()
+                    TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
+                    _ => syntax.GetLocation()
                 };
+
+                if (location == Location.None && syntax is TypeDeclarationSyntax typeDecl2)
+                {
+                    location = typeDecl2.GetLocation();
+                }
 
                 context.ReportDiagnostic(Diagnostic.Create(descriptor, location, messageArgs));
             }
