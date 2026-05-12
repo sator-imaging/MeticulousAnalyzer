@@ -47,10 +47,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
                 return;
 
-            // For attribute syntax, we do not check the argument type because it's too complicated.
-            if (argListStx.Arguments.Count <= 1)
-                return;
-
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -64,12 +60,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
+            int index = argListStx.Arguments.IndexOf(argStx);
+            if (index == 0)
+            {
+                var type = context.SemanticModel.GetTypeInfo(argStx.Expression).Type;
+                if (type?.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                    return;
+            }
+
             // Getting semantic model should be done right before emitting diagnostic for performance.
             string parameterName = "unknown";
+            if (argListStx.Parent == null) return;
             var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
             if (attrSymbol != null)
             {
-                int index = argListStx.Arguments.IndexOf(argStx);
+                var typeSymbol = attrSymbol.ContainingType;
+                if (typeSymbol != null)
+                {
+                    if (typeSymbol.SpecialType == SpecialType.System_String || IsException(typeSymbol) || IsSystemIONamespace(typeSymbol.ContainingNamespace))
+                        return;
+                }
+
                 if (index >= 0 && index < attrSymbol.Parameters.Length)
                 {
                     parameterName = attrSymbol.Parameters[index].Name;
@@ -101,19 +112,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
 
-            // String and System.IO methods are intentionally allowed.
-            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType is INamedTypeSymbol type)
+            // String, Exception and System.IO methods/constructors are intentionally allowed.
+            ISymbol? containingType = null;
+            if (op.Parent is IInvocationOperation inv) containingType = inv.TargetMethod.ContainingType;
+            else if (op.Parent is IObjectCreationOperation create) containingType = create.Type;
+
+            if (containingType is INamedTypeSymbol typeSymbol)
             {
-                if (type.SpecialType == SpecialType.System_String)
+                if (typeSymbol.SpecialType == SpecialType.System_String)
                     return;
 
-                if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                if (IsException(typeSymbol))
+                    return;
+
+                if (IsSystemIONamespace(typeSymbol.ContainingNamespace))
                     return;
             }
 
-            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
+            if (argStx.Parent is ArgumentListSyntax argListStx)
             {
-                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                int index = argListStx.Arguments.IndexOf(argStx);
+                if (index == 0 && op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                     return;
             }
 
@@ -135,6 +154,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     op.Syntax.GetLocation(),
                     op.Parameter?.Name ?? "unknown"));
             }
+        }
+
+        private static bool IsException(ITypeSymbol? type)
+        {
+            while (type != null)
+            {
+                if (type.Name == "Exception" && type.ContainingNamespace?.Name == "System" && type.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true)
+                    return true;
+                type = type.BaseType;
+            }
+            return false;
+        }
+
+        private static bool IsSystemIONamespace(INamespaceSymbol? ns)
+        {
+            return ns is { Name: "IO", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } };
         }
     }
 }
