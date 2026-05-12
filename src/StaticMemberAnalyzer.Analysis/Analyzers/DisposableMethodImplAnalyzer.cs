@@ -145,7 +145,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var member in undisposedMembers)
             {
-                ReportDiagnostic(context, Rule_UndisposedMember, member, member.Name);
+                var reported = false;
+                foreach (var syntaxRef in member.DeclaringSyntaxReferences)
+                {
+                    var location = syntaxRef.GetSyntax() switch
+                    {
+                        VariableDeclaratorSyntax varDecl => varDecl.Identifier.GetLocation(),
+                        var syntax => syntax.GetLocation()
+                    };
+
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
+                    reported = true;
+                }
+
+                if (!reported && !member.IsImplicitlyDeclared)
+                {
+                    foreach (var typeSyntaxRef in typeSymbol.DeclaringSyntaxReferences)
+                    {
+                        var location = typeSyntaxRef.GetSyntax() switch
+                        {
+                            TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
+                            var syntax => syntax.GetLocation()
+                        };
+
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
+                    }
+                }
             }
         }
 
@@ -156,7 +181,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var location = syntaxRef.GetSyntax() switch
                 {
                     TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
-                    VariableDeclaratorSyntax varDecl => varDecl.Identifier.GetLocation(),
                     var syntax => syntax.GetLocation()
                 };
 
