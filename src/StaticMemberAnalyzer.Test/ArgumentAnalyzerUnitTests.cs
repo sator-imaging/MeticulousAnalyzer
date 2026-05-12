@@ -334,6 +334,39 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task TestStringConstructorAndFirstArgumentStringChar()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(string a, int b) {}
+        public void Bar(char a, int b) {}
+        public void Baz(int a, string b) {}
+
+        public void Test()
+        {
+            var s1 = new string('a', 1);
+            var s2 = new string(""abc"");
+            var s3 = new string(new char[] { 'a' });
+
+            Foo(""a"", {|#0:1|});
+            Bar('a', {|#1:1|});
+            Baz({|#2:1|}, {|#3:""a""|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("b");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
+            var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
         public async Task TestNamedArgumentsSuppressError()
         {
             var test = @"

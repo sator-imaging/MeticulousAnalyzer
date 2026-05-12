@@ -101,8 +101,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
 
-            // String and System.IO methods are intentionally allowed.
-            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType is INamedTypeSymbol type)
+            // String and System.IO methods and constructors are intentionally allowed.
+            var containingType = (op.Parent as IInvocationOperation)?.TargetMethod.ContainingType
+                ?? (op.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
+
+            if (containingType is INamedTypeSymbol type)
             {
                 if (type.SpecialType == SpecialType.System_String)
                     return;
@@ -111,7 +114,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
             }
 
-            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
+            // Always allow first argument if it's string or char.
+            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.IndexOf(argStx) == 0)
             {
                 if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                     return;
