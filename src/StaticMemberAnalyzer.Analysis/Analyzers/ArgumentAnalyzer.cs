@@ -65,18 +65,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Getting semantic model should be done right before emitting diagnostic for performance.
+            string parameterName = "unknown";
             var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
-            if (attrSymbol == null)
-                return;
-
-            int index = argListStx.Arguments.IndexOf(argStx);
-            if (index >= 0 && index < attrSymbol.Parameters.Length)
+            if (attrSymbol != null)
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_LiteralArgument,
-                    argStx.GetLocation(),
-                    attrSymbol.Parameters[index].Name));
+                int index = argListStx.Arguments.IndexOf(argStx);
+                if (index >= 0 && index < attrSymbol.Parameters.Length)
+                {
+                    parameterName = attrSymbol.Parameters[index].Name;
+                }
             }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_LiteralArgument,
+                argStx.GetLocation(),
+                parameterName));
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
