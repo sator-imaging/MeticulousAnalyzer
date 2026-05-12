@@ -97,6 +97,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.IsImplicit)
                 return;
 
+            // If it has ref/in/out keyword, literal causes compile error so don't need to proceed.
+            if (argStx.RefKindKeyword.Kind() != SyntaxKind.None)
+                return;
+
             // Skip if it's an indexer argument.
             if (op.Parent is IPropertyReferenceOperation)
                 return;
