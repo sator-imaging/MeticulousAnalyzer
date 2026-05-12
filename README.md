@@ -452,7 +452,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string` and `System.IO` methods are intentionally allowed. In addition, single `string` or `char` argument can omit named argument.
+> `string` and `System.IO` methods are intentionally allowed. In addition, single `string` or `char` argument can omit named argument. In this case, `ref` and `out` arguments are ignored when counting.
 
 
 

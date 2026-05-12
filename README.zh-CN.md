@@ -452,7 +452,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string` 和 `System.IO` 方法被有意允许。此外，当仅有一个 `string` 或 `char` 参数时，可以省略命名参数。
+> `string` 和 `System.IO` 方法被有意允许。此外，当仅有一个 `string` 或 `char` 参数时，可以省略命名参数。在这种情况下，`ref` 和 `out` 参数不计入总数。
 
 
 

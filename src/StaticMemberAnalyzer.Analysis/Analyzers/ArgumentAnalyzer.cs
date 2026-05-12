@@ -111,10 +111,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
             }
 
-            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
+            if (argStx.Parent is ArgumentListSyntax argListStx)
             {
-                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                var effectiveCount = argListStx.Arguments.Count(a => a.RefOrOutKeyword.Kind() == SyntaxKind.None);
+
+                // ref and out are ignored when counting visible arguments.
+                if (argStx.RefOrOutKeyword.Kind() != SyntaxKind.None)
                     return;
+
+                if (effectiveCount <= 1)
+                {
+                    if (effectiveCount == 0)
+                        return;
+
+                    if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                        return;
+                }
             }
 
             var value = op.Value;

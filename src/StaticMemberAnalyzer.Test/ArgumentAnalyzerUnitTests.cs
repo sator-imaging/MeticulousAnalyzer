@@ -360,5 +360,37 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task TestRefOutArgumentsEffectOnCount()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(string a, out int b) { b = 0; }
+        public void Bar(string a, ref int b) {}
+        public void Baz(int a, out int b) { b = 0; }
+        public void Qux(string a, string b, out int c) { c = 0; }
+
+        public void Test(int i)
+        {
+            Foo(""a"", out var some);
+            Bar(""b"", ref i);
+            Baz({|#0:1|}, out var other);
+            Qux({|#1:""a""|}, {|#2:""b""|}, out var x);
+        }
+    }
+}
+";
+            // Foo and Bar calls have effective count 1 (string literal), so they should be allowed.
+            // Baz call has effective count 1 (int literal), but ONLY string and char are allowed for effective count 1.
+            // Qux call has effective count 2, so both string literals should be reported.
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("a");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
     }
 }
