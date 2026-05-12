@@ -98,8 +98,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Skip if it's an indexer argument.
-            if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
+            if (op.Parent is IPropertyReferenceOperation)
                 return;
+
+            // Always allow first argument if it's string or char.
+            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.IndexOf(argStx) == 0)
+            {
+                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                    return;
+            }
 
             // String and System.IO methods and constructors are intentionally allowed.
             var containingType = (op.Parent as IInvocationOperation)?.TargetMethod.ContainingType
@@ -111,13 +118,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     return;
 
                 if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
-                    return;
-            }
-
-            // Always allow first argument if it's string or char.
-            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.IndexOf(argStx) == 0)
-            {
-                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                     return;
             }
 
