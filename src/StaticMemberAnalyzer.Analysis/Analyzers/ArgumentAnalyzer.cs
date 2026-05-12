@@ -44,6 +44,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
+                return;
+
+            // For attribute syntax, we do not check the argument type because it's too complicated.
+            if (argListStx.Arguments.Count <= 1)
+                return;
+
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -57,19 +64,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
-            // For attributes, if it's not named/equaled, it must be a positional argument.
-            // We need to find the parameter name.
+            // Getting semantic model should be done right before emitting diagnostic for performance.
             string parameterName = "unknown";
-            if (argStx.Parent is AttributeArgumentListSyntax argListStx && argListStx.Parent is AttributeSyntax attrStx)
+            var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
+            if (attrSymbol != null)
             {
-                var attrSymbol = context.SemanticModel.GetSymbolInfo(attrStx).Symbol as IMethodSymbol;
-                if (attrSymbol != null)
+                int index = argListStx.Arguments.IndexOf(argStx);
+                if (index >= 0 && index < attrSymbol.Parameters.Length)
                 {
-                    int index = argListStx.Arguments.IndexOf(argStx);
-                    if (index >= 0 && index < attrSymbol.Parameters.Length)
-                    {
-                        parameterName = attrSymbol.Parameters[index].Name;
-                    }
+                    parameterName = attrSymbol.Parameters[index].Name;
                 }
             }
 
@@ -84,8 +87,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IArgumentOperation op)
                 return;
 
+            if (op.Syntax is not ArgumentSyntax argStx)
+                return;
+
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
-            if (op.Syntax is AttributeArgumentSyntax)
+            if (argStx.Kind() == SyntaxKind.AttributeArgument)
                 return;
 
             if (op.IsImplicit)
@@ -94,6 +100,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // Skip if it's an indexer argument.
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
+
+            // String and System.IO methods are intentionally allowed.
+            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType is INamedTypeSymbol type)
+            {
+                if (type.SpecialType == SpecialType.System_String)
+                    return;
+
+                if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                    return;
+            }
+
+            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
+            {
+                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                    return;
+            }
 
             var value = op.Value;
             while (value is IConversionOperation conversion)
@@ -104,11 +126,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
-            bool isNamed = false;
-            if (op.Syntax is ArgumentSyntax argStx)
-            {
-                isNamed = argStx.NameColon != null;
-            }
+            bool isNamed = argStx.NameColon != null;
 
             if (!isNamed)
             {
