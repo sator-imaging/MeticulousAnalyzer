@@ -452,7 +452,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string` and `System.IO` methods are intentionally allowed. In addition, single `string` or `char` argument can omit named argument.
+> `string`, `System.IO` and `Exception` (including inherited) types are intentionally allowed. In addition, single `string` or `char` argument can omit named argument.
 
 
 

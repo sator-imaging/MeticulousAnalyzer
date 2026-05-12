@@ -69,6 +69,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
             if (attrSymbol != null)
             {
+                if (IsException(attrSymbol.ContainingType))
+                    return;
+
                 int index = argListStx.Arguments.IndexOf(argStx);
                 if (index >= 0 && index < attrSymbol.Parameters.Length)
                 {
@@ -101,13 +104,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
                 return;
 
-            // String and System.IO methods are intentionally allowed.
-            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType is INamedTypeSymbol type)
+            // String, System.IO and Exception methods/constructors are intentionally allowed.
+            INamedTypeSymbol? containingType = null;
+            if (op.Parent is IInvocationOperation inv) containingType = inv.TargetMethod.ContainingType;
+            else if (op.Parent is IObjectCreationOperation creation) containingType = creation.Constructor?.ContainingType;
+
+            if (containingType != null)
             {
-                if (type.SpecialType == SpecialType.System_String)
+                if (containingType.SpecialType == SpecialType.System_String)
                     return;
 
-                if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                if (containingType.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                    return;
+
+                if (IsException(containingType))
                     return;
             }
 
@@ -135,6 +145,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     op.Syntax.GetLocation(),
                     op.Parameter?.Name ?? "unknown"));
             }
+        }
+
+        private static bool IsException(ITypeSymbol? type)
+        {
+            while (type != null)
+            {
+                if (type.Name == "Exception" && type.ContainingNamespace is { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } })
+                    return true;
+                type = type.BaseType;
+            }
+            return false;
         }
     }
 }
