@@ -30,8 +30,8 @@ internal class Program
         if (args.Length < 2
         || string.IsNullOrWhiteSpace(inputPath = args[0])
         || string.IsNullOrWhiteSpace(outputPath = args[1])
-        || !inputPath.EndsWith(".resx", StringComparison.OrdinalIgnoreCase)
-        || !outputPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+        || !inputPath.EndsWith(value: ".resx", StringComparison.OrdinalIgnoreCase)
+        || !outputPath.EndsWith(value: ".md", StringComparison.OrdinalIgnoreCase)
         )
         {
 #if DEBUG == false
@@ -52,7 +52,7 @@ internal class Program
             if (node.Name != "data")
                 continue;
 
-            var name = node.Attribute("name")?.Value
+            var name = node.Attribute(name: "name")?.Value
                 ?? throw new NullReferenceException();
 
             var id = GetDiagnosticId(name);
@@ -61,18 +61,18 @@ internal class Program
             var data = analyzerInfo[id];
             if (name.EndsWith(SUFFIX_TITLE))
             {
-                data.title = node.Element("value")?.Value ?? throw new NullReferenceException();
+                data.title = node.Element(name: "value")?.Value ?? throw new NullReferenceException();
                 analyzerInfo[id] = data;
             }
             else if (name.EndsWith(SUFFIX_DESCRIPTION))
             {
-                data.description = node.Element("value")?.Value ?? throw new NullReferenceException();
+                data.description = node.Element(name: "value")?.Value ?? throw new NullReferenceException();
                 analyzerInfo[id] = data;
             }
             //category
             else if (name.EndsWith(SUFFIX_MD_TITLE))
             {
-                var title = node.Element("value")?.Value ?? throw new NullReferenceException();
+                var title = node.Element(name: "value")?.Value ?? throw new NullReferenceException();
                 var categoryId = id + "_Category";
                 analyzerInfo.TryAdd(categoryId, new(id, title, string.Empty));
             }
@@ -86,7 +86,7 @@ internal class Program
         var resourceScriptPath = Path.Combine(resourceDirPath, Path.GetFileNameWithoutExtension(inputPath) + ".Designer.cs");
         if (File.Exists(resourceScriptPath))
         {
-            var regexp = new Regex(@"^namespace ([^\s]+)", RegexOptions.Compiled | RegexOptions.Multiline);
+            var regexp = new Regex(pattern: @"^namespace ([^\s]+)", RegexOptions.Compiled | RegexOptions.Multiline);
             var match = regexp.Match(File.ReadAllText(resourceScriptPath));
             if (match.Success)
             {
@@ -117,14 +117,14 @@ internal class Program
 
                 //sb.AppendLine();
                 sb.AppendLine($"| ID      | {"Diagnostic".PadRight(maxTitleLength)} | Description");
-                sb.AppendLine($"|---------|-{"-----".PadRight(maxTitleLength, '-')}-|-------------");
+                sb.AppendLine($"|---------|-{"-----".PadRight(maxTitleLength, paddingChar: '-')}-|-------------");
 
                 number--;  // to avoid inserting separator
                 goto NEXT;
             }
             else if (number != lastNumber + 1)  //separator
             {
-                sb.AppendLine("||");
+                sb.AppendLine(value: "||");
             }
 
             sb.AppendLine($"| {data.diagnosticId} | {data.title.PadRight(maxTitleLength)} | {data.description}");
@@ -140,7 +140,7 @@ internal class Program
         File.WriteAllText(outputPath, sb.ToString(), Encoding.UTF8);
 
         Console.WriteLine(sb.ToString());
-        Console.WriteLine("DONE");
+        Console.WriteLine(value: "DONE");
     }
 
 
@@ -148,9 +148,9 @@ internal class Program
 
     static string GetDiagnosticId(string value)
     {
-        var split = value.Split('_', StringSplitOptions.RemoveEmptyEntries);
+        var split = value.Split(separator: '_', StringSplitOptions.RemoveEmptyEntries);
         if (split.Length < 2)
-            throw new ArgumentException("diagnostic id not found", nameof(value));
+            throw new ArgumentException(message: "diagnostic id not found", nameof(value));
 
         return split[0];
     }
