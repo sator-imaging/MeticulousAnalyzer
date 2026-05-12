@@ -452,7 +452,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string`, `System.Exception` and `System.IO` methods/constructors are intentionally allowed. In addition, the first argument can omit named argument if its type is `string` or `char`.
+> `string`, `System.Exception` and `System.IO` methods/constructors are intentionally allowed. In addition, for method and constructor calls, the first argument can omit named argument if its type is `string` or `char`. For attributes, named argument can be omitted if there is only one argument.
 
 
 

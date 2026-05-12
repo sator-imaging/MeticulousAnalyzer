@@ -47,6 +47,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
                 return;
 
+            // DO NOT UPDATE argument handling in ATTRIBUTE. original: if the argument is only 1, it is able to omit named argument
+            if (argListStx.Arguments.Count <= 1)
+                return;
+
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation == null)
                 return;
@@ -60,27 +64,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (value is not ILiteralOperation)
                 return;
 
-            int index = argListStx.Arguments.IndexOf(argStx);
-            if (index == 0)
-            {
-                var type = context.SemanticModel.GetTypeInfo(argStx.Expression).Type;
-                if (type?.SpecialType is SpecialType.System_String or SpecialType.System_Char)
-                    return;
-            }
-
             // Getting semantic model should be done right before emitting diagnostic for performance.
             string parameterName = "unknown";
             if (argListStx.Parent == null) return;
             var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
             if (attrSymbol != null)
             {
-                var typeSymbol = attrSymbol.ContainingType;
-                if (typeSymbol != null)
-                {
-                    if (typeSymbol.SpecialType == SpecialType.System_String || IsException(typeSymbol) || IsSystemIONamespace(typeSymbol.ContainingNamespace))
-                        return;
-                }
-
+                int index = argListStx.Arguments.IndexOf(argStx);
                 if (index >= 0 && index < attrSymbol.Parameters.Length)
                 {
                     parameterName = attrSymbol.Parameters[index].Name;
