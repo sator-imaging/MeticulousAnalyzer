@@ -442,6 +442,9 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 Literal arguments can be difficult to understand without IDE assistance, especially during code reviews in a web browser. Using named arguments or variables for literals makes the code self-documenting and easier to review.
 
+> [!NOTE]
+> `string` and `System.IO` methods are intentionally allowed. In addition, single `string` or `char` argument can omit named argument.
+
 ```cs
 Foo(0, 0, true);
 //  ~  ~  ~~~~ literal arguments are difficult to understand
