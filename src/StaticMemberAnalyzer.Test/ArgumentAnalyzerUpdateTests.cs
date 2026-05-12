@@ -1,3 +1,6 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/StaticMemberAnalyzer
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
@@ -76,8 +79,8 @@ namespace Test
 }
 ";
             // ExceptionAttribute DOES NOT inherit from Exception, so it should STILL REPORT if it has multiple positional arguments.
-            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(10, 16, 10, 23).WithArguments("message");
-            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(10, 25, 10, 28).WithArguments("code");
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(startLine: 10, startColumn: 16, endLine: 10, endColumn: 23).WithArguments("message");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(startLine: 10, startColumn: 25, endLine: 10, endColumn: 28).WithArguments("code");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
@@ -105,8 +108,8 @@ namespace Test
 }
 ";
             // ExceptionTestAttribute is NOT an Exception.
-            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(15, 20, 15, 27).WithArguments("msg");
-            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(15, 29, 15, 32).WithArguments("code");
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(startLine: 15, startColumn: 20, endLine: 15, endColumn: 27).WithArguments("msg");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithSpan(startLine: 15, startColumn: 29, endLine: 15, endColumn: 32).WithArguments("code");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
     }
