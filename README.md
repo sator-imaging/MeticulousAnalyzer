@@ -169,9 +169,6 @@ Enum type handling is really headaching. To make enum operation under control, g
 
 This analyzer will help centerizing and encapsulating enum handling in app's central enum utility.
 
-> [!NOTE]
-> `HasFlag` method is intentionally allowed to be invoked.
-
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 

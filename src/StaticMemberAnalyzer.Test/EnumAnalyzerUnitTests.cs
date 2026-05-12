@@ -293,7 +293,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestEnumHasFlag_IsNotReported()
+        public async Task TestEnumHasFlag_IsReported()
         {
             var test = @"
 using System.Reflection;
@@ -306,12 +306,13 @@ namespace Test
     {
         public void Test(ETest value)
         {
-            var x = value.HasFlag(ETest.Value);
+            var x = {|#0:value.HasFlag(ETest.Value)|};
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
