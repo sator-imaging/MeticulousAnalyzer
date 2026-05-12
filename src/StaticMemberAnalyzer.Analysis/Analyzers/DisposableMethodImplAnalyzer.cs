@@ -139,16 +139,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 var joinedNames = string.Join(separator: ", ", disposableMemberSet.Select(m => m.Name));
                 Report(context, Rule_UndisposedMember, typeSymbol, joinedNames);
+
+                foreach (var member in disposableMemberSet)
+                {
+                    Report(context, Rule_UndisposedMember, member, member.Name);
+                }
             }
         }
 
-        private static void Report(SymbolAnalysisContext context, DiagnosticDescriptor descriptor, INamedTypeSymbol typeSymbol, params object[]? messageArgs)
+        private static void Report(SymbolAnalysisContext context, DiagnosticDescriptor descriptor, ISymbol symbol, params object[]? messageArgs)
         {
-            foreach (var syntaxRef in typeSymbol.DeclaringSyntaxReferences)
+            foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
                 var location = syntaxRef.GetSyntax() switch
                 {
                     TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
+                    VariableDeclaratorSyntax varDecl => varDecl.Identifier.GetLocation(),
                     var syntax => syntax.GetLocation()
                 };
 
