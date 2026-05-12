@@ -124,31 +124,42 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (!typeSymbol.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_IDisposable))
             {
-                Report(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.Name);
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.Name);
             }
 
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
-                Report(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.Name);
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.Name);
                 return;
             }
 
             AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
             if (disposableMemberSet.Count != 0)
             {
-                var joinedNames = string.Join(separator: ", ", disposableMemberSet.Select(m => m.Name));
-                Report(context, Rule_UndisposedMember, typeSymbol, joinedNames);
+                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet);
             }
         }
 
-        private static void Report(SymbolAnalysisContext context, DiagnosticDescriptor descriptor, INamedTypeSymbol typeSymbol, params object[]? messageArgs)
+        private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers)
         {
-            foreach (var syntaxRef in typeSymbol.DeclaringSyntaxReferences)
+            var joinedNames = string.Join(separator: ", ", undisposedMembers.Select(m => m.Name));
+            ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, joinedNames);
+
+            foreach (var member in undisposedMembers)
+            {
+                ReportDiagnostic(context, Rule_UndisposedMember, member, member.Name);
+            }
+        }
+
+        private static void ReportDiagnostic(SymbolAnalysisContext context, DiagnosticDescriptor descriptor, ISymbol symbol, params object[]? messageArgs)
+        {
+            foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
                 var location = syntaxRef.GetSyntax() switch
                 {
                     TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
+                    VariableDeclaratorSyntax varDecl => varDecl.Identifier.GetLocation(),
                     var syntax => syntax.GetLocation()
                 };
 
