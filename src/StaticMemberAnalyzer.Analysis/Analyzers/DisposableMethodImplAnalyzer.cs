@@ -176,11 +176,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     _ => syntax.GetLocation()
                 };
 
-                if (location == Location.None && syntax is TypeDeclarationSyntax typeDecl2)
-                {
-                    location = typeDecl2.GetLocation();
-                }
-
                 context.ReportDiagnostic(Diagnostic.Create(descriptor, location, messageArgs));
             }
         }
