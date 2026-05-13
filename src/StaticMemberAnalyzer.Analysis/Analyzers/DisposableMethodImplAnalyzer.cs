@@ -169,11 +169,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
-                var syntax = syntaxRef.GetSyntax();
-                var location = syntax switch
+                var location = syntaxRef.GetSyntax() switch
                 {
                     TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
-                    _ => syntax.GetLocation()
+                    var syntax => syntax.GetLocation()
                 };
 
                 context.ReportDiagnostic(Diagnostic.Create(descriptor, location, messageArgs));
