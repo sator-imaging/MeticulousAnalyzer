@@ -143,12 +143,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers)
         {
-            var joinedNames = string.Join(separator: ", ", undisposedMembers.Select(m => m.Name));
-            ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, joinedNames);
-
             foreach (var member in undisposedMembers)
             {
-                ReportDiagnostic(context, Rule_UndisposedMember, member, member.Name);
+                var reported = false;
+                foreach (var syntaxRef in member.DeclaringSyntaxReferences)
+                {
+                    if (syntaxRef.GetSyntax() is not VariableDeclaratorSyntax varDecl)
+                    {
+                        continue;
+                    }
+
+                    var location = varDecl.Identifier.GetLocation();
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
+                    reported = true;
+                }
+
+                if (!reported)
+                {
+                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.Name);
+                }
             }
         }
 
@@ -159,7 +172,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var location = syntaxRef.GetSyntax() switch
                 {
                     TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
-                    VariableDeclaratorSyntax varDecl => varDecl.Identifier.GetLocation(),
                     var syntax => syntax.GetLocation()
                 };
 
