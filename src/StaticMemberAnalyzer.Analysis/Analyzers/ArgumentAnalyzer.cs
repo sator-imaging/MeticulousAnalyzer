@@ -128,16 +128,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // System.IO methods and constructors are intentionally allowed.
+            // String and System.IO methods and constructors are intentionally allowed.
             var containingType = invocationOp?.TargetMethod.ContainingType
                 ?? (op.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
 
-            if (containingType is INamedTypeSymbol type)
+            if (containingType is not null)
             {
-                if (type.SpecialType == SpecialType.System_String)
+                if (containingType.SpecialType == SpecialType.System_String)
                     return;
 
-                if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                if (containingType.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
                     return;
             }
 
