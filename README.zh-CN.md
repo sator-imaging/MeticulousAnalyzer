@@ -18,6 +18,7 @@
 - [只读变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
 - [`Enum` 分析器与代码修复提供程序](#enum-分析器与代码修复提供程序) 防止用户层面的值转换，并支持 [Kotlin 风格 Enum 模式](#kotlin-风格-enum-模式)
 - [Disposable 分析器](#disposable-分析器) 检测缺少 `using` 语句
+- [Task 分析](#task-分析-1) 检测 `Task` 或 `ValueTask` 缺少 await
 - `struct` 无参构造函数误用分析
 - `TSelf` 泛型类型参数与类型约束分析
 - 文件头注释强制规则
@@ -426,6 +427,33 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 ```
 
 </details>
+
+
+
+
+
+&nbsp;
+
+# Task 分析
+
+分析 `Task` 或 `ValueTask`（包括其泛型版本）局部变量是否在所有代码路径中都被正确 await 或返回。
+
+```cs
+async Task Method()
+{
+    var t = Task.Run(...);
+    //      ~~~~~~~~~~~~ Task 未被 await 或返回
+}
+```
+
+**通过注释抑制**
+
+在局部变量声明的正上方添加以 `// Don't await`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+```cs
+// Don't await
+var t = Task.Run(...);
+```
 
 
 

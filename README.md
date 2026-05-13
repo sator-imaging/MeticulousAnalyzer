@@ -18,6 +18,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
+- [Task Analysis](#task-analysis) to detect missing await on `Task` or `ValueTask`
 - `struct` parameter-less constructor misuse analysis
 - `TSelf` generic type argument & type constraint analysis
 - File header comment enforcement
@@ -426,6 +427,33 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 ```
 
 </details>
+
+
+
+
+
+&nbsp;
+
+# Task Analysis
+
+Analyze if `Task` or `ValueTask` (including their generic versions) local variables are correctly awaited or returned on all code paths.
+
+```cs
+async Task Method()
+{
+    var t = Task.Run(...);
+    //      ~~~~~~~~~~~~ Task is not awaited or returned
+}
+```
+
+**Suppress by Comment**
+
+Add a single-line comment starting with `// Don't await` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
+
+```cs
+// Don't await
+var t = Task.Run(...);
+```
 
 
 
