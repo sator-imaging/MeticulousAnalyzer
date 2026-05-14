@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -51,35 +52,29 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argListStx.Arguments.Count <= 1)
                 return;
 
-            var operation = context.SemanticModel.GetOperation(argStx.Expression);
-            if (operation == null)
+            var literalOp = GetLiteralOperation(context.SemanticModel.GetOperation(argStx.Expression));
+            if (literalOp == null)
                 return;
 
-            var value = operation;
-            while (value is IConversionOperation conversion)
-            {
-                value = conversion.Operand;
-            }
-
-            if (value is not ILiteralOperation)
-                return;
-
-            // Getting semantic model should be done right before emitting diagnostic for performance.
-            string parameterName = "unknown";
-            var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
-            if (attrSymbol != null)
-            {
-                int index = argListStx.Arguments.IndexOf(argStx);
-                if (index >= 0 && index < attrSymbol.Parameters.Length)
+            AnalyzeCommon(
+                context.ReportDiagnostic,
+                argStx,
+                literalOp,
+                () =>
                 {
-                    parameterName = attrSymbol.Parameters[index].Name;
-                }
-            }
-
-            context.ReportDiagnostic(Diagnostic.Create(
-                Rule_LiteralArgument,
-                argStx.GetLocation(),
-                parameterName));
+                    var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
+                    if (attrSymbol != null)
+                    {
+                        int index = argListStx.Arguments.IndexOf(argStx);
+                        if (index >= 0 && index < attrSymbol.Parameters.Length)
+                        {
+                            return attrSymbol.Parameters[index].Name;
+                        }
+                    }
+                    return "unknown";
+                },
+                isAttribute: true
+            );
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
@@ -105,66 +100,96 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            var value = argOp.Value;
-            while (value is IConversionOperation conversion)
-            {
-                value = conversion.Operand;
-            }
-
-            if (value is not ILiteralOperation literalOp)
+            var literalOp = GetLiteralOperation(argOp.Value);
+            if (literalOp == null)
                 return;
 
-            // Null and default literals are not allowed to be unnamed.
-            bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
+            if (argStx.NameColon != null)
+                return;
 
-            if (!isNullOrDefaultLiteral)
+            int index = -1;
+            if (argStx.Parent is ArgumentListSyntax argListStx)
             {
-                var invocationOp = argOp.Parent as IInvocationOperation;
+                index = argListStx.Arguments.IndexOf(argStx);
+            }
 
-                // int, string or char is allowed if it's the first argument.
-                if (argStx.Parent is ArgumentListSyntax argListStx)
+            AnalyzeCommon(
+                context.ReportDiagnostic,
+                argStx,
+                literalOp,
+                () => argOp.Parameter?.Name ?? "unknown",
+                argOp.Parameter?.Type,
+                argOp.Parent,
+                index,
+                isAttribute: false
+            );
+        }
+
+        private static ILiteralOperation? GetLiteralOperation(IOperation? operation)
+        {
+            while (operation is IConversionOperation conversion)
+            {
+                operation = conversion.Operand;
+            }
+
+            return operation as ILiteralOperation;
+        }
+
+        private static void AnalyzeCommon(
+            Action<Diagnostic> reportAction,
+            SyntaxNode syntax,
+            ILiteralOperation literalOp,
+            Func<string> getParameterName,
+            ITypeSymbol? parameterType = null,
+            IOperation? parentOp = null,
+            int index = -1,
+            bool isAttribute = false)
+        {
+            if (!isAttribute)
+            {
+                // Null and default literals are not allowed to be unnamed.
+                bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
+
+                if (!isNullOrDefaultLiteral)
                 {
-                    if (argListStx.Arguments.IndexOf(argStx) == 0 &&
-                        argOp.Parameter?.Type is ITypeSymbol firstArgType)
+                    var invocationOp = parentOp as IInvocationOperation;
+
+                    // int, string or char is allowed if it's the first argument.
+                    if (index == 0 && parameterType != null)
                     {
                         // First string or char argument is allowed for both method and constructor.
                         //   ex. throw new Exception("Message", innerError);
-                        if (firstArgType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                        if (parameterType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                         {
                             return;
                         }
                         // but, don't allow omitting first int argument for constructor.
                         //   ex. list = new(0);  // Expect: new(capacity: 0);
-                        else if (firstArgType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
+                        else if (parameterType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
                         {
                             return;
                         }
                     }
-                }
 
-                // String and System.IO methods and constructors are intentionally allowed.
-                var containingType = invocationOp?.TargetMethod.ContainingType
-                    ?? (argOp.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
+                    // String and System.IO methods and constructors are intentionally allowed.
+                    var containingType = invocationOp?.TargetMethod.ContainingType
+                        ?? (parentOp as IObjectCreationOperation)?.Constructor?.ContainingType;
 
-                if (containingType is not null)
-                {
-                    if (containingType.SpecialType == SpecialType.System_String)
-                        return;
+                    if (containingType is not null)
+                    {
+                        if (containingType.SpecialType == SpecialType.System_String)
+                            return;
 
-                    if (containingType.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
-                        return;
+                        if (containingType.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                            return;
+                    }
                 }
             }
 
-            bool isNamed = argStx.NameColon != null;
-
-            if (!isNamed)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_LiteralArgument,
-                    argOp.Syntax.GetLocation(),
-                    argOp.Parameter?.Name ?? "unknown"));
-            }
+            reportAction(Diagnostic.Create(
+                Rule_LiteralArgument,
+                syntax.GetLocation(),
+                getParameterName()));
         }
     }
 }
