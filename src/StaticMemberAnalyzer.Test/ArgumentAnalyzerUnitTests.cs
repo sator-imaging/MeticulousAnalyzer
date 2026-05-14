@@ -387,5 +387,57 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task TestNullAndDefaultArguments()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyClass
+    {
+        public MyClass(int i, string s, char c) {}
+        public void Method(int i, string s, char c) {}
+
+        public void Test()
+        {
+            // 1. string method (System.String)
+            // null/default(string) are NOT exempt even in System.String
+            string.Concat({|#0:null|}, {|#1:(string)null|});
+
+            // 2. string constructor (System.String)
+            // null/default literals are NOT exempt
+            var s1 = new string({|#2:(char[])null|});
+            // default literal for int is 0. IS exempt in System.String
+            var s2 = new string('a', 0);
+
+            // 3. MyClass method
+            var mc = new MyClass(i: 0, s: """", c: ' ');
+            // int index 0 is exempt for method.
+            // null/default(string) are NOT exempt.
+            // default(char) is '\0' (not null), NOT exempt at index 2.
+            mc.Method(0, {|#3:(string)null|}, {|#4:'\0'|});
+
+            // 4. MyClass constructor
+            // int index 0 is NOT exempt for constructor.
+            // null/default(string) are NOT exempt.
+            // default(char) is '\0' (not null), NOT exempt at index 2.
+            var mc2 = new MyClass({|#5:0|}, {|#6:(string)null|}, {|#7:'\0'|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("str0");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("str1");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("value");
+            var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("s");
+            var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("c");
+            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("i");
+            var expected6 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 6).WithArguments("s");
+            var expected7 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 7).WithArguments("c");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
+        }
     }
 }
