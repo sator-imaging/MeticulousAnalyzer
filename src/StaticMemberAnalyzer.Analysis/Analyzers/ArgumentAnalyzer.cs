@@ -38,6 +38,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeAttributeArgument(SyntaxNodeAnalysisContext context)
         {
+            // RegisterOperationAction(OperationKind.Argument) does not trigger for attribute arguments.
+            // Using SyntaxNodeAction ensures coverage for attributes.
+
             if (context.Node is not AttributeArgumentSyntax argStx)
                 return;
 
@@ -55,14 +58,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (operation == null)
                 return;
 
-            var value = operation;
-            while (value is IConversionOperation conversion)
+            if (operation is not ILiteralOperation value)
             {
-                value = conversion.Operand;
+                value = GetLiteralOperation(operation);
+                if (value is null)
+                    return;
             }
-
-            if (value is not ILiteralOperation)
-                return;
 
             // Getting semantic model should be done right before emitting diagnostic for performance.
             string parameterName = "unknown";
@@ -90,7 +91,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Syntax is not ArgumentSyntax argStx)
                 return;
 
-            // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
+            // Skip if it's part of an attribute, we handle that via SyntaxNodeAction.
             if (argStx.Kind() == SyntaxKind.AttributeArgument)
                 return;
 
@@ -105,14 +106,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            var value = argOp.Value;
-            while (value is IConversionOperation conversion)
+            if (argOp.Value is not ILiteralOperation literalOp)
             {
-                value = conversion.Operand;
+                literalOp = GetLiteralOperation(argOp.Value);
+                if (literalOp is null)
+                    return;
             }
-
-            if (value is not ILiteralOperation literalOp)
-                return;
 
             // Null and default literals are not allowed to be unnamed.
             bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
@@ -165,6 +164,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     argOp.Syntax.GetLocation(),
                     argOp.Parameter?.Name ?? "unknown"));
             }
+        }
+
+        private static ILiteralOperation? GetLiteralOperation(IOperation operation)
+        {
+            var value = operation;
+            while (value is IConversionOperation conversion)
+            {
+                value = conversion.Operand;
+            }
+            return value as ILiteralOperation;
         }
     }
 }
