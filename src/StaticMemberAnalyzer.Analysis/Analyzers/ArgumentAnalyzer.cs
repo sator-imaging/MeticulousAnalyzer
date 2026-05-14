@@ -58,9 +58,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (operation == null)
                 return;
 
-            var value = operation is ILiteralOperation ? operation : GetLiteralOperation(operation);
-            if (value is not ILiteralOperation)
-                return;
+            if (operation is not ILiteralOperation value)
+            {
+                value = GetLiteralOperation(operation);
+                if (value is not ILiteralOperation)
+                    return;
+            }
 
             // Getting semantic model should be done right before emitting diagnostic for performance.
             string parameterName = "unknown";
@@ -103,9 +106,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            var value = argOp.Value is ILiteralOperation ? argOp.Value : GetLiteralOperation(argOp.Value);
-            if (value is not ILiteralOperation literalOp)
-                return;
+            if (argOp.Value is not ILiteralOperation value)
+            {
+                value = GetLiteralOperation(argOp.Value);
+                if (value is not ILiteralOperation)
+                    return;
+            }
 
             // Null and default literals are not allowed to be unnamed.
             bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
