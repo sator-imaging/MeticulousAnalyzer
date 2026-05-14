@@ -563,6 +563,6 @@
     <value>Task '{0}' is not awaited on all code paths (NotAllCodePathsAwait)</value>
   </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
-    <value>Task Analysis</value>
+    <value>Async Task Analysis</value>
   </data>
 </root>

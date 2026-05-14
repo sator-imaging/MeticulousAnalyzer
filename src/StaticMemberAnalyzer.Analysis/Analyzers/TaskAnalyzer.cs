@@ -81,13 +81,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (type is INamedTypeSymbol named)
             {
-                if ((named.Name == "Task" || named.Name == "ValueTask") &&
-                    named.ContainingNamespace?.Name == "Tasks" &&
-                    named.ContainingNamespace.ContainingNamespace?.Name == "Threading" &&
-                    named.ContainingNamespace.ContainingNamespace.ContainingNamespace?.Name == "System" &&
-                    named.ContainingNamespace.ContainingNamespace.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true)
+                if (named.Name is "Task" or "ValueTask")
                 {
-                    return true;
+                    var ns = named.ContainingNamespace;
+                    if (ns?.Name == "Tasks" &&
+                        ns.ContainingNamespace?.Name == "Threading" &&
+                        ns.ContainingNamespace.ContainingNamespace?.Name == "System" &&
+                        ns.ContainingNamespace.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true)
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -103,7 +106,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 .GetFirstToken()
                 .LeadingTrivia
                 .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                                     t.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase));
+                                     t.ToString().TrimStart().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase));
 
             return comment != default;
         }

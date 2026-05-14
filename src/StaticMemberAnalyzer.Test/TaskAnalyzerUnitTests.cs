@@ -25,7 +25,7 @@ namespace Test
     {
         async Task Method()
         {
-            var {|#0:t|} = Task.CompletedTask;
+            var {|#0:t|} = Task.Run(() => {});
         }
     }
 }
@@ -48,7 +48,7 @@ namespace Test
     {
         async Task Method()
         {
-            var t = Task.CompletedTask;
+            var t = Task.Run(() => {});
             await t;
         }
     }
@@ -69,7 +69,7 @@ namespace Test
     {
         Task Method()
         {
-            var t = Task.CompletedTask;
+            var t = Task.Run(() => {});
             return t;
         }
     }
@@ -90,7 +90,7 @@ namespace Test
     {
         async Task Method(bool condition)
         {
-            var {|#0:t|} = Task.CompletedTask;
+            var {|#0:t|} = Task.Run(() => {});
             if (condition)
             {
                 await t;
@@ -118,7 +118,7 @@ namespace Test
         async Task Method()
         {
             // Don't await
-            var t = Task.CompletedTask;
+            var t = Task.Run(() => {});
         }
     }
 }
@@ -186,7 +186,7 @@ namespace Test
         {
             if (condition)
             {
-                var t = Task.CompletedTask;
+                var t = Task.Run(() => {});
                 await t;
             }
         }
