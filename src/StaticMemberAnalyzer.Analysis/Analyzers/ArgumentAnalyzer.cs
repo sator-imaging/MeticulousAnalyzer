@@ -61,7 +61,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (operation is not ILiteralOperation value)
             {
                 value = GetLiteralOperation(operation);
-                if (value is not ILiteralOperation)
+                if (value is null)
                     return;
             }
 
@@ -109,7 +109,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Value is not ILiteralOperation literalOp)
             {
                 literalOp = GetLiteralOperation(argOp.Value);
-                if (literalOp is not ILiteralOperation)
+                if (literalOp is null)
                     return;
             }
 
