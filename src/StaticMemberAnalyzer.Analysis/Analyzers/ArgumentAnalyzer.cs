@@ -166,14 +166,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static IOperation? GetLiteralOperation(IOperation operation)
+        private static ILiteralOperation? GetLiteralOperation(IOperation operation)
         {
             var value = operation;
             while (value is IConversionOperation conversion)
             {
                 value = conversion.Operand;
             }
-            return value;
+            return value as ILiteralOperation;
         }
     }
 }
