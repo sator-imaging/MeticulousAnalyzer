@@ -79,19 +79,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (type == null) return false;
 
-            if (type is INamedTypeSymbol named)
+            if (type is INamedTypeSymbol { Name: "Task" or "ValueTask", ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } } } })
             {
-                if (named.Name is "Task" or "ValueTask")
-                {
-                    var ns = named.ContainingNamespace;
-                    if (ns?.Name == "Tasks" &&
-                        ns.ContainingNamespace?.Name == "Threading" &&
-                        ns.ContainingNamespace.ContainingNamespace?.Name == "System" &&
-                        ns.ContainingNamespace.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true)
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
 
             return IsTask(type.BaseType);
@@ -99,16 +89,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
-            const string SuppressionComment = "// Don't await";
+            const string SuppressionComment = "Don't await";
             if (node == null) return false;
 
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                                     t.ToString().TrimStart().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase));
+            var trivia = node.GetFirstToken().LeadingTrivia;
+            foreach (var t in trivia)
+            {
+                if (t.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                {
+                    var text = t.ToString().TrimStart('/');
+                    if (text.TrimStart().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                else if (t.IsKind(SyntaxKind.MultiLineCommentTrivia))
+                {
+                    var text = t.ToString().TrimStart('/').TrimEnd('/');
+                    if (text.TrimStart('*').TrimStart().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
 
-            return comment != default;
+            return false;
         }
 
         private static bool IsTaskAwaitedOrReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)
