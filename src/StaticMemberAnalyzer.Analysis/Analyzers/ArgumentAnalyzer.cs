@@ -39,6 +39,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeAttributeArgument(SyntaxNodeAnalysisContext context)
         {
+            // RegisterOperationAction with OperationKind.Argument does not trigger for attribute arguments in Roslyn 3.8.0.
+            // Using SyntaxNodeAction here to ensure coverage for attributes.
+
             if (context.Node is not AttributeArgumentSyntax argStx)
                 return;
 
