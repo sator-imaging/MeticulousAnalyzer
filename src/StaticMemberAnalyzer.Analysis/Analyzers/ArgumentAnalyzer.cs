@@ -97,25 +97,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (op.IsImplicit)
                 return;
 
-            // Skip if it's an indexer argument.
-            if (op.Parent is IPropertyReferenceOperation propRef && propRef.Arguments.Contains(op))
+            // If it has ref/in/out keyword, literal causes compile error so don't need to proceed.
+            if (argStx.RefKindKeyword.Kind() != SyntaxKind.None)
                 return;
 
-            // String and System.IO methods are intentionally allowed.
-            if (op.Parent is IInvocationOperation inv && inv.TargetMethod.ContainingType is INamedTypeSymbol type)
-            {
-                if (type.SpecialType == SpecialType.System_String)
-                    return;
-
-                if (type.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
-                    return;
-            }
-
-            if (argStx.Parent is ArgumentListSyntax argListStx && argListStx.Arguments.Count == 1)
-            {
-                if (op.Parameter?.Type.SpecialType is SpecialType.System_String or SpecialType.System_Char)
-                    return;
-            }
+            // Skip if it's an indexer argument.
+            if (op.Parent is IPropertyReferenceOperation)
+                return;
 
             var value = op.Value;
             while (value is IConversionOperation conversion)
@@ -123,8 +111,50 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 value = conversion.Operand;
             }
 
-            if (value is not ILiteralOperation)
+            if (value is not ILiteralOperation literalOp)
                 return;
+
+            // Null and default literals are not allowed to be unnamed.
+            bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
+
+            if (!isNullOrDefaultLiteral)
+            {
+                var invocationOp = op.Parent as IInvocationOperation;
+
+                // int, string or char is allowed if it's the first argument.
+                if (argStx.Parent is ArgumentListSyntax argListStx)
+                {
+                    if (argListStx.Arguments.IndexOf(argStx) == 0 &&
+                        op.Parameter?.Type is ITypeSymbol firstArgType)
+                    {
+                        // First string or char argument is allowed for both method and constructor.
+                        //   ex. throw new Exception("Message", innerError);
+                        if (firstArgType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                        {
+                            return;
+                        }
+                        // but, don't allow omitting first int argument for constructor.
+                        //   ex. list = new(0);  // Expect: new(capacity: 0);
+                        else if (firstArgType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                // String and System.IO methods and constructors are intentionally allowed.
+                var containingType = invocationOp?.TargetMethod.ContainingType
+                    ?? (op.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
+
+                if (containingType is not null)
+                {
+                    if (containingType.SpecialType == SpecialType.System_String)
+                        return;
+
+                    if (containingType.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                        return;
+                }
+            }
 
             bool isNamed = argStx.NameColon != null;
 

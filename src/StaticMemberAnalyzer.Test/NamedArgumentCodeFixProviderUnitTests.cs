@@ -19,7 +19,7 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int index, bool strict, string message) {}
+        public void Foo(float index, bool strict, string message) {}
 
         public void Test()
         {
@@ -33,7 +33,7 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int index, bool strict, string message) {}
+        public void Foo(float index, bool strict, string message) {}
 
         public void Test()
         {
@@ -56,7 +56,7 @@ namespace Test
 {
     public class CTest
     {
-        public CTest(int index, bool strict, string message) {}
+        public CTest(float index, bool strict, string message) {}
 
         public void Test()
         {
@@ -70,7 +70,7 @@ namespace Test
 {
     public class CTest
     {
-        public CTest(int index, bool strict, string message) {}
+        public CTest(float index, bool strict, string message) {}
 
         public void Test()
         {
@@ -132,7 +132,7 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int index, bool strict, string message) {}
+        public void Foo(float index, bool strict, string message) {}
 
         public void Test()
         {
@@ -149,7 +149,7 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int index, bool strict, string message) {}
+        public void Foo(float index, bool strict, string message) {}
 
         public void Test()
         {
@@ -175,19 +175,19 @@ namespace Test
 {
     public class CTest
     {
-        int Foo(int a, float b) => 0;
+        int Foo(float a, float b) => 0;
         float Bar(float x, float y) => 0;
         float Baz(string s, float f) => 0;
 
         public void Test()
         {
-            var x = Foo({|#0:0|}, Bar(Baz({|#1:""message""|}, {|#2:2.2f|}), {|#3:11f|}));
+            var x = Foo({|#0:0|}, Bar(Baz(""message"", {|#2:2.2f|}), {|#3:11f|}));
         }
 
         public void TestMultiline()
         {
             var x = Foo({|#4:0|},
-                        Bar(Baz({|#5:""message""|},
+                        Bar(Baz(""message"",
                             {|#6:2.2f|}),
                         {|#7:11f|}));
         }
@@ -199,19 +199,19 @@ namespace Test
 {
     public class CTest
     {
-        int Foo(int a, float b) => 0;
+        int Foo(float a, float b) => 0;
         float Bar(float x, float y) => 0;
         float Baz(string s, float f) => 0;
 
         public void Test()
         {
-            var x = Foo(a: 0, Bar(Baz(s: ""message"", f: 2.2f), y: 11f));
+            var x = Foo(a: 0, Bar(Baz(""message"", f: 2.2f), y: 11f));
         }
 
         public void TestMultiline()
         {
             var x = Foo(a: 0,
-                        Bar(Baz(s: ""message"",
+                        Bar(Baz(""message"",
                             f: 2.2f),
                         y: 11f));
         }
@@ -219,14 +219,12 @@ namespace Test
 }
 ";
             var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
-            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("s");
             var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("f");
             var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("y");
             var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("a");
-            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("s");
             var expected6 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 6).WithArguments("f");
             var expected7 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 7).WithArguments("y");
-            await VerifyCS.VerifyCodeFixAsync(test, new[] { expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7 }, fixtest);
+            await VerifyCS.VerifyCodeFixAsync(test, new[] { expected0, expected2, expected3, expected4, expected6, expected7 }, fixtest);
         }
     }
 }
