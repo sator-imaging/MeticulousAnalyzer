@@ -106,10 +106,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            if (argOp.Value is not ILiteralOperation value)
+            if (argOp.Value is not ILiteralOperation literalOp)
             {
-                value = GetLiteralOperation(argOp.Value);
-                if (value is not ILiteralOperation)
+                literalOp = GetLiteralOperation(argOp.Value);
+                if (literalOp is not ILiteralOperation)
                     return;
             }
 
