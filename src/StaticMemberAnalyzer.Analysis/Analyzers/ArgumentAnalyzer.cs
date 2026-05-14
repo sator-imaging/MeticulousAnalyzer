@@ -84,17 +84,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
         {
-            if (context.Operation is not IArgumentOperation op)
+            if (context.Operation is not IArgumentOperation argOp)
                 return;
 
-            if (op.Syntax is not ArgumentSyntax argStx)
+            if (argOp.Syntax is not ArgumentSyntax argStx)
                 return;
 
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
             if (argStx.Kind() == SyntaxKind.AttributeArgument)
                 return;
 
-            if (op.IsImplicit)
+            if (argOp.IsImplicit)
                 return;
 
             // If it has ref/in/out keyword, literal causes compile error so don't need to proceed.
@@ -102,10 +102,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Skip if it's an indexer argument.
-            if (op.Parent is IPropertyReferenceOperation)
+            if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            var value = op.Value;
+            var value = argOp.Value;
             while (value is IConversionOperation conversion)
             {
                 value = conversion.Operand;
@@ -119,13 +119,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (!isNullOrDefaultLiteral)
             {
-                var invocationOp = op.Parent as IInvocationOperation;
+                var invocationOp = argOp.Parent as IInvocationOperation;
 
                 // int, string or char is allowed if it's the first argument.
                 if (argStx.Parent is ArgumentListSyntax argListStx)
                 {
                     if (argListStx.Arguments.IndexOf(argStx) == 0 &&
-                        op.Parameter?.Type is ITypeSymbol firstArgType)
+                        argOp.Parameter?.Type is ITypeSymbol firstArgType)
                     {
                         // First string or char argument is allowed for both method and constructor.
                         //   ex. throw new Exception("Message", innerError);
@@ -144,7 +144,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 // String and System.IO methods and constructors are intentionally allowed.
                 var containingType = invocationOp?.TargetMethod.ContainingType
-                    ?? (op.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
+                    ?? (argOp.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
 
                 if (containingType is not null)
                 {
@@ -162,8 +162,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_LiteralArgument,
-                    op.Syntax.GetLocation(),
-                    op.Parameter?.Name ?? "unknown"));
+                    argOp.Syntax.GetLocation(),
+                    argOp.Parameter?.Name ?? "unknown"));
             }
         }
     }
