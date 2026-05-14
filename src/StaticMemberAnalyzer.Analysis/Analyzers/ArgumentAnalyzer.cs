@@ -39,144 +39,109 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeAttributeArgument(SyntaxNodeAnalysisContext context)
         {
-            // RegisterOperationAction with OperationKind.Argument does not trigger for attribute arguments in Roslyn 3.8.0.
-            // Using SyntaxNodeAction here to ensure coverage for attributes.
+            // Analysis is centralized to ILiteralOperation-basis.
+            // However, RegisterOperationAction(OperationKind.Argument) does not trigger for attribute arguments in Roslyn 3.8.0.
+            // Thus, we maintain SyntaxNodeAction here to ensure coverage for attributes.
 
             if (context.Node is not AttributeArgumentSyntax argStx)
                 return;
 
+            // Early return to avoid unnecessary semantic lookups.
             if (argStx.NameColon != null || argStx.NameEquals != null)
                 return;
 
             if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
                 return;
 
-            // For attribute syntax, we do not check the argument type because it's too complicated.
             if (argListStx.Arguments.Count <= 1)
                 return;
 
-            var literalOp = GetLiteralOperation(context.SemanticModel.GetOperation(argStx.Expression));
-            if (literalOp == null)
-                return;
+            var value = context.SemanticModel.GetOperation(argStx.Expression);
+            while (value is IConversionOperation conversion) value = conversion.Operand;
 
-            AnalyzeCommon(
-                context.ReportDiagnostic,
-                argStx,
-                literalOp,
-                () =>
-                {
-                    var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
-                    if (attrSymbol != null)
-                    {
-                        int index = argListStx.Arguments.IndexOf(argStx);
-                        if (index >= 0 && index < attrSymbol.Parameters.Length)
-                        {
-                            return attrSymbol.Parameters[index].Name;
-                        }
-                    }
-                    return "unknown";
-                },
-                isAttribute: true
-            );
+            if (value is ILiteralOperation literalOp)
+            {
+                AnalyzeLiteral(literalOp, argStx, context.ReportDiagnostic, context.SemanticModel);
+            }
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
         {
-            if (context.Operation is not IArgumentOperation argOp)
+            if (context.Operation is not IArgumentOperation argOp || argOp.Syntax is not ArgumentSyntax argStx)
                 return;
 
-            if (argOp.Syntax is not ArgumentSyntax argStx)
-                return;
-
-            // Skip if it's part of an attribute, we handle that via SyntaxNodeAction because IArgumentOperation might not be reported for attributes in this Roslyn version.
+            // Attribute arguments are handled separately.
             if (argStx.Kind() == SyntaxKind.AttributeArgument)
                 return;
 
-            if (argOp.IsImplicit)
-                return;
+            var value = argOp.Value;
+            while (value is IConversionOperation conversion) value = conversion.Operand;
 
-            // If it has ref/in/out keyword, literal causes compile error so don't need to proceed.
-            if (argStx.RefKindKeyword.Kind() != SyntaxKind.None)
-                return;
-
-            // Skip if it's an indexer argument.
-            if (argOp.Parent is IPropertyReferenceOperation)
-                return;
-
-            var literalOp = GetLiteralOperation(argOp.Value);
-            if (literalOp == null)
-                return;
-
-            if (argStx.NameColon != null)
-                return;
-
-            int index = -1;
-            if (argStx.Parent is ArgumentListSyntax argListStx)
+            if (value is ILiteralOperation literalOp)
             {
-                index = argListStx.Arguments.IndexOf(argStx);
+                AnalyzeLiteral(literalOp, argStx, context.ReportDiagnostic);
             }
-
-            AnalyzeCommon(
-                context.ReportDiagnostic,
-                argStx,
-                literalOp,
-                () => argOp.Parameter?.Name ?? "unknown",
-                argOp.Parameter?.Type,
-                argOp.Parent,
-                index,
-                isAttribute: false
-            );
         }
 
-        private static ILiteralOperation? GetLiteralOperation(IOperation? operation)
+        private static void AnalyzeLiteral(ILiteralOperation literalOp, SyntaxNode argSyntax, Action<Diagnostic> reportAction, SemanticModel? semanticModel = null)
         {
-            while (operation is IConversionOperation conversion)
+            if (argSyntax is AttributeArgumentSyntax attrArg)
             {
-                operation = conversion.Operand;
+                if (attrArg.Parent is not AttributeArgumentListSyntax argList || semanticModel == null)
+                    return;
+
+                // Resolve parameter name
+                string parameterName = "unknown";
+                var attrSymbol = semanticModel.GetSymbolInfo(argList.Parent).Symbol as IMethodSymbol;
+                int index = argList.Arguments.IndexOf(attrArg);
+                if (attrSymbol != null && index >= 0 && index < attrSymbol.Parameters.Length)
+                {
+                    parameterName = attrSymbol.Parameters[index].Name;
+                }
+
+                reportAction(Diagnostic.Create(Rule_LiteralArgument, argSyntax.GetLocation(), parameterName));
             }
-
-            return operation as ILiteralOperation;
-        }
-
-        private static void AnalyzeCommon(
-            Action<Diagnostic> reportAction,
-            SyntaxNode syntax,
-            ILiteralOperation literalOp,
-            Func<string> getParameterName,
-            ITypeSymbol? parameterType = null,
-            IOperation? parentOp = null,
-            int index = -1,
-            bool isAttribute = false)
-        {
-            if (!isAttribute)
+            else if (argSyntax is ArgumentSyntax regularArg)
             {
-                // Null and default literals are not allowed to be unnamed.
+                var argOp = literalOp.Parent;
+                while (argOp != null && argOp is not IArgumentOperation) argOp = argOp.Parent;
+                if (argOp is not IArgumentOperation argument)
+                    return;
+
+                if (argument.IsImplicit)
+                    return;
+
+                if (regularArg.RefKindKeyword.Kind() != SyntaxKind.None)
+                    return;
+
+                if (argument.Parent is IPropertyReferenceOperation)
+                    return;
+
+                if (regularArg.NameColon != null)
+                    return;
+
+                // Exclusion rules for literals
                 bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
 
                 if (!isNullOrDefaultLiteral)
                 {
-                    var invocationOp = parentOp as IInvocationOperation;
+                    var invocationOp = argument.Parent as IInvocationOperation;
 
-                    // int, string or char is allowed if it's the first argument.
-                    if (index == 0 && parameterType != null)
+                    if (regularArg.Parent is ArgumentListSyntax argList && argList.Arguments.IndexOf(regularArg) == 0 &&
+                        argument.Parameter?.Type is ITypeSymbol firstArgType)
                     {
-                        // First string or char argument is allowed for both method and constructor.
-                        //   ex. throw new Exception("Message", innerError);
-                        if (parameterType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
+                        if (firstArgType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
                         {
                             return;
                         }
-                        // but, don't allow omitting first int argument for constructor.
-                        //   ex. list = new(0);  // Expect: new(capacity: 0);
-                        else if (parameterType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
+                        else if (firstArgType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
                         {
                             return;
                         }
                     }
 
-                    // String and System.IO methods and constructors are intentionally allowed.
                     var containingType = invocationOp?.TargetMethod.ContainingType
-                        ?? (parentOp as IObjectCreationOperation)?.Constructor?.ContainingType;
+                        ?? (argument.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
 
                     if (containingType is not null)
                     {
@@ -187,12 +152,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             return;
                     }
                 }
-            }
 
-            reportAction(Diagnostic.Create(
-                Rule_LiteralArgument,
-                syntax.GetLocation(),
-                getParameterName()));
+                reportAction(Diagnostic.Create(Rule_LiteralArgument, argSyntax.GetLocation(), argument.Parameter?.Name ?? "unknown"));
+            }
         }
     }
 }
