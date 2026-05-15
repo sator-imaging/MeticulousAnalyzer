@@ -50,18 +50,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
                 return;
 
-            // For attribute syntax, we do not check the argument type because it's too complicated.
-            if (argListStx.Arguments.Count <= 1)
+            var valueOp = context.SemanticModel.GetOperation(argStx.Expression);
+            if (valueOp == null)
                 return;
 
-            var operation = context.SemanticModel.GetOperation(argStx.Expression);
-            if (operation == null)
+            while (valueOp is IConversionOperation conversion)
+                valueOp = conversion.Operand;
+
+            if (valueOp.Kind != OperationKind.Literal && valueOp.Kind != OperationKind.DefaultValue)
                 return;
 
-            if (operation is not ILiteralOperation value)
+            // Null and default literals (including default(T)) are not allowed to be unnamed.
+            bool isNullOrDefaultLiteral = valueOp.Kind == OperationKind.DefaultValue ||
+                (valueOp is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } });
+
+            if (!isNullOrDefaultLiteral)
             {
-                value = GetLiteralOperation(operation);
-                if (value is null)
+                // For attribute syntax, we do not check the argument type because it's too complicated.
+                if (argListStx.Arguments.Count <= 1)
                     return;
             }
 
@@ -106,16 +112,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            if (argOp.Value is not ILiteralOperation literalOp)
-            {
-                literalOp = GetLiteralOperation(argOp.Value);
-                if (literalOp is null)
-                    return;
-            }
+            var literalOp = argOp.Value;
+            while (literalOp is IConversionOperation conversion)
+                literalOp = conversion.Operand;
+
+            if (literalOp.Kind != OperationKind.Literal && literalOp.Kind != OperationKind.DefaultValue)
+                return;
 
             // Null and default literals (including default(T)) are not allowed to be unnamed.
-            bool isNullOrDefaultLiteral = (literalOp is IDefaultValueOperation) ||
-                (literalOp is ILiteralOperation && (!literalOp.ConstantValue.HasValue || literalOp.ConstantValue.Value == null));
+            bool isNullOrDefaultLiteral = literalOp.Kind == OperationKind.DefaultValue ||
+                (literalOp is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } });
 
             if (!isNullOrDefaultLiteral)
             {
@@ -167,14 +173,5 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static ILiteralOperation? GetLiteralOperation(IOperation operation)
-        {
-            var value = operation;
-            while (value is IConversionOperation conversion)
-            {
-                value = conversion.Operand;
-            }
-            return value as ILiteralOperation;
-        }
     }
 }
