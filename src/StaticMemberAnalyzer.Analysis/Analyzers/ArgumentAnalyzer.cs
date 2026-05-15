@@ -58,12 +58,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (operation == null)
                 return;
 
-            if (operation is not ILiteralOperation value)
-            {
-                value = GetLiteralOperation(operation);
-                if (value is null)
-                    return;
-            }
+            var value = GetLiteralOperation(operation);
+            if (value is null)
+                return;
 
             // Getting semantic model should be done right before emitting diagnostic for performance.
             string parameterName = "unknown";
@@ -106,15 +103,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argOp.Parent is IPropertyReferenceOperation)
                 return;
 
-            if (argOp.Value is not ILiteralOperation literalOp)
-            {
-                literalOp = GetLiteralOperation(argOp.Value);
-                if (literalOp is null)
-                    return;
-            }
+            var literalOp = GetLiteralOperation(argOp.Value);
+            if (literalOp is null)
+                return;
 
-            // Null and default literals are not allowed to be unnamed.
-            bool isNullOrDefaultLiteral = literalOp.ConstantValue.HasValue && literalOp.ConstantValue.Value == null;
+            // Null and default literals (including default(T)) are not allowed to be unnamed.
+            bool isNullOrDefaultLiteral = (literalOp is IDefaultValueOperation) ||
+                (literalOp is ILiteralOperation && (!literalOp.ConstantValue.HasValue || literalOp.ConstantValue.Value == null));
 
             if (!isNullOrDefaultLiteral)
             {
@@ -166,14 +161,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static ILiteralOperation? GetLiteralOperation(IOperation operation)
+        private static IOperation? GetLiteralOperation(IOperation operation)
         {
             var value = operation;
             while (value is IConversionOperation conversion)
             {
                 value = conversion.Operand;
             }
-            return value as ILiteralOperation;
+            return value is ILiteralOperation or IDefaultValueOperation ? value : null;
         }
     }
 }
