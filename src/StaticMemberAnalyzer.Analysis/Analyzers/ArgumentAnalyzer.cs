@@ -114,7 +114,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // Null and default literals (including default(T)) are not allowed to be unnamed.
-            bool isNullOrDefaultLiteral = literalOp.Kind is OperationKind.Literal or OperationKind.DefaultValue;
+            bool isNullOrDefaultLiteral = (literalOp is IDefaultValueOperation) ||
+                (literalOp is ILiteralOperation && (!literalOp.ConstantValue.HasValue || literalOp.ConstantValue.Value == null));
 
             if (!isNullOrDefaultLiteral)
             {
