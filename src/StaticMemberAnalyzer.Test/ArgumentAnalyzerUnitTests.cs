@@ -285,11 +285,9 @@ namespace Test
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class MyAttribute : Attribute
     {
-        public MyAttribute(int a) {}
         public MyAttribute(string a) {}
     }
 
-    [My(1)]
     [My(""a"")]
     public class CTest
     {
@@ -311,10 +309,12 @@ namespace Test
     {
         public MyAttribute(int a, int b) {}
         public MyAttribute(int a, int b, int c = 0) {}
+        public MyAttribute(int a) {}
     }
 
     [My({|#0:1|}, {|#1:2|})]
     [My({|#2:1|}, {|#3:2|}, {|#4:3|})]
+    [My({|#5:1|})]
     public class CTest
     {
     }
@@ -325,7 +325,8 @@ namespace Test
             var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
             var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("b");
             var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("c");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
+            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("a");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
 
         [TestMethod]
@@ -386,6 +387,111 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestNullAndDefaultArguments()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyClassInt { public MyClassInt(int i) {} public void M(int i) {} }
+    public class MyClassStr { public MyClassStr(string s) {} public void M(string s) {} }
+    public class MyClassChar { public MyClassChar(char c) {} public void M(char c) {} }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            var mci = new MyClassInt(i: 0);
+            var mcs = new MyClassStr("""");
+            var mcc = new MyClassChar(' ');
+
+            // 1. string method (System.String)
+            // int
+            """".Substring({|#0:default|});
+            """".Substring({|#1:default(int)|});
+            // string
+            string.Intern({|#2:null|});
+            string.Intern({|#3:default|});
+            string.Intern({|#4:default(string)|});
+            // char
+            """".Trim({|#5:(char)default|});
+            """".Trim({|#6:default(char)|});
+
+            // 2. string constructor (System.String)
+            // int (count)
+            new string('a', {|#7:default|});
+            new string('a', {|#8:default(int)|});
+            // string (value)
+            new string({|#9:(char[])null|});
+            new string({|#10:default(char[])|});
+            new string({|#11:(char[])default|});
+            // char (c)
+            new string({|#12:default|}, 1);
+            new string({|#13:default(char)|}, 1);
+
+            // 3. MyClass method
+            // int
+            mci.M({|#14:default|});
+            mci.M({|#15:default(int)|});
+            // string
+            mcs.M({|#16:null|});
+            mcs.M({|#17:default|});
+            mcs.M({|#18:default(string)|});
+            // char
+            mcc.M({|#19:default|});
+            mcc.M({|#20:default(char)|});
+
+            // 4. MyClass constructor
+            // int
+            new MyClassInt({|#21:default|});
+            new MyClassInt({|#22:default(int)|});
+            // string
+            new MyClassStr({|#23:null|});
+            new MyClassStr({|#24:default|});
+            new MyClassStr({|#25:default(string)|});
+            // char
+            new MyClassChar({|#26:default|});
+            new MyClassChar({|#27:default(char)|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("startIndex");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("startIndex");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("value");
+            var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("value");
+            var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("value");
+            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("value");
+            var expected6 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 6).WithArguments("value");
+
+            var expected7 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 7).WithArguments("count");
+            var expected8 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 8).WithArguments("count");
+            var expected9 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 9).WithArguments("value");
+            var expected10 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 10).WithArguments("value");
+            var expected11 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 11).WithArguments("value");
+            var expected12 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 12).WithArguments("c");
+            var expected13 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 13).WithArguments("c");
+
+            var expected14 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 14).WithArguments("i");
+            var expected15 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 15).WithArguments("i");
+            var expected16 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 16).WithArguments("s");
+            var expected17 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 17).WithArguments("s");
+            var expected18 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 18).WithArguments("s");
+            var expected19 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 19).WithArguments("c");
+            var expected20 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 20).WithArguments("c");
+
+            var expected21 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 21).WithArguments("i");
+            var expected22 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 22).WithArguments("i");
+            var expected23 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 23).WithArguments("s");
+            var expected24 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 24).WithArguments("s");
+            var expected25 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 25).WithArguments("s");
+            var expected26 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 26).WithArguments("c");
+            var expected27 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 27).WithArguments("c");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7, expected8, expected9, expected10, expected11, expected12, expected13, expected14, expected15, expected16, expected17, expected18, expected19, expected20, expected21, expected22, expected23, expected24, expected25, expected26, expected27);
         }
     }
 }

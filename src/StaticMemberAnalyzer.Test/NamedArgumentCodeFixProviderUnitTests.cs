@@ -177,18 +177,18 @@ namespace Test
     {
         int Foo(float a, float b) => 0;
         float Bar(float x, float y) => 0;
-        float Baz(string s, float f) => 0;
+        float Baz(float f, string s) => 0;
 
         public void Test()
         {
-            var x = Foo({|#0:0|}, Bar(Baz(""message"", {|#2:2.2f|}), {|#3:11f|}));
+            var x = Foo({|#0:0|}, Bar(Baz({|#1:2.2f|}, {|#2:""message""|}), {|#3:11f|}));
         }
 
         public void TestMultiline()
         {
             var x = Foo({|#4:0|},
-                        Bar(Baz(""message"",
-                            {|#6:2.2f|}),
+                        Bar(Baz({|#5:2.2f|},
+                                {|#6:""message""|}),
                         {|#7:11f|}));
         }
     }
@@ -201,30 +201,32 @@ namespace Test
     {
         int Foo(float a, float b) => 0;
         float Bar(float x, float y) => 0;
-        float Baz(string s, float f) => 0;
+        float Baz(float f, string s) => 0;
 
         public void Test()
         {
-            var x = Foo(a: 0, Bar(Baz(""message"", f: 2.2f), y: 11f));
+            var x = Foo(a: 0, Bar(Baz(f: 2.2f, s: ""message""), y: 11f));
         }
 
         public void TestMultiline()
         {
             var x = Foo(a: 0,
-                        Bar(Baz(""message"",
-                            f: 2.2f),
+                        Bar(Baz(f: 2.2f,
+                                s: ""message""),
                         y: 11f));
         }
     }
 }
 ";
             var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("a");
-            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("f");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("f");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("s");
             var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("y");
             var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("a");
-            var expected6 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 6).WithArguments("f");
+            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("f");
+            var expected6 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 6).WithArguments("s");
             var expected7 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 7).WithArguments("y");
-            await VerifyCS.VerifyCodeFixAsync(test, new[] { expected0, expected2, expected3, expected4, expected6, expected7 }, fixtest);
+            await VerifyCS.VerifyCodeFixAsync(test, new[] { expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7 }, fixtest);
         }
     }
 }
