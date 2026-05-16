@@ -184,6 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsPossibleOperation(IOperation operation)
         {
+            // Binary boolean expressions are now diagnostic candidates.
             if (operation.Kind == OperationKind.Binary && operation.Type?.SpecialType == SpecialType.System_Boolean) return true;
 
             // Compile-time constant (number, enum, etc)
@@ -223,6 +224,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsOmittableType(IOperation operation, bool isConstructor)
         {
+            // User requested: return true if it is binary operation and type is boolean.
             if (operation.Kind == OperationKind.Binary && operation.Type?.SpecialType == SpecialType.System_Boolean) return true;
 
             var literalSpecialType = operation.Type?.SpecialType;
