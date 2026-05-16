@@ -285,11 +285,9 @@ namespace Test
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class MyAttribute : Attribute
     {
-        public MyAttribute(int a) {}
         public MyAttribute(string a) {}
     }
 
-    [My(1)]
     [My(""a"")]
     public class CTest
     {
@@ -311,10 +309,12 @@ namespace Test
     {
         public MyAttribute(int a, int b) {}
         public MyAttribute(int a, int b, int c = 0) {}
+        public MyAttribute(int a) {}
     }
 
     [My({|#0:1|}, {|#1:2|})]
     [My({|#2:1|}, {|#3:2|}, {|#4:3|})]
+    [My({|#5:1|})]
     public class CTest
     {
     }
@@ -325,7 +325,8 @@ namespace Test
             var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("a");
             var expected3 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 3).WithArguments("b");
             var expected4 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 4).WithArguments("c");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
+            var expected5 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 5).WithArguments("a");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
 
         [TestMethod]
@@ -403,21 +404,21 @@ namespace Test
     {
         public void Test()
         {
-            var mci = new MyClassInt(0);
+            var mci = new MyClassInt(i: 0);
             var mcs = new MyClassStr("""");
             var mcc = new MyClassChar(' ');
 
             // 1. string method (System.String)
             // int
-            "".Substring({|#0:default|});
-            "".Substring({|#1:default(int)|});
+            """".Substring({|#0:default|});
+            """".Substring({|#1:default(int)|});
             // string
-            "".EndsWith({|#2:null|});
-            "".EndsWith({|#3:default|});
-            "".EndsWith({|#4:default(string)|});
+            string.Intern({|#2:null|});
+            string.Intern({|#3:default|});
+            string.Intern({|#4:default(string)|});
             // char
-            "".IndexOf({|#5:default|});
-            "".IndexOf({|#6:default(char)|});
+            """".Trim({|#5:(char)default|});
+            """".Trim({|#6:default(char)|});
 
             // 2. string constructor (System.String)
             // int (count)

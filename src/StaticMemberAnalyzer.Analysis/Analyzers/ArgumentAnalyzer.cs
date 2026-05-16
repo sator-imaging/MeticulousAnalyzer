@@ -7,13 +7,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ArgumentAnalyzer : DiagnosticAnalyzer
     {
+        private const string UnknownParameterName = "<unknown>";
         public const string RuleId_LiteralArgument = "SMA8000";
 
         private static readonly DiagnosticDescriptor Rule_LiteralArgument = new(
@@ -38,48 +39,52 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeAttributeArgument(SyntaxNodeAnalysisContext context)
         {
-            // RegisterOperationAction(OperationKind.Argument) does not trigger for attribute arguments.
-            // Using SyntaxNodeAction ensures coverage for attributes.
+            // NOTE: RegisterOperationAction(OperationKind.Argument) does not trigger for attribute arguments.
+            //       Using SyntaxNodeAction ensures coverage for attributes.
 
             if (context.Node is not AttributeArgumentSyntax argStx)
-                return;
-
-            if (argStx.NameColon != null || argStx.NameEquals != null)
-                return;
-
-            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
-                return;
-
-            var valueOp = context.SemanticModel.GetOperation(argStx.Expression);
-            if (valueOp == null)
-                return;
-
-            while (valueOp is IConversionOperation conversion)
-                valueOp = conversion.Operand;
-
-            if (valueOp.Kind != OperationKind.Literal && valueOp.Kind != OperationKind.DefaultValue)
-                return;
-
-            // Null and default literals (including default(T)) are not allowed to be unnamed.
-            bool isNullOrDefaultLiteral = valueOp.Kind == OperationKind.DefaultValue ||
-                (valueOp is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } });
-
-            if (!isNullOrDefaultLiteral)
             {
-                // For attribute syntax, we do not check the argument type because it's too complicated.
-                if (argListStx.Arguments.Count <= 1)
-                    return;
+                return;
             }
 
-            // Getting semantic model should be done right before emitting diagnostic for performance.
-            string parameterName = "unknown";
-            var attrSymbol = context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol as IMethodSymbol;
-            if (attrSymbol != null)
+            if (argStx.NameColon != null || argStx.NameEquals != null)
             {
-                int index = argListStx.Arguments.IndexOf(argStx);
-                if (index >= 0 && index < attrSymbol.Parameters.Length)
+                return;
+            }
+
+            var operation = context.SemanticModel.GetOperation(argStx.Expression);
+            if (operation != null &&
+                !IsPossibleOperation(operation))
+            {
+                return;
+            }
+
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
+            {
+                return;
+            }
+
+            // string or char is allowed if it's the first argument.
+            var argIndex = argListStx.Arguments.IndexOf(argStx);
+            if (argIndex == 0)
+            {
+                if (operation != null &&
+                    IsOmittableType(operation, isConstructor: true) &&
+                    !IsNullOrDefaultLiteral(operation))
                 {
-                    parameterName = attrSymbol.Parameters[index].Name;
+                    return;
+                }
+            }
+
+            string parameterName = UnknownParameterName;
+
+            // Getting semantic model should be done right before emitting diagnostic for performance.
+            if (argListStx.Parent != null &&
+                context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
+            {
+                if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
+                {
+                    parameterName = attrSymbol.Parameters[argIndex].Name;
                 }
             }
 
@@ -91,87 +96,148 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
         {
-            if (context.Operation is not IArgumentOperation argOp)
+            if (context.Operation is not IArgumentOperation argOp ||
+                argOp.IsImplicit)
+            {
                 return;
+            }
 
-            if (argOp.Syntax is not ArgumentSyntax argStx)
+            if (argOp.Syntax is not ArgumentSyntax argStx ||
+                argStx.NameColon != null)
+            {
                 return;
+            }
 
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction.
-            if (argStx.Kind() == SyntaxKind.AttributeArgument)
+            if (argStx.IsKind(SyntaxKind.AttributeArgument))
+            {
                 return;
-
-            if (argOp.IsImplicit)
-                return;
-
-            // If it has ref/in/out keyword, literal causes compile error so don't need to proceed.
-            if (argStx.RefKindKeyword.Kind() != SyntaxKind.None)
-                return;
+            }
 
             // Skip if it's an indexer argument.
             if (argOp.Parent is IPropertyReferenceOperation)
+            {
                 return;
+            }
 
-            var literalOp = argOp.Value;
-            while (literalOp is IConversionOperation conversion)
-                literalOp = conversion.Operand;
-
-            if (literalOp.Kind != OperationKind.Literal && literalOp.Kind != OperationKind.DefaultValue)
+            // If it has ref/in/out keyword, literal causes compile error so don't need to proceed.
+            if (!argStx.RefKindKeyword.IsKind(SyntaxKind.None))
+            {
                 return;
+            }
 
-            // Null and default literals (including default(T)) are not allowed to be unnamed.
-            bool isNullOrDefaultLiteral = literalOp.Kind == OperationKind.DefaultValue ||
-                (literalOp is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } });
+            var argValue = argOp.Value;
 
-            if (!isNullOrDefaultLiteral)
+            if (!IsPossibleOperation(argValue))
+            {
+                return;
+            }
+
+            // int, string or char is allowed if it's the first argument.
+            // But 'null', 'default', or 'default(T)' is not allowed at all.
+            if (!IsNullOrDefaultLiteral(argValue))
             {
                 var invocationOp = argOp.Parent as IInvocationOperation;
 
-                // int, string or char is allowed if it's the first argument.
-                if (argStx.Parent is ArgumentListSyntax argListStx)
+                if (argStx.Parent is ArgumentListSyntax argListStx &&
+                    argListStx.Arguments.IndexOf(argStx) == 0)
                 {
-                    if (argListStx.Arguments.IndexOf(argStx) == 0 &&
-                        argOp.Parameter?.Type is ITypeSymbol firstArgType)
+                    if (IsOmittableType(argValue, isConstructor: invocationOp == null))
                     {
-                        // First string or char argument is allowed for both method and constructor.
-                        //   ex. throw new Exception("Message", innerError);
-                        if (firstArgType.SpecialType is SpecialType.System_String or SpecialType.System_Char)
-                        {
-                            return;
-                        }
-                        // but, don't allow omitting first int argument for constructor.
-                        //   ex. list = new(0);  // Expect: new(capacity: 0);
-                        else if (firstArgType.SpecialType is SpecialType.System_Int32 && invocationOp != null)
-                        {
-                            return;
-                        }
+                        return;
                     }
                 }
 
-                // String and System.IO methods and constructors are intentionally allowed.
+                // String, System.Text and System.IO methods and constructors are intentionally allowed.
                 var containingType = invocationOp?.TargetMethod.ContainingType
-                    ?? (argOp.Parent as IObjectCreationOperation)?.Constructor?.ContainingType;
+                    ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
 
                 if (containingType is not null)
                 {
                     if (containingType.SpecialType == SpecialType.System_String)
+                    {
                         return;
+                    }
 
-                    if (containingType.ContainingNamespace is INamespaceSymbol { Name: "IO", ContainingNamespace: INamespaceSymbol { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                    if (containingType.ContainingNamespace is INamespaceSymbol
+                        {
+                            Name: "Text" or "IO", ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: "System", ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true
+                                }
+                            }
+                        })
+                    {
                         return;
+                    }
                 }
             }
 
-            bool isNamed = argStx.NameColon != null;
-
-            if (!isNamed)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_LiteralArgument,
-                    argOp.Syntax.GetLocation(),
-                    argOp.Parameter?.Name ?? "unknown"));
-            }
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_LiteralArgument,
+                argOp.Syntax.GetLocation(),
+                argOp.Parameter?.Name ?? UnknownParameterName));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsPossibleOperation(IOperation operation)
+        {
+            // Compile-time constant (number, enum, etc)
+            return operation.Kind is OperationKind.Literal
+                                  or OperationKind.ConstantPattern
+                                  // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
+                                  or OperationKind.Conversion
+                                  or OperationKind.DefaultValue
+                                  ;
+        }
+
+        private static bool TryUnwrapConversion(IOperation operation, out IOperation unwrapped)
+        {
+            var value = operation;
+            while (value is IConversionOperation conversion)
+            {
+                value = conversion.Operand;
+            }
+
+            // [NotNullWhen] cannot be used on Roslyn Analyzer
+            return (unwrapped = value) != null;
+        }
+
+        private static bool IsNullOrDefaultLiteral(IOperation operation)
+        {
+            if (operation is IConversionOperation &&
+                TryUnwrapConversion(operation, out var unwrapped))
+            {
+                operation = unwrapped;
+            }
+
+            // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
+            return operation.Kind is OperationKind.DefaultValue
+                || operation.ConstantValue is { HasValue: true, Value: null }
+                ;
+        }
+
+        private static bool IsOmittableType(IOperation operation, bool isConstructor)
+        {
+            var literalSpecialType = operation.Type?.SpecialType;
+
+            // First string or char argument is allowed for both method and constructor.
+            //   ex. throw new Exception("Message", innerError);
+            if (literalSpecialType is SpecialType.System_String or SpecialType.System_Char)
+            {
+                return true;
+            }
+
+            // But, don't allow omitting first int argument for constructor.
+            //   ex. list = new(0);  // Expect: new(capacity: 0);
+            if (!isConstructor && literalSpecialType is SpecialType.System_Int32)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

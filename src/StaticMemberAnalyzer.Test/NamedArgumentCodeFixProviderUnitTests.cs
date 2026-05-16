@@ -188,7 +188,7 @@ namespace Test
         {
             var x = Foo({|#4:0|},
                         Bar(Baz({|#5:2.2f|},
-                            {|#6:""message""|}),
+                                {|#6:""message""|}),
                         {|#7:11f|}));
         }
     }
@@ -212,7 +212,7 @@ namespace Test
         {
             var x = Foo(a: 0,
                         Bar(Baz(f: 2.2f,
-                            s: ""message""),
+                                s: ""message""),
                         y: 11f));
         }
     }
