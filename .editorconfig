@@ -11,4 +11,4 @@ dotnet_diagnostic.SMA0067.severity = silent
 dotnet_diagnostic.SMA0068.severity = silent
 dotnet_diagnostic.SMA0069.severity = silent
 
-dotnet_diagnostic.SMA8000.severity = none
+dotnet_diagnostic.SMA8000.severity = silent
