@@ -6,7 +6,7 @@ public class MyClassChar { public MyClassChar(char c) { } public void M(char c) 
 
 public class ArgumentAnalyzerDebug
 {
-    public void Test()
+    public void NullAndDefaultTest()
     {
         var mci = new MyClassInt(i: 0);
         var mcs = new MyClassStr("");
@@ -59,5 +59,41 @@ public class ArgumentAnalyzerDebug
         // char
         new MyClassChar(default);
         new MyClassChar(default(char));
+    }
+}
+
+interface IMyClass { }
+class MyClass : IMyClass
+{
+    public MyClass(MyClass? other) { }
+    public MyClass(IMyClass? other) { }
+
+    public IMyClass Instance { get; } = new MyClass(other: null);
+
+    static void Foo(MyClass value) { }
+    static void Foo(IMyClass value) { }
+
+    public void PropertyAccessTest(MyClass other)
+    {
+        Foo(this.Instance);
+        Foo(other.Instance);
+        Foo(new(this.Instance));
+        Foo(new(other.Instance));
+        Foo(new MyClass(this.Instance));
+        Foo(new MyClass(other.Instance));
+
+        new MyClass(this.Instance);
+        new MyClass(other.Instance);
+        new MyClass(new(this.Instance));
+        new MyClass(new(other.Instance));
+        new MyClass(new MyClass(this.Instance));
+        new MyClass(new MyClass(other.Instance));
+
+        MyClass x1 = new(this.Instance);
+        MyClass x2 = new(other.Instance);
+        MyClass x3 = new(new(this.Instance));
+        MyClass x4 = new(new(other.Instance));
+        MyClass x5 = new(new MyClass(this.Instance));
+        MyClass x6 = new(new MyClass(other.Instance));
     }
 }

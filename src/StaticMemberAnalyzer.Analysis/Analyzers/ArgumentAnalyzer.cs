@@ -54,7 +54,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation != null &&
-                !IsPossibleOperation(operation))
+                !IsPossibleOperation(operation, out operation))
             {
                 return;
             }
@@ -128,7 +128,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var argValue = argOp.Value;
 
-            if (!IsPossibleOperation(argValue))
+            if (!IsPossibleOperation(argValue, out argValue))
             {
                 return;
             }
@@ -181,18 +181,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 argOp.Parameter?.Name ?? UnknownParameterName));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsPossibleOperation(IOperation operation)
-        {
-            // Compile-time constant (number, enum, etc)
-            return operation.Kind is OperationKind.Literal
-                                  or OperationKind.ConstantPattern
-                                  // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
-                                  or OperationKind.Conversion
-                                  or OperationKind.DefaultValue
-                                  ;
-        }
-
         private static bool TryUnwrapConversion(IOperation operation, out IOperation unwrapped)
         {
             var value = operation;
@@ -205,20 +193,33 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return (unwrapped = value) != null;
         }
 
-        private static bool IsNullOrDefaultLiteral(IOperation operation)
+        private static bool IsPossibleOperation(IOperation operation, out IOperation actual)
         {
-            if (operation is IConversionOperation &&
+            // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
+            if (operation.Kind is OperationKind.Conversion &&
                 TryUnwrapConversion(operation, out var unwrapped))
             {
                 operation = unwrapped;
             }
 
+            // Compile-time constant (number, enum, etc)
+            actual = operation;
+            return operation.Kind is OperationKind.Literal
+                                  or OperationKind.ConstantPattern
+                                  or OperationKind.DefaultValue  // Rare case. Check at last.
+                                  ;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsNullOrDefaultLiteral(IOperation operation)
+        {
             // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
-            return operation.Kind is OperationKind.DefaultValue
-                || operation.ConstantValue is { HasValue: true, Value: null }
+            return operation is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } }
+                || operation.Kind is OperationKind.DefaultValue  // Rare case. Check at last.
                 ;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsOmittableType(IOperation operation, bool isConstructor)
         {
             var literalSpecialType = operation.Type?.SpecialType;
