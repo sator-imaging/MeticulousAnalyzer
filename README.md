@@ -449,7 +449,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string`, `System.Text`, and `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis. Note that `null` and `default` literals are not exempt from the named argument rule.
+> `string`, `System.Text`, and `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis. Note that `null` and `default` literals, and boolean expressions (e.g., `foo == bar`) are not exempt from the named argument rule.
 
 
 
