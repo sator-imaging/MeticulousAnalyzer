@@ -193,6 +193,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return (unwrapped = value) != null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsPossibleOperation(IOperation operation, out IOperation actual)
         {
             // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
