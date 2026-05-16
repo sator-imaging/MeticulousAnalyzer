@@ -89,27 +89,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
-            const string SuppressionComment = "Don't await";
+            const string SuppressionComment = "// Don't await";
+
             if (node == null) return false;
 
-            var trivia = node.GetFirstToken().LeadingTrivia;
-            foreach (var t in trivia)
-            {
-                if (t.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                {
-                    var text = t.ToString().TrimStart('/');
-                    if (text.TrimStart().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-                else if (t.IsKind(SyntaxKind.MultiLineCommentTrivia))
-                {
-                    var text = t.ToString().TrimStart('/').TrimEnd('/');
-                    if (text.TrimStart('*').TrimStart().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-            }
+            var comment = node
+                .GetFirstToken()
+                .LeadingTrivia
+                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
 
-            return false;
+            return comment != default
+                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsTaskAwaitedOrReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)

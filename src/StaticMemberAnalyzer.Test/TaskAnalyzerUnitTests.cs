@@ -106,6 +106,34 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task Task_AwaitedOnAllPaths_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task Method(bool condition)
+        {
+            var t = Task.Run(() => {});
+            if (condition)
+            {
+                await t;
+            }
+            else
+            {
+                await t;
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task Task_SuppressedByComment_ReportsNoDiagnostic()
         {
             var test = @"
@@ -233,76 +261,6 @@ namespace Test
         {
             var t = Task.CompletedTask;
             await t;
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task Suppression_MultiLineComment_ReportsNoDiagnostic()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-namespace Test
-{
-    class Program
-    {
-        async Task Method()
-        {
-            /* Don't await */
-            var t = Task.Run(() => {});
-
-            /*
-               Don't await
-            */
-            var t2 = Task.Run(() => {});
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task Suppression_NotFirstComment_ReportsNoDiagnostic()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-namespace Test
-{
-    class Program
-    {
-        async Task Method()
-        {
-            // some other comment
-            // Don't await
-            var t = Task.Run(() => {});
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task Suppression_WithNewline_ReportsNoDiagnostic()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-namespace Test
-{
-    class Program
-    {
-        async Task Method()
-        {
-            // Don't await
-
-            var t = Task.Run(() => {});
         }
     }
 }
