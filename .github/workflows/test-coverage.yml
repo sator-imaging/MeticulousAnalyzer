@@ -47,7 +47,7 @@ jobs:
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
                 --results-directory "$dir/$TEST_OUTPUT" \
-                || true  # Test on main branch may fail
+                || [ "$dir" == "baseline" ]  # Ignore error on main branch
             fi
           done
 
