@@ -267,5 +267,212 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task Task_AwaitedInBranchAndAfterBranch_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task Method(bool condition)
+        {
+            var t = Task.Run(() => {});
+
+            if (condition)
+            {
+                await t;
+                return;
+            }
+
+            await t;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task Task_AwaitedInBranchAndReturned_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task<int> Method(bool condition)
+        {
+            var t = Task.FromResult(0);
+
+            if (condition)
+            {
+                await t;
+                return 0;
+            }
+
+            await t;
+            return 1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task Task_ReturnedInBranchAndAwaitedAfterBranch_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task<int> Method(bool condition)
+        {
+            var t = Task.FromResult(0);
+
+            if (condition)
+            {
+                return await t;
+            }
+
+            await t;
+            return 1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task Suppression_NotFirstComment_ReportsDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task Method()
+        {
+            // some other comment
+            // Don't await
+            var {|#0:t|} = Task.Run(() => {});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
+                .WithLocation(markupKey: 0)
+                .WithArguments("t");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task Suppression_WithNewline_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task Method()
+        {
+            // Don't await
+
+            var t = Task.Run(() => {});
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task Task_NotSuppressedByPrecedingLineEndComment()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        void DoNothing() {}
+        async Task Method()
+        {
+            DoNothing(); // Don't await
+            var {|#0:t|} = Task.Run(() => {});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
+                .WithLocation(markupKey: 0)
+                .WithArguments("t");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task Task_NotSuppressedByPrecedingLineEndCommentWithBlankLine()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        void DoNothing() {}
+        async Task Method()
+        {
+            DoNothing(); // Don't await
+
+            var {|#0:t|} = Task.Run(() => {});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
+                .WithLocation(markupKey: 0)
+                .WithArguments("t");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task Task_NotSuppressedByMultiLineComment()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task Method()
+        {
+            /* Don't await */
+            var {|#0:t|} = Task.Run(() => {});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
+                .WithLocation(markupKey: 0)
+                .WithArguments("t");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }

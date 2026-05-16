@@ -455,8 +455,15 @@ Add a single-line comment starting with `// Don't await` (case-insensitive but w
 // Don't await
 var t = Task.Run(...);
 
-// Don't await: this task is intended to run in background.
+// Don't await because it is managed by external library.
 // - Multiple single line comments are allowed but '// Don't await' must be the first.
+var t = Task.Run(...);
+
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
+
+// NOTE:
+// Don't await
 var t = Task.Run(...);
 ```
 

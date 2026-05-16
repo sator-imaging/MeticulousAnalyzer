@@ -455,8 +455,15 @@ async Task Method()
 // Don't await
 var t = Task.Run(...);
 
-// Don't await: this task is intended to run in background.
+// Don't await because it is managed by external library.
 // - 複数行の単一行コメントが許可されますが、'// Don't await' が最初である必要があります。
+var t = Task.Run(...);
+
+// 以下は最初のコメント行ではないため抑制されません。
+// （最初のコメントを検索する際、空白行は無視されます）
+
+// NOTE:
+// Don't await
 var t = Task.Run(...);
 ```
 

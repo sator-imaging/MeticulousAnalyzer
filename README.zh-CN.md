@@ -455,8 +455,15 @@ async Task Method()
 // Don't await
 var t = Task.Run(...);
 
-// Don't await: this task is intended to run in background.
+// Don't await because it is managed by external library.
 // - 允许使用多个单行注释，但 '// Don't await' 必须是第一行。
+var t = Task.Run(...);
+
+// 以下代码不会被抑制，因为它不是第一个注释行。
+// （搜索第一个注释时会忽略空白行）
+
+// NOTE:
+// Don't await
 var t = Task.Run(...);
 ```
 
