@@ -66,22 +66,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // string or char is allowed if it's the first argument.
             var argIndex = argListStx.Arguments.IndexOf(argStx);
-            if (operation != null &&
-                !IsNullOrDefaultLiteral(operation))
+            if (argIndex == 0)
             {
-                if (operation.Kind == OperationKind.Binary)
+                if (operation != null &&
+                    IsOmittableType(operation, isConstructor: true) &&
+                    !IsNullOrDefaultLiteral(operation))
                 {
-                    if (IsOmittableType(operation, isConstructor: true))
-                    {
-                        return;
-                    }
-                }
-                else if (argIndex == 0)
-                {
-                    if (IsOmittableType(operation, isConstructor: true))
-                    {
-                        return;
-                    }
+                    return;
                 }
             }
 
@@ -148,14 +139,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 var invocationOp = argOp.Parent as IInvocationOperation;
 
-                if (argValue.Kind == OperationKind.Binary)
-                {
-                    if (IsOmittableType(argValue, isConstructor: invocationOp == null))
-                    {
-                        return;
-                    }
-                }
-                else if (argStx.Parent is ArgumentListSyntax argListStx &&
+                if (argStx.Parent is ArgumentListSyntax argListStx &&
                     argListStx.Arguments.IndexOf(argStx) == 0)
                 {
                     if (IsOmittableType(argValue, isConstructor: invocationOp == null))
@@ -238,16 +222,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsOmittableType(IOperation operation, bool isConstructor)
         {
-            if (operation.Kind == OperationKind.Binary)
-            {
-                if (operation.Type?.SpecialType == SpecialType.System_Boolean)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-
             var literalSpecialType = operation.Type?.SpecialType;
 
             // First string or char argument is allowed for both method and constructor.

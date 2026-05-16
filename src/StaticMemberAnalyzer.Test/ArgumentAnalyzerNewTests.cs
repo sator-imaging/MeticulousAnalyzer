@@ -85,7 +85,29 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestOtherBinaryOperationsNotReported()
+        public async Task TestOtherBinaryOperationsNotFirstArgumentReported()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a, int i) {}
+        public void Test(int x, int y)
+        {
+            Foo(1, {|#0:x + y|});
+        }
+    }
+}
+";
+            // Non-boolean binary operations at non-first positions are now reported because they are
+            // included in IsPossibleOperation but not exempt by IsOmittableType (which only handles index 0).
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("i");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestOtherBinaryOperationsFirstArgumentNotReported()
         {
             var test = @"
 namespace Test
@@ -100,27 +122,7 @@ namespace Test
     }
 }
 ";
-            // Binary operation resulting in non-boolean (like int) is omittable in all positions.
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task TestOtherBinaryOperationsNotFirstArgumentNotReported()
-        {
-            var test = @"
-namespace Test
-{
-    public class CTest
-    {
-        public void Foo(int a, int i) {}
-        public void Test(int x, int y)
-        {
-            Foo(1, x + y);
-        }
-    }
-}
-";
-            // Non-boolean binary operations are currently exempted everywhere by IsOmittableType.
+            // First argument int is exempt for methods.
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
