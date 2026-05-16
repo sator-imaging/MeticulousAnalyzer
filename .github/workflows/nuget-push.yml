@@ -26,12 +26,15 @@ jobs:
       contents: write
       pull-requests: write
 
-    uses: ./.github/workflows/resource-update.yml
-    secrets: inherit
+    #uses: ./.github/workflows/resource-update.yml
+    #secrets: inherit
+
+    steps:
+      run: echo ok
 
   nuget:
-    #needs: build
-    #if: success()
+    needs: build
+    if: success()
 
     runs-on: ubuntu-latest
 
