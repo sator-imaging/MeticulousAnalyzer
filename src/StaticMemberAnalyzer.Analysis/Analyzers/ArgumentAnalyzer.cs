@@ -184,13 +184,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsPossibleOperation(IOperation operation)
         {
+            if (operation.Kind == OperationKind.Binary && operation.Type?.SpecialType == SpecialType.System_Boolean) return true;
+
             // Compile-time constant (number, enum, etc)
             return operation.Kind is OperationKind.Literal
                                   or OperationKind.ConstantPattern
                                   // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
                                   or OperationKind.Conversion
                                   or OperationKind.DefaultValue
-                                  or OperationKind.Binary
                                   ;
         }
 
@@ -222,6 +223,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsOmittableType(IOperation operation, bool isConstructor)
         {
+            if (operation.Kind == OperationKind.Binary && operation.Type?.SpecialType == SpecialType.System_Boolean) return true;
+
             var literalSpecialType = operation.Type?.SpecialType;
 
             // First string or char argument is allowed for both method and constructor.
