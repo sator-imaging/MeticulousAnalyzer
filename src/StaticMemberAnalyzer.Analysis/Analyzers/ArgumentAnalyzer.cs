@@ -66,13 +66,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // string or char is allowed if it's the first argument.
             var argIndex = argListStx.Arguments.IndexOf(argStx);
-            var isFirstArgument = argIndex == 0;
             if (operation != null &&
                 !IsNullOrDefaultLiteral(operation))
             {
-                if (IsOmittableType(operation, isConstructor: true, isFirstArgument))
+                if (operation.Kind == OperationKind.Binary)
                 {
-                    return;
+                    if (IsOmittableType(operation, isConstructor: true))
+                    {
+                        return;
+                    }
+                }
+                else if (argIndex == 0)
+                {
+                    if (IsOmittableType(operation, isConstructor: true))
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -139,12 +148,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 var invocationOp = argOp.Parent as IInvocationOperation;
 
-                var isFirstArgument = argStx.Parent is ArgumentListSyntax argListStx &&
-                    argListStx.Arguments.IndexOf(argStx) == 0;
-
-                if (IsOmittableType(argValue, isConstructor: invocationOp == null, isFirstArgument))
+                if (argValue.Kind == OperationKind.Binary)
                 {
-                    return;
+                    if (IsOmittableType(argValue, isConstructor: invocationOp == null))
+                    {
+                        return;
+                    }
+                }
+                else if (argStx.Parent is ArgumentListSyntax argListStx &&
+                    argListStx.Arguments.IndexOf(argStx) == 0)
+                {
+                    if (IsOmittableType(argValue, isConstructor: invocationOp == null))
+                    {
+                        return;
+                    }
                 }
 
                 // String, System.Text and System.IO methods and constructors are intentionally allowed.
@@ -190,7 +207,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                   or OperationKind.Conversion
                                   or OperationKind.DefaultValue
                                   or OperationKind.Binary
-                                  or OperationKind.Unary
                                   ;
         }
 
@@ -220,9 +236,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 ;
         }
 
-        private static bool IsOmittableType(IOperation operation, bool isConstructor, bool isFirstArgument)
+        private static bool IsOmittableType(IOperation operation, bool isConstructor)
         {
-            if (operation.Kind is OperationKind.Binary or OperationKind.Unary)
+            if (operation.Kind == OperationKind.Binary)
             {
                 if (operation.Type?.SpecialType == SpecialType.System_Boolean)
                 {
@@ -230,11 +246,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 return true;
-            }
-
-            if (!isFirstArgument)
-            {
-                return false;
             }
 
             var literalSpecialType = operation.Type?.SpecialType;

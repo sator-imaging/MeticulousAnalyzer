@@ -33,26 +33,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanUnaryOperationDiagnostic()
-        {
-            var test = @"
-namespace Test
-{
-    public class CTest
-    {
-        public void Foo(bool b) {}
-        public void Test(bool b)
-        {
-            Foo({|#0:!b|});
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task TestBooleanExpressionCodeFix()
         {
             var test = @"
