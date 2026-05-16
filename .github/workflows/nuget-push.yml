@@ -44,10 +44,10 @@ jobs:
       contents: read   # required for private repo
 
     steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: ${{ needs.build.outputs.artifact_name }}
-        path: src
+    #- uses: actions/download-artifact@v4
+    #  with:
+    #    name: ${{ needs.build.outputs.artifact_name }}
+    #    path: src
 
     ################################
     #  NUGET
@@ -61,6 +61,7 @@ jobs:
       run: |
         cd src
         dotnet nuget push "${{ env.push_source  }}"  \
+          -p:NoWarn=SMA8000 \
           -k ${{ steps.login.outputs.NUGET_API_KEY }}  \
           -s https://api.nuget.org/v3/index.json \
           --timeout 60
