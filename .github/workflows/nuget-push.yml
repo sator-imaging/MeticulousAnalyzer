@@ -12,6 +12,10 @@ on:
         description: |
           1) Should run 'resource update' action BEFORE running this action.
           2) After PR merged, create GitHub release BEFORE publishing.
+      ignore-test-failure:
+        type: boolean
+        default: false
+        required: false
 
 env:
   push_source: 'StaticMemberAnalyzer.Package/bin/Release/*.nupkg'
@@ -21,6 +25,7 @@ jobs:
   # 'workflow_call' action must have no steps!
   build:
     if: github.event_name == 'release' || inputs.confirmed
+    continue-on-error: inputs.ignore-test-failure
 
     permissions:
       contents: write
@@ -31,7 +36,7 @@ jobs:
 
   nuget:
     needs: build
-    if: success()
+    if: success() || inputs.ignore-test-failure
 
     runs-on: ubuntu-latest
 
