@@ -1314,5 +1314,67 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA0045_Title", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Task Analysis に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0070__MD_TITLE__ {
+            get {
+                return ResourceManager.GetString("SMA0070__MD_TITLE__", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Task local variable should be awaited or returned. You can suppress by adding preceding comment "// Don't await". に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0070_Description {
+            get {
+                return ResourceManager.GetString("SMA0070_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Task '{0}' is not awaited (MissingAwait) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0070_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0070_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Task Not Awaited に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0070_Title {
+            get {
+                return ResourceManager.GetString("SMA0070_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Task local variable should be awaited or returned on all code paths. You can suppress by adding preceding comment "// Don't await". に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0071_Description {
+            get {
+                return ResourceManager.GetString("SMA0071_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Task '{0}' is not awaited on all code paths (NotAllCodePathsAwait) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0071_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0071_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Task Not Awaited on All Paths に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0071_Title {
+            get {
+                return ResourceManager.GetString("SMA0071_Title", resourceCulture);
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 - [読み取り専用変数解析](#読み取り専用変数解析) でローカル/引数への代入と可変な引数受け渡しを検出
 - [`Enum` アナライザーとコード修正プロバイダー](#enum-アナライザーとコード修正プロバイダー) でユーザー側の値変換を禁止し、[Kotlin 風 Enum パターン](#kotlin-風-enum-パターン) も検査
 - [Disposable アナライザー](#disposable-アナライザー) で `using` の欠落を検出
+- [Async Task 解析](#async-task-解析) で `Task` または `ValueTask` の await 欠落を検出
 - `struct` の引数なしコンストラクター誤用解析
 - `TSelf` ジェネリック型引数と型制約の解析
 - ファイルヘッダーコメントの強制
@@ -426,6 +427,48 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 ```
 
 </details>
+
+
+
+
+
+&nbsp;
+
+# Async Task 解析
+
+`Task` または `ValueTask` (ジェネリック版を含む) のローカル変数が、すべてのコードパスで正しく await または return されているかを解析します。
+
+```cs
+async Task Method()
+{
+    var t = Task.Run(...);
+    //      ~~~~~~~~~~~~ Task が await または return されていない
+}
+```
+
+
+**コメントによる抑制**
+
+ローカル変数の宣言の直前に `// Don't await` (大文字小文字は区別しないが空白文字は区別する) で始まる 1 行コメントを追加します。抑制コメントを検索する際、空白行は無視されます。
+
+```cs
+// Don't await
+var t = Task.Run(...);
+
+// Don't await because it is managed by external library.
+// - 複数行の単一行コメントが許可されますが、'// Don't await' が最初である必要があります。
+var t = Task.Run(...);
+
+// 以下は最初のコメント行ではないため抑制されません。
+// （最初のコメントを検索する際、空白行は無視されます）
+
+// NOTE:
+// Don't await
+var t = Task.Run(...);
+```
+
+> [!NOTE]
+> この抑制はローカル変数の初期宣言に対して有効です。既存の変数への通常の代入は、コメントによって抑制することはできません。
 
 
 
