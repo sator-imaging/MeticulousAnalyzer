@@ -52,9 +52,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            bool isNullOrDefaultLiteral = false;
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation != null &&
-                !IsPossibleOperation(operation))
+                !IsPossibleOperation(operation, out isNullOrDefaultLiteral))
             {
                 return;
             }
@@ -68,9 +69,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var argIndex = argListStx.Arguments.IndexOf(argStx);
             if (argIndex == 0)
             {
-                if (operation != null &&
-                    IsOmittableType(operation, isConstructor: true) &&
-                    !IsNullOrDefaultLiteral(operation))
+                if (!isNullOrDefaultLiteral &&
+                    operation != null &&
+                    IsOmittableType(operation, isConstructor: true))
                 {
                     return;
                 }
@@ -128,14 +129,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var argValue = argOp.Value;
 
-            if (!IsPossibleOperation(argValue))
+            if (!IsPossibleOperation(argValue, out var isNullOrDefaultLiteral))
             {
                 return;
             }
 
             // int, string or char is allowed if it's the first argument.
             // But 'null', 'default', or 'default(T)' is not allowed at all.
-            if (!IsNullOrDefaultLiteral(argValue))
+            if (!isNullOrDefaultLiteral)
             {
                 var invocationOp = argOp.Parent as IInvocationOperation;
 
@@ -181,19 +182,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 argOp.Parameter?.Name ?? UnknownParameterName));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsPossibleOperation(IOperation operation)
-        {
-            // Compile-time constant (number, enum, etc)
-            return operation.Kind is OperationKind.Literal
-                                  or OperationKind.ConstantPattern
-                                  // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
-                                  or OperationKind.Conversion
-                                  or OperationKind.DefaultValue
-                                  or OperationKind.Binary
-                                  ;
-        }
-
         private static bool TryUnwrapConversion(IOperation operation, out IOperation unwrapped)
         {
             var value = operation;
@@ -206,20 +194,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return (unwrapped = value) != null;
         }
 
-        private static bool IsNullOrDefaultLiteral(IOperation operation)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsPossibleOperation(IOperation operation, out bool isNullOrDefaultLiteral)
         {
-            if (operation is IConversionOperation &&
+            // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
+            if (operation.Kind is OperationKind.Conversion &&
                 TryUnwrapConversion(operation, out var unwrapped))
             {
                 operation = unwrapped;
             }
 
             // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
-            return operation.Kind is OperationKind.DefaultValue
-                || operation.ConstantValue is { HasValue: true, Value: null }
+            isNullOrDefaultLiteral
+                = operation is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } }
+                || operation.Kind is OperationKind.DefaultValue
                 ;
+
+            return operation.Kind is OperationKind.Literal
+                                  // Not required: `case 1` or `x is 2` (Not IsPatternOperator)
+                                  //or OperationKind.ConstantPattern
+                                  or OperationKind.DefaultValue
+                                  ;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsOmittableType(IOperation operation, bool isConstructor)
         {
             var literalSpecialType = operation.Type?.SpecialType;

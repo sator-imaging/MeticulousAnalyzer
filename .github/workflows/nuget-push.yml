@@ -1,4 +1,4 @@
-name: build & nuget push (resource update required)
+name: 'Build & Publish'
 
 on:
   release:
@@ -18,7 +18,7 @@ env:
 
 jobs:
 
-  # 'workflow_call' action must have no steps!
+  # 'workflow_call' action must not have steps!
   build:
     if: github.event_name == 'release' || inputs.confirmed
 

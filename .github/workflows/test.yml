@@ -1,9 +1,9 @@
-name: test
+name: Test
 
 on:
-  #push:
-  #  branches: [ main ]
-  #  paths: [ 'src/**/*' ]
+  push:
+    branches: [ main ]
+    paths: [ 'src/**/*' ]
   #pull_request:
   #  branches: [ main ]
   #  paths: [ 'src/**/*' ]
@@ -15,7 +15,7 @@ jobs:
   test:
     strategy:
       matrix:
-        configuration: [Debug]
+        configuration: [Debug, Release]
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
 
@@ -27,7 +27,7 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test ./src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj \
+          dotnet test ./src/StaticMemberAnalyzer.Test \
             -c ${{ matrix.configuration }} \
             --verbosity minimal \
             -p:DontReferenceItself=true
