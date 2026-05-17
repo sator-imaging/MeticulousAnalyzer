@@ -441,7 +441,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 ```cs
 Foo(0, 0, true);
-//  ~  ~  ~~~~ リテラル引数は意味が分かりにくい
+//     ~  ~~~~ リテラル引数は意味が分かりにくい（最初の int 引数は省略可能）
 
 Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 //  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
@@ -449,7 +449,9 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string`、`System.Text` および `System.IO` のメソッドとコンストラクタは意図的に許可されています。また、最初の引数が `string` または `char` 型の場合は、名前付き引数を省略できます。メソッド呼び出しの場合に限り、最初の引数が `int` 型でも名前付き引数を省略できます。インデクサーの引数もこの解析の対象外です。なお、`null` や `default` リテラル、および boolean 式 (例: `foo == bar`) は名前付き引数の省略対象外です。
+> `string`、`System.Text` および `System.IO` のメソッドとコンストラクタは意図的に許可されています。また、最初の引数が `string` または `char` 型の場合は、名前付き引数を省略できます。メソッド呼び出しの場合に限り、最初の引数が `int` 型でも名前付き引数を省略できます。インデクサーの引数もこの解析の対象外です。
+>
+> なお、`null` や `default` リテラル、および boolean 式（パターンマッチングを含む。例: `foo is not null` や `x == y`）は、その位置や含まれる名前空間に関係なく、名前付き引数の省略対象外であり、常に名前を指定する必要があります。
 
 
 
