@@ -184,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
-                if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment))
+                if (IsSuppressed(op))
                     return;
 
                 //string??
@@ -216,6 +216,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (IsSuppressed(op))
+                return;
+
             if (op is IDefaultValueOperation)
             {
                 // method has default value of generic type arg T which has T : Enum constraint
@@ -243,13 +246,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
                 return;
 
+            if (IsSuppressed(context.Operation))
+                return;
+
             var (enumType, _) = GetEnumInfo(op.Type);
 
             if (enumType != null)
             {
-                if (Core.IsSuppressedByComment(context.Operation.Syntax, SuppressionComment))
-                    return;
-
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_EnumToString, GetReportLocation(context.Operation), enumType.Name));
             }
@@ -284,7 +287,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment))
+            if (IsSuppressed(op))
                 return;
 
             AnalyzeCast_Impl(context, op);
@@ -764,6 +767,43 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  helper  ================================================================ */
+
+        private static bool IsSuppressed(IOperation op)
+        {
+            var targetOp = op;
+            while (targetOp.Parent != null && (
+                   targetOp.Parent is IInterpolationOperation
+                || targetOp.Parent is IInterpolatedStringOperation
+                || targetOp.Parent is IConditionalAccessOperation
+                || targetOp.Parent is IConditionalAccessInstanceOperation
+                || targetOp.Parent is IConversionOperation
+                || targetOp.Parent is IBinaryOperation))
+            {
+                if (targetOp is IInvocationOperation) break;
+
+                targetOp = targetOp.Parent;
+            }
+
+            if (targetOp.Parent is IVariableInitializerOperation initOp &&
+                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
+                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
+                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
+            {
+                return Core.IsSuppressedByComment(localDecl, SuppressionComment);
+            }
+
+            if (targetOp.Syntax.Parent is StatementSyntax statement)
+            {
+                return Core.IsSuppressedByComment(statement, SuppressionComment);
+            }
+
+            if (targetOp.Syntax is StatementSyntax selfStatement)
+            {
+                return Core.IsSuppressedByComment(selfStatement, SuppressionComment);
+            }
+
+            return false;
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

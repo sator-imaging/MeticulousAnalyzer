@@ -329,13 +329,11 @@ namespace Test
     {
         public void Test()
         {
-            var x1 =
-                // Allow enum conversion
-                (ETest)1;
+            // Allow enum conversion
+            var x1 = (ETest)1;
 
-            var x2 =
-                // allow enum conversion
-                ETest.Value.ToString();
+            // allow enum conversion
+            var x2 = ETest.Value.ToString();
         }
     }
 }
@@ -355,8 +353,10 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        public void Test(ETest x)
+        public void Test()
         {
+            ETest x;
+
             // Allow enum conversion
             x = {|#0:(ETest)1|};
         }
@@ -405,9 +405,8 @@ namespace Test
     {
         public void Test()
         {
-            _ =
-                //Allow enum conversion
-                {|#0:(ETest)1|};
+            //Allow enum conversion
+            var x = {|#0:(ETest)1|};
         }
     }
 }
@@ -430,10 +429,9 @@ namespace Test
     {
         public void Test()
         {
-            var x =
-                // Some other comment
-                // Allow enum conversion
-                {|#0:(ETest)1|};
+            // Some other comment
+            // Allow enum conversion
+            var x = {|#0:(ETest)1|};
         }
     }
 }
@@ -507,11 +505,10 @@ namespace Test
     {
         public void Test()
         {
-            var x =
-                // Some comment
+            // Some comment
 
-                // Allow enum conversion
-                {|#0:(ETest)1|};
+            // Allow enum conversion
+            var x = {|#0:(ETest)1|};
         }
     }
 }
@@ -535,15 +532,13 @@ namespace Test
     {
         public void Test()
         {
-            {|#0:Enum.TryParse<ETest>(""Value"",
-                // Allow enum conversion
-                out _)|};
+            // Allow enum conversion
+            Enum.TryParse<ETest>(""Value"", out _);
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -561,9 +556,8 @@ namespace Test
     {
         public void Test()
         {
-            if (
-                // Allow enum conversion
-                Enum.IsDefined(typeof(ETest), 0)) { }
+            // Allow enum conversion
+            if (Enum.IsDefined(typeof(ETest), 0)) { }
         }
     }
 }
@@ -586,9 +580,8 @@ namespace Test
     {
         public void Test()
         {
-            foreach (var v in
-                // Allow enum conversion
-                Enum.GetValues(typeof(ETest))) { }
+            // Allow enum conversion
+            foreach (var v in Enum.GetValues(typeof(ETest))) { }
         }
     }
 }
@@ -688,13 +681,12 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            var some = {|#0:Enum.GetValues(typeof(ETest))|};
+            var some = Enum.GetValues(typeof(ETest));
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

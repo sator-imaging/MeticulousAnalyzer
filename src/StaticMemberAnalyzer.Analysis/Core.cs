@@ -131,6 +131,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             op = UnwrapNullCoalesceOperation(op);
 
+            // Allow enum conversion
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Op: {op.Kind} ({op.Type?.Name})",
                 $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
@@ -156,6 +157,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
+            // Allow enum conversion
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(syntax.GetLocation()),
                 $"Syntax: {syntax.Kind()}",
                 $"Parent: {syntax.Parent?.Kind()}",
@@ -280,13 +282,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             if (node == null) return false;
 
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+            // !! scanning ALL leading trivia is important to find the FIRST comment !!
+            var triviaList = node.GetFirstToken().LeadingTrivia;
+            for (int i = 0; i < triviaList.Count; i++)
+            {
+                var trivia = triviaList[i];
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                {
+                    return trivia.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+                }
+            }
 
-            return comment != default
-                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+            return false;
         }
 
     }
