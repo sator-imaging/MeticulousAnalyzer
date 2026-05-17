@@ -96,7 +96,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var comment = node
                 .GetFirstToken()
                 .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+                .Cast<SyntaxTrivia>()
+                .FirstOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
 
             return comment != default
                 && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
@@ -109,8 +110,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
             if (enclosingMember == null) return false;
 
-            var semanticModel = context.Operation.SemanticModel ?? context.Compilation.GetSemanticModel(variableDeclarator.SyntaxTree);
-            var localSymbol = semanticModel.GetDeclaredSymbol(variableDeclarator) as ILocalSymbol;
+            var semanticModel = context.Operation.SemanticModel;
+            if (semanticModel == null) return false;
+            var localSymbol = (ILocalSymbol?)semanticModel.GetDeclaredSymbol(variableDeclarator);
             if (localSymbol == null) return false;
 
             ControlFlowGraph cfg;
@@ -131,7 +133,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 var block = allBlocks[i];
                 bool isHandled = false;
-                foreach (var op in block.Operations.Concat(new[] { block.BranchValue }).Where(o => o != null))
+
+                var operations = new List<IOperation>(block.Operations.Length + 1);
+                foreach (var op in block.Operations) operations.Add(op);
+                if (block.BranchValue != null) operations.Add(block.BranchValue);
+
+                foreach (var op in operations)
                 {
                     if (declarationBlock == -1 && op.Syntax.AncestorsAndSelf().Contains(variableDeclarator))
                     {
@@ -162,7 +169,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                         else if (desc is ILocalReferenceOperation lr && SymbolEqualityComparer.Default.Equals(lr.Local, localSymbol))
                         {
-                            if (op == block.BranchValue && block.FallThroughSuccessor?.Destination.Kind == BasicBlockKind.Exit)
+                            if (object.ReferenceEquals(op, block.BranchValue) && block.FallThroughSuccessor?.Destination.Kind == BasicBlockKind.Exit)
                             {
                                 isHandled = true;
                                 break;
