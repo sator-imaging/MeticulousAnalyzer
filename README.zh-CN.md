@@ -440,16 +440,18 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 在没有 IDE 辅助的情况下（例如在 Web 浏览器中进行代码审查时），字面量参数可能难以理解。使用命名参数或变量可以使代码具有自解释性，从而使审查过程更加顺畅。
 
 ```cs
-Foo(0, 0, true);
-//  ~  ~  ~~~~ 字面量参数难以理解其含义
+Foo(true, 0);
+//  ~~~~  ~ 字面量参数难以理解其含义
 
-Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
-//  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
+Foo(ignoreErrors: true, timeoutSeconds: 0);
+//  ^^^^^^^^^^^^        ^^^^^^^^^^^^^^
 //  现在参数含义一目了然！
 ```
 
 > [!NOTE]
-> `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。请注意，`null` 和 `default` 字面量，以及 boolean 表达式（例如 `foo == bar`）不能省略命名参数。
+> `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
+>
+> 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
 
 
 
