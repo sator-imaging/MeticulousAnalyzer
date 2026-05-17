@@ -440,11 +440,11 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 リテラル引数は、IDE の支援がない環境（Web ブラウザでのコードレビューなど）では、その意味を理解するのが困難です。名前付き引数や変数を使用することで、コードが自己文書化され、レビューが容易になります。
 
 ```cs
-Foo(0, 0, true);
-//     ~  ~~~~ リテラル引数は意味が分かりにくい（最初の int 引数は省略可能）
+Foo(true, 0);
+//  ~~~~  ~ リテラル引数は意味が分かりにくい
 
-Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
-//  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
+Foo(ignoreErrors: true, timeoutSeconds: 0);
+//  ^^^^^^^^^^^^        ^^^^^^^^^^^^^^
 //  引数の意味が自己説明的になりました！
 ```
 

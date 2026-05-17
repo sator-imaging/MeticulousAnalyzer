@@ -440,11 +440,11 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 Literal arguments can be difficult to understand without IDE assistance, especially during code reviews in a web browser. Using named arguments or variables for literals makes the code self-documenting and easier to review.
 
 ```cs
-Foo(0, 0, true);
-//     ~  ~~~~ literal arguments are difficult to understand (first int argument can be omitted)
+Foo(true, 0);
+//  ~~~~  ~ literal arguments are difficult to understand
 
-Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
-//  ^^^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^^
+Foo(ignoreErrors: true, timeoutSeconds: 0);
+//  ^^^^^^^^^^^^        ^^^^^^^^^^^^^^
 //  Now arguments are self-explanatory!
 ```
 
