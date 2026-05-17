@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestOtherBinaryOperationsNotFirstArgumentReported()
+        public async Task TestOtherBinaryOperationsNotFirstArgumentNotReported()
         {
             var test = @"
 namespace Test
