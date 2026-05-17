@@ -344,8 +344,7 @@ namespace Test
                 return await t;
             }
 
-            await t;
-            return 1;
+            return t;
         }
     }
 }
