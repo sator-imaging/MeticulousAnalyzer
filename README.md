@@ -175,7 +175,8 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 
 **Suppress by Comment**
 
-(can suppress by comment `// Allow enum conversion`; see [Suppression Comment](#suppression-comment) section for detail)
+> [!NOTE]
+> can suppress by comment `// Allow enum conversion`; see [Suppression Comment](#suppression-comment) section for detail
 
 
 ## Excluding Enum Type from Obfuscation
@@ -331,7 +332,8 @@ Analyzer won't show warning in the following condition:
 
 **Suppress by Comment**
 
-(can suppress by comment `// Don't dispose`; see [Suppression Comment](#suppression-comment) section for detail)
+> [!NOTE]
+> can suppress by comment `// Don't dispose`; see [Suppression Comment](#suppression-comment) section for detail
 
 
 
@@ -411,7 +413,8 @@ async Task Method()
 
 **Suppress by Comment**
 
-(can suppress by comment `// Don't await`; see [Suppression Comment](#suppression-comment) section for detail)
+> [!NOTE]
+> can suppress by comment `// Don't await`; see [Suppression Comment](#suppression-comment) section for detail
 
 
 
