@@ -188,13 +188,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 //string??
                 if (op.TargetMethod.ReturnType.SpecialType == SpecialType.System_String)
                 {
+                    var (enumType, _) = GetEnumInfo(op.Instance?.Type ?? receiverType);
+
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_EnumToString, op.Syntax.GetLocation(), (op.Instance?.Type ?? receiverType).Name));
+                        Rule_EnumToString, GetReportLocation(op), enumType?.Name ?? "Enum"));
                 }
                 else
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_EnumMethod, op.Syntax.GetLocation()));
+                        Rule_EnumMethod, GetReportLocation(op)));
                 }
             }
         }
@@ -206,8 +208,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var op = context.Operation;
 
-            if (!IsEnumDerivedType(op.Type)
-             && !(op.Type is ITypeParameterSymbol typeParam && HasEnumConstraint(typeParam)))
+            var (enumType, _) = GetEnumInfo(op.Type);
+            if (enumType == null)
             {
                 return;
             }
@@ -223,7 +225,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_CastToEnum, op.Syntax.GetLocation(), op.Type.Name));
+                Rule_CastToEnum, GetReportLocation(op), enumType.Name));
         }
 
 
@@ -239,14 +241,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
                 return;
 
-            var resultType = op.Type;
+            var (enumType, _) = GetEnumInfo(op.Type);
 
-            if (IsEnumDerivedType(resultType)
-            || (resultType is ITypeParameterSymbol typeParamSymbol && HasEnumConstraint(typeParamSymbol))
-            )
+            if (enumType != null)
             {
+                if (IsSuppressed(op))
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_EnumToString, context.Operation.Syntax.GetLocation(), resultType.Name));
+                    Rule_EnumToString, GetReportLocation(context.Operation), enumType.Name));
             }
         }
 
@@ -295,13 +298,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
              && binaryOp.RightOperand.Type.SpecialType == SpecialType.System_Object
             )
             {
-                var sourceType = castOp.Operand.Type;
-                if (IsEnumDerivedType(sourceType)
-                || (sourceType is ITypeParameterSymbol typeParamSymbol && HasEnumConstraint(typeParamSymbol))
-                )
+                var (enumType, _) = GetEnumInfo(castOp.Operand.Type);
+                if (enumType != null)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_EnumToString, binaryOp.Syntax.GetLocation(), sourceType.Name));
+                        Rule_EnumToString, GetReportLocation(binaryOp), enumType.Name));
 
                     return;
                 }
@@ -320,31 +321,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                                    DiagnosticDescriptor genericDescriptor
             )
         {
-            if (symbol == null)
+            var (enumType, isGeneric) = GetEnumInfo(symbol);
+            if (enumType == null)
                 return;
 
-            if (IsEnumDerivedType(symbol))
+            if (!isGeneric)
             {
-                // check if cast is from enum to nullable enum
-                if (castOp.Type is INamedTypeSymbol namedType
-                 && namedType.IsGenericType
-                 && namedType.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T
-                 && SymbolEqualityComparer.Default.Equals(namedType.TypeArguments[0], symbol))
+                // check if cast is from enum to nullable enum or vice versa
+                var (targetType, _) = GetEnumInfo(castOp.Type);
+                var (sourceType, _) = GetEnumInfo(castOp.Operand.Type);
+
+                if (SymbolEqualityComparer.Default.Equals(targetType, sourceType))
                 {
                     return;
                 }
 
                 context.ReportDiagnostic(Diagnostic.Create(
-                    concreteDescriptor, castOp.Syntax.GetLocation(), symbol.Name));
+                    concreteDescriptor, GetReportLocation(castOp), enumType.Name));
             }
-            // generic type parameter??
-            else if (symbol is ITypeParameterSymbol typeParamSymbol)
+            else
             {
-                if (HasEnumConstraint(typeParamSymbol))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        genericDescriptor, castOp.Syntax.GetLocation(), typeParamSymbol.Name));
-                }
+                context.ReportDiagnostic(Diagnostic.Create(
+                    genericDescriptor, GetReportLocation(castOp), enumType.Name));
             }
         }
 
@@ -767,7 +765,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSuppressed(IOperation op)
         {
-            if (op.Parent is IVariableInitializerOperation initOp &&
+            var targetOp = op;
+            while (targetOp.Parent != null && (
+                   targetOp.Parent is IInterpolationOperation
+                || targetOp.Parent is IInterpolatedStringOperation
+                || targetOp.Parent is IConditionalAccessOperation
+                || targetOp.Parent is IConditionalAccessInstanceOperation
+                || targetOp.Parent is IConversionOperation
+                || targetOp.Parent is IBinaryOperation))
+            {
+                if (targetOp is IInvocationOperation) break;
+
+                targetOp = targetOp.Parent;
+            }
+
+            if (targetOp.Parent is IVariableInitializerOperation initOp &&
                 initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
                 declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
                 declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
@@ -775,9 +787,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return IsSuppressedByComment(localDecl);
             }
 
-            if (op.Syntax.Parent is StatementSyntax statement)
+            if (targetOp.Syntax.Parent is StatementSyntax statement)
             {
                 return IsSuppressedByComment(statement);
+            }
+
+            if (targetOp.Syntax is StatementSyntax selfStatement)
+            {
+                return IsSuppressedByComment(selfStatement);
             }
 
             return false;
@@ -809,6 +826,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool HasEnumConstraint(ITypeParameterSymbol symbol)
         {
             return symbol.ConstraintTypes.Any(static x => x.SpecialType == SpecialType.System_Enum);
+        }
+
+        private static Location GetReportLocation(IOperation op)
+        {
+            var targetOp = op;
+            while (targetOp.Parent is IConditionalAccessOperation or IConditionalAccessInstanceOperation)
+            {
+                targetOp = targetOp.Parent;
+            }
+            return targetOp.Syntax.GetLocation();
+        }
+
+        private static (ITypeSymbol? enumType, bool isGeneric) GetEnumInfo(ITypeSymbol? symbol)
+        {
+            if (symbol == null) return (null, false);
+
+            if (symbol.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T && symbol is INamedTypeSymbol namedType)
+            {
+                symbol = namedType.TypeArguments[0];
+            }
+
+            if (IsEnumDerivedType(symbol)) return (symbol, false);
+
+            if (symbol is ITypeParameterSymbol typeParam && HasEnumConstraint(typeParam)) return (symbol, true);
+
+            return (null, false);
         }
 
     }
