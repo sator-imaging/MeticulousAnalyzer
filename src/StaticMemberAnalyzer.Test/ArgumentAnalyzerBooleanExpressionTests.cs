@@ -10,7 +10,7 @@ using VerifyFix = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class ArgumentAnalyzerNewTests
+    public class ArgumentAnalyzerBooleanExpressionTests
     {
         [TestMethod]
         public async Task TestBooleanBinaryOperationDiagnostic()
@@ -21,7 +21,7 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(int x, int y)
+        public void Test(float x, float y)
         {
             Foo({|#0:x == y|});
         }
@@ -41,7 +41,7 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(int x, int y)
+        public void Test(float x, float y)
         {
             Foo([|x == y|]);
         }
@@ -54,7 +54,7 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(int x, int y)
+        public void Test(float x, float y)
         {
             Foo(b: x == y);
         }
@@ -72,8 +72,8 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int i, bool b) {}
-        public void Test(int x, int y)
+        public void Foo(float i, bool b) {}
+        public void Test(float x, float y)
         {
             Foo(1, {|#0:x == y|});
         }
@@ -92,8 +92,8 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int a, int i) {}
-        public void Test(int x, int y)
+        public void Foo(float a, float i) {}
+        public void Test(float x, float y)
         {
             Foo(1, {|#0:x + y|});
         }
@@ -114,15 +114,15 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(int i) {}
-        public void Test(int x, int y)
+        public void Foo(float i) {}
+        public void Test(float x, float y)
         {
             Foo(x + y);
         }
     }
 }
 ";
-            // First argument int is exempt for methods.
+            // First argument float is exempt for methods.
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -141,6 +141,26 @@ namespace Test
     [My({|#0:1 == 1|})]
     public class CTest
     {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestBooleanUnaryOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(bool b)
+        {
+            Foo({|#0:!b|});
+        }
     }
 }
 ";
