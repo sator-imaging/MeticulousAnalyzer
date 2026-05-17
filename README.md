@@ -18,7 +18,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
-- [Async Task Analysis](#async-task-analysis) to detect missing await on `Task` or `ValueTask`
+- [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - `struct` parameter-less constructor misuse analysis
 - `TSelf` generic type argument & type constraint analysis
 - File header comment enforcement
@@ -434,7 +434,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 &nbsp;
 
-# Async Task Analysis
+# Async Context Analysis
 
 Analyze if `Task` or `ValueTask` (including their generic versions) local variables are correctly awaited or returned on all code paths.
 
