@@ -18,7 +18,7 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 - [読み取り専用変数解析](#読み取り専用変数解析) でローカル/引数への代入と可変な引数受け渡しを検出
 - [`Enum` アナライザーとコード修正プロバイダー](#enum-アナライザーとコード修正プロバイダー) でユーザー側の値変換を禁止し、[Kotlin 風 Enum パターン](#kotlin-風-enum-パターン) も検査
 - [Disposable アナライザー](#disposable-アナライザー) で `using` の欠落を検出
-- [Async Task 解析](#async-task-解析) で `Task` または `ValueTask` の await 欠落を検出
+- [Async Context 解析](#async-context-解析) で `Task` または `ValueTask` の await 欠落を検出
 - `struct` の引数なしコンストラクター誤用解析
 - `TSelf` ジェネリック型引数と型制約の解析
 - ファイルヘッダーコメントの強制
@@ -434,7 +434,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 &nbsp;
 
-# Async Task 解析
+# Async Context 解析
 
 `Task` または `ValueTask` (ジェネリック版を含む) のローカル変数が、すべてのコードパスで正しく await または return されているかを解析します。
 
