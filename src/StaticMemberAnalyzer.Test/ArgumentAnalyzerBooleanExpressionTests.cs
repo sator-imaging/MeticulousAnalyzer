@@ -21,7 +21,7 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(float x, float y)
+        public void Test(int x, int y)
         {
             Foo({|#0:x == y|});
         }
@@ -41,7 +41,7 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(float x, float y)
+        public void Test(int x, int y)
         {
             Foo([|x == y|]);
         }
@@ -54,7 +54,7 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(float x, float y)
+        public void Test(int x, int y)
         {
             Foo(b: x == y);
         }
@@ -72,10 +72,30 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(float i, bool b) {}
-        public void Test(float x, float y)
+        public void Foo(int i, bool b) {}
+        public void Test(int x, int y)
         {
             Foo(1, {|#0:x == y|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestBooleanUnaryOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(bool b)
+        {
+            Foo({|#0:!b|});
         }
     }
 }
@@ -92,18 +112,15 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(float a, float i) {}
-        public void Test(float x, float y)
+        public void Foo(int a, int i) {}
+        public void Test(int x, int y)
         {
-            Foo(1, {|#0:x + y|});
+            Foo(1, x + y);
         }
     }
 }
 ";
-            // Non-boolean binary operations at non-first positions are now reported because they are
-            // included in IsPossibleOperation but not exempt by IsOmittableType (which only handles index 0).
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("i");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -114,15 +131,14 @@ namespace Test
 {
     public class CTest
     {
-        public void Foo(float i) {}
-        public void Test(float x, float y)
+        public void Foo(int i) {}
+        public void Test(int x, int y)
         {
             Foo(x + y);
         }
     }
 }
 ";
-            // First argument float is exempt for methods.
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -149,7 +165,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanUnaryOperationDiagnostic()
+        public async Task TestBooleanOperationCodeFix()
         {
             var test = @"
 namespace Test
@@ -157,9 +173,81 @@ namespace Test
     public class CTest
     {
         public void Foo(bool b) {}
-        public void Test(bool b)
+        public void Test(int x)
         {
-            Foo({|#0:!b|});
+            Foo([|x is not 0 and not 1|]);
+        }
+    }
+}
+";
+            var fixedCode = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int x)
+        {
+            Foo(b: x is not 0 and not 1);
+        }
+    }
+}
+";
+            await VerifyFix.VerifyCodeFixAsync(test, fixedCode);
+        }
+
+        [TestMethod]
+        public async Task TestBooleanPatternOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int x)
+        {
+            Foo({|#0:x is not 0 and not 1|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestSimpleBooleanPatternOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int x)
+        {
+            Foo({|#0:x is 0|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestComplexBooleanPatternOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int? x)
+        {
+            Foo({|#0:x is > 42 and < 310 or null|});
         }
     }
 }
