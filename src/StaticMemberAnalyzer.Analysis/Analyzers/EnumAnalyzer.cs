@@ -23,6 +23,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EnumAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Allow enum conversion";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_CastToEnum = "SMA0020";
@@ -182,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
-                if (IsSuppressed(op))
+                if (IsSuppressed(op, SuppressionComment))
                     return;
 
                 //string??
@@ -245,7 +247,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (enumType != null)
             {
-                if (IsSuppressed(op))
+                if (IsSuppressed(op, SuppressionComment))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -282,7 +284,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (IsSuppressed(op))
+            if (IsSuppressed(op, SuppressionComment))
                 return;
 
             AnalyzeCast_Impl(context, op);
@@ -763,7 +765,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  helper  ================================================================ */
 
-        private static bool IsSuppressed(IOperation op)
+        private static bool IsSuppressed(IOperation op, string suppressionComment)
         {
             var targetOp = op;
             while (targetOp.Parent != null && (
@@ -784,26 +786,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
                 declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
             {
-                return IsSuppressedByComment(localDecl);
+                return Core.IsSuppressedByComment(localDecl, suppressionComment);
             }
 
             if (targetOp.Syntax.Parent is StatementSyntax statement)
             {
-                return IsSuppressedByComment(statement);
+                return Core.IsSuppressedByComment(statement, suppressionComment);
             }
 
             if (targetOp.Syntax is StatementSyntax selfStatement)
             {
-                return IsSuppressedByComment(selfStatement);
+                return Core.IsSuppressedByComment(selfStatement, suppressionComment);
             }
 
             return false;
-        }
-
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Allow enum conversion";
-            return Core.IsSuppressedByComment(node, SuppressionComment);
         }
 
 

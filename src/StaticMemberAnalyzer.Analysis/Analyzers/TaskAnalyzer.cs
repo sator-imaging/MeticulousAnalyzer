@@ -17,6 +17,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TaskAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Don't await";
+
         public const string RuleId_MissingAwait = "SMA0070";
         private static readonly DiagnosticDescriptor Rule_MissingAwait = new(
             RuleId_MissingAwait,
@@ -74,7 +76,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var statement = syntax.Ancestors().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
-            if (IsSuppressedByComment(statement))
+            if (Core.IsSuppressedByComment(statement, SuppressionComment))
             {
                 return;
             }
@@ -106,11 +108,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return IsTask(type.BaseType);
         }
 
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Don't await";
-            return Core.IsSuppressedByComment(node, SuppressionComment);
-        }
 
         private static bool IsTaskAwaitedOrReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)
         {

@@ -21,6 +21,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposableAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Don't dispose";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_MissingUsing = "SMA0040";
@@ -274,12 +276,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  internal  ================================================================ */
-
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Don't dispose";
-            return Core.IsSuppressedByComment(node, SuppressionComment);
-        }
 
 
 #pragma warning disable RS1008
@@ -634,7 +630,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 return true;
                             }
 
-                            if (IsSuppressedByComment(localVarStx))
+                            if (Core.IsSuppressedByComment(localVarStx, SuppressionComment))
                             {
                                 return true;
                             }
@@ -681,7 +677,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (leftSymbol?.Kind is SymbolKind.Discard)
                         {
                             // Won't allow silent suppression
-                            if (IsSuppressedByComment(assignStx))
+                            if (Core.IsSuppressedByComment(assignStx, SuppressionComment))
                             {
                                 return true;
                             }
