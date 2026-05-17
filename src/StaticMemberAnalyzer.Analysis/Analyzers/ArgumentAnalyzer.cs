@@ -52,9 +52,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            bool isNullOrDefaultLiteral = false;
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation != null &&
-                !IsPossibleOperation(operation, out operation))
+                !IsPossibleOperation(operation, out isNullOrDefaultLiteral))
             {
                 return;
             }
@@ -68,9 +69,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var argIndex = argListStx.Arguments.IndexOf(argStx);
             if (argIndex == 0)
             {
-                if (operation != null &&
-                    IsOmittableType(operation, isConstructor: true) &&
-                    !IsNullOrDefaultLiteral(operation))
+                if (!isNullOrDefaultLiteral &&
+                    operation != null &&
+                    IsOmittableType(operation, isConstructor: true))
                 {
                     return;
                 }
@@ -128,14 +129,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var argValue = argOp.Value;
 
-            if (!IsPossibleOperation(argValue, out argValue))
+            if (!IsPossibleOperation(argValue, out var isNullOrDefaultLiteral))
             {
                 return;
             }
 
             // int, string or char is allowed if it's the first argument.
             // But 'null', 'default', or 'default(T)' is not allowed at all.
-            if (!IsNullOrDefaultLiteral(argValue))
+            if (!isNullOrDefaultLiteral)
             {
                 var invocationOp = argOp.Parent as IInvocationOperation;
 
@@ -194,7 +195,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsPossibleOperation(IOperation operation, out IOperation actual)
+        private static bool IsPossibleOperation(IOperation operation, out bool isNullOrDefaultLiteral)
         {
             // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
             if (operation.Kind is OperationKind.Conversion &&
@@ -203,21 +204,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 operation = unwrapped;
             }
 
-            // Compile-time constant (number, enum, etc)
-            actual = operation;
-            return operation.Kind is OperationKind.Literal
-                                  or OperationKind.ConstantPattern
-                                  or OperationKind.DefaultValue  // Rare case. Check at last.
-                                  ;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsNullOrDefaultLiteral(IOperation operation)
-        {
             // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
-            return operation is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } }
-                || operation.Kind is OperationKind.DefaultValue  // Rare case. Check at last.
+            isNullOrDefaultLiteral
+                = operation is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } }
+                || operation.Kind is OperationKind.DefaultValue
                 ;
+
+            return operation.Kind is OperationKind.Literal
+                                  // Not required: `case 1` or `x is 2` (Not IsPatternOperator)
+                                  //or OperationKind.ConstantPattern
+                                  or OperationKind.DefaultValue
+                                  ;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

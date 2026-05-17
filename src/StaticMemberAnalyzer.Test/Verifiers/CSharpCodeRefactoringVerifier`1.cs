@@ -28,8 +28,8 @@ namespace StaticMemberAnalyzer.Test
         {
             var test = new Test
             {
-                TestCode = source,
-                FixedCode = fixedSource,
+                TestCode = source.ReplaceLineEndings(),
+                FixedCode = fixedSource.ReplaceLineEndings(),
             };
 
             test.ExpectedDiagnostics.AddRange(expected);
