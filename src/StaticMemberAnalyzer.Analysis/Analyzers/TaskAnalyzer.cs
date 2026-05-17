@@ -109,20 +109,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
             const string SuppressionComment = "// Don't await";
-
-            if (node == null)
-            {
-                return false;
-            }
-
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .Cast<SyntaxTrivia>()
-                .FirstOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
+            return Core.IsSuppressedByComment(node, SuppressionComment);
         }
 
         private static bool IsTaskAwaitedOrReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)

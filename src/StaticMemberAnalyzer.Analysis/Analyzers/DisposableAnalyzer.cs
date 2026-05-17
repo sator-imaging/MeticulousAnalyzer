@@ -278,16 +278,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsSuppressedByComment(SyntaxNode? node)
         {
             const string SuppressionComment = "// Don't dispose";
-
-            if (node == null) return false;
-
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
+            return Core.IsSuppressedByComment(node, SuppressionComment);
         }
 
 

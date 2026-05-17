@@ -272,5 +272,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             return buffer.ToString();
         }
 
+
+        /*  suppression  ================================================================ */
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment)
+        {
+            if (node == null) return false;
+
+            var comment = node
+                .GetFirstToken()
+                .LeadingTrivia
+                .FirstOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+
+            return comment != default
+                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
     }
 }
