@@ -177,9 +177,6 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 
 (can suppress by comment `// Allow enum conversion`; see [Suppression Comment](#suppression-comment) section for detail)
 
-> [!NOTE]
-> This suppression is effective for initial local variable declarations. Regular assignments and discard assignments to existing variables cannot be suppressed by comments.
-
 
 ## Excluding Enum Type from Obfuscation
 
@@ -336,11 +333,6 @@ Analyzer won't show warning in the following condition:
 
 (can suppress by comment `// Don't dispose`; see [Suppression Comment](#suppression-comment) section for detail)
 
-> [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
->
-> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
-
 
 
 ## Disposable Implementation Analysis
@@ -421,9 +413,6 @@ async Task Method()
 
 (can suppress by comment `// Don't await`; see [Suppression Comment](#suppression-comment) section for detail)
 
-> [!NOTE]
-> This suppression is effective for initial local variable declarations. Regular assignments to existing variables cannot be suppressed by comments.
-
 
 
 
@@ -434,8 +423,13 @@ async Task Method()
 
 Add a single-line comment starting with a specific string (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
 
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+>
+> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+
 ```cs
-// Suppression comment here
+// Don't dispose
 var x = ...;
 
 // Multiple single line comments are allowed but suppression comment must be the first.
@@ -446,7 +440,7 @@ var x = ...;
 // (Blank lines are ignored when searching for the first comment)
 
 // NOTE:
-// Suppression comment here
+// Don't dispose
 var x = ...;
 ```
 
