@@ -1,8 +1,8 @@
+.*
+/*
 bin
 obj
-.*
 
-/*
 !.github
 !assets
 !src
@@ -14,7 +14,6 @@ obj
 !*.slnx
 
 *.md
-!README.md
-!README.*.md
+!README*.md
 !LICENSE.md
 !RULES.md
