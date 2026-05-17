@@ -52,10 +52,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            bool isNullOrDefaultLiteral = false;
+            bool requireReporting = false;
+
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
             if (operation != null &&
-                !IsPossibleOperation(operation, out isNullOrDefaultLiteral))
+                !IsPossibleOperation(operation, out requireReporting))
             {
                 return;
             }
@@ -65,16 +66,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // string or char is allowed if it's the first argument.
             var argIndex = argListStx.Arguments.IndexOf(argStx);
-            if (argIndex == 0)
+
+            // string or char is allowed if it's the first argument.
+            if (!requireReporting &&
+                argIndex == 0 &&
+                operation != null &&
+                IsOmittableType(operation, isConstructor: true))
             {
-                if (!isNullOrDefaultLiteral &&
-                    operation != null &&
-                    IsOmittableType(operation, isConstructor: true))
-                {
-                    return;
-                }
+                return;
             }
 
             string parameterName = UnknownParameterName;
@@ -129,14 +129,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var argValue = argOp.Value;
 
-            if (!IsPossibleOperation(argValue, out var isNullOrDefaultLiteral))
+            if (!IsPossibleOperation(argValue, out var requireReporting))
             {
                 return;
             }
 
             // int, string or char is allowed if it's the first argument.
             // But 'null', 'default', or 'default(T)' is not allowed at all.
-            if (!isNullOrDefaultLiteral)
+            if (!requireReporting)
             {
                 var invocationOp = argOp.Parent as IInvocationOperation;
 
@@ -194,8 +194,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return (unwrapped = value) != null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsPossibleOperation(IOperation operation, out bool isNullOrDefaultLiteral)
+        private static bool IsPossibleOperation(IOperation operation, out bool requireReporting)
         {
             // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
             if (operation.Kind is OperationKind.Conversion &&
@@ -205,16 +204,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
-            isNullOrDefaultLiteral
+            var isNullOrDefaultLiteral
                 = operation is ILiteralOperation { ConstantValue: { HasValue: true, Value: null } }
                 || operation.Kind is OperationKind.DefaultValue
                 ;
 
-            return operation.Kind is OperationKind.Literal
-                                  // Not required: `case 1` or `x is 2` (Not IsPatternOperator)
-                                  //or OperationKind.ConstantPattern
-                                  or OperationKind.DefaultValue
-                                  ;
+            // Don't allow omitting named argument for inline boolean expressions.
+            //   ex. 'x == y', 'x is not 0 and not 1' or etc.
+            if (!isNullOrDefaultLiteral &&
+                operation
+                    // BUG: The following pattern doesn't work as expected (can be compiled but result is not correct).
+                    //      --> operation is (A or B) { Type: { SpecialType: Boolean} }
+                    is IBinaryOperation { Type: { SpecialType: SpecialType.System_Boolean } }
+                    or IUnaryOperation { Type: { SpecialType: SpecialType.System_Boolean } }
+                    // NOTE: IIsPatternOperation doesn't implement IPatternOperation
+                    or IIsPatternOperation { Type: { SpecialType: SpecialType.System_Boolean } }
+            )
+            {
+                requireReporting = true;
+                return true;
+            }
+            else
+            {
+                requireReporting = isNullOrDefaultLiteral;
+                return operation.Kind is OperationKind.Literal
+                                      // Not required: `case 1` or `x is 2` (Not IsPatternOperator)
+                                      //or OperationKind.ConstantPattern
+                                      or OperationKind.DefaultValue
+                                      ;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

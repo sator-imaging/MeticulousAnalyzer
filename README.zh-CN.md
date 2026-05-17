@@ -449,7 +449,7 @@ Foo(timeoutSeconds, maxThreads: 0, ignoreErrors: true);
 ```
 
 > [!NOTE]
-> `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。请注意，`null` 和 `default` 字面量不能省略命名参数。
+> `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。请注意，`null` 和 `default` 字面量，以及 boolean 表达式（例如 `foo == bar`）不能省略命名参数。
 
 
 
