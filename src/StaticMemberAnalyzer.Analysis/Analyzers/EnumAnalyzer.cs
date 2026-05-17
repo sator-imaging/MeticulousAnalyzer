@@ -184,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
-                if (Core.IsSuppressedByComment(op.Syntax.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault(), SuppressionComment))
+                if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment))
                     return;
 
                 //string??
@@ -247,7 +247,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (enumType != null)
             {
-                if (Core.IsSuppressedByComment(context.Operation.Syntax.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault(), SuppressionComment))
+                if (Core.IsSuppressedByComment(context.Operation.Syntax, SuppressionComment))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -284,7 +284,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (Core.IsSuppressedByComment(op.Syntax.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault(), SuppressionComment))
+            if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment))
                 return;
 
             AnalyzeCast_Impl(context, op);
