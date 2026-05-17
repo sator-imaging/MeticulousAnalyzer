@@ -493,5 +493,52 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7, expected8, expected9, expected10, expected11, expected12, expected13, expected14, expected15, expected16, expected17, expected18, expected19, expected20, expected21, expected22, expected23, expected24, expected25, expected26, expected27);
         }
+
+        [TestMethod]
+        public async Task TestImplicitConversion()
+        {
+            var test = @"
+#nullable enable
+namespace Test
+{
+    interface IMyClass { }
+    class MyClass : IMyClass
+    {
+        public MyClass(MyClass? other) { }
+        public MyClass(IMyClass? other) { }
+
+        public IMyClass Instance { get; } = new MyClass(other: null);
+
+        static void Foo(MyClass value) { }
+        static void Foo(IMyClass value) { }
+
+        public void PropertyAccessTest(MyClass other)
+        {
+            Foo(this.Instance);
+            Foo(other.Instance);
+            Foo(new(this.Instance));
+            Foo(new(other.Instance));
+            Foo(new MyClass(this.Instance));
+            Foo(new MyClass(other.Instance));
+
+            new MyClass(this.Instance);
+            new MyClass(other.Instance);
+            new MyClass(new(this.Instance));
+            new MyClass(new(other.Instance));
+            new MyClass(new MyClass(this.Instance));
+            new MyClass(new MyClass(other.Instance));
+
+            MyClass x1 = new(this.Instance);
+            MyClass x2 = new(other.Instance);
+            MyClass x3 = new(new(this.Instance));
+            MyClass x4 = new(new(other.Instance));
+            MyClass x5 = new(new MyClass(this.Instance));
+            MyClass x6 = new(new MyClass(other.Instance));
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
