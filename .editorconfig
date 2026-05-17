@@ -1,5 +1,4 @@
 [*.cs]
-dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = silent
 dotnet_diagnostic.SMA0060.severity = silent
 dotnet_diagnostic.SMA0061.severity = silent
 dotnet_diagnostic.SMA0062.severity = silent
@@ -11,4 +10,5 @@ dotnet_diagnostic.SMA0067.severity = silent
 dotnet_diagnostic.SMA0068.severity = silent
 dotnet_diagnostic.SMA0069.severity = silent
 
-dotnet_diagnostic.SMA8000.severity = silent
+##dotnet_diagnostic.SMA8000.severity = silent
+##dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = silent
