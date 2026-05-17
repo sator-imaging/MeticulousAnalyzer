@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.FlowAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -52,16 +52,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
         {
-            if (context.Operation is not IVariableDeclaratorOperation declarator) return;
-            var local = declarator.Symbol;
-            if (!IsTask(local.Type)) return;
+            if (context.Operation is not IVariableDeclaratorOperation declarator)
+            {
+                return;
+            }
 
-            if (declarator.Syntax is not VariableDeclaratorSyntax syntax) return;
-            if (syntax.Initializer == null) return;
+            var local = declarator.Symbol;
+            if (!IsTask(local.Type))
+            {
+                return;
+            }
+
+            if (declarator.Syntax is not VariableDeclaratorSyntax syntax)
+            {
+                return;
+            }
+
+            if (syntax.Initializer == null)
+            {
+                return;
+            }
 
             var statement = syntax.Ancestors().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
             if (IsSuppressedByComment(statement))
+            {
                 return;
+            }
 
             if (IsTaskAwaitedOrReturned(context, syntax, out var inAllCodePaths))
             {
@@ -77,7 +93,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsTask(ITypeSymbol? type)
         {
-            if (type == null) return false;
+            if (type == null)
+            {
+                return false;
+            }
 
             if (type is INamedTypeSymbol { Name: "Task" or "ValueTask", ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } } } })
             {
@@ -91,7 +110,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             const string SuppressionComment = "// Don't await";
 
-            if (node == null) return false;
+            if (node == null)
+            {
+                return false;
+            }
 
             var comment = node
                 .GetFirstToken()
@@ -108,12 +130,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             inAllCodePaths = false;
 
             var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
-            if (enclosingMember == null) return false;
+            if (enclosingMember == null)
+            {
+                return false;
+            }
 
             var semanticModel = context.Operation.SemanticModel;
-            if (semanticModel == null) return false;
+            if (semanticModel == null)
+            {
+                return false;
+            }
+
             var localSymbol = (ILocalSymbol?)semanticModel.GetDeclaredSymbol(variableDeclarator);
-            if (localSymbol == null) return false;
+            if (localSymbol == null)
+            {
+                return false;
+            }
 
             ControlFlowGraph cfg;
             try
@@ -135,8 +167,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 bool isHandled = false;
 
                 var operations = new List<IOperation>(block.Operations.Length + 1);
-                foreach (var op in block.Operations) operations.Add(op);
-                if (block.BranchValue != null) operations.Add(block.BranchValue);
+                foreach (var op in block.Operations)
+                {
+                    operations.Add(op);
+                }
+
+                if (block.BranchValue != null)
+                {
+                    operations.Add(block.BranchValue);
+                }
 
                 foreach (var op in operations)
                 {
@@ -150,7 +189,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (desc is IAwaitOperation awaitOp)
                         {
                             var operand = awaitOp.Operation;
-                            while (operand is IConversionOperation conv) operand = conv.Operand;
+                            while (operand is IConversionOperation conv)
+                            {
+                                operand = conv.Operand;
+                            }
+
                             if (operand is ILocalReferenceOperation lr && SymbolEqualityComparer.Default.Equals(lr.Local, localSymbol))
                             {
                                 isHandled = true;
@@ -160,7 +203,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         else if (desc is IReturnOperation returnOp && returnOp.ReturnedValue != null)
                         {
                             var val = returnOp.ReturnedValue;
-                            while (val is IConversionOperation conv) val = conv.Operand;
+                            while (val is IConversionOperation conv)
+                            {
+                                val = conv.Operand;
+                            }
+
                             if (val is ILocalReferenceOperation lr && SymbolEqualityComparer.Default.Equals(lr.Local, localSymbol))
                             {
                                 isHandled = true;
@@ -169,14 +216,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                         else if (desc is ILocalReferenceOperation lr && SymbolEqualityComparer.Default.Equals(lr.Local, localSymbol))
                         {
-                            if (object.ReferenceEquals(op, block.BranchValue) && block.FallThroughSuccessor?.Destination.Kind == BasicBlockKind.Exit)
+                            if (op == block.BranchValue && block.FallThroughSuccessor?.Destination.Kind == BasicBlockKind.Exit)
                             {
                                 isHandled = true;
                                 break;
                             }
                         }
                     }
-                    if (isHandled) break;
+                    if (isHandled)
+                    {
+                        break;
+                    }
                 }
 
                 if (isHandled)
@@ -185,8 +235,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (handledBlocks.Count == 0) return false;
-            if (declarationBlock == -1) return false;
+            if (handledBlocks.Count == 0)
+            {
+                return false;
+            }
+
+            if (declarationBlock == -1)
+            {
+                return false;
+            }
 
             var visited = new HashSet<int>();
             var stack = new Stack<int>();
@@ -195,8 +252,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             while (stack.Count > 0)
             {
                 int currentOrdinal = stack.Pop();
-                if (visited.Contains(currentOrdinal)) continue;
-                if (handledBlocks.Contains(currentOrdinal)) continue;
+                if (visited.Contains(currentOrdinal))
+                {
+                    continue;
+                }
+
+                if (handledBlocks.Contains(currentOrdinal))
+                {
+                    continue;
+                }
 
                 visited.Add(currentOrdinal);
                 var currentBlock = allBlocks[currentOrdinal];
@@ -208,9 +272,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 if (currentBlock.FallThroughSuccessor != null)
+                {
                     stack.Push(currentBlock.FallThroughSuccessor.Destination.Ordinal);
+                }
+
                 if (currentBlock.ConditionalSuccessor != null)
+                {
                     stack.Push(currentBlock.ConditionalSuccessor.Destination.Ordinal);
+                }
             }
 
             inAllCodePaths = true;
