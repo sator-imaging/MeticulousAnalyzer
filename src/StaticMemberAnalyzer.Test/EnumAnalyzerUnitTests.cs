@@ -353,18 +353,15 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        public void Test()
+        public void Test(ETest x)
         {
-            ETest x;
-
             // Allow enum conversion
-            x = {|#0:(ETest)1|};
+            x = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -382,13 +379,12 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            _ = {|#0:(ETest)1|};
+            _ = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -406,7 +402,7 @@ namespace Test
         public void Test()
         {
             //Allow enum conversion
-            var x = {|#0:(ETest)1|};
+            _ = {|#0:(ETest)1|};
         }
     }
 }
@@ -605,13 +601,12 @@ namespace Test
         public void Test(bool some)
         {
             // Allow enum conversion
-            if (some && {|#0:Enum.IsDefined(typeof(ETest), 0)|}) { }
+            if (some && Enum.IsDefined(typeof(ETest), 0)) { }
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -631,13 +626,12 @@ namespace Test
         public void Test(int[] some)
         {
             // Allow enum conversion
-            foreach (var v in some.Where(x => {|#0:Enum.IsDefined(typeof(ETest), x)|})) { }
+            foreach (var v in some.Where(x => Enum.IsDefined(typeof(ETest), x))) { }
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -656,13 +650,12 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            _ = {|#0:Enum.GetValues(typeof(ETest))|};
+            _ = Enum.GetValues(typeof(ETest));
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

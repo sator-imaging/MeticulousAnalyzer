@@ -184,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
-                if (IsSuppressed(op, SuppressionComment))
+                if (Core.IsSuppressedByComment(op.Syntax.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault(), SuppressionComment))
                     return;
 
                 //string??
@@ -247,7 +247,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (enumType != null)
             {
-                if (IsSuppressed(op, SuppressionComment))
+                if (Core.IsSuppressedByComment(context.Operation.Syntax.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault(), SuppressionComment))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -284,7 +284,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (IsSuppressed(op, SuppressionComment))
+            if (Core.IsSuppressedByComment(op.Syntax.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault(), SuppressionComment))
                 return;
 
             AnalyzeCast_Impl(context, op);
@@ -764,43 +764,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  helper  ================================================================ */
-
-        private static bool IsSuppressed(IOperation op, string suppressionComment)
-        {
-            var targetOp = op;
-            while (targetOp.Parent != null && (
-                   targetOp.Parent is IInterpolationOperation
-                || targetOp.Parent is IInterpolatedStringOperation
-                || targetOp.Parent is IConditionalAccessOperation
-                || targetOp.Parent is IConditionalAccessInstanceOperation
-                || targetOp.Parent is IConversionOperation
-                || targetOp.Parent is IBinaryOperation))
-            {
-                if (targetOp is IInvocationOperation) break;
-
-                targetOp = targetOp.Parent;
-            }
-
-            if (targetOp.Parent is IVariableInitializerOperation initOp &&
-                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
-                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
-                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
-            {
-                return Core.IsSuppressedByComment(localDecl, suppressionComment);
-            }
-
-            if (targetOp.Syntax.Parent is StatementSyntax statement)
-            {
-                return Core.IsSuppressedByComment(statement, suppressionComment);
-            }
-
-            if (targetOp.Syntax is StatementSyntax selfStatement)
-            {
-                return Core.IsSuppressedByComment(selfStatement, suppressionComment);
-            }
-
-            return false;
-        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
