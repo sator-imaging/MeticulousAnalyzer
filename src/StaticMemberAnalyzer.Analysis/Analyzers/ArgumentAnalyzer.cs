@@ -214,7 +214,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (!isNullOrDefaultLiteral &&
                 operation
                     // BUG: The following pattern doesn't work as expected (can be compiled but result is not correct).
-                    //      --> operation is A or B { Type: { SpecialType: Boolean} }
+                    //      --> operation is (A or B) { Type: { SpecialType: Boolean} }
                     is IBinaryOperation { Type: { SpecialType: SpecialType.System_Boolean } }
                     or IUnaryOperation { Type: { SpecialType: SpecialType.System_Boolean } }
                     // NOTE: IIsPatternOperation doesn't implement IPatternOperation
