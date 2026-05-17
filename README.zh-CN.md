@@ -173,9 +173,7 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-**通过注释抑制**
-
-> [!NOTE]
+> [!TIP]
 > 可以通过注释 `// Allow enum conversion` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
@@ -330,9 +328,7 @@ d = (new object()) as IDisposable;
 
 
 
-**通过注释抑制**
-
-> [!NOTE]
+> [!TIP]
 > 可以通过注释 `// Don't dispose` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
@@ -411,9 +407,7 @@ async Task Method()
 ```
 
 
-**通过注释抑制**
-
-> [!NOTE]
+> [!TIP]
 > 可以通过注释 `// Don't await` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
@@ -435,6 +429,7 @@ async Task Method()
 // Don't dispose
 var x = ...;
 
+// Don't dispose
 // 允许使用多个单行注释，但抑制注释必须是第一行。
 // 这是因为分析器会查找该标记的第一个注释琐事（trivia）。
 var x = ...;

@@ -173,9 +173,7 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-**Suppress by Comment**
-
-> [!NOTE]
+> [!TIP]
 > can suppress by comment `// Allow enum conversion`; see [Suppression Comment](#suppression-comment) section for detail
 
 
@@ -330,9 +328,7 @@ Analyzer won't show warning in the following condition:
 
 
 
-**Suppress by Comment**
-
-> [!NOTE]
+> [!TIP]
 > can suppress by comment `// Don't dispose`; see [Suppression Comment](#suppression-comment) section for detail
 
 
@@ -411,9 +407,7 @@ async Task Method()
 ```
 
 
-**Suppress by Comment**
-
-> [!NOTE]
+> [!TIP]
 > can suppress by comment `// Don't await`; see [Suppression Comment](#suppression-comment) section for detail
 
 
@@ -435,6 +429,7 @@ Add a single-line comment starting with a specific string (case-insensitive but 
 // Don't dispose
 var x = ...;
 
+// Don't dispose
 // Multiple single line comments are allowed but suppression comment must be the first.
 // This is because analyzer looks for the first comment trivia of the token.
 var x = ...;
