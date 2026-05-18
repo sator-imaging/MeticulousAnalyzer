@@ -64,12 +64,12 @@ namespace Test
             short v_short = 1;
             ushort v_ushort = 1;
             int v_int = 1;
-            uint v_uint = 1u;
-            long v_long = 1L;
-            ulong v_ulong = 1UL;
-            float v_float = 1.0f;
-            double v_double = 1.0;
-            decimal v_decimal = 1.0m;
+            uint v_uint = 1;
+            long v_long = 1;
+            ulong v_ulong = 1;
+            float v_float = 1;
+            double v_double = 1;
+            decimal v_decimal = 1;
         }
     }
 }
