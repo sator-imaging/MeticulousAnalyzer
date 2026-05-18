@@ -200,11 +200,7 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         public static T? FirstOrDefault<T>(this ImmutableArray<T> source)
         {
-            foreach (var item in source)
-            {
-                return item;
-            }
-            return default;
+            return source.IsDefaultOrEmpty ? default : source[0];
         }
 
         public static T? FirstOrDefault<T>(this IEnumerable<T> source)
