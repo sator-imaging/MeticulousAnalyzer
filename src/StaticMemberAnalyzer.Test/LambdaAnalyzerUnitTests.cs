@@ -67,14 +67,17 @@ public class C
     void M()
     {
         Action a1 = {|#0:InstanceMethod|};
-        Action a2 = StaticMethod;
+        Action a2 = {|#1:StaticMethod|};
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected0 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected1 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 1)
+                .WithArguments("System.Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -205,6 +208,37 @@ public class C
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action<string>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestStaticMethodConversionCodeFix()
+        {
+            var test = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i, string s) { }
+    void M()
+    {
+        Action<int, string> a = {|#0:StaticMethod|};
+    }
+}
+";
+            var fixtest = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i, string s) { }
+    void M()
+    {
+        Action<int, string> a = static (i, s) => StaticMethod(i, s);
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("System.Action<int, string>");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
     }

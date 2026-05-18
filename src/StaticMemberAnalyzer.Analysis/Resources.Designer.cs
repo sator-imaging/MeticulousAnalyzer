@@ -1423,7 +1423,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Implicit conversion to &apos;{0}&apos; delegate from instance member に類似しているローカライズされた文字列を検索します。
+        ///   Implicit conversion to &apos;{0}&apos; delegate に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA7001_MessageFormat {
             get {

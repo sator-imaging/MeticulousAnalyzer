@@ -578,7 +578,7 @@
     <value>Implicit conversion to delegate</value>
   </data>
   <data name="SMA7001_MessageFormat" xml:space="preserve">
-    <value>Implicit conversion to '{0}' delegate from instance member</value>
+    <value>Implicit conversion to '{0}' delegate</value>
   </data>
   <data name="SMA7001_Description" xml:space="preserve">
     <value>Implicit conversion to Action or Func delegate from instance member causes allocation. Use lambda or static member instead.</value>

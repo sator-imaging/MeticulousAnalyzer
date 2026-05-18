@@ -63,7 +63,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (!IsActionOrFunc(delegateCreation.Type)) return;
 
             // Don't show warning if the "value" side is static field, method, property or other static member.
-            if (IsStaticMember(unwrapped)) return;
+            // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
+            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
 
             // attribute argument is not required to be analyzed
             if (IsAttributeArgument(delegateCreation.Syntax)) return;
@@ -100,7 +101,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (!IsActionOrFunc(conversion.Type)) return;
 
             // Don't show warning if the "value" side is static field, method, property or other static member.
-            if (IsStaticMember(unwrapped)) return;
+            // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
+            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
 
             // attribute argument is not required to be analyzed
             if (IsAttributeArgument(conversion.Syntax)) return;
@@ -136,6 +138,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return methodRef.Method.IsStatic;
 
             return false;
+        }
+
+        private static bool IsStaticMethodReference(IOperation operation)
+        {
+            var current = UnwrapConversion(operation);
+            return current is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic;
         }
 
         private static bool IsActionOrFunc(ITypeSymbol? type)
