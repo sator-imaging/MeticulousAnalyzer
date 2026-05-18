@@ -1378,15 +1378,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Explicit Number Declaration に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string SMA8001__MD_TITLE__ {
-            get {
-                return ResourceManager.GetString("SMA8001__MD_TITLE__", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   All system primitive numbers, from byte to decimal, should be declared explicitly typed. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA8001_Description {

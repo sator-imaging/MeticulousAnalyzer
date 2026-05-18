@@ -504,14 +504,14 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```cs
 var integer = 1;
 var floating = 1.0;
-//  ~~~~~~~    ~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
+//  ~~~~~~~    ~~~~~~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
 ```
 
 期待されるコード:
 
 ```cs
 long integer = 1;
-double floating = 1.0;
+double floating = 1;
 ```
 
 > [!IMPORTANT]

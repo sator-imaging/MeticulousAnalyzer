@@ -574,7 +574,4 @@
   <data name="SMA8001_MessageFormat" xml:space="preserve">
     <value>Variable '{0}' should be declared with an explicit number type instead of 'var' (ExplicitNumber)</value>
   </data>
-  <data name="SMA8001__MD_TITLE__" xml:space="preserve">
-    <value>Explicit Number Declaration</value>
-  </data>
 </root>

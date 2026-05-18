@@ -504,14 +504,14 @@ All system primitive numbers, from `sbyte` to `decimal`, should be declared with
 ```cs
 var integer = 1;
 var floating = 1.0;
-//  ~~~~~~~    ~~~ reported: variable should be declared with explicit number type
+//  ~~~~~~~    ~~~~~~~~ reported: variable should be declared with an explicit number type
 ```
 
 Expected:
 
 ```cs
 long integer = 1;
-double floating = 1.0;
+double floating = 1;
 ```
 
 > [!IMPORTANT]
