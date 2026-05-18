@@ -416,35 +416,6 @@ async Task Method()
 
 &nbsp;
 
-# Suppression Comment
-
-Add a single-line comment starting with a specific string (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
->
-> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
-
-```cs
-// Don't dispose
-var x = ...;
-
-// Don't dispose
-// Multiple single line comments are allowed but suppression comment must be the first.
-// This is because analyzer looks for the first comment trivia of the token.
-var x = ...;
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// NOTE:
-// Don't dispose
-var x = ...;
-```
-
-
-&nbsp;
-
 # Analysis for Code Review
 
 ## Literal Argument Analysis
@@ -711,3 +682,33 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
 ```
 
 </details>
+
+
+
+
+
+&nbsp;
+
+# Suppression Comment
+
+Add a single-line comment starting with a specific string (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+>
+> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+
+```cs
+// Don't dispose
+var x = ...;
+
+// Don't dispose: Multiple single line comments are allowed,
+// but suppression comment must be the first.
+var x = ...;
+
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
+
+// Don't dispose
+var x = ...;
+```

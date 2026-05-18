@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace AnalyzerCheck;
 
@@ -38,4 +38,20 @@ internal class StructTests
         readonly ReadOnlyStruct readOnlyStruct;
         readonly MutableStruct mutableStruct;
     }
+}
+
+struct MutableStruct_ReadOnlyPrimitifeFields
+{
+    readonly int integer;
+    readonly float number;
+    readonly DateTime temporal;
+    readonly string text;
+}
+
+class Class_ReadOnlyPrimitifeFields
+{
+    readonly int integer;
+    readonly float number;
+    readonly DateTime temporal;
+    readonly string text;
 }
