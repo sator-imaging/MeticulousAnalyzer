@@ -503,7 +503,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 
 ```cs
 var integer = 1;
-var floating = 1.0;
+var floating = 1;
 //  ~~~~~~~    ~~~~~~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
 ```
 
