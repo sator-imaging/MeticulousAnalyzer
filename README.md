@@ -174,7 +174,7 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 
 
 > [!TIP]
-> can suppress by comment `// Allow enum conversion`; see [Suppression Comment](#suppression-comment) section for detail
+> You can suppress by comment `// Allow enum conversion`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 ## Excluding Enum Type from Obfuscation
@@ -329,7 +329,7 @@ Analyzer won't show warning in the following condition:
 
 
 > [!TIP]
-> can suppress by comment `// Don't dispose`; see [Suppression Comment](#suppression-comment) section for detail
+> You can suppress by comment `// Don't dispose`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 
@@ -408,7 +408,7 @@ async Task Method()
 
 
 > [!TIP]
-> can suppress by comment `// Don't await`; see [Suppression Comment](#suppression-comment) section for detail
+> You can suppress by comment `// Don't await`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 
@@ -709,6 +709,6 @@ var x = new MyDisposable();
 // The following WON'T suppress because it's not the first comment line.
 // (Blank lines are ignored when searching for the first comment)
 
-// Don't dispose
+// Don't dispose because...
 var x = new MyDisposable();
 ```

@@ -709,6 +709,6 @@ var x = new MyDisposable();
 // 以下は最初のコメント行ではないため抑制されません。
 // （最初のコメントを検索する際、空白行は無視されます）
 
-// Don't dispose
+// Don't dispose because...
 var x = new MyDisposable();
 ```
