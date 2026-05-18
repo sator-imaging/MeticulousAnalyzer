@@ -382,13 +382,12 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            _ = {|#0:(ETest)1|};
+            _ = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -533,7 +532,7 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            Enum.TryParse<ETest>(""Value"", out _);
+            _ = Enum.TryParse<ETest>(""Value"", out _);
         }
     }
 }
@@ -557,12 +556,13 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            if (Enum.IsDefined(typeof(ETest), 0)) { }
+            if ({|#0:Enum.IsDefined(typeof(ETest), 0)|}) { }
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -581,12 +581,13 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            foreach (var v in Enum.GetValues(typeof(ETest))) { }
+            foreach (var v in {|#0:Enum.GetValues(typeof(ETest))|}) { }
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -656,13 +657,12 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            _ = {|#0:Enum.GetValues(typeof(ETest))|};
+            _ = Enum.GetValues(typeof(ETest));
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

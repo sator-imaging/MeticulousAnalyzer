@@ -1,20 +1,24 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
+//#define STMG_ENABLE_KOTLIN_ENUM
+
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
 #undef STMG_DEBUG_MESSAGE
 #endif
 
-using Microsoft.CodeAnalysis;
+#if STMG_ENABLE_KOTLIN_ENUM
 using Microsoft.CodeAnalysis.CSharp;
+using System.Collections.Generic;
+#endif
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -23,6 +27,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EnumAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Allow enum conversion";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_CastToEnum = "SMA0020";
@@ -177,13 +183,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
             if (context.Operation is not IInvocationOperation op)
+            {
                 return;
+            }
 
             var receiverType = op.TargetMethod.ReceiverType;
             if (receiverType?.SpecialType == SpecialType.System_Enum)
             {
-                if (IsSuppressed(op))
+                if (Core.IsSuppressedByComment(op, SuppressionComment))
+                {
                     return;
+                }
 
                 //string??
                 if (op.TargetMethod.ReturnType.SpecialType == SpecialType.System_String)
@@ -239,14 +249,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // NOTE: okay process only first child, expression inside interpolation will be processed by other analyzer
             //       --> $"value: {"" + enumVal + 0}"  // <-- checked by other analyzer code path
             if (context.Operation.Children.FirstOrDefault() is not IOperation op)
+            {
                 return;
+            }
 
             var (enumType, _) = GetEnumInfo(op.Type);
 
             if (enumType != null)
             {
-                if (IsSuppressed(op))
+                // context.Operation: {foo} -> Parent: $"...{foo}..."
+                if (Core.IsSuppressedByComment(context.Operation.Parent, SuppressionComment))
+                {
                     return;
+                }
 
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_EnumToString, GetReportLocation(context.Operation), enumType.Name));
@@ -259,7 +274,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeCast(OperationAnalysisContext context)
         {
             if (context.Operation is not IConversionOperation op)
+            {
                 return;
+            }
 
             if (op.IsImplicit)
             {
@@ -267,7 +284,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 //       exception instance to switch expression result type
                 //       --> var val = enumValue switch { ..., _ => throw new Exception(); }
                 if (op.Operand is IThrowOperation)
+                {
                     return;
+                }
 
                 // NOTE: if enum method parameter has default value and it's omit on invocation
                 //       implicit cast will happen internally (cannot use: IOmittedArgumentOperation)
@@ -282,8 +301,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (IsSuppressed(op))
+            if (Core.IsSuppressedByComment(op, SuppressionComment))
+            {
                 return;
+            }
 
             AnalyzeCast_Impl(context, op);
         }
@@ -323,7 +344,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var (enumType, isGeneric) = GetEnumInfo(symbol);
             if (enumType == null)
+            {
                 return;
+            }
 
             if (!isGeneric)
             {
@@ -359,11 +382,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeEnumLikePattern(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not ClassDeclarationSyntax clsDeclStx)
+            {
                 return;
+            }
 
             var model = context.SemanticModel;
             if (model.GetDeclaredSymbol(clsDeclStx) is not INamedTypeSymbol fieldContainerSymbol)
+            {
                 return;
+            }
 
             if (fieldContainerSymbol.IsAbstract
              || fieldContainerSymbol.IsStatic
@@ -431,14 +458,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 /* =====  collect field analysis targets  ===== */
 
                 if (memberSymbol is not IFieldSymbol fieldSymbol)
+                {
                     continue;
+                }
 
                 // check static AND readonly modifiers only here!!
                 if (!fieldSymbol.IsStatic || !fieldSymbol.IsReadOnly)
+                {
                     continue;
+                }
 
                 if (fieldSymbol.IsImplicitlyDeclared)
+                {
                     continue;
+                }
 
                 // is type enum member?
                 if (SymbolEqualityComparer.Default.Equals(fieldSymbol.Type, fieldContainerSymbol))
@@ -477,7 +510,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // not found
                 continue;
 
-            //entries!!
+                //entries!!
             ENTRIES_FOUND:
                 enumEntriesList.Add(fieldSymbol);
             }
@@ -633,17 +666,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             )
         {
             if (memoryCandidateType is not INamedTypeSymbol targetType)
+            {
                 return false;
+            }
 
             if (targetType.TypeArguments.Length != 1)
+            {
                 return false;
+            }
 
             if (!SymbolEqualityComparer.Default.Equals(targetType.TypeArguments[0], elementType))
+            {
                 return false;
+            }
 
-
-            if (targetType.Name != nameof(System.ReadOnlyMemory<int>))
+            if (targetType.Name != nameof(ReadOnlyMemory<int>))
+            {
                 return false;
+            }
 
             var targetNS = targetType.ContainingNamespace;
             if (targetNS.Name != nameof(System) || !targetNS.ContainingNamespace.IsGlobalNamespace)
@@ -661,7 +701,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeEnumDeclaration(SymbolAnalysisContext context)
         {
             if (context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Enum } namedSymbol)
+            {
                 return;
+            }
 
             AnalyzeEnumDeclaration_Impl(context, namedSymbol);
         }
@@ -673,19 +715,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var attrs = namedSymbol.GetAttributes();
 
-            const string ATTR_OBFUSCATION_NAME_FULL = nameof(System) + "." + nameof(System.Reflection) + "." + nameof(System.Reflection.ObfuscationAttribute);
-            const string ATTR_FLAGS_NAME_FULL = nameof(System) + "." + nameof(System.FlagsAttribute);
+            const string ATTR_OBFUSCATION_NAME_FULL = nameof(System) + "." + nameof(System.Reflection) + "." + nameof(ObfuscationAttribute);
+            const string ATTR_FLAGS_NAME_FULL = nameof(System) + "." + nameof(FlagsAttribute);
 
             bool hasObfuscationAttr = false;
             bool hasFlagsAttr = false;
             foreach (var attr in attrs)
             {
-                if (attr.AttributeClass == null) continue;
+                if (attr.AttributeClass == null)
+                {
+                    continue;
+                }
 
                 var attrName = attr.AttributeClass.Name;
                 switch (attrName)
                 {
-                    case nameof(System.Reflection.ObfuscationAttribute):
+                    case nameof(ObfuscationAttribute):
                         {
                             if (attr.AttributeClass.ToString() == ATTR_OBFUSCATION_NAME_FULL)
                             {
@@ -699,13 +744,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                         break;
 
-                    case nameof(System.FlagsAttribute):
+                    case nameof(FlagsAttribute):
                         {
                             if (attr.AttributeClass.ToString() == ATTR_FLAGS_NAME_FULL)
                             {
                                 hasFlagsAttr = true;
                             }
                         }
+                        break;
+
+                    default:
                         break;
                 }
             }
@@ -733,12 +781,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // partial enum cannot be declared. ok to take first one
             var declareStx = namedSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
             if (declareStx == null)
+            {
                 return;
+            }
 
             //underlyingType
             if (namedSymbol.EnumUnderlyingType?.SpecialType != SpecialType.System_Int32)
             {
-                var baseStx = declareStx.DescendantNodes().OfType<BaseTypeSyntax>().FirstOrDefault();
+                var baseStx = declareStx.DescendantNodes().OfType_FirstOrDefault<BaseTypeSyntax>();
                 if (baseStx != null)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -752,7 +802,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 foreach (var childNode in memberDeclare.ChildNodes())
                 {
                     if (childNode is AttributeListSyntax)
+                    {
                         continue;
+                    }
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_UnusualEnum, childNode.GetLocation()));
@@ -762,58 +814,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         /*  helper  ================================================================ */
-
-        private static bool IsSuppressed(IOperation op)
-        {
-            var targetOp = op;
-            while (targetOp.Parent != null && (
-                   targetOp.Parent is IInterpolationOperation
-                || targetOp.Parent is IInterpolatedStringOperation
-                || targetOp.Parent is IConditionalAccessOperation
-                || targetOp.Parent is IConditionalAccessInstanceOperation
-                || targetOp.Parent is IConversionOperation
-                || targetOp.Parent is IBinaryOperation))
-            {
-                if (targetOp is IInvocationOperation) break;
-
-                targetOp = targetOp.Parent;
-            }
-
-            if (targetOp.Parent is IVariableInitializerOperation initOp &&
-                initOp.Parent is IVariableDeclaratorOperation declaratorOp &&
-                declaratorOp.Parent is IVariableDeclarationOperation declarationOp &&
-                declarationOp.Syntax.Parent is LocalDeclarationStatementSyntax localDecl)
-            {
-                return IsSuppressedByComment(localDecl);
-            }
-
-            if (targetOp.Syntax.Parent is StatementSyntax statement)
-            {
-                return IsSuppressedByComment(statement);
-            }
-
-            if (targetOp.Syntax is StatementSyntax selfStatement)
-            {
-                return IsSuppressedByComment(selfStatement);
-            }
-
-            return false;
-        }
-
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Allow enum conversion";
-
-            if (node == null) return false;
-
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
-        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -840,16 +840,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static (ITypeSymbol? enumType, bool isGeneric) GetEnumInfo(ITypeSymbol? symbol)
         {
-            if (symbol == null) return (null, false);
+            if (symbol == null)
+            {
+                return (null, false);
+            }
 
             if (symbol.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T && symbol is INamedTypeSymbol namedType)
             {
                 symbol = namedType.TypeArguments[0];
             }
 
-            if (IsEnumDerivedType(symbol)) return (symbol, false);
+            if (IsEnumDerivedType(symbol))
+            {
+                return (symbol, false);
+            }
 
-            if (symbol is ITypeParameterSymbol typeParam && HasEnumConstraint(typeParam)) return (symbol, true);
+            if (symbol is ITypeParameterSymbol typeParam && HasEnumConstraint(typeParam))
+            {
+                return (symbol, true);
+            }
 
             return (null, false);
         }

@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -21,6 +20,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposableAnalyzer : DiagnosticAnalyzer
     {
+        public const string SuppressionComment = "// Don't dispose";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_MissingUsing = "SMA0040";
@@ -81,7 +82,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeAnonymousCreation, OperationKind.AnonymousObjectCreation);
             context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
             context.RegisterOperationAction(AnalyzeArrayElementReference, OperationKind.ArrayElementReference);
-            context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+            context.RegisterOperationAction(AnalyzeNullAssignment, OperationKind.SimpleAssignment);
         }
 
 
@@ -207,7 +208,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
 
-        private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
+        private static void AnalyzeNullAssignment(OperationAnalysisContext context)
         {
             if (context.Operation is not IAssignmentOperation assignmentOp)
                 return;
@@ -275,21 +276,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  internal  ================================================================ */
 
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Don't dispose";
-
-            if (node == null) return false;
-
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
-        }
-
 
 #pragma warning disable RS1008
 
@@ -339,7 +325,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 if (HasDisposableImplemented.Invoke(disposableSymbol)
-                 || disposableSymbol.Interfaces.Any(HasDisposableImplemented)
+                 //|| disposableSymbol.Interfaces.Any(HasDisposableImplemented)
                  || disposableSymbol.AllInterfaces.Any(HasDisposableImplemented)
                 )
                 {
@@ -352,37 +338,40 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             const Accessibility ACCESS_HIDDEN = Accessibility.Protected | Accessibility.Private | Accessibility.NotApplicable;
 
-            var candidateMethods = disposableSymbol.GetMembers().OfType<IMethodSymbol>()
-                .Where(static x => x.Parameters.Length == 0 && (x.DeclaredAccessibility & ~ACCESS_HIDDEN) != 0)
+            var candidateMethods = disposableSymbol.GetMembers()
+                .OfType_Where<IMethodSymbol>(
+                    static x => x.Parameters.Length == 0 && (x.DeclaredAccessibility & ~ACCESS_HIDDEN) != 0)
                 ;
 
             var isDisposable = candidateMethods
-                .Where(static x => x.Name == nameof(IDisposable.Dispose))
-                .Any(static x => x.ReturnType.SpecialType == SpecialType.System_Void)
-                ;
+                .Where_Any(
+                    static x => x.Name == nameof(IDisposable.Dispose),
+                    static x => x.ReturnType.SpecialType == SpecialType.System_Void);
+
             if (!isDisposable)
             {
                 var isAsyncDisposable = candidateMethods
-                    .Where(static x => x.Name == "DisposeAsync")
-                    .Any(static x =>
-                    {
-                        // TODO: SpecialType enum item for 'ValueTask'
-                        if (x.ReturnType.Name != nameof(ValueTask))
-                            return false;
-
-                        var ns = x.ReturnType.ContainingNamespace;
-                        if (ns.Name != nameof(System.Threading.Tasks)
-                         || ns.ContainingNamespace.Name != nameof(System.Threading)
-                         || ns.ContainingNamespace.ContainingNamespace.Name != nameof(System)
-                         || !ns.ContainingNamespace.ContainingNamespace.ContainingNamespace.IsGlobalNamespace
-                        )
+                    .Where_Any(
+                        static x => x.Name == "DisposeAsync",
+                        static x =>
                         {
-                            return false;
-                        }
+                            // TODO: SpecialType enum item for 'ValueTask'
+                            if (x.ReturnType.Name != nameof(ValueTask))
+                                return false;
 
-                        return true;
-                    })
-                    ;
+                            var ns = x.ReturnType.ContainingNamespace;
+                            if (ns.Name != nameof(System.Threading.Tasks)
+                             || ns.ContainingNamespace.Name != nameof(System.Threading)
+                             || ns.ContainingNamespace.ContainingNamespace.Name != nameof(System)
+                             || !ns.ContainingNamespace.ContainingNamespace.ContainingNamespace.IsGlobalNamespace
+                            )
+                            {
+                                return false;
+                            }
+
+                            return true;
+                        })
+                        ;
 
                 if (!isAsyncDisposable)
                     return false;
@@ -643,7 +632,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 return true;
                             }
 
-                            if (IsSuppressedByComment(localVarStx))
+                            if (Core.IsSuppressedByComment(localVarStx, SuppressionComment))
                             {
                                 return true;
                             }
@@ -664,7 +653,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                                         // reporting detailed diagnostic instead of generic one.
                                         context.ReportDiagnostic(Diagnostic.Create(
-                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier));
+                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier.ToString()));
                                     }
 
                                     // then, just go to NO_WARN to avoid additionally reporting SMA0040.
@@ -684,13 +673,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         var leftStx = assignStx.Left;
 
                         var model = op.SemanticModel ?? context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                        var leftSymbol = model.GetSymbolInfo(leftStx).Symbol;
+                        var leftOp = model.GetOperation(leftStx);
 
                         // Discarding?
-                        if (leftSymbol?.Kind is SymbolKind.Discard)
+                        if (leftOp is IDiscardOperation)
                         {
                             // Won't allow silent suppression
-                            if (IsSuppressedByComment(assignStx))
+                            if (Core.IsSuppressedByComment(assignStx, SuppressionComment, isDiscardOperation: true))
                             {
                                 return true;
                             }
@@ -698,18 +687,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         else
                         {
                             // Left hand is indexer?
-                            if (leftStx is ElementAccessExpressionSyntax elementAccessStx)
+                            if (leftOp is IArrayElementReferenceOperation elementOp)
                             {
-                                // array[0] returns null, list[0] returns non-null
-                                var nonArraySymbol = model.GetSymbolInfo(elementAccessStx.Expression).Symbol;
-                                if (nonArraySymbol != null)
-                                {
-                                    leftSymbol = nonArraySymbol;
-                                }
+                                leftOp = elementOp.ArrayReference;
+                            }
+                            else if (leftOp is IPropertyReferenceOperation indexerOp && indexerOp.Property.IsIndexer)
+                            {
+                                leftOp = indexerOp.Instance;
                             }
 
                             // Ignore field/property
-                            if (leftSymbol != null && (leftSymbol.Kind is SymbolKind.Field or SymbolKind.Property))
+                            if (leftOp?.Kind is OperationKind.FieldReference or OperationKind.PropertyReference)
                             {
                                 // don't allow cast and forget
                                 // NG --> m_objectField = (new Disposable()) as object;
@@ -769,7 +757,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             inAllCodePaths = false;
 
-            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax);
+            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax);
             if (enclosingMember == null) return false;
 
             var semanticModel = context.Operation.SemanticModel;
@@ -812,7 +800,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (body != null)
             {
-                if (body.DescendantNodes().Any(x => x is ThrowStatementSyntax or ThrowExpressionSyntax))
+                if (body.DescendantNodes().Any(static x => x is ThrowStatementSyntax or ThrowExpressionSyntax))
                 {
                     // NOTE: keep consistent with '=> ...' syntax.
                     return false;  // assumes that some paths throw (reports generic diagnostic)

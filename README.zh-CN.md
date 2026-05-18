@@ -173,27 +173,8 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-**通过注释抑制**
-
-在局部变量声明的正上方添加以 `// Allow enum conversion`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
-
-```cs
-// Allow enum conversion
-var x1 = (ETest)1;
-
-// Allow enum conversion: because it is managed by external library.
-// - 允许使用多个单行注释，但 '// Allow enum conversion' 必须是第一行。
-var x2 = ETest.Value.ToString();
-
-// 以下代码不会被抑制，因为它不是第一个注释行。
-// （搜索第一个注释时会忽略空白行）
-
-// Allow enum conversion
-var x = (ETest)1;
-```
-
-> [!NOTE]
-> 此抑制方式对局部变量的初始声明有效。对现有变量的常规赋值和弃元（discard）赋值无法通过注释来抑制。
+> [!TIP]
+> 可以通过注释 `// Allow enum conversion` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
 ## 从混淆中排除 `Enum` 类型
@@ -347,29 +328,8 @@ d = (new object()) as IDisposable;
 
 
 
-**通过注释抑制**
-
-在局部变量声明或弃元（discard）赋值的正上方添加以 `// Don't dispose`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
-
-```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// Don't dispose because it is managed by external library.
-// - 允许使用多个单行注释，但 '// Don't dispose' 必须是第一行。
-_ = new MyDisposable();
-
-// 以下代码不会被抑制，因为它不是第一个注释行。
-// （搜索第一个注释时会忽略空白行）
-
-// Don't dispose
-var d = new MyDisposable();
-```
-
-> [!NOTE]
-> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
->
-> 使用名为 `_` 的变量（例如 `var _ = new Disposable();`）不是弃元，不会被注释抑制。
+> [!TIP]
+> 可以通过注释 `// Don't dispose` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
 
@@ -447,31 +407,40 @@ async Task Method()
 ```
 
 
-**通过注释抑制**
+> [!TIP]
+> 可以通过注释 `// Don't await` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
-在局部变量声明的正上方添加以 `// Don't await`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+
+
+
+&nbsp;
+
+# 通过注释抑制
+
+在局部变量声明或弃元（discard）赋值的正上方添加以特定字符串（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+> [!NOTE]
+> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
+>
+> 使用名为 `_` 的变量（例如 `var _ = new Disposable();`）不是弃元，不会被注释抑制。
 
 ```cs
-// Don't await
-var t = Task.Run(...);
+// Don't dispose
+var x = ...;
 
-// Don't await because it is managed by external library.
-// - 允许使用多个单行注释，但 '// Don't await' 必须是第一行。
-var t = Task.Run(...);
+// Don't dispose
+// 允许使用多个单行注释，但抑制注释必须是第一行。
+// 这是因为分析器会查找该标记的第一个注释琐事（trivia）。
+var x = ...;
 
 // 以下代码不会被抑制，因为它不是第一个注释行。
 // （搜索第一个注释时会忽略空白行）
 
 // NOTE:
-// Don't await
-var t = Task.Run(...);
+// Don't dispose
+var x = ...;
 ```
-
-> [!NOTE]
-> 此抑制方式对局部变量的初始声明有效。对现有变量的常规赋值无法通过注释来抑制。
-
-
-
 
 
 &nbsp;

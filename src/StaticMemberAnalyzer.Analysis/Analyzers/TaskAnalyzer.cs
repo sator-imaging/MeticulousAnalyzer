@@ -7,16 +7,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.CodeAnalysis.Operations;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TaskAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Don't await";
+
         public const string RuleId_MissingAwait = "SMA0070";
         private static readonly DiagnosticDescriptor Rule_MissingAwait = new(
             RuleId_MissingAwait,
@@ -73,8 +73,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var statement = syntax.Ancestors().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
-            if (IsSuppressedByComment(statement))
+            // NOTE: Won't support supressing with discard. e.g. `_ = MyTask();`
+            //       --> Declarator -> Declaration -> LocalDeclarationStatement
+            if (Core.IsSuppressedByComment(declarator.Parent.Parent.Syntax, SuppressionComment))
             {
                 return;
             }
@@ -106,30 +107,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return IsTask(type.BaseType);
         }
 
-        private static bool IsSuppressedByComment(SyntaxNode? node)
-        {
-            const string SuppressionComment = "// Don't await";
-
-            if (node == null)
-            {
-                return false;
-            }
-
-            var comment = node
-                .GetFirstToken()
-                .LeadingTrivia
-                .Cast<SyntaxTrivia>()
-                .FirstOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-
-            return comment != default
-                && comment.ToString().StartsWith(SuppressionComment, StringComparison.OrdinalIgnoreCase);
-        }
 
         private static bool IsTaskAwaitedOrReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)
         {
             inAllCodePaths = false;
 
-            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
+            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
             if (enclosingMember == null)
             {
                 return false;

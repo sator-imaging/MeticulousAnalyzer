@@ -173,27 +173,8 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-**Suppress by Comment**
-
-Add a single-line comment starting with `// Allow enum conversion` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
-
-```cs
-// Allow enum conversion
-var x1 = (ETest)1;
-
-// Allow enum conversion: because it is managed by external library.
-// - Multiple single line comments are allowed but '// Allow enum conversion' must be the first.
-var x2 = ETest.Value.ToString();
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// Allow enum conversion
-var x = (ETest)1;
-```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations. Regular assignments and discard assignments to existing variables cannot be suppressed by comments.
+> [!TIP]
+> can suppress by comment `// Allow enum conversion`; see [Suppression Comment](#suppression-comment) section for detail
 
 
 ## Excluding Enum Type from Obfuscation
@@ -347,29 +328,8 @@ Analyzer won't show warning in the following condition:
 
 
 
-**Suppress by Comment**
-
-Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
-
-```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// Don't dispose because it is managed by external library.
-// - Multiple single line comments are allowed but '// Don't dispose' must be the first.
-_ = new MyDisposable();
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// Don't dispose
-var d = new MyDisposable();
-```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
->
-> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+> [!TIP]
+> can suppress by comment `// Don't dispose`; see [Suppression Comment](#suppression-comment) section for detail
 
 
 
@@ -447,31 +407,40 @@ async Task Method()
 ```
 
 
-**Suppress by Comment**
+> [!TIP]
+> can suppress by comment `// Don't await`; see [Suppression Comment](#suppression-comment) section for detail
 
-Add a single-line comment starting with `// Don't await` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
+
+
+
+
+&nbsp;
+
+# Suppression Comment
+
+Add a single-line comment starting with a specific string (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+>
+> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
 
 ```cs
-// Don't await
-var t = Task.Run(...);
+// Don't dispose
+var x = ...;
 
-// Don't await because it is managed by external library.
-// - Multiple single line comments are allowed but '// Don't await' must be the first.
-var t = Task.Run(...);
+// Don't dispose
+// Multiple single line comments are allowed but suppression comment must be the first.
+// This is because analyzer looks for the first comment trivia of the token.
+var x = ...;
 
 // The following WON'T suppress because it's not the first comment line.
 // (Blank lines are ignored when searching for the first comment)
 
 // NOTE:
-// Don't await
-var t = Task.Run(...);
+// Don't dispose
+var x = ...;
 ```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations. Regular assignments to existing variables cannot be suppressed by comments.
-
-
-
 
 
 &nbsp;
