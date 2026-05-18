@@ -19,7 +19,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
-- [Coding Assistance](#coding-assistance) (Performance and code quality; See [**RULES.md**](RULES.md))
+- [Coding Assistance](RULES.md#coding-assistance) for better performance and code quality
 - `struct` parameter-less constructor misuse analysis
 - `TSelf` generic type argument & type constraint analysis
 - File header comment enforcement

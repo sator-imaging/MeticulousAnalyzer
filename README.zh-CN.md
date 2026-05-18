@@ -19,7 +19,7 @@
 - [`Enum` 分析器与代码修复提供程序](#enum-分析器与代码修复提供程序) 防止用户层面的值转换，并支持 [Kotlin 风格 Enum 模式](#kotlin-风格-enum-模式)
 - [Disposable 分析器](#disposable-分析器) 检测缺少 `using` 语句
 - [异步上下文分析](#异步上下文分析) 检测 `Task` 或 `ValueTask` 缺少 await
-- [Coding Assistance](#coding-assistance) (提高性能与代码质量的分析；详见 [**RULES.md**](RULES.md) (英文))
+- [Coding Assistance](RULES.md#coding-assistance) (提高性能与代码质量的分析；详见 RULES.md)
 - `struct` 无参构造函数误用分析
 - `TSelf` 泛型类型参数与类型约束分析
 - 文件头注释强制规则

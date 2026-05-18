@@ -19,7 +19,7 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 - [`Enum` アナライザーとコード修正プロバイダー](#enum-アナライザーとコード修正プロバイダー) でユーザー側の値変換を禁止し、[Kotlin 風 Enum パターン](#kotlin-風-enum-パターン) も検査
 - [Disposable アナライザー](#disposable-アナライザー) で `using` の欠落を検出
 - [非同期コンテキスト解析](#非同期コンテキスト解析) で `Task` または `ValueTask` の await 欠落を検出
-- [Coding Assistance](#coding-assistance) (パフォーマンスとコード品質向上のための解析。詳細は [**RULES.md**](RULES.md) (英語) を参照)
+- [Coding Assistance](RULES.md#coding-assistance) (パフォーマンスとコード品質向上のための解析。詳細は RULES.md を参照)
 - `struct` の引数なしコンストラクター誤用解析
 - `TSelf` ジェネリック型引数と型制約の解析
 - ファイルヘッダーコメントの強制

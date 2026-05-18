@@ -241,5 +241,58 @@ public class C
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
+        [TestMethod]
+        public async Task TestStaticMethodWithMultipleArgsConversionCodeFix()
+        {
+            var test = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i, string s, bool b) { }
+    void M()
+    {
+        Action<int, string, bool> a = {|#0:StaticMethod|};
+    }
+}
+";
+            var fixtest = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i, string s, bool b) { }
+    void M()
+    {
+        Action<int, string, bool> a = static (i, s, b) => StaticMethod(i, s, b);
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("System.Action<int, string, bool>");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task TestInstanceMethodConversionCodeFixDoesNotApply()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void InstanceMethod() { }
+    void M()
+    {
+        Action a = {|#0:InstanceMethod|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("System.Action");
+            // VerifyCodeFixAsync checks that NO code fix is available if fixtest is null or same as test (depending on verifier implementation)
+            // CSharpCodeFixVerifier usually checks if any fix was offered.
+            await VerifyCS.VerifyCodeFixAsync(test, expected, test);
+        }
+
     }
 }
