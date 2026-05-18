@@ -12,7 +12,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -347,7 +346,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var type = parameter.Type;
 
             // Relax for known immutable types
-            if (IsKnownImmutableType(type))
+            if (Core.IsKnownImmutableType(type))
             {
                 return;
             }
@@ -463,7 +462,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //       Not sure the actual case the readonly flag is set, maybe it can change observable state.
                     //       Anyway this analyzer just checks variable mutation. Allows those cases.
                     if (!invocation.TargetMethod.IsReadOnly &&
-                        !IsKnownImmutableType(invocation.TargetMethod.ContainingType))
+                        !Core.IsKnownImmutableType(invocation.TargetMethod.ContainingType))
                     {
                         return TryGetRootLocalOrParameter(invocation, out rootName, out _)
                                     ? HasMutableNamePrefix(rootName) : true;  // Analyzer checks only variable mutability.
@@ -481,7 +480,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return true;
                     }
 
-                    if (!IsKnownImmutableType(propertyReference.Property.ContainingType)
+                    if (!Core.IsKnownImmutableType(propertyReference.Property.ContainingType)
                         && !(
                             // NOTE: Roslyn may set IsReadOnly even if the method doesn't have 'readonly' modifier.
                             //         e.g. int Foo() => 0;
@@ -613,7 +612,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = localReference.Local.Name;
                     isParameter = false;
 
-                    if (IsKnownImmutableType(localReference.Type)) return false;
+                    if (Core.IsKnownImmutableType(localReference.Type)) return false;
 
                     return true;
                 }
@@ -623,7 +622,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     name = parameterReference.Parameter.Name;
                     isParameter = true;
 
-                    if (IsKnownImmutableType(parameterReference.Type)) return false;
+                    if (Core.IsKnownImmutableType(parameterReference.Type)) return false;
 
                     return true;
                 }
@@ -653,22 +652,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static DiagnosticDescriptor GetDescriptor(bool isParameter)
         {
             return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
-        }
-
-        private static bool IsKnownImmutableType(ITypeSymbol? type)
-        {
-            if (type == null) return false;
-
-            return type.IsReadOnly
-                || type.SpecialType == SpecialType.System_String
-                || type.SpecialType == SpecialType.System_Collections_IEnumerable
-                || type.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
-                || type.TypeKind == TypeKind.Enum
-                || (type.ContainingNamespace?.Name == "System" &&
-                    type.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true &&
-                    // Known readonly reference types from System (don't include struct)
-                    type.Name is "Uri" or "Version" or "Type")
-                ;
         }
 
         private static bool IsAllowedArgumentValue(IOperation value)
