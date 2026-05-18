@@ -64,6 +64,12 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0063 | Property Access Can Change State           | Avoid accessing properties of immutable variables as it can change their internal state.
 | SMA0064 | Method Call Can Change State               | Avoid calling methods of immutable variables as it can change their internal state.
 
+## Coding Assistance
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA7000 | Lambda should be static                    | Lambda declaration should be 'static' to avoid unnecessary allocations.
+| SMA7001 | Implicit conversion to delegate            | Implicit conversion to Action or Func delegate from instance member causes allocation. Use lambda or static member instead.
+
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------

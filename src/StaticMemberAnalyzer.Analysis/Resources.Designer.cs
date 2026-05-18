@@ -1376,5 +1376,68 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA0071_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Coding Assistance に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000__MD_TITLE__ {
+            get {
+                return ResourceManager.GetString("SMA7000__MD_TITLE__", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Lambda declaration should be static to avoid unnecessary allocations. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000_Description {
+            get {
+                return ResourceManager.GetString("SMA7000_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Lambda declaration is not &apos;static&apos; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7000_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Lambda should be static に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000_Title {
+            get {
+                return ResourceManager.GetString("SMA7000_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit conversion to Action or Func delegate from instance member causes allocation. Use lambda or static member instead. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7001_Description {
+            get {
+                return ResourceManager.GetString("SMA7001_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit conversion to &apos;{0}&apos; delegate from instance member に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7001_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7001_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit conversion to delegate に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7001_Title {
+            get {
+                return ResourceManager.GetString("SMA7001_Title", resourceCulture);
+            }
+        }
     }
 }
