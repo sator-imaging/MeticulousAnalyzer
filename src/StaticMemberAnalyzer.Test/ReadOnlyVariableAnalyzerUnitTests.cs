@@ -1021,7 +1021,10 @@ namespace Test
             Use(temporal);
             Use(text);
         }
-        void Use(object obj) {}
+        void Use(int v) {}
+        void Use(float v) {}
+        void Use(DateTime v) {}
+        void Use(string v) {}
     }
 
     class Class_ReadOnlyPrimitifeFields
@@ -1038,7 +1041,10 @@ namespace Test
             Use(temporal);
             Use(text);
         }
-        void Use(object obj) {}
+        void Use(int v) {}
+        void Use(float v) {}
+        void Use(DateTime v) {}
+        void Use(string v) {}
     }
 }
 ";
