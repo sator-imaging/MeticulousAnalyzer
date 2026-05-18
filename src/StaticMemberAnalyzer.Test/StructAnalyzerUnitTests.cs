@@ -233,6 +233,34 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task BuiltinPrimitives_NoDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    using System;
+
+    struct MutableStruct_ReadOnlyPrimitifeFields
+    {
+        readonly int integer;
+        readonly float number;
+        readonly DateTime temporal;
+        readonly string text;
+    }
+
+    class Class_ReadOnlyPrimitifeFields
+    {
+        readonly int integer;
+        readonly float number;
+        readonly DateTime temporal;
+        readonly string text;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task ReadOnlyNullableInt_ShouldNotReportDiagnostic()
         {
             var test = @"
