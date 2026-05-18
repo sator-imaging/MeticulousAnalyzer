@@ -700,15 +700,15 @@ public static int Underline_Drawn = 310;
 
 ```cs
 // Don't dispose
-var x = ...;
+_ = new MyDisposable();
 
 // Don't dispose: 允许使用多个单行注释，
 // 但抑制注释必须是第一行。
-var x = ...;
+var x = new MyDisposable();
 
 // 以下代码不会被抑制，因为它不是第一个注释行。
 // （搜索第一个注释时会忽略空白行）
 
 // Don't dispose
-var x = ...;
+var x = new MyDisposable();
 ```

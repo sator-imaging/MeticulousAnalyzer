@@ -700,15 +700,15 @@ Add a single-line comment starting with a specific string (case-insensitive but 
 
 ```cs
 // Don't dispose
-var x = ...;
+_ = new MyDisposable();
 
 // Don't dispose: Multiple single line comments are allowed,
 // but suppression comment must be the first.
-var x = ...;
+var x = new MyDisposable();
 
 // The following WON'T suppress because it's not the first comment line.
 // (Blank lines are ignored when searching for the first comment)
 
 // Don't dispose
-var x = ...;
+var x = new MyDisposable();
 ```
