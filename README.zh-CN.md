@@ -497,6 +497,27 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
 
 
+## 数值类型的显式声明
+
+从 `sbyte` 到 `decimal` 的所有系统原始数值类型都应使用显式类型声明，而不是 `var`。
+
+```cs
+var integer = 1;
+var floating = 1.0;
+//  ~~~~~~~    ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
+```
+
+期望的代码：
+
+```cs
+long integer = 1;
+double floating = 1.0;
+```
+
+> [!IMPORTANT]
+> 此分析仅针对 `var` 声明，不考虑隐式类型转换。
+
+
 
 
 
