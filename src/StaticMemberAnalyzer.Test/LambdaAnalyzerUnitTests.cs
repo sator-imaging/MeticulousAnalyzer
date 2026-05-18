@@ -39,6 +39,35 @@ public class C
         }
 
         [TestMethod]
+        public async Task TestNonStaticLambdaInArgument()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void Foo(Action a) { }
+    void M()
+    {
+        Foo({|#0:() => { }|});
+    }
+}
+";
+            var fixtest = @"
+using System;
+public class C
+{
+    void Foo(Action a) { }
+    void M()
+    {
+        Foo(static () => { });
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
         public async Task TestStaticLambda()
         {
             var test = @"
@@ -292,6 +321,92 @@ public class C
             // VerifyCodeFixAsync checks that NO code fix is available if fixtest is null or same as test (depending on verifier implementation)
             // CSharpCodeFixVerifier usually checks if any fix was offered.
             await VerifyCS.VerifyCodeFixAsync(test, expected, test);
+        }
+
+        [TestMethod]
+        public async Task TestInstanceMethodWithReceiverConversionCodeFixDoesNotApply()
+        {
+            var test = @"
+using System;
+public class Other { public void InstanceMethod() { } }
+public class C
+{
+    void M(Other obj)
+    {
+        Action a = {|#0:obj.InstanceMethod|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("System.Action");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, test);
+        }
+
+        [TestMethod]
+        public async Task TestStaticMethodInArgumentConversionCodeFix()
+        {
+            var test = @"
+using System;
+public class C
+{
+    static void StaticMethod() { }
+    void Call(Action a) { }
+    void M()
+    {
+        Call({|#0:StaticMethod|});
+    }
+}
+";
+            var fixtest = @"
+using System;
+public class C
+{
+    static void StaticMethod() { }
+    void Call(Action a) { }
+    void M()
+    {
+        Call(static () => StaticMethod());
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("System.Action");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task TestStaticMethodWithMultipleArgsInArgumentConversionCodeFix()
+        {
+            var test = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i1, int i2) { }
+    void Call(Action<int, int> a) { }
+    void M()
+    {
+        Call({|#0:StaticMethod|});
+    }
+}
+";
+            var fixtest = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i1, int i2) { }
+    void Call(Action<int, int> a) { }
+    void M()
+    {
+        Call(static (i1, i2) => StaticMethod(i1, i2));
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("System.Action<int, int>");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
     }
