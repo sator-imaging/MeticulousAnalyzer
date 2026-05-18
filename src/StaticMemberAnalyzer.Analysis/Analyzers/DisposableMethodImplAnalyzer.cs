@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -112,7 +111,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 if (explicitImplMethod == null &&
-                    method.ExplicitInterfaceImplementations.Any(e =>
+                    method.ExplicitInterfaceImplementations.Any(static e =>
                     {
                         return e.ContainingType.SpecialType == SpecialType.System_IDisposable
                             && e.Name == DisposeMethodName;
@@ -122,7 +121,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (!typeSymbol.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_IDisposable))
+            if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
                 ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.Name);
             }
@@ -154,8 +153,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
 
                     var location = varDecl.Identifier.GetLocation();
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
-                    reported = true;
+
+                    // Declarator -> Declaration -> FieldDeclaration
+                    if (!Core.IsSuppressedByComment(varDecl.Parent?.Parent, DisposableAnalyzer.SuppressionComment))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
+                    }
+
+                    reported = true;  // Set true even if suppressed
                 }
 
                 if (!reported)
@@ -270,7 +275,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             if (named.SpecialType == SpecialType.System_IDisposable ||
-                named.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_IDisposable))
+                named.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
                 return true;
             }

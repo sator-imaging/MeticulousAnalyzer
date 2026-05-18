@@ -7,10 +7,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.CodeAnalysis.Operations;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -75,8 +73,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var statement = syntax.Ancestors().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
-            if (Core.IsSuppressedByComment(statement, SuppressionComment))
+            // NOTE: Won't support supressing with discard. e.g. `_ = MyTask();`
+            //       --> Declarator -> Declaration -> LocalDeclarationStatement
+            if (Core.IsSuppressedByComment(declarator.Parent.Parent.Syntax, SuppressionComment))
             {
                 return;
             }
@@ -113,7 +112,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             inAllCodePaths = false;
 
-            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
+            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
             if (enclosingMember == null)
             {
                 return false;
