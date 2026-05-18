@@ -85,11 +85,14 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
             Func<T, bool> static_lambda_where
         )
         {
-            foreach (var item in source)
+            if (!source.IsDefaultOrEmpty)
             {
-                if (static_lambda_where.Invoke(item))
+                foreach (var item in source)
                 {
-                    return true;
+                    if (static_lambda_where.Invoke(item))
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -115,12 +118,15 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
             Func<T, bool> static_lambda_where
         )
         {
-            foreach (var item in source)
+            if (!source.IsDefaultOrEmpty)
             {
-                if (item is T match &&
-                    static_lambda_where(match))
+                foreach (var item in source)
                 {
-                    yield return match;
+                    if (item is T match &&
+                        static_lambda_where(match))
+                    {
+                        yield return match;
+                    }
                 }
             }
         }
@@ -214,11 +220,14 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         public static T? FirstOrDefault<T>(this ImmutableArray<T> source, Func<T, bool> static_lambda_first_or_default)
         {
-            foreach (var item in source)
+            if (!source.IsDefaultOrEmpty)
             {
-                if (static_lambda_first_or_default.Invoke(item))
+                foreach (var item in source)
                 {
-                    return item;
+                    if (static_lambda_first_or_default.Invoke(item))
+                    {
+                        return item;
+                    }
                 }
             }
             return default;
@@ -253,11 +262,14 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         public static bool Any<T>(this ImmutableArray<T> source, Func<T, bool> static_lambda_any)
         {
-            foreach (var item in source)
+            if (!source.IsDefaultOrEmpty)
             {
-                if (static_lambda_any.Invoke(item))
+                foreach (var item in source)
                 {
-                    return true;
+                    if (static_lambda_any.Invoke(item))
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -295,11 +307,7 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         public static T First<T>(this ImmutableArray<T> source)
         {
-            foreach (var item in source)
-            {
-                return item;
-            }
-            throw new InvalidOperationException("The source sequence is empty.");
+            return source[0];
         }
 
         public static TOut? SelectMany_FirstOrDefault<T, TOut>(
