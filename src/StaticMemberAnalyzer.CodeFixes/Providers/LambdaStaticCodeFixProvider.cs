@@ -30,7 +30,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return;
 
             foreach (var diagnostic in context.Diagnostics)
@@ -57,7 +57,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             {
                 newModifiers = simple.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
                 var newLambda = simple.WithModifiers(newModifiers);
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                 var newRoot = root!.ReplaceNode(simple, newLambda);
                 return document.WithSyntaxRoot(newRoot);
             }
@@ -65,7 +65,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             {
                 newModifiers = parenthesized.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
                 var newLambda = parenthesized.WithModifiers(newModifiers);
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                 var newRoot = root!.ReplaceNode(parenthesized, newLambda);
                 return document.WithSyntaxRoot(newRoot);
             }
