@@ -93,7 +93,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space)),
                 lambdaParameters,
                 SyntaxFactory.Token(SyntaxKind.EqualsGreaterThanToken),
-                null,
+                block: null,
                 invocation
             );
 
