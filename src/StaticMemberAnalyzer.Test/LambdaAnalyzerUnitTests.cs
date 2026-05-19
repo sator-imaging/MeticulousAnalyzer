@@ -411,7 +411,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaCapturingVariableReportsSMA7000()
+        public async Task TestLambdaCapturingVariableReportsSMA7002()
         {
             var test = @"
 using System;
@@ -420,11 +420,31 @@ public class C
     void M()
     {
         int x = 0;
+        Action a = {|#0:() => { x++; }|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaAllocation).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestLambdaCapturingVariableSuppressedByComment()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void M()
+    {
+        int x = 0;
+        // Allow allocation
         Action a = () => { x++; };
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
     }
 }

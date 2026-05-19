@@ -35,9 +35,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA7001_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_LambdaAllocation = "SMA7002";
+        private static readonly DiagnosticDescriptor Rule_LambdaAllocation = new(
+            RuleId_LambdaAllocation,
+            new LocalizableResourceString(nameof(Resources.SMA7002_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA7002_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA7002_Description), Resources.ResourceManager, typeof(Resources)));
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             Rule_LambdaShouldBeStatic,
-            Rule_ImplicitConversionToDelegate
+            Rule_ImplicitConversionToDelegate,
+            Rule_LambdaAllocation
         );
 
         public override void Initialize(AnalysisContext context)
@@ -73,9 +84,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (context.Node is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            if (IsEffectivelyStatic(lambda, context.SemanticModel))
+            bool isEffectivelyStatic = IsEffectivelyStatic(lambda, context.SemanticModel);
+            if (isEffectivelyStatic)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
+            }
+
+            // Report SMA7002 only for non-static lambdas that capture variables and are implicitly converted to Action/Func.
+            // DO NOT report SMA7002 if the lambda is effectively static (that's SMA7000).
+            if (!isEffectivelyStatic)
+            {
+                // check if it is implicit conversion to delegate
+                var operation = context.SemanticModel.GetOperation(lambda, context.CancellationToken);
+
+                var current = operation;
+                while (current != null && (current.Syntax == lambda || current is IConversionOperation || current is IDelegateCreationOperation))
+                {
+                    if (Core.IsSuppressedByComment(current, "// Allow allocation")) return;
+
+                    if (IsActionOrFunc(current.Type))
+                    {
+                        bool isImplicit = (current as IConversionOperation)?.IsImplicit ?? (current as IDelegateCreationOperation)?.IsImplicit ?? false;
+                        if (isImplicit)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, lambda.GetLocation()));
+                            return;
+                        }
+                    }
+                    current = current.Parent;
+                }
             }
         }
 
