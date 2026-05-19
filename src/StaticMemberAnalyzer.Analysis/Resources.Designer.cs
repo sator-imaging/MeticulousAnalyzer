@@ -1405,7 +1405,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Null suppression operation should be fenced with 3 parentheses to improve maintainability and readability. に類似しているローカライズされた文字列を検索します。
+        ///   Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA8002_Description {
             get {

@@ -41,6 +41,7 @@ namespace Test
             await VerifyCS.VerifyCodeFixAsync(test, fixedCode);
         }
 
+
         [TestMethod]
         public async Task NullSuppressionWithOneParenthesis_ReportsDiagnosticAndFixes()
         {

@@ -581,6 +581,6 @@
     <value>Null suppression operation should be fenced with 3 parentheses</value>
   </data>
   <data name="SMA8002_Description" xml:space="preserve">
-    <value>Null suppression operation should be fenced with 3 parentheses to improve maintainability and readability.</value>
+    <value>Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.</value>
   </data>
 </root>

@@ -460,7 +460,7 @@ double floating = 1;
 
 ## Null suppression operation
 
-Null suppression operation should be fenced with 3 parentheses to improve maintainability and readability.
+Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
 
 ```cs
 var x = foo!;
