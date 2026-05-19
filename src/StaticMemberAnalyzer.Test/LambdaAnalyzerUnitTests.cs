@@ -20,22 +20,11 @@ public class C
 {
     void M()
     {
-        Action a = {|#0:() => { }|};
+        Action a = () => { };
     }
 }
 ";
-            var fixtest = @"
-using System;
-public class C
-{
-    void M()
-    {
-        Action a = static () => { };
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -48,23 +37,11 @@ public class C
     void Foo(Action a) { }
     void M()
     {
-        Foo({|#0:() => { }|});
+        Foo(() => { });
     }
 }
 ";
-            var fixtest = @"
-using System;
-public class C
-{
-    void Foo(Action a) { }
-    void M()
-    {
-        Foo(static () => { });
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -199,23 +176,11 @@ public class C
 {
     void M()
     {
-        Func<Task> a = {|#0:async () => { await Task.Delay(1); }|};
+        Func<Task> a = async () => { await Task.Delay(1); };
     }
 }
 ";
-            var fixtest = @"
-using System;
-using System.Threading.Tasks;
-public class C
-{
-    void M()
-    {
-        Func<Task> a = static async () => { await Task.Delay(1); };
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -410,7 +375,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaCapturingVariableDoesNotReportSMA7000()
+        public async Task TestLambdaCapturingVariableReportsSMA7000()
         {
             var test = @"
 using System;
@@ -419,11 +384,12 @@ public class C
     void M()
     {
         int x = 0;
-        Action a = () => { x++; };
+        Action a = {|#0:() => { x++; }|};
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }

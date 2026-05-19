@@ -71,10 +71,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeLambda(SyntaxNodeAnalysisContext context)
         {
-            var lambda = (LambdaExpressionSyntax)context.Node;
-            if (lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
+            if (context.Node is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            if (IsEffectivelyStatic(lambda, context.SemanticModel))
+            if (!IsEffectivelyStatic(lambda, context.SemanticModel))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
             }
