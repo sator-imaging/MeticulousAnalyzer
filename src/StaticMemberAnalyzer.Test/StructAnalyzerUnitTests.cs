@@ -424,5 +424,24 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task ImplicitBoxing_SuppressedByComment_NoDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            // Allow boxing
+            object value = 1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

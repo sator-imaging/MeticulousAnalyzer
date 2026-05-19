@@ -19,7 +19,7 @@
 - [`Enum` 分析器与代码修复提供程序](#enum-分析器与代码修复提供程序) 防止用户层面的值转换，并支持 [Kotlin 风格 Enum 模式](#kotlin-风格-enum-模式)
 - [Disposable 分析器](#disposable-分析器) 检测缺少 `using` 语句
 - [异步上下文分析](#异步上下文分析) 检测 `Task` 或 `ValueTask` 缺少 await
-- `struct` 无参构造函数误用分析
+- [结构体分析](#结构体分析) 检测无参构造函数误用等
 - `TSelf` 泛型类型参数与类型约束分析
 - 文件头注释强制规则
 - ~~对字段/属性等进行自定义消息标注与下划线~~
@@ -615,6 +615,23 @@ class Demo
 
 
 
+
+
+&nbsp;
+
+# 结构体分析
+
+分析 `struct` 类型的使用，防止常见的错误和性能问题。
+
+- SMA0030: Invalid Struct Constructor
+    - 已经显式声明了构造函数，因此不应使用无参构造函数。
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - 不应将可变结构体类型设置为 `readonly` 字段。
+- SMA0032: Implicit Boxing Conversion
+    - 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。
+
+> [!TIP]
+> 可以通过注释 `// Allow boxing` 来抑制隐式装箱分析（SMA0032）；详见 [通过注释抑制](#通过注释抑制) 章节。
 
 
 &nbsp;

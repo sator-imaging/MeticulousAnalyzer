@@ -17,6 +17,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class StructAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Allow boxing";
+
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_InvalidStructCtor = "SMA0030";
@@ -162,6 +165,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeImplicitBoxing(OperationAnalysisContext context)
         {
             if (context.Operation is not IConversionOperation op)
+                return;
+
+            if (Core.IsSuppressedByComment(op, SuppressionComment))
                 return;
 
             if (!op.IsImplicit || op.Type == null || op.Operand.Type == null)
