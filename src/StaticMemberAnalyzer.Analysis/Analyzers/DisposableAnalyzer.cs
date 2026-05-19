@@ -430,6 +430,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // MUST check before unpacking implicit cast
             bool isCreationOp = op is IObjectCreationOperation
+                                   or IConversionOperation
                                    or IAnonymousObjectCreationOperation
                                    or ITypeParameterObjectCreationOperation
                                    or IDefaultValueOperation
@@ -587,6 +588,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     )
                     {
                         syntax = switchOp.Syntax;
+                    }
+                    else if (op.Parent is IConditionalOperation conditionalOp)
+                    {
+                        syntax = conditionalOp.Syntax;
                     }
                 }
 
