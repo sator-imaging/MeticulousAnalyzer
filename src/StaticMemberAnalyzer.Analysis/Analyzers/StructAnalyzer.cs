@@ -167,15 +167,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IConversionOperation op)
                 return;
 
-            if (Core.IsSuppressedByComment(op, SuppressionComment))
-                return;
-
             if (!op.IsImplicit || op.Type == null || op.Operand.Type == null)
                 return;
 
             // Boxing conversion from value type to reference type (including interface)
             if (op.Operand.Type.IsValueType && op.Type.IsReferenceType)
             {
+                if (Core.IsSuppressedByComment(op, SuppressionComment))
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ImplicitBoxing, op.Syntax.GetLocation(),
                     op.Operand.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
