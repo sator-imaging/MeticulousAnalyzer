@@ -25,10 +25,10 @@ class C
 {
     void M(string? foo)
     {
-        var x = foo!;
+        var x = {|#0:foo!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithSpan(startLine: 6, startColumn: 17, endLine: 6, endColumn: 21);
+            var expected = VerifyCS.Diagnostic().WithLocation(0);
 
             var fixedSource = @"#nullable enable
 class C
@@ -77,10 +77,10 @@ class C
 {
     void M(string? foo)
     {
-        var x = (foo + """")!;
+        var x = {|#0:(foo + """")!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithSpan(startLine: 6, startColumn: 17, endLine: 6, endColumn: 28);
+            var expected = VerifyCS.Diagnostic().WithLocation(0);
 
             var fixedSource = @"#nullable enable
 class C
@@ -101,10 +101,10 @@ class C
 {
     void M(string? foo)
     {
-        var x = ((foo + """"))!;
+        var x = {|#0:((foo + """"))!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithSpan(startLine: 6, startColumn: 17, endLine: 6, endColumn: 30);
+            var expected = VerifyCS.Diagnostic().WithLocation(0);
 
             var fixedSource = @"#nullable enable
 class C
@@ -125,10 +125,10 @@ class C
 {
     void M(string? foo)
     {
-        var x = (foo!);
+        var x = ({|#0:foo!|});
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithSpan(startLine: 6, startColumn: 18, endLine: 6, endColumn: 22);
+            var expected = VerifyCS.Diagnostic().WithLocation(0);
 
             var fixedSource = @"#nullable enable
 class C
