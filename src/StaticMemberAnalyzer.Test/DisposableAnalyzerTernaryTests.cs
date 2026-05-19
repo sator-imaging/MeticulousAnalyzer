@@ -195,5 +195,29 @@ namespace Test
                 .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task TernaryWithCreationAssignmentToLocal_ReportsDiagnosticOnTernary()
+        {
+            var test = @"
+using System;
+using System.IO;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(bool isEmpty)
+        {
+            var d = {|#0:isEmpty ? null : new MemoryStream()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MemoryStream");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
