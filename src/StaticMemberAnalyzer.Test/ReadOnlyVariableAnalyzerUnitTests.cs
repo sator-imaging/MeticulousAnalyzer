@@ -1001,6 +1001,57 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task BuiltinPrimitives_NoDiagnostic()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    struct MutableStruct_ReadOnlyPrimitifeFields
+    {
+        readonly int integer;
+        readonly float number;
+        readonly DateTime temporal;
+        readonly string text;
+
+        void M()
+        {
+            Use(integer);
+            Use(number);
+            Use(temporal);
+            Use(text);
+        }
+        void Use(int v) {}
+        void Use(float v) {}
+        void Use(DateTime v) {}
+        void Use(string v) {}
+    }
+
+    class Class_ReadOnlyPrimitifeFields
+    {
+        readonly int integer;
+        readonly float number;
+        readonly DateTime temporal;
+        readonly string text;
+
+        void M()
+        {
+            Use(integer);
+            Use(number);
+            Use(temporal);
+            Use(text);
+        }
+        void Use(int v) {}
+        void Use(float v) {}
+        void Use(DateTime v) {}
+        void Use(string v) {}
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+        [TestMethod]
         public async Task PropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"

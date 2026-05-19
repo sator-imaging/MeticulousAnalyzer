@@ -281,6 +281,40 @@ partial class TestClass
         }
 
         [TestMethod]
+        public async Task SMA0043_SuppressionCommentOnField_NoDiagnostic()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable
+{
+    // Don't dispose
+    IDisposable _disposable;
+
+    public void Dispose() { }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_UndisposedField_NoSuppression_ReportsDiagnostic()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable
+{
+    IDisposable {|#0:_disposable|};
+
+    public void Dispose() { }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_disposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0045_MissingIDisposableInterface()
         {
             var test = @"
