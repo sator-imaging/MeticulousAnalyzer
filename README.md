@@ -19,7 +19,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
-- `struct` parameter-less constructor misuse analysis
+- [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - `TSelf` generic type argument & type constraint analysis
 - File header comment enforcement
 - ~~Annotating and underlining field, property or etc with custom message~~
@@ -615,6 +615,23 @@ class Demo
 
 
 
+
+
+&nbsp;
+
+# Struct Analysis
+
+Analyze the use of `struct` types to prevent common mistakes and performance issues.
+
+- SMA0030: Invalid Struct Constructor
+    - Constructor has declared explicitly so should not use parameter-less one.
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - Mutable struct type should not be set to `readonly` field.
+- SMA0032: Implicit Boxing Conversion
+    - Implicit conversion from struct to reference type (including interface) causes boxing. Note that explicit casts are exempt from this analysis.
+
+> [!TIP]
+> You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 &nbsp;

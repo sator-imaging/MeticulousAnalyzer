@@ -17,6 +17,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class StructAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Allow boxing";
+
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_InvalidStructCtor = "SMA0030";
@@ -170,6 +173,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // Boxing conversion from value type to reference type (including interface)
             if (op.Operand.Type.IsValueType && op.Type.IsReferenceType)
             {
+                if (Core.IsSuppressedByComment(op, SuppressionComment))
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ImplicitBoxing, op.Syntax.GetLocation(),
                     op.Operand.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
