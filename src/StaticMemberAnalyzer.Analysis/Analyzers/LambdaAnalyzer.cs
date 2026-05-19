@@ -55,7 +55,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var delegateCreation = (IDelegateCreationOperation)context.Operation;
             if (!delegateCreation.IsImplicit) return;
 
-            // Don't show warning if the "value" is lambda.
+            // Don't show warning if the "value" is lambda as it is handled by AnalyzeLambda.
             var unwrapped = UnwrapConversion(delegateCreation.Target);
             if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
 
@@ -66,26 +66,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
 
-            // attribute argument is not required to be analyzed
-            if (IsAttributeArgument(delegateCreation.Syntax)) return;
-
             context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, delegateCreation.Target.Syntax.GetLocation(), delegateCreation.Type.ToDisplayString()));
         }
 
         private static void AnalyzeLambda(SyntaxNodeAnalysisContext context)
         {
-            var lambda = context.Node;
-            bool isStatic = false;
+            var lambda = (LambdaExpressionSyntax)context.Node;
+            if (lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            if (lambda is SimpleLambdaExpressionSyntax simple)
-                isStatic = simple.Modifiers.Any(SyntaxKind.StaticKeyword);
-            else if (lambda is ParenthesizedLambdaExpressionSyntax parenthesized)
-                isStatic = parenthesized.Modifiers.Any(SyntaxKind.StaticKeyword);
-
-            if (!isStatic)
+            if (IsEffectivelyStatic(lambda, context.SemanticModel))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
             }
+        }
+
+        private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
+        {
+            var flow = semanticModel.AnalyzeDataFlow(lambda.Body);
+            return !flow.CapturedInside.Any();
         }
 
         private static void AnalyzeConversion(OperationAnalysisContext context)
@@ -93,7 +91,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var conversion = (IConversionOperation)context.Operation;
             if (!conversion.IsImplicit) return;
 
-            // Don't show warning if the "value" is lambda.
+            // Don't show warning if the "value" is lambda as it is handled by AnalyzeLambda.
             var unwrapped = UnwrapConversion(conversion.Operand);
             if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
 
@@ -104,15 +102,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
 
-            // attribute argument is not required to be analyzed
-            if (IsAttributeArgument(conversion.Syntax)) return;
-
             context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, conversion.Operand.Syntax.GetLocation(), conversion.Type.ToDisplayString()));
-        }
-
-        private static bool IsAttributeArgument(SyntaxNode syntax)
-        {
-            return syntax.AncestorsAndSelf().Any(n => n is AttributeArgumentSyntax);
         }
 
         private static IOperation UnwrapConversion(IOperation operation)
@@ -148,15 +138,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsActionOrFunc(ITypeSymbol? type)
         {
-            if (type == null) return false;
-            //if (type.TypeKind != TypeKind.Delegate) return false;
-
-            var ns = type.ContainingNamespace;
-            if (ns == null || ns.Name != "System" || !ns.ContainingNamespace.IsGlobalNamespace)
-                return false;
-
-            var name = type.MetadataName;
-            return name == "Action" || name.StartsWith("Action`") || name.StartsWith("Func`") || name == "Func";
+            return type is { Name: "Action" or "Func" }
+                && type.ContainingNamespace is INamespaceSymbol { Name: "System", ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true } };
         }
     }
 }

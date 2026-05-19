@@ -409,5 +409,21 @@ public class C
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
+        [TestMethod]
+        public async Task TestLambdaCapturingVariableDoesNotReportSMA7000()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void M()
+    {
+        int x = 0;
+        Action a = () => { x++; };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
