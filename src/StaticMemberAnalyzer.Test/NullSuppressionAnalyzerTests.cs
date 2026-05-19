@@ -7,33 +7,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.NullSuppressionAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.NullSuppressionCodeFixProvider>;
-using Microsoft.CodeAnalysis.Testing;
+using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
     public class NullSuppressionAnalyzerTests
     {
+        private static DiagnosticResult CreateExpectedDiagnostic(int locationIndex)
+        {
+            return VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression)
+                .WithLocation(locationIndex)
+                .WithSeverity(DiagnosticSeverity.Warning);
+        }
+
         [TestMethod]
         public async Task NullSuppressionWithoutParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = {|#0:foo!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithLocation(0);
+            var expected = CreateExpectedDiagnostic(0);
 
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = (((foo)))!;
     }
@@ -47,7 +58,8 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = (((foo)))!;
     }
@@ -61,7 +73,8 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = ((((foo))))!;
     }
@@ -75,19 +88,21 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string foo)
+    string? foo;
+    void M()
     {
-        var x = {|#0:(foo + """")!|};
+        var x = {|#0:(this.foo)!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithLocation(0);
+            var expected = CreateExpectedDiagnostic(0);
 
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string foo)
+    string? foo;
+    void M()
     {
-        var x = (((foo + """")))!;
+        var x = (((this.foo)))!;
     }
 }";
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
@@ -99,19 +114,21 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string foo)
+    string? foo;
+    void M()
     {
-        var x = {|#0:((foo + """"))!|};
+        var x = {|#0:((this.foo))!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithLocation(0);
+            var expected = CreateExpectedDiagnostic(0);
 
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string foo)
+    string? foo;
+    void M()
     {
-        var x = (((foo + """")))!;
+        var x = (((this.foo)))!;
     }
 }";
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
@@ -123,17 +140,19 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = ({|#0:foo!|});
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithLocation(0);
+            var expected = CreateExpectedDiagnostic(0);
 
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = ((((foo)))!);
     }
@@ -147,17 +166,19 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = {|#0:(foo ?? """")!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithLocation(0);
+            var expected = CreateExpectedDiagnostic(0);
 
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = (((foo ?? """")))!;
     }
@@ -171,17 +192,19 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = {|#0:((foo ?? """"))!|};
     }
 }";
-            var expected = VerifyCS.Diagnostic().WithLocation(0);
+            var expected = CreateExpectedDiagnostic(0);
 
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    string? foo;
+    void M()
     {
         var x = (((foo ?? """")))!;
     }
