@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.LambdaAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.LambdaStaticCodeFixProvider>;
@@ -409,5 +410,41 @@ public class C
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
+        [TestMethod]
+        public async Task TestLambdaCapturingVariableReportsSMA7000()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void M()
+    {
+        int x = 0;
+        Action a = {|#0:() => { x++; }|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+
+            var fixtest = @"
+using System;
+public class C
+{
+    void M()
+    {
+        int x = 0;
+        Action a = static () => { x++; };
+    }
+}
+";
+            var testVerifier = new VerifyCS.Test
+            {
+                TestCode = test,
+                FixedCode = fixtest,
+                CompilerDiagnostics = CompilerDiagnostics.None,
+            };
+            testVerifier.ExpectedDiagnostics.Add(expected);
+            await testVerifier.RunAsync();
+        }
     }
 }
