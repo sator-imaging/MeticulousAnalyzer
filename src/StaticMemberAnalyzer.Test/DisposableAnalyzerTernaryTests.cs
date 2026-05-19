@@ -103,5 +103,48 @@ namespace Test
                 .WithArguments("MemoryStream");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task TernaryWithCastInUsing_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(object foo, bool isEmpty)
+        {
+            using var d = isEmpty ? null : foo as IDisposable;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TernaryWithCastWithoutUsing_ReportsDiagnosticOnTernary()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(object foo, bool isEmpty)
+        {
+            var d = {|#0:isEmpty ? null : foo as IDisposable|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
