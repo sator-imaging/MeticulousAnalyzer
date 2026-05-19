@@ -73,10 +73,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (context.Node is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            if (!IsEffectivelyStatic(lambda, context.SemanticModel))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
-            }
+            var isEffectivelyStatic = IsEffectivelyStatic(lambda, context.SemanticModel);
+            var properties = ImmutableDictionary<string, string>.Empty.Add("IsEffectivelyStatic", isEffectivelyStatic.ToString());
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation(), properties));
         }
 
         public static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
@@ -137,7 +137,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsActionOrFunc(ITypeSymbol? type)
         {
-            return type is { Name: "Action" or "Func" }
+            return type?.Name is "Action" or "Func"
                 && type.ContainingNamespace is INamespaceSymbol { Name: "System", ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true } };
         }
     }
