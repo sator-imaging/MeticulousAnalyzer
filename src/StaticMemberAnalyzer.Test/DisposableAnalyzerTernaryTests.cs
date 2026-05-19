@@ -172,5 +172,29 @@ namespace Test
                 .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task TernaryWithCastAssignmentToLocal_ReportsDiagnosticOnTernary()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(object foo, bool isEmpty)
+        {
+            IDisposable d;
+            d = {|#0:isEmpty ? null : foo as IDisposable|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
