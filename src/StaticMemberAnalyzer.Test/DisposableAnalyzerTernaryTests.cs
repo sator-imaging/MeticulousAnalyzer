@@ -185,8 +185,7 @@ namespace Test
     {
         void Method(object foo, bool isEmpty)
         {
-            IDisposable d;
-            d = {|#0:isEmpty ? null : foo as IDisposable|};
+            var d = {|#0:isEmpty ? null : foo as IDisposable|};
         }
     }
 }
