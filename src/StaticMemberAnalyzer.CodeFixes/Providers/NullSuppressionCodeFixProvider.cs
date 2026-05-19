@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,7 +29,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return;
 
             foreach (var diagnostic in context.Diagnostics)
@@ -52,7 +51,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         private async Task<Document> AddParenthesesFenceAsync(Document document, PostfixUnaryExpressionSyntax suppression, CancellationToken cancellationToken)
         {
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
 
             // Unwrap existing parentheses
