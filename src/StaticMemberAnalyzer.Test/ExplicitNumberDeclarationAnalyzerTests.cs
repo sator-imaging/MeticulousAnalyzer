@@ -30,6 +30,8 @@ namespace Test
             var {|#8:v_float|} = 1.0f;
             var {|#9:v_double|} = 1.0;
             var {|#10:v_decimal|} = 1.0m;
+            var {|#11:v_nint|} = (nint)1;
+            var {|#12:v_nuint|} = (nuint)1;
         }
     }
 }
@@ -45,7 +47,9 @@ namespace Test
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(7).WithArguments("v_ulong"),
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(8).WithArguments("v_float"),
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(9).WithArguments("v_double"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(10).WithArguments("v_decimal")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(10).WithArguments("v_decimal"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(11).WithArguments("v_nint"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(12).WithArguments("v_nuint")
             );
         }
 
@@ -70,6 +74,8 @@ namespace Test
             float v_float = 1;
             double v_double = 1;
             decimal v_decimal = 1;
+            nint v_nint = 1;
+            nuint v_nuint = 1;
         }
     }
 }

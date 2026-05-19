@@ -80,7 +80,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 SpecialType.System_UInt64 or
                 SpecialType.System_Single or
                 SpecialType.System_Double or
-                SpecialType.System_Decimal => true,
+                SpecialType.System_Decimal or
+                SpecialType.System_IntPtr or
+                SpecialType.System_UIntPtr => true,
                 _ => false,
             };
         }
