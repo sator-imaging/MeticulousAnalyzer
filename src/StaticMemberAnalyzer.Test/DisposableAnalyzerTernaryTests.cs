@@ -125,7 +125,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithFooAndCastInUsing_ReportsNoDiagnostic()
+        public async Task TernaryWithFooAndCastInUsing_ReportsDiagnosticOnCast()
         {
             var test = @"
 using System;
@@ -137,14 +137,40 @@ namespace Test
         IDisposable Foo(IDisposable d) => d;
         void Method(object bar, bool isEmpty)
         {
-            using var d = isEmpty ? null : Foo(bar as IDisposable);
+            using var d = isEmpty ? null : Foo({|#0:bar as IDisposable|});
         }
     }
 }
 ";
-            // NOTE: 'bar as IDisposable' does not report diagnostic when passed as an argument
-            // in the current implementation because it is not an object creation operation.
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TernaryWithFooAndCreationInUsing_ReportsDiagnosticOnCreation()
+        {
+            var test = @"
+using System;
+using System.IO;
+
+namespace Test
+{
+    class Program
+    {
+        IDisposable Foo(IDisposable d) => d;
+        void Method(bool isEmpty)
+        {
+            using var d = isEmpty ? null : Foo({|#0:new MemoryStream()|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }

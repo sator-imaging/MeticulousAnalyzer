@@ -430,6 +430,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // MUST check before unpacking implicit cast
             bool isCreationOp = op is IObjectCreationOperation
+                                   or IConversionOperation
                                    or IAnonymousObjectCreationOperation
                                    or ITypeParameterObjectCreationOperation
                                    or IDefaultValueOperation
