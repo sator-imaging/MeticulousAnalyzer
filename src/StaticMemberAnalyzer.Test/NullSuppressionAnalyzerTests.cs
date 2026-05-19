@@ -75,7 +75,7 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    void M(string foo)
     {
         var x = {|#0:(foo + """")!|};
     }
@@ -85,7 +85,7 @@ class C
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    void M(string foo)
     {
         var x = (((foo + """")))!;
     }
@@ -99,7 +99,7 @@ class C
             var test = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    void M(string foo)
     {
         var x = {|#0:((foo + """"))!|};
     }
@@ -109,7 +109,7 @@ class C
             var fixedSource = @"#nullable enable
 class C
 {
-    void M(string? foo)
+    void M(string foo)
     {
         var x = (((foo + """")))!;
     }
@@ -118,7 +118,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionInsideParentheses_Requested_ReportsDiagnosticAndFixes()
+        public async Task NullSuppressionInsideParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
@@ -136,6 +136,54 @@ class C
     void M(string? foo)
     {
         var x = ((((foo)))!);
+    }
+}";
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [TestMethod]
+        public async Task NullSuppressionWithExpressionAndOneParenthesis_ReportsDiagnosticAndFixes()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = {|#0:(foo ?? """")!|};
+    }
+}";
+            var expected = VerifyCS.Diagnostic().WithLocation(0);
+
+            var fixedSource = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = (((foo ?? """")))!;
+    }
+}";
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [TestMethod]
+        public async Task NullSuppressionWithExpressionAndTwoParentheses_ReportsDiagnosticAndFixes()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = {|#0:((foo ?? """"))!|};
+    }
+}";
+            var expected = VerifyCS.Diagnostic().WithLocation(0);
+
+            var fixedSource = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = (((foo ?? """")))!;
     }
 }";
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
