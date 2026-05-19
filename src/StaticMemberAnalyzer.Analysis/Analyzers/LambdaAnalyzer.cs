@@ -138,7 +138,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsActionOrFunc(ITypeSymbol? type)
         {
             return type?.Name is "Action" or "Func"
-                && type.ContainingNamespace is INamespaceSymbol { Name: "System", ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true } };
+                && type.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "System",
+                    ContainingNamespace: INamespaceSymbol
+                    {
+                        IsGlobalNamespace: true,
+                    }
+                };
         }
     }
 }
