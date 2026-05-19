@@ -656,16 +656,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsAllowedArgumentValue(IOperation value)
         {
-            return value
-                is IInvocationOperation
-                or IPropertyReferenceOperation
-                or IObjectCreationOperation
-                or IAnonymousObjectCreationOperation
-                or IArrayCreationOperation
-                or ILiteralOperation
-                or IDefaultValueOperation
-                or IAnonymousFunctionOperation
-                or IDelegateCreationOperation;
+            return value.Kind
+                is OperationKind.Invocation
+                or OperationKind.PropertyReference
+                or OperationKind.ObjectCreation
+                or OperationKind.AnonymousObjectCreation
+                or OperationKind.ArrayCreation
+                or OperationKind.Literal
+                or OperationKind.DefaultValue
+                or OperationKind.AnonymousFunction
+                or OperationKind.DelegateCreation;
         }
     }
 }

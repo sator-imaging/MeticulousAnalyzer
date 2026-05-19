@@ -94,7 +94,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             }
 
             var attr = typeSymbol.GetAttributes()
-                .FirstOrDefault(attr =>
+                .FirstOrDefault(static attr =>
                 {
                     if (attr.AttributeClass?.Name == nameof(ObfuscationAttribute)
                      && attr.AttributeClass.ToString() == NS_OBFUSCATION + "." + nameof(ObfuscationAttribute))
@@ -163,12 +163,12 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
                 // NOTE: to prevent error on no parentheses syntax --> `[Obfuscation]` (no '()' at end)
                 var updatedArgList = foundAttr.ArgumentList ?? SyntaxFactory.AttributeArgumentList();
-                var updatedArgs = updatedArgList.Arguments.Where(static x =>
+                var currentArgs = updatedArgList.Arguments.Where(static x =>
                 {
                     return x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers);
                 });
 
-                updatedArgs = updatedArgs.ToImmutableArray()
+                var updatedArgs = currentArgs.ToImmutableArray()
                     //1st
                     .Insert(index: 0, SyntaxFactory.AttributeArgument(
                         SyntaxFactory.NameEquals(
