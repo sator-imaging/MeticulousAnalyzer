@@ -11,7 +11,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -105,7 +104,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Node is not TypeDeclarationSyntax targetTypeDeclStx)
                 return;
 
-            var baseTypeList = targetTypeDeclStx.DescendantNodes().OfType<BaseListSyntax>().FirstOrDefault();
+            var baseTypeList = targetTypeDeclStx.DescendantNodes().OfType_FirstOrDefault<BaseListSyntax>();
             if (baseTypeList == null)
                 return;
 
@@ -126,7 +125,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             bool isContravariant = false;
             foreach (var baseType in baseTypeList.Types)
             {
-                var genName = baseType.DescendantNodes().OfType<GenericNameSyntax>().FirstOrDefault();
+                var genName = baseType.DescendantNodes().OfType_FirstOrDefault<GenericNameSyntax>();
                 if (genName == null)
                     continue;
 
@@ -145,13 +144,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                int TSelfTypeArgPosition = -1;
+                int tselfTypeArgPosition = -1;
                 foreach (var baseDeclareRef in baseSymbol.DeclaringSyntaxReferences)
                 {
                     if (baseDeclareRef.GetSyntax() is not TypeDeclarationSyntax baseDeclare)
                         continue;
 
-                    var baseTypeParamList = baseDeclare.DescendantNodes().OfType<TypeParameterListSyntax>().FirstOrDefault();
+                    var baseTypeParamList = baseDeclare.DescendantNodes().OfType_FirstOrDefault<TypeParameterListSyntax>();
                     if (baseTypeParamList == null)
                         continue;
 
@@ -160,7 +159,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         var param = baseTypeParamList.Parameters[i];
                         if (param.Identifier.Text == TSELF_NAME)
                         {
-                            TSelfTypeArgPosition = i;
+                            tselfTypeArgPosition = i;
 
                             isCovariant = param.VarianceKeyword.IsKind(SyntaxKind.OutKeyword);
                             isContravariant = param.VarianceKeyword.IsKind(SyntaxKind.InKeyword);
@@ -173,10 +172,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             EXIT_FOREACH:
                 ;
 
-                if (TSelfTypeArgPosition < 0)
+                if (tselfTypeArgPosition < 0)
                     continue;
 
-                var foundTypeArgNode = typeArgList.DescendantNodes().ElementAtOrDefault(TSelfTypeArgPosition);
+                var foundTypeArgNode = typeArgList.DescendantNodes().ElementAtOrDefault(tselfTypeArgPosition);
                 if (foundTypeArgNode == null)
                     continue;
 

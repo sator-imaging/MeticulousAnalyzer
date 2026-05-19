@@ -174,27 +174,8 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-**通过注释抑制**
-
-在局部变量声明的正上方添加以 `// Allow enum conversion`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
-
-```cs
-// Allow enum conversion
-var x1 = (ETest)1;
-
-// Allow enum conversion: because it is managed by external library.
-// - 允许使用多个单行注释，但 '// Allow enum conversion' 必须是第一行。
-var x2 = ETest.Value.ToString();
-
-// 以下代码不会被抑制，因为它不是第一个注释行。
-// （搜索第一个注释时会忽略空白行）
-
-// Allow enum conversion
-var x = (ETest)1;
-```
-
-> [!NOTE]
-> 此抑制方式对局部变量的初始声明有效。对现有变量的常规赋值和弃元（discard）赋值无法通过注释来抑制。
+> [!TIP]
+> 可以通过注释 `// Allow enum conversion` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
 ## 从混淆中排除 `Enum` 类型
@@ -348,29 +329,8 @@ d = (new object()) as IDisposable;
 
 
 
-**通过注释抑制**
-
-在局部变量声明或弃元（discard）赋值的正上方添加以 `// Don't dispose`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
-
-```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// Don't dispose because it is managed by external library.
-// - 允许使用多个单行注释，但 '// Don't dispose' 必须是第一行。
-_ = new MyDisposable();
-
-// 以下代码不会被抑制，因为它不是第一个注释行。
-// （搜索第一个注释时会忽略空白行）
-
-// Don't dispose
-var d = new MyDisposable();
-```
-
-> [!NOTE]
-> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
->
-> 使用名为 `_` 的变量（例如 `var _ = new Disposable();`）不是弃元，不会被注释抑制。
+> [!TIP]
+> 可以通过注释 `// Don't dispose` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
 
@@ -448,28 +408,8 @@ async Task Method()
 ```
 
 
-**通过注释抑制**
-
-在局部变量声明的正上方添加以 `// Don't await`（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
-
-```cs
-// Don't await
-var t = Task.Run(...);
-
-// Don't await because it is managed by external library.
-// - 允许使用多个单行注释，但 '// Don't await' 必须是第一行。
-var t = Task.Run(...);
-
-// 以下代码不会被抑制，因为它不是第一个注释行。
-// （搜索第一个注释时会忽略空白行）
-
-// NOTE:
-// Don't await
-var t = Task.Run(...);
-```
-
-> [!NOTE]
-> 此抑制方式对局部变量的初始声明有效。对现有变量的常规赋值无法通过注释来抑制。
+> [!TIP]
+> 可以通过注释 `// Don't await` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
 
 
@@ -496,6 +436,28 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
 >
 > 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
+
+
+## 数值类型的显式声明
+
+从 `sbyte` 到 `decimal` 的所有系统原始数值类型都应使用显式类型声明，而不是 `var`。
+
+```cs
+var integer = 1;
+//  ~~~~~~~
+var floating = 1;
+//  ~~~~~~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
+```
+
+期望的代码：
+
+```cs
+long integer = 1;
+double floating = 1;
+```
+
+> [!IMPORTANT]
+> 此分析仅针对 `var` 声明，不考虑隐式类型转换。
 
 
 
@@ -743,3 +705,33 @@ public static int Underline_Drawn = 310;
 ```
 
 </details>
+
+
+
+
+
+&nbsp;
+
+# 通过注释抑制
+
+在局部变量声明或弃元（discard）赋值的正上方添加以特定字符串（不区分大小写但区分空格）开头的单行注释。搜索抑制注释时会忽略空白行。
+
+> [!NOTE]
+> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
+>
+> 使用名为 `_` 的变量（例如 `var _ = new Disposable();`）不是弃元，不会被注释抑制。
+
+```cs
+// Don't dispose
+_ = new MyDisposable();
+
+// Don't dispose: 允许使用多个单行注释，
+// 但抑制注释必须是第一行。
+var x = new MyDisposable();
+
+// 以下代码不会被抑制，因为它不是第一个注释行。
+// （搜索第一个注释时会忽略空白行）
+
+// Don't dispose because...
+var x = new MyDisposable();
+```

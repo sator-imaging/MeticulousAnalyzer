@@ -10,7 +10,6 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,7 +67,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var typeDecl = root.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<EnumDeclarationSyntax>().FirstOrDefault();
+            var typeDecl = root.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
             if (typeDecl == null || !typeDecl.Span.IntersectsWith(diagnosticSpan))
                 return document;
 
@@ -142,21 +141,22 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             else
             {
                 var foundAttr = typeDecl.AttributeLists
-                    .SelectMany(static x => x.Attributes)
-                    .FirstOrDefault(static x =>
-                    {
-                        var name = x.Name.ToString();
-                        if (name == ATTR_OBFUSCATION_SHORT_NAME
-                         || name.EndsWith(ATTR_OBFUSCATION_SHORT_NAME, StringComparison.Ordinal)
-                         || name == nameof(ObfuscationAttribute)
-                         || name.EndsWith(nameof(ObfuscationAttribute), StringComparison.Ordinal)
-                        )
+                    .SelectMany_FirstOrDefault(
+                        static x => x.Attributes,
+                        static x =>
                         {
-                            return true;
-                        }
-                        return false;
-                    })
-                    ;
+                            var name = x.Name.ToString();
+                            if (name == ATTR_OBFUSCATION_SHORT_NAME
+                             || name.EndsWith(ATTR_OBFUSCATION_SHORT_NAME, StringComparison.Ordinal)
+                             || name == nameof(ObfuscationAttribute)
+                             || name.EndsWith(nameof(ObfuscationAttribute), StringComparison.Ordinal)
+                            )
+                            {
+                                return true;
+                            }
+                            return false;
+                        })
+                        ;
 
                 if (foundAttr == null)
                     return document;
@@ -193,7 +193,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                         foundAttr,
                         foundAttr.WithArgumentList(
                             updatedArgList.WithArguments(
-                                SyntaxFactory.SeparatedList(updatedArgs.ToImmutableArray())
+                                SyntaxFactory.SeparatedList(updatedArgs)
                             )
                         )
                     )

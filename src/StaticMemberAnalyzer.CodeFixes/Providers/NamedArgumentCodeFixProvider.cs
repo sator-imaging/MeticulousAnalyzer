@@ -10,7 +10,6 @@ using Microsoft.CodeAnalysis.Operations;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,7 +40,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
                 if (node == null) continue;
 
-                var argumentNode = node.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
+                var argumentNode = node.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax or AttributeArgumentSyntax);
                 if (argumentNode == null) continue;
 
                 context.RegisterCodeFix(
@@ -59,7 +58,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             if (root == null) return document;
 
             var node = root.FindNode(argumentSpan, getInnermostNodeForTie: true);
-            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax || n is AttributeArgumentSyntax);
+            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax or AttributeArgumentSyntax);
             if (argumentNode == null) return document;
 
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);

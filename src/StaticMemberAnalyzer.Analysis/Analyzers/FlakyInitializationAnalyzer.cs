@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -198,7 +197,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         foreach (var dsr in refOpMemberContainingTypeDeclares)
                         {
                             var s = dsr.GetSyntax(token);
-                            crossFDSyntaxList.AddRange(s.DescendantNodes().OfType<FieldDeclarationSyntax>());
+                            foreach (var fieldStx in s.DescendantNodes().OfType<FieldDeclarationSyntax>())
+                            {
+                                crossFDSyntaxList.Add(fieldStx);
+                            }
                         }
 
                         foreach (var crossField in crossFDSyntaxList)

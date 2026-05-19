@@ -9,8 +9,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -99,7 +99,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IAnonymousObjectCreationOperation op || !op.Type.IsValueType)
                 return;
 
-            if (!op.Children.OfType<IArgumentOperation>().Any() && op.Type is INamedTypeSymbol namedSymbol)
+            if (!op.Children.OfType_Any<IArgumentOperation>() && op.Type is INamedTypeSymbol namedSymbol)
             {
                 AnalyzeConstructor_Impl(context, namedSymbol);
             }
@@ -110,12 +110,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                                     INamedTypeSymbol structSymbol
             )
         {
-            var ctors = structSymbol.InstanceConstructors
-                .Where(static x => x.Parameters.Length > 0)
+            var hasCtor = structSymbol.InstanceConstructors
+                .Where_Any(static x => x.Parameters.Length > 0)
                 //.Where(static x => (x.DeclaredAccessibility & ~(Accessibility.Private | Accessibility.NotApplicable)) != 0)
                 ;
 
-            if (!ctors.Any())
+            if (!hasCtor)
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(
@@ -148,10 +148,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 typeSymbol = namedType.TypeArguments[0];
             }
 
-            if (typeSymbol.TypeKind == TypeKind.Enum)
-                return;
-
-            if (typeSymbol.IsReadOnly)
+            // NOTE: int or other elder primitive types are NOT readonly struct.
+            if (Core.IsKnownImmutableType(typeSymbol))
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(

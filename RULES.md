@@ -69,11 +69,17 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 |---------|--------------------------------------------|-------------
 | SMA7000 | Lambda should be static                    | Lambda declaration should be 'static' to avoid unnecessary allocations.
 | SMA7001 | Implicit conversion to delegate            | Implicit conversion to Action or Func delegate from instance member causes allocation. Use lambda or static member instead.
+## Async Context Analysis
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned. You can suppress by adding preceding comment "// Don't await".
+| SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths. You can suppress by adding preceding comment "// Don't await".
 
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
+| SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description

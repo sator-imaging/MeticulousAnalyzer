@@ -1386,12 +1386,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
             }
         }
 
+        ///   All system primitive numbers, from byte to decimal, should be declared explicitly typed. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8001_Description {
+            get {
+                return ResourceManager.GetString("SMA8001_Description", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Lambda declaration should be static to avoid unnecessary allocations. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA7000_Description {
             get {
                 return ResourceManager.GetString("SMA7000_Description", resourceCulture);
+            }
+        }
+
+        ///   Variable &apos;{0}&apos; should be declared with an explicit number type instead of &apos;var&apos; (ExplicitNumber) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8001_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA8001_MessageFormat", resourceCulture);
             }
         }
 
@@ -1437,6 +1453,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         internal static string SMA7001_Title {
             get {
                 return ResourceManager.GetString("SMA7001_Title", resourceCulture);
+            }
+        }
+
+        ///   Explicit number declaration に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8001_Title {
+            get {
+                return ResourceManager.GetString("SMA8001_Title", resourceCulture);
             }
         }
     }

@@ -174,27 +174,8 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
-**Suppress by Comment**
-
-Add a single-line comment starting with `// Allow enum conversion` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
-
-```cs
-// Allow enum conversion
-var x1 = (ETest)1;
-
-// Allow enum conversion: because it is managed by external library.
-// - Multiple single line comments are allowed but '// Allow enum conversion' must be the first.
-var x2 = ETest.Value.ToString();
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// Allow enum conversion
-var x = (ETest)1;
-```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations. Regular assignments and discard assignments to existing variables cannot be suppressed by comments.
+> [!TIP]
+> You can suppress by comment `// Allow enum conversion`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 ## Excluding Enum Type from Obfuscation
@@ -348,29 +329,8 @@ Analyzer won't show warning in the following condition:
 
 
 
-**Suppress by Comment**
-
-Add a single-line comment starting with `// Don't dispose` (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
-
-```cs
-// Don't dispose
-var d = new MyDisposable();
-
-// Don't dispose because it is managed by external library.
-// - Multiple single line comments are allowed but '// Don't dispose' must be the first.
-_ = new MyDisposable();
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// Don't dispose
-var d = new MyDisposable();
-```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
->
-> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+> [!TIP]
+> You can suppress by comment `// Don't dispose`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 
@@ -448,28 +408,8 @@ async Task Method()
 ```
 
 
-**Suppress by Comment**
-
-Add a single-line comment starting with `// Don't await` (case-insensitive but white space sensitive) immediately before the local variable declaration. Blank lines are ignored when searching for the suppression comment.
-
-```cs
-// Don't await
-var t = Task.Run(...);
-
-// Don't await because it is managed by external library.
-// - Multiple single line comments are allowed but '// Don't await' must be the first.
-var t = Task.Run(...);
-
-// The following WON'T suppress because it's not the first comment line.
-// (Blank lines are ignored when searching for the first comment)
-
-// NOTE:
-// Don't await
-var t = Task.Run(...);
-```
-
-> [!NOTE]
-> This suppression is effective for initial local variable declarations. Regular assignments to existing variables cannot be suppressed by comments.
+> [!TIP]
+> You can suppress by comment `// Don't await`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 
@@ -496,6 +436,28 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > `string`, `System.Text`, and `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
 >
 > Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
+
+
+## Explicit Number Declaration
+
+All system primitive numbers, from `sbyte` to `decimal`, should be declared with an explicit type instead of `var`.
+
+```cs
+var integer = 1;
+//  ~~~~~~~
+var floating = 1;
+//  ~~~~~~~~ reported: variable should be declared with an explicit number type
+```
+
+Expected:
+
+```cs
+long integer = 1;
+double floating = 1;
+```
+
+> [!IMPORTANT]
+> This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
 
@@ -743,3 +705,33 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
 ```
 
 </details>
+
+
+
+
+
+&nbsp;
+
+# Suppression Comment
+
+Add a single-line comment starting with a specific string (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
+
+> [!NOTE]
+> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+>
+> Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
+
+```cs
+// Don't dispose
+_ = new MyDisposable();
+
+// Don't dispose: Multiple single line comments are allowed,
+// but suppression comment must be the first.
+var x = new MyDisposable();
+
+// The following WON'T suppress because it's not the first comment line.
+// (Blank lines are ignored when searching for the first comment)
+
+// Don't dispose because...
+var x = new MyDisposable();
+```

@@ -13,9 +13,7 @@ using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -102,6 +100,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  DEBUG  ================================================================ */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static string NormalizeTextWithEllipsis(string? input)
+        {
+            return input?.Length > 72
+                ? input.Substring(0, 72) + "..."
+                : input ?? "<NULL TEXT>";
+        }
+
         [Conditional(conditionString: "STMG_DEBUG_MESSAGE")]
         internal static void ReportDebugMessage(Action<Diagnostic> reportMethod, ISymbol symbol, Location location,
             [CallerMemberName] string? callerMember = null,
@@ -110,7 +116,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Symbol: {symbol.Name} ({symbol})",
-                "> " + new string(symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().ToString().Take(count: 72).ToArray())
+                "> " + NormalizeTextWithEllipsis(symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax().ToString())
                 );
         }
 
@@ -132,12 +138,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             op = UnwrapNullCoalesceOperation(op);
 
+            var firstChildOp = op.Children?.FirstOrDefault();
+
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Op: {op.Kind} ({op.Type?.Name})",
                 $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
                 $"Grand Parent: {op.Parent?.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Parent?.Type?.Name})",
-                "> " + new string(op.Syntax?.ToString().Take(count: 72).ToArray()),
-                $"Child: {op.Children?.FirstOrDefault()?.UnwrapNullCoalesceOperation().Kind} ({op.Children?.FirstOrDefault()?.Type?.Name})"
+                "> " + NormalizeTextWithEllipsis(op.Syntax?.ToString()),
+                $"Child: {firstChildOp?.UnwrapNullCoalesceOperation().Kind} ({firstChildOp?.Type?.Name})"
                 );
         }
 
@@ -157,12 +165,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
+            var sb = new StringBuilder();
+            foreach (var child in syntax.ChildNodes())
+            {
+                if (sb.Length > 0)
+                {
+                    sb.Append(", ");
+                }
+
+                sb.Append(child.Kind().ToString());
+            }
+
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(syntax.GetLocation()),
                 $"Syntax: {syntax.Kind()}",
                 $"Parent: {syntax.Parent?.Kind()}",
                 $"Grand Parent: {syntax.Parent?.Parent?.Kind()}",
-                "> " + new string(syntax.ToString().Take(count: 72).ToArray()),
-                $"Children: {string.Join(separator: ", ", syntax.ChildNodes().Select(x => x.Kind().ToString()))}"
+                "> " + NormalizeTextWithEllipsis(syntax.ToString()),
+                $"Children: {sb}"
                 );
         }
 
@@ -236,12 +255,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  string op  ================================================================ */
 
-        [ThreadStatic, DescriptionAttribute] static StringBuilder? ts_sb;
-
         internal static string GetMemberNamePrefix(SyntaxNode? node)
         {
-            var sb = (ts_sb ??= new());
-            sb.Length = 0;  // don't clear! it will set capacity = 0 and allocated memory is gone!!
+            var sb = new StringBuilder();
 
             var parent = node?.Parent;
             while (parent != null)
@@ -253,6 +269,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                         break;
                     case NamespaceDeclarationSyntax ns:
                         sb.Insert(index: 0, ns.Name.ToString());
+                        break;
+
+                    default:
                         break;
                 }
                 parent = parent.Parent;
@@ -273,5 +292,83 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             return buffer.ToString();
         }
 
+
+        /*  suppression  ================================================================ */
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsSuppressedByComment(IOperation operation, string suppressionComment)
+        {
+            var parentOp = operation.Parent;
+
+            return (parentOp is ISimpleAssignmentOperation assignOp && IsSuppressedByComment(assignOp.Syntax, suppressionComment, isDiscardOperation: assignOp.Target is IDiscardOperation))
+                // NOTE: Null check is not required.
+                //       Always not null if code is valid, otherwise compile error.
+                //       --> Initializer -> Declarator -> Declaration -> LocalDeclaration
+                || (parentOp is IVariableInitializerOperation initOp && IsSuppressedByComment(initOp.Parent.Parent.Parent.Syntax, suppressionComment))
+                ;
+        }
+
+        /// <param name="isDiscardOperation">
+        /// Discard assignment is only allowed to be suppressed. e.g. `_ = Foo()`
+        /// </param>
+        internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment, bool isDiscardOperation = false)
+        {
+            SyntaxTrivia comment = default;
+
+            if (node is LocalDeclarationStatementSyntax
+                     // Allow "Don't dispose" on field declaration
+                     or FieldDeclarationSyntax
+                // Discard assignment is only allowed. e.g. _ = Foo;
+                || (isDiscardOperation && node is AssignmentExpressionSyntax))
+            {
+                foreach (var trivia in node.GetFirstToken().LeadingTrivia)
+                {
+                    if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                    {
+                        comment = trivia;
+                        break;
+                    }
+                }
+            }
+
+            return comment != default
+                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
+
+        /*  polyfill  ================================================================ */
+
+        public static bool IsKnownImmutableType(ITypeSymbol? symbol)
+        {
+            return symbol != null && symbol.SpecialType switch
+            {
+                SpecialType.System_String => true,
+
+                _ => symbol.IsReadOnly
+                  || symbol.TypeKind is TypeKind.Enum
+                  || symbol.OriginalDefinition.SpecialType is SpecialType.System_Collections_Generic_IEnumerable_T
+                                                           or SpecialType.System_Collections_Generic_IReadOnlyList_T
+                                                           or SpecialType.System_Collections_Generic_IReadOnlyCollection_T
+                                                           or SpecialType.System_Collections_IEnumerable
+                  || (
+                        symbol.ContainingNamespace is INamespaceSymbol
+                        {
+                            Name: "System",
+                            ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
+                        }
+                        && (
+                            // NOTE: int or other primitive types are NOT readonly struct.
+                            //       Instead, assumes system value types are immutable.
+                            symbol.IsValueType ||
+
+                            // Known readonly reference types from System (don't include struct)
+                            symbol.Name is "Uri" or "Version" or "Type"
+                        )
+                     ),
+            };
+        }
     }
 }
