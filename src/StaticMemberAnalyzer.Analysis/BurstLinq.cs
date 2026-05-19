@@ -91,6 +91,13 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         /* =====  Enumerator  ===== */
 
+        public static Linq_Where<T, ImmutableArray<T>> Where<T>(this ImmutableArray<T> source, Func<T, bool> static_lambda_where)
+            => new(source, static_lambda_where);
+
+        public static Linq_Where<T, SyntaxList<T>> Where<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_where)
+            where T : SyntaxNode
+            => new(source, static_lambda_where);
+
         public static Linq_Where<T, SeparatedSyntaxList<T>> Where<T>(this SeparatedSyntaxList<T> source, Func<T, bool> static_lambda_where)
             where T : SyntaxNode
             => new(source, static_lambda_where);
@@ -216,7 +223,7 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
             public Linq_OfType(IEnumerable<object> source)
             {
                 this.source = source;
-                this.isEmpty = source is IReadOnlyCollection<object> roc && roc.Count > 0;
+                this.isEmpty = source is IReadOnlyCollection<object> roc && roc.Count == 0;
             }
 
             public Enumerator GetEnumerator() => new(source, isEmpty);
