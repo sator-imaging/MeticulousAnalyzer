@@ -628,7 +628,7 @@ class Demo
 - SMA0031: Mutable Struct Field marked as Read-Only
     - 不应将可变结构体类型设置为 `readonly` 字段。
 - SMA0032: Implicit Boxing Conversion
-    - 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。
+    - 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。注意，显式转换（explicit cast）不在此分析范围内。
 
 > [!TIP]
 > 可以通过注释 `// Allow boxing` 来抑制隐式装箱分析（SMA0032）；详见 [通过注释抑制](#通过注释抑制) 章节。

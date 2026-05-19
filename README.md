@@ -628,7 +628,7 @@ Analyze the use of `struct` types to prevent common mistakes and performance iss
 - SMA0031: Mutable Struct Field marked as Read-Only
     - Mutable struct type should not be set to `readonly` field.
 - SMA0032: Implicit Boxing Conversion
-    - Implicit conversion from struct to reference type (including interface) causes boxing.
+    - Implicit conversion from struct to reference type (including interface) causes boxing. Note that explicit casts are exempt from this analysis.
 
 > [!TIP]
 > You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
