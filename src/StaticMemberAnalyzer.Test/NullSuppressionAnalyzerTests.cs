@@ -52,7 +52,7 @@ namespace Test
     {
         public void M(string? foo)
         {
-            var x = [|(foo + """")!|];
+            var x = [|(foo ?? """")!|];
         }
     }
 }
@@ -64,13 +64,14 @@ namespace Test
     {
         public void M(string? foo)
         {
-            var x = (((foo + """")))!;
+            var x = (((foo ?? """")))!;
         }
     }
 }
 ";
             await VerifyCS.VerifyCodeFixAsync(test, fixedCode);
         }
+
 
         [TestMethod]
         public async Task NullSuppressionWithTwoParentheses_ReportsDiagnosticAndFixes()
