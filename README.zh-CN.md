@@ -459,6 +459,25 @@ double floating = 1;
 > 此分析仅针对 `var` 声明，不考虑隐式类型转换。
 
 
+## Null 抑制操作
+
+为了提高视觉注意力和基于文本的可追溯性，Null 抑制操作应使用 3 层括号进行隔离。
+
+```cs
+var x = foo!;
+//      ~~~~ 报告：Null 抑制操作应使用 3 层括号进行隔离
+```
+
+期望的代码：
+
+```cs
+var x = (((foo)))!;
+```
+
+> [!TIP]
+> 通过 `dotnet format analyzers --diagnostics SMA8002` 应用代码修复，可以揭示代码库中所有的 Null 警告抑制。
+
+
 
 
 

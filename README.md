@@ -459,6 +459,25 @@ double floating = 1;
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
+## Null suppression operation
+
+Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
+
+```cs
+var x = foo!;
+//      ~~~~ reported: null suppression operation should be fenced with 3 parentheses
+```
+
+Expected:
+
+```cs
+var x = (((foo)))!;
+```
+
+> [!TIP]
+> Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
+
+
 
 
 

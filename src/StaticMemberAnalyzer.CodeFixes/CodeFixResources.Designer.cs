@@ -77,5 +77,14 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes {
                 return ResourceManager.GetString("CodeFix_NamedArgument", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Add 3 parentheses fence に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CodeFix_NullSuppression {
+            get {
+                return ResourceManager.GetString("CodeFix_NullSuppression", resourceCulture);
+            }
+        }
     }
 }
