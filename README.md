@@ -458,6 +458,22 @@ double floating = 1;
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
+## Null suppression operation
+
+Null suppression operation should be fenced with 3 parentheses to improve maintainability and readability.
+
+```cs
+var x = foo!;
+//      ~~~~ reported: null suppression operation should be fenced with 3 parentheses
+```
+
+Expected:
+
+```cs
+var x = (((foo)))!;
+```
+
+
 
 
 
