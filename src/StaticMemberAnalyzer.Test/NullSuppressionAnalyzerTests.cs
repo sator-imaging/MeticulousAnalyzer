@@ -1,10 +1,13 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
-using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.NullSuppressionAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.NullSuppressionCodeFixProvider>;
+using Microsoft.CodeAnalysis.Testing;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
@@ -15,109 +18,37 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         public async Task NullSuppressionWithoutParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
-namespace Test
+class C
 {
-    public class C
+    void M(string? foo)
     {
-        public void M(string? foo)
-        {
-            var x = [|foo!|];
-        }
+        var x = foo!;
     }
-}
-";
-            var fixedCode = @"#nullable enable
-namespace Test
-{
-    public class C
-    {
-        public void M(string? foo)
-        {
-            var x = (((foo)))!;
-        }
-    }
-}
-";
-            await VerifyCS.VerifyCodeFixAsync(test, fixedCode);
-        }
+}";
+            var expected = VerifyCS.Diagnostic().WithSpan(6, 17, 6, 21);
 
-
-        [TestMethod]
-        public async Task NullSuppressionWithOneParenthesis_ReportsDiagnosticAndFixes()
-        {
-            var test = @"#nullable enable
-namespace Test
+            var fixedSource = @"#nullable enable
+class C
 {
-    public class C
+    void M(string? foo)
     {
-        public void M(string? foo)
-        {
-            var x = [|(foo ?? """")!|];
-        }
+        var x = (((foo)))!;
     }
-}
-";
-            var fixedCode = @"#nullable enable
-namespace Test
-{
-    public class C
-    {
-        public void M(string? foo)
-        {
-            var x = (((foo ?? """")))!;
-        }
-    }
-}
-";
-            await VerifyCS.VerifyCodeFixAsync(test, fixedCode);
-        }
-
-
-        [TestMethod]
-        public async Task NullSuppressionWithTwoParentheses_ReportsDiagnosticAndFixes()
-        {
-            var test = @"#nullable enable
-namespace Test
-{
-    public class C
-    {
-        public void M(string? foo)
-        {
-            var x = [|((foo))!|];
-        }
-    }
-}
-";
-            var fixedCode = @"#nullable enable
-namespace Test
-{
-    public class C
-    {
-        public void M(string? foo)
-        {
-            var x = (((foo)))!;
-        }
-    }
-}
-";
-            await VerifyCS.VerifyCodeFixAsync(test, fixedCode);
+}";
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
         }
 
         [TestMethod]
         public async Task NullSuppressionWithThreeParentheses_DoesNotReportDiagnostic()
         {
             var test = @"#nullable enable
-namespace Test
+class C
 {
-    public class C
+    void M(string? foo)
     {
-        public void M(string? foo)
-        {
-            var x = (((foo)))!;
-        }
+        var x = (((foo)))!;
     }
-}
-";
+}";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -125,18 +56,86 @@ namespace Test
         public async Task NullSuppressionWithMoreThanThreeParentheses_DoesNotReportDiagnostic()
         {
             var test = @"#nullable enable
-namespace Test
+class C
 {
-    public class C
+    void M(string? foo)
     {
-        public void M(string? foo)
-        {
-            var x = ((((foo))))!;
-        }
+        var x = ((((foo))))!;
     }
-}
-";
+}";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task NullSuppressionWithOneParenthesis_Exact_ReportsDiagnosticAndFixes()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = (foo + """")!;
+    }
+}";
+            var expected = VerifyCS.Diagnostic().WithSpan(6, 17, 6, 28);
+
+            var fixedSource = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = (((foo + """")))!;
+    }
+}";
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [TestMethod]
+        public async Task NullSuppressionWithTwoParentheses_ReportsDiagnosticAndFixes()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = ((foo + """"))!;
+    }
+}";
+            var expected = VerifyCS.Diagnostic().WithSpan(6, 17, 6, 30);
+
+            var fixedSource = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = (((foo + """")))!;
+    }
+}";
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [TestMethod]
+        public async Task NullSuppressionInsideParentheses_Requested_ReportsDiagnosticAndFixes()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = (foo!);
+    }
+}";
+            var expected = VerifyCS.Diagnostic().WithSpan(6, 18, 6, 22);
+
+            var fixedSource = @"#nullable enable
+class C
+{
+    void M(string? foo)
+    {
+        var x = ((((foo)))!);
+    }
+}";
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
         }
     }
 }
