@@ -20,7 +20,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_LambdaShouldBeStatic,
             new LocalizableResourceString(nameof(Resources.SMA7000_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA7000_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.AssistanceCategory,
+            Core.Category,
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA7000_Description), Resources.ResourceManager, typeof(Resources)));
@@ -30,7 +30,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_ImplicitConversionToDelegate,
             new LocalizableResourceString(nameof(Resources.SMA7001_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA7001_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.AssistanceCategory,
+            Core.Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA7001_Description), Resources.ResourceManager, typeof(Resources)));
