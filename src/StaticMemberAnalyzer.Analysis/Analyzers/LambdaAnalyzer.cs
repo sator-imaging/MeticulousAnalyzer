@@ -73,13 +73,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (context.Node is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            if (!IsEffectivelyStatic(lambda, context.SemanticModel))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
-            }
+            context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
         }
 
-        private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
+        public static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
         {
             var flow = semanticModel.AnalyzeDataFlow(lambda.Body);
             return !flow.CapturedInside.Any();

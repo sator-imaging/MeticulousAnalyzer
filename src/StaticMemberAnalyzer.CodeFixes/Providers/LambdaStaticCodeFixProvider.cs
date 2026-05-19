@@ -47,6 +47,9 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     var lambda = node.AncestorsAndSelf().OfType<LambdaExpressionSyntax>().FirstOrDefault();
                     if (lambda == null) continue;
 
+                    var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                    if (semanticModel == null || !LambdaAnalyzer.IsEffectivelyStatic(lambda, semanticModel)) continue;
+
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: "Add 'static' keyword",

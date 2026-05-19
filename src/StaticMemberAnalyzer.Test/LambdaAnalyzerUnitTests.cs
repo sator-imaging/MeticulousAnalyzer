@@ -20,11 +20,22 @@ public class C
 {
     void M()
     {
-        Action a = () => { };
+        Action a = {|#0:() => { }|};
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var fixtest = @"
+using System;
+public class C
+{
+    void M()
+    {
+        Action a = static () => { };
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
         [TestMethod]
@@ -37,11 +48,23 @@ public class C
     void Foo(Action a) { }
     void M()
     {
-        Foo(() => { });
+        Foo({|#0:() => { }|});
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var fixtest = @"
+using System;
+public class C
+{
+    void Foo(Action a) { }
+    void M()
+    {
+        Foo(static () => { });
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
         [TestMethod]
@@ -176,11 +199,23 @@ public class C
 {
     void M()
     {
-        Func<Task> a = async () => { await Task.Delay(1); };
+        Func<Task> a = {|#0:async () => { await Task.Delay(1); }|};
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var fixtest = @"
+using System;
+using System.Threading.Tasks;
+public class C
+{
+    void M()
+    {
+        Func<Task> a = static async () => { await Task.Delay(1); };
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
         [TestMethod]
@@ -389,7 +424,8 @@ public class C
 }
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            // In capturing case, code fix should NOT be available because it would cause a build error.
+            await VerifyCS.VerifyCodeFixAsync(test, expected, test);
         }
     }
 }
