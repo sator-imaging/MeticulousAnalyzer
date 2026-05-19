@@ -238,7 +238,7 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
                     Current = (((default)))!;
                 }
 
-                //readonly public void Dispose() => mut_enumerator?.Dispose();
+                readonly public void Dispose() => mut_enumerator?.Dispose();
                 public T Current { private set; get; }
 
                 public bool MoveNext()
