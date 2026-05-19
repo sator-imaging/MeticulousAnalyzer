@@ -420,31 +420,11 @@ public class C
     void M()
     {
         int x = 0;
-        Action a = {|#0:() => { x++; }|};
+        Action a = () => { x++; };
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-
-            var fixtest = @"
-using System;
-public class C
-{
-    void M()
-    {
-        int x = 0;
-        Action a = static () => { x++; };
-    }
-}
-";
-            var testVerifier = new VerifyCS.Test
-            {
-                TestCode = test,
-                FixedCode = fixtest,
-                CompilerDiagnostics = CompilerDiagnostics.None,
-            };
-            testVerifier.ExpectedDiagnostics.Add(expected);
-            await testVerifier.RunAsync();
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
