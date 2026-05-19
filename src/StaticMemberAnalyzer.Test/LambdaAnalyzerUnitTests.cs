@@ -424,8 +424,7 @@ public class C
 }
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            // Diagnostic is reported, but NO code fix because it's not effectively static.
-            await VerifyCS.VerifyCodeFixAsync(test, expected, test);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }

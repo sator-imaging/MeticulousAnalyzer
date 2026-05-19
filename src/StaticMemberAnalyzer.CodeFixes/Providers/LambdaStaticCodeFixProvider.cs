@@ -47,13 +47,6 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     var lambda = node.AncestorsAndSelf().OfType<LambdaExpressionSyntax>().FirstOrDefault();
                     if (lambda == null) continue;
 
-                    if (diagnostic.Properties.TryGetValue("IsEffectivelyStatic", out var isEffectivelyStaticStr) &&
-                        bool.TryParse(isEffectivelyStaticStr, out var isEffectivelyStatic) &&
-                        !isEffectivelyStatic)
-                    {
-                        continue;
-                    }
-
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: "Add 'static' keyword",
