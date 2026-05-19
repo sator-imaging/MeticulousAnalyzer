@@ -565,4 +565,13 @@
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Async Context Analysis</value>
   </data>
+  <data name="SMA8001_Title" xml:space="preserve">
+    <value>Explicit number declaration</value>
+  </data>
+  <data name="SMA8001_Description" xml:space="preserve">
+    <value>All system primitive numbers, from byte to decimal, should be declared explicitly typed.</value>
+  </data>
+  <data name="SMA8001_MessageFormat" xml:space="preserve">
+    <value>Variable '{0}' should be declared with an explicit number type instead of 'var' (ExplicitNumber)</value>
+  </data>
 </root>

@@ -437,6 +437,27 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > なお、`null` や `default` リテラル、および boolean 式（パターンマッチングを含む。例: `foo is not null` や `x == y`）は、その位置や含まれる名前空間に関係なく、名前付き引数の省略対象外であり、常に名前を指定する必要があります。
 
 
+## 数値型の明示的な宣言
+
+`sbyte` から `decimal` までのすべてのシステムプリミティブな数値型は、`var` ではなく明示的な型で宣言する必要があります。
+
+```cs
+var integer = 1;
+var floating = 1;
+//  ~~~~~~~    ~~~~~~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
+```
+
+期待されるコード:
+
+```cs
+long integer = 1;
+double floating = 1;
+```
+
+> [!IMPORTANT]
+> この解析は `var` 宣言のみを対象とし、暗黙的な型変換は考慮しません。
+
+
 
 
 

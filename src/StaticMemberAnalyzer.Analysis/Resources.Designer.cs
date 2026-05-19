@@ -1376,5 +1376,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA0071_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   All system primitive numbers, from byte to decimal, should be declared explicitly typed. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8001_Description {
+            get {
+                return ResourceManager.GetString("SMA8001_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Variable &apos;{0}&apos; should be declared with an explicit number type instead of &apos;var&apos; (ExplicitNumber) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8001_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA8001_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Explicit number declaration に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8001_Title {
+            get {
+                return ResourceManager.GetString("SMA8001_Title", resourceCulture);
+            }
+        }
     }
 }

@@ -437,6 +437,27 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
 
 
+## Explicit Number Declaration
+
+All system primitive numbers, from `sbyte` to `decimal`, should be declared with an explicit type instead of `var`.
+
+```cs
+var integer = 1;
+var floating = 1;
+//  ~~~~~~~    ~~~~~~~~ reported: variable should be declared with an explicit number type
+```
+
+Expected:
+
+```cs
+long integer = 1;
+double floating = 1;
+```
+
+> [!IMPORTANT]
+> This analysis only targets `var` declarations and does not consider implicit conversions.
+
+
 
 
 
