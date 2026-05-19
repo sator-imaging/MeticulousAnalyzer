@@ -588,6 +588,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         syntax = switchOp.Syntax;
                     }
+                    else if (op.Parent is IConditionalOperation conditionalOp)
+                    {
+                        syntax = conditionalOp.Syntax;
+                    }
                 }
 
 
