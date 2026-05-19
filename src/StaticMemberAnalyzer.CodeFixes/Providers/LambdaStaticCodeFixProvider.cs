@@ -22,7 +22,6 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
             get => ImmutableArray.Create(
-                LambdaAnalyzer.RuleId_LambdaShouldBeStatic,
                 LambdaAnalyzer.RuleId_ImplicitConversionToDelegate
             );
         }
@@ -42,22 +41,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
                 if (node == null) continue;
 
-                if (diagnostic.Id == LambdaAnalyzer.RuleId_LambdaShouldBeStatic)
-                {
-                    var lambda = node.AncestorsAndSelf().OfType<LambdaExpressionSyntax>().FirstOrDefault();
-                    if (lambda == null) continue;
-
-                    var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                    if (semanticModel == null || !LambdaAnalyzer.IsEffectivelyStatic(lambda, semanticModel)) continue;
-
-                    context.RegisterCodeFix(
-                        CodeAction.Create(
-                            title: "Add 'static' keyword",
-                            createChangedDocument: c => AddStaticModifierAsync(context.Document, lambda, c),
-                            equivalenceKey: "AddStaticModifier"),
-                        diagnostic);
-                }
-                else if (diagnostic.Id == LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                if (diagnostic.Id == LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
                 {
                     var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                     if (semanticModel == null) continue;
@@ -105,27 +89,5 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private async Task<Document> AddStaticModifierAsync(Document document, LambdaExpressionSyntax lambda, CancellationToken cancellationToken)
-        {
-            SyntaxTokenList newModifiers;
-            if (lambda is SimpleLambdaExpressionSyntax simple)
-            {
-                newModifiers = simple.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
-                var newLambda = simple.WithModifiers(newModifiers);
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                var newRoot = root!.ReplaceNode(simple, newLambda);
-                return document.WithSyntaxRoot(newRoot);
-            }
-            else if (lambda is ParenthesizedLambdaExpressionSyntax parenthesized)
-            {
-                newModifiers = parenthesized.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
-                var newLambda = parenthesized.WithModifiers(newModifiers);
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                var newRoot = root!.ReplaceNode(parenthesized, newLambda);
-                return document.WithSyntaxRoot(newRoot);
-            }
-
-            return document;
-        }
     }
 }

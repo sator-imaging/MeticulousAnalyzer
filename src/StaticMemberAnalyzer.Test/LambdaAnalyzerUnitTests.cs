@@ -12,7 +12,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class LambdaAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task TestNonStaticLambda()
+        public async Task TestNonCapturingLambdaDoesNotReportSMA7000()
         {
             var test = @"
 using System;
@@ -20,51 +20,29 @@ public class C
 {
     void M()
     {
-        Action a = {|#0:() => { }|};
+        Action a = () => { };
     }
 }
 ";
-            var fixtest = @"
-using System;
-public class C
-{
-    void M()
-    {
-        Action a = static () => { };
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task TestNonStaticLambdaInArgument()
+        public async Task TestCapturingLambdaReportsSMA7000()
         {
             var test = @"
 using System;
 public class C
 {
-    void Foo(Action a) { }
     void M()
     {
-        Foo({|#0:() => { }|});
-    }
-}
-";
-            var fixtest = @"
-using System;
-public class C
-{
-    void Foo(Action a) { }
-    void M()
-    {
-        Foo(static () => { });
+        int x = 0;
+        Action a = {|#0:() => { x++; }|};
     }
 }
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -187,35 +165,6 @@ public class C
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task TestNonStaticAsyncLambda()
-        {
-            var test = @"
-using System;
-using System.Threading.Tasks;
-public class C
-{
-    void M()
-    {
-        Func<Task> a = {|#0:async () => { await Task.Delay(1); }|};
-    }
-}
-";
-            var fixtest = @"
-using System;
-using System.Threading.Tasks;
-public class C
-{
-    void M()
-    {
-        Func<Task> a = static async () => { await Task.Delay(1); };
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
         [TestMethod]
@@ -407,25 +356,6 @@ public class C
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action<int, int>");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
-        }
-
-        [TestMethod]
-        public async Task TestLambdaCapturingVariableReportsSMA7000()
-        {
-            var test = @"
-using System;
-public class C
-{
-    void M()
-    {
-        int x = 0;
-        Action a = {|#0:() => { x++; }|};
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            // In capturing case, code fix should NOT be available because it would cause a build error.
-            await VerifyCS.VerifyCodeFixAsync(test, expected, test);
         }
     }
 }
