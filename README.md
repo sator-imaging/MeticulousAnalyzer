@@ -432,9 +432,11 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`, `System.Text`, or `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments and known testing framework methods (methods in types named `Must`, `Assert`, or `Debug`) are also exempt from this analysis.
+> `string`, `System.Text`, or `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
 >
-> Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, except when they are passed to the testing framework methods mentioned above.
+> Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
+>
+> (Known test framework methods are exempt from all checks)
 
 
 ## Explicit Number Declaration
