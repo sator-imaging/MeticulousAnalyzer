@@ -1,0 +1,42 @@
+name: Auto Labeler for GH Release
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  label:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Add labels based on Conventional Commits
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          labels=()
+
+          if echo "$TITLE" | grep -qE '^fix[:(]'; then
+            labels+=("bug")
+          fi
+
+          if echo "$TITLE" | grep -qE '^feat[:(]'; then
+            labels+=("enhancement")
+          fi
+
+          if echo "$TITLE" | grep -qE '^[a-z]+(\(.+\))?!:'; then
+            labels+=("breaking-change")
+          fi
+
+          for label in "${labels[@]}"; do
+            gh issue edit "$PR_NUMBER" \
+              --repo "$REPO" \
+              --add-label "$label"
+          done
