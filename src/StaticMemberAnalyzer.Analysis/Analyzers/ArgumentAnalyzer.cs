@@ -85,7 +85,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
-                    parameterName = attrSymbol.Parameters[argIndex].Name;
+                    var parameter = attrSymbol.Parameters[argIndex];
+                    parameterName = parameter.Name;
+
+                    if (parameter.Type.SpecialType == SpecialType.System_Boolean &&
+                        (attrSymbol.ContainingType.Name.EndsWith("true", System.StringComparison.OrdinalIgnoreCase) ||
+                         attrSymbol.ContainingType.Name.EndsWith("false", System.StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -174,6 +182,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return;
                     }
                 }
+            }
+
+            if (argOp.Parameter is { Type: { SpecialType: SpecialType.System_Boolean } } p &&
+                ((p.ContainingSymbol is IMethodSymbol { MethodKind: MethodKind.Constructor } &&
+                  (p.ContainingType.Name.EndsWith("true", System.StringComparison.OrdinalIgnoreCase) ||
+                   p.ContainingType.Name.EndsWith("false", System.StringComparison.OrdinalIgnoreCase))) ||
+                 p.ContainingSymbol.Name.EndsWith("true", System.StringComparison.OrdinalIgnoreCase) ||
+                 p.ContainingSymbol.Name.EndsWith("false", System.StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
