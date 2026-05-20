@@ -131,7 +131,9 @@ jobs:
         #
         # trailing slash is required to sync (copy) contents instead of directory
         rsync -avr --existing --checksum src/StaticMemberAnalyzer.Package/bin/Release/*/  ${{ env.unity_folder }}
-        git add --update --ignore-removal  ${{ env.unity_folder }}
+        git add --update --ignore-removal \
+          ${{ env.unity_folder }} \
+          ./src  # .resx and .Designer.cs
         git commit -m "[bot] Precompiled Assembly for Unity ${{ inputs.release_ver }}" || true
 
         ### try push and create PR if any changes otherwise exit successfully
