@@ -68,13 +68,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             );
 
 
+        private static bool IsDuckTypingEnabled = false;
+
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
+            // https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Analyzer%20Actions%20Semantics.md
 
-            //https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Analyzer%20Actions%20Semantics.md
+            context.RegisterCompilationStartAction(ctx =>
+            {
+                // NOTE: DO NOT try supporting configuration correctly.
+                //       Just enough setting static switch here.
+                IsDuckTypingEnabled = Core.GetConfiguration(ctx, Core.Config_EnableDuckTypingRecognition);
+            });
 
             context.RegisterOperationAction(AnalyzeCast, OperationKind.Conversion);
             context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
@@ -276,33 +284,31 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  internal  ================================================================ */
 
+#pragma warning disable RS1008  // Avoid storing per-compilation data into the fields of a diagnostic analyzer
+        // NOTE: This is required to skip null check on every visit on local var declaration.
+        readonly static Func<INamedTypeSymbol, bool> cache_HasDisposableImplemented = static x => HasDisposableImplemented(x);
+#pragma warning restore RS1008
 
-#pragma warning disable RS1008
-
-        readonly static Func<INamedTypeSymbol, bool> HasDisposableImplemented = static x =>
+        private static bool HasDisposableImplemented(INamedTypeSymbol typeSymbol)
         {
-            if (x.SpecialType is SpecialType.System_IDisposable)
+            if (typeSymbol.SpecialType is SpecialType.System_IDisposable)
             {
                 return true;
             }
+
             // TODO: SpecialType enum item for 'IAsyncDisposable'
-            else if (x.Name == "IAsyncDisposable")
-            {
-                var ns = x.ContainingNamespace;
-                if (ns.Name == nameof(System) && ns.ContainingNamespace.IsGlobalNamespace)
+            return typeSymbol.Name is "IAsyncDisposable"
+                && typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
-                    return true;
-                }
-            }
-            return false;
-        };
+                    Name: "System",
+                    ContainingNamespace: INamespaceSymbol
+                    {
+                        IsGlobalNamespace: true,
+                    }
+                };
+        }
 
-#pragma warning restore RS1008
-
-
-        private static bool IsDisposable(OperationAnalysisContext context,
-                                         INamedTypeSymbol disposableSymbol
-            )
+        private static bool IsDisposable(OperationAnalysisContext context, INamedTypeSymbol disposableSymbol)
         {
 #if STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE
             if (IsTypeIgnoredByAssemblyAttribute(context, disposableSymbol))
@@ -311,73 +317,79 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 #endif
 
-            if (!disposableSymbol.IsRefLikeType)
-            {
-                // Task or Task<T> in System.Threading.Tasks
-                if (disposableSymbol.Name.StartsWith(nameof(Task), StringComparison.Ordinal)
-                 && disposableSymbol.ContainingNamespace.Name == nameof(System.Threading.Tasks)
-                 && disposableSymbol.ContainingNamespace.ContainingNamespace.Name == nameof(System.Threading)
-                 && disposableSymbol.ContainingNamespace.ContainingNamespace.ContainingNamespace.Name == nameof(System)
-                 && disposableSymbol.ContainingNamespace.ContainingNamespace.ContainingNamespace.ContainingNamespace.IsGlobalNamespace
-                )
+            // Task implements IDisposable...!!
+            if (disposableSymbol.Name is nameof(Task) &&
+                disposableSymbol.ContainingNamespace is INamespaceSymbol
                 {
-                    return false;
+                    Name: nameof(System.Threading.Tasks),
+                    ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System.Threading),
+                        ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System),
+                            ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
+                        }
+                    }
                 }
+            )
+            {
+                return false;
+            }
 
-                if (HasDisposableImplemented.Invoke(disposableSymbol)
-                 //|| disposableSymbol.Interfaces.Any(HasDisposableImplemented)
-                 || disposableSymbol.AllInterfaces.Any(HasDisposableImplemented)
-                )
+            if (HasDisposableImplemented(disposableSymbol) ||
+                disposableSymbol.AllInterfaces.Any(cache_HasDisposableImplemented)
+            )
+            {
+                return true;
+            }
+
+            if (!IsDuckTypingEnabled)
+            {
+                return false;
+            }
+
+            return detect_duck_typing(disposableSymbol);
+            static bool detect_duck_typing(INamedTypeSymbol disposableSymbol)
+            {
+                var candidateMethods = disposableSymbol.GetMembers()
+                    .OfType_Where<IMethodSymbol>(static x => x.Parameters.Length == 0
+                                                          && x.DeclaredAccessibility >= Accessibility.Internal);
+
+                var isDisposable = candidateMethods
+                    .Where_Any(static x => x.Name == nameof(IDisposable.Dispose)
+                                        && x.ReturnType.SpecialType is SpecialType.System_Void);
+
+                if (isDisposable)
                 {
                     return true;
                 }
 
-                return false;
-            }
-
-
-            const Accessibility ACCESS_HIDDEN = Accessibility.Protected | Accessibility.Private | Accessibility.NotApplicable;
-
-            var candidateMethods = disposableSymbol.GetMembers()
-                .OfType_Where<IMethodSymbol>(
-                    static x => x.Parameters.Length == 0 && (x.DeclaredAccessibility & ~ACCESS_HIDDEN) != 0)
-                ;
-
-            var isDisposable = candidateMethods
-                .Where_Any(
-                    static x => x.Name == nameof(IDisposable.Dispose),
-                    static x => x.ReturnType.SpecialType == SpecialType.System_Void);
-
-            if (!isDisposable)
-            {
-                var isAsyncDisposable = candidateMethods
-                    .Where_Any(
-                        static x => x.Name == "DisposeAsync",
-                        static x =>
+                return candidateMethods
+                    .Where_Any(static x
+                        // TODO: SpecialType enum item for 'ValueTask'
+                        => x.Name == "DisposeAsync"
+                        && x.ReturnType.Name is nameof(ValueTask)
+                        && x.ReturnType.ContainingNamespace is INamespaceSymbol
                         {
-                            // TODO: SpecialType enum item for 'ValueTask'
-                            if (x.ReturnType.Name != nameof(ValueTask))
-                                return false;
-
-                            var ns = x.ReturnType.ContainingNamespace;
-                            if (ns.Name != nameof(System.Threading.Tasks)
-                             || ns.ContainingNamespace.Name != nameof(System.Threading)
-                             || ns.ContainingNamespace.ContainingNamespace.Name != nameof(System)
-                             || !ns.ContainingNamespace.ContainingNamespace.ContainingNamespace.IsGlobalNamespace
-                            )
+                            Name: nameof(System.Threading.Tasks),
+                            ContainingNamespace: INamespaceSymbol
                             {
-                                return false;
+                                Name: nameof(System.Threading),
+                                ContainingNamespace: INamespaceSymbol
+                                {
+                                    Name: nameof(System),
+                                    ContainingNamespace: INamespaceSymbol
+                                    {
+                                        IsGlobalNamespace: true,
+                                    }
+                                }
                             }
-
-                            return true;
-                        })
-                        ;
-
-                if (!isAsyncDisposable)
-                    return false;
+                        });
             }
-
-            return true;
         }
 
 

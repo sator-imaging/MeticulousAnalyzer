@@ -18,7 +18,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ReadOnlyVariableAnalyzer : DiagnosticAnalyzer
     {
-        const string ImmutableCategory = "ImmutableVariable";
         const bool IsEnabledByDefault = false;
 
         public const string RuleId_ReadOnlyLocal = "SMA0060";
@@ -31,7 +30,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyLocal,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            ImmutableCategory,
+            Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Description", Resources.ResourceManager, typeof(Resources)));
@@ -40,7 +39,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyParameter,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            ImmutableCategory,
+            Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Description", Resources.ResourceManager, typeof(Resources)));
@@ -49,7 +48,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyArgument,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            ImmutableCategory,
+            Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Description", Resources.ResourceManager, typeof(Resources)));
@@ -58,7 +57,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyPropertyArgument,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            ImmutableCategory,
+            Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
@@ -67,7 +66,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyMethodCall,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            ImmutableCategory,
+            Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
@@ -91,15 +90,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             context.RegisterCompilationStartAction(ctx =>
             {
-                const string GlobalOptionsCategory = "dotnet_analyzer_diagnostic.category-" + ImmutableCategory + ".severity";
-
-                if (!ctx.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(GlobalOptionsCategory, out var severity))
-                {
-                    return;
-                }
-
-                // https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options#severity-level
-                if (severity.ToLowerInvariant() is "error" or "warning" or "suggestion")
+                if (Core.GetConfiguration(ctx, Core.Config_EnableImmutableVariable))
                 {
                     ctx.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
                     ctx.RegisterOperationAction(AnalyzeCoalesceAssignment, OperationKind.CoalesceAssignment);

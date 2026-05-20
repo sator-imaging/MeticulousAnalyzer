@@ -4,6 +4,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
@@ -41,51 +42,19 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task WhenConfigSeverityIsNone_NoDiagnosticReported()
+        public async Task WhenConfigSeverityIsFalse_NoDiagnosticReported()
         {
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = none");
+            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = false");
         }
 
         [TestMethod]
-        public async Task WhenConfigSeverityIsError_DiagnosticReported()
+        public async Task WhenConfigSeverityIsTrue_DiagnosticReported()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
                 .WithArguments("foo");
 
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error", expected);
-        }
-
-        [TestMethod]
-        public async Task WhenConfigSeverityIsWarning_DiagnosticReported()
-        {
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo");
-
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning", expected);
-        }
-
-        [TestMethod]
-        public async Task WhenConfigSeverityIsSuggestion_DiagnosticReported()
-        {
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo");
-
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = suggestion", expected);
-        }
-
-        [TestMethod]
-        public async Task WhenConfigSeverityIsSilent_NoDiagnosticReported()
-        {
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = silent");
-        }
-
-        [TestMethod]
-        public async Task WhenConfigSeverityIsDefault_NoDiagnosticReported()
-        {
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = default");
+            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = true", expected);
         }
 
         private static async Task VerifyWithSettingsAsync(string source, string configContent, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
