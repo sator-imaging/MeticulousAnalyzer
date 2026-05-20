@@ -94,24 +94,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // DO NOT report SMA7002 if the lambda is effectively static (that's SMA7000).
             if (!isEffectivelyStatic)
             {
+                if (Core.IsSuppressedByComment(lambda, "// Allow allocation")) return;
+
                 // check if it is implicit conversion to delegate
                 var operation = context.SemanticModel.GetOperation(lambda, context.CancellationToken);
+                var parent = operation?.Parent;
+                if (parent == null) return;
 
-                var current = operation;
-                while (current != null && (current.Syntax == lambda || current is IConversionOperation || current is IDelegateCreationOperation))
+                if (Core.IsSuppressedByComment(parent, "// Allow allocation")) return;
+
+                if (parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type))
                 {
-                    if (Core.IsSuppressedByComment(current, "// Allow allocation") || Core.IsSuppressedByComment(current.Syntax, "// Allow allocation")) return;
-
-                    if (IsActionOrFunc(current.Type))
-                    {
-                        bool isImplicit = (current as IConversionOperation)?.IsImplicit ?? (current as IDelegateCreationOperation)?.IsImplicit ?? false;
-                        if (isImplicit)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, lambda.GetLocation()));
-                            return;
-                        }
-                    }
-                    current = current.Parent;
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, lambda.GetLocation()));
+                }
+                else if (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, lambda.GetLocation()));
                 }
             }
         }
