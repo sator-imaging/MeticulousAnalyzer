@@ -24,13 +24,13 @@ jobs:
           repository: ${{ env.CENTRAL_REPO }}
           path: ${{ env.WORKDIR }}
           sparse-checkout: |
-            .github
+            $TARGET_DIR
           sparse-checkout-cone-mode: true
 
       - name: Sync all files (additive)
         run: |
           mkdir -p "$TARGET_DIR"
-          rsync -av "$WORKDIR/.github/" "$TARGET_DIR/"
+          rsync -av "$WORKDIR/$TARGET_DIR/" "$TARGET_DIR/"
 
       - name: Commit + Push + Create PR
         run: |
@@ -45,7 +45,7 @@ jobs:
 
           git diff --cached --quiet && exit 0
 
-          git commit -m "[bot] Sync `.github` ($TS)"
+          git commit -m "[bot] Sync `$TARGET_DIR` ($TS)"
           git push origin "$BRANCH"
 
           gh pr create \
