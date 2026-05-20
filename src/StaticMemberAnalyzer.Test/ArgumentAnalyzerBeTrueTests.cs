@@ -10,6 +10,29 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerBeTrueTests
     {
         [TestMethod]
+        public async Task TestAssertClassIgnoresAllArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public static class Assert
+    {
+        public static void AreEqual(int expected, int actual) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            Assert.AreEqual(1, 2);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task TestMustClassIgnoresAllArguments()
         {
             var test = @"
