@@ -127,6 +127,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            // Test framework methods can accept 'null' or 'default' as unnamed argument.
+            var invocationOp = argOp.Parent as IInvocationOperation;
+            if (invocationOp != null && IsKnownTestFramework(invocationOp))
+            {
+                return;
+            }
+
             var argValue = argOp.Value;
 
             // 'null', 'default', or 'default(T)' is not allowed at all.
@@ -137,13 +144,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (!requireReporting)
             {
-                var invocationOp = argOp.Parent as IInvocationOperation;
                 var methodOrCtorContainer = invocationOp?.TargetMethod.ContainingType
                                          ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
 
                 if (methodOrCtorContainer is not null)
                 {
-                    if (IsKnownTestFrameworkOrPervasiveSystemLib(methodOrCtorContainer))
+                    if (IsPervasiveSystemLib(methodOrCtorContainer))
                     {
                         return;
                     }
@@ -241,12 +247,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        private static bool IsKnownTestFramework(IInvocationOperation invocation)
+        {
+            return invocation.TargetMethod.ContainingType.Name is "Must" or "Assert" or "Debug";
+        }
 
-        internal static bool IsKnownTestFrameworkOrPervasiveSystemLib(INamedTypeSymbol typeSymbol)
+        private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
         {
             // String, System.Text and System.IO methods and constructors are intentionally allowed.
             return typeSymbol.SpecialType is SpecialType.System_String
-                || typeSymbol.Name is "Must" or "Assert" or "Debug"
                 || typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
                     Name: "Text" or "IO", ContainingNamespace: INamespaceSymbol
