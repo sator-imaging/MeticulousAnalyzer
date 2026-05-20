@@ -15,14 +15,12 @@ namespace DocsGen;
 internal class Program
 {
     const string HELP_USAGE = "USAGE: dotnet run -c Release  \"path/to/input.resx\"  \"path/to/output.md\"";
-    const string DEBUG_FILE_INPUT = "../StaticMemberAnalyzer.Analysis/Resources.resx";
-    const string DEBUG_FILE_OUTPUT = "./.__Test.md";
 
     const string SUFFIX_TITLE = "_Title";
     const string SUFFIX_DESCRIPTION = "_Description";
     const string SUFFIX_MD_TITLE = "__MD_TITLE__";
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         string? inputPath;
         string? outputPath;
@@ -34,12 +32,8 @@ internal class Program
         || !outputPath.EndsWith(value: ".md", StringComparison.OrdinalIgnoreCase)
         )
         {
-#if DEBUG == false
             Console.Error.WriteLine(HELP_USAGE + Environment.NewLine);
-            throw new ArgumentException(HELP_USAGE);
-#endif
-            inputPath = DEBUG_FILE_INPUT;
-            outputPath = DEBUG_FILE_OUTPUT;
+            return 1;
         }
 
         var analyzerInfo = new Dictionary<string, (string diagnosticId, string title, string description)>();
@@ -164,6 +158,8 @@ internal class Program
 
         Console.WriteLine(sb.ToString());
         Console.WriteLine(value: "DONE");
+
+        return 0;
     }
 
 
