@@ -31,32 +31,77 @@ namespace Test
     }
 }
 ";
-            // Currently this should fail if the analyzer reports it.
-            // We expect NO diagnostics after the fix.
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task TestMustBeTrueBeFalseMixed()
+        public async Task TestKnownTestFrameworkIgnoresAllArguments()
         {
             var test = @"
 namespace Test
 {
     public static class Must
     {
-        public static void BeTrue(bool b, string msg) {}
+        public static void BeTrue(bool b, string msg, int code) {}
     }
 
     public class CTest
     {
         public void Test()
         {
-            Must.BeTrue(true, {|#0:""msg""|});
+            Must.BeTrue(true, ""msg"", 1);
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("msg");
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestExactMatchRequired()
+        {
+            var test = @"
+namespace Test
+{
+    public static class Must
+    {
+        public static void BeTrue(bool b) {}
+        public static void MyBeTrue(bool b) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            Must.BeTrue(true);
+            Must.MyBeTrue({|#0:true|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task TestAttributeNotExemptEvenIfNameMatches()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class BeTrueAttribute : Attribute
+    {
+        public BeTrueAttribute(bool b) {}
+    }
+
+    [BeTrue({|#0:true|})]
+    public class CTest
+    {
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
     }

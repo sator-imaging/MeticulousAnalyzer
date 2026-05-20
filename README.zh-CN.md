@@ -432,9 +432,9 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
+> `string`、`System.Text`、`System.IO` 或已知的测试框架方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
 >
-> 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。但是，如果方法名称以 "true" 或 "false" 结尾（不区分大小写），则布尔参数可以省略命名参数。
+> 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
 
 
 ## 数值类型的显式声明

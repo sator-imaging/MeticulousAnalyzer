@@ -85,15 +85,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
-                    var parameter = attrSymbol.Parameters[argIndex];
-                    parameterName = parameter.Name;
-
-                    if (parameter.Type.SpecialType == SpecialType.System_Boolean &&
-                        (attrSymbol.ContainingType.Name.EndsWith("true", System.StringComparison.OrdinalIgnoreCase) ||
-                         attrSymbol.ContainingType.Name.EndsWith("false", System.StringComparison.OrdinalIgnoreCase)))
-                    {
-                        return;
-                    }
+                    parameterName = attrSymbol.Parameters[argIndex].Name;
                 }
             }
 
@@ -142,12 +134,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var invocationOp = argOp.Parent as IInvocationOperation;
+            if (invocationOp != null && Core.IsKnownTestFramework(invocationOp))
+            {
+                return;
+            }
+
             // int, string or char is allowed if it's the first argument.
             // But 'null', 'default', or 'default(T)' is not allowed at all.
             if (!requireReporting)
             {
-                var invocationOp = argOp.Parent as IInvocationOperation;
-
                 if (argStx.Parent is ArgumentListSyntax argListStx &&
                     argListStx.Arguments.IndexOf(argStx) == 0)
                 {
@@ -182,16 +178,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return;
                     }
                 }
-            }
-
-            if (argOp.Parameter is { Type: { SpecialType: SpecialType.System_Boolean } } p &&
-                ((p.ContainingSymbol is IMethodSymbol { MethodKind: MethodKind.Constructor } &&
-                  (p.ContainingType.Name.EndsWith("true", System.StringComparison.OrdinalIgnoreCase) ||
-                   p.ContainingType.Name.EndsWith("false", System.StringComparison.OrdinalIgnoreCase))) ||
-                 p.ContainingSymbol.Name.EndsWith("true", System.StringComparison.OrdinalIgnoreCase) ||
-                 p.ContainingSymbol.Name.EndsWith("false", System.StringComparison.OrdinalIgnoreCase)))
-            {
-                return;
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
