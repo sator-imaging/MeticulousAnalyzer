@@ -100,7 +100,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var current = operation;
                 while (current != null && (current.Syntax == lambda || current is IConversionOperation || current is IDelegateCreationOperation))
                 {
-                    if (Core.IsSuppressedByComment(current, "// Allow allocation")) return;
+                    if (Core.IsSuppressedByComment(current, "// Allow allocation") || Core.IsSuppressedByComment(current.Syntax, "// Allow allocation")) return;
 
                     if (IsActionOrFunc(current.Type))
                     {

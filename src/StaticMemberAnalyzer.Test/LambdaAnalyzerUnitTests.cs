@@ -85,6 +85,48 @@ public class C
         }
 
         [TestMethod]
+        public async Task TestLambdaCapturingVariableSuppressedByCommentInArgument()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void Foo(Action a) { }
+    void M()
+    {
+        int x = 0;
+        Foo(
+            // Allow allocation
+            () => { x++; }
+        );
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task TestLambdaCapturingVariableSuppressedByCommentInArgumentWithParams()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void Foo(int i, Action<int> a) { }
+    void M()
+    {
+        int x = 0;
+        Foo(1,
+            // Allow allocation
+            (args) => { x++; }
+        );
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task TestImplicitConversionFromInstanceMethod()
         {
             var test = @"
