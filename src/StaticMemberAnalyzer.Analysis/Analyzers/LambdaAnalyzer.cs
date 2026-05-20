@@ -58,52 +58,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxNodeAction(AnalyzeLambda, SyntaxKind.SimpleLambdaExpression, SyntaxKind.ParenthesizedLambdaExpression);
-            context.RegisterOperationAction(AnalyzeConversion, OperationKind.Conversion);
-            context.RegisterOperationAction(AnalyzeDelegateCreation, OperationKind.DelegateCreation);
+            context.RegisterOperationAction(AnalyzeAnonymousFunction, OperationKind.AnonymousFunction);
+            context.RegisterOperationAction(AnalyzeImplicitConversion, OperationKind.Conversion, OperationKind.DelegateCreation);
         }
 
-        private static void AnalyzeDelegateCreation(OperationAnalysisContext context)
+        private static void AnalyzeAnonymousFunction(OperationAnalysisContext context)
         {
-            var delegateCreation = (IDelegateCreationOperation)context.Operation;
-            if (!delegateCreation.IsImplicit) return;
+            var anonFunc = (IAnonymousFunctionOperation)context.Operation;
+            if (anonFunc.Syntax is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            // Don't show warning if the "value" is lambda as it is handled by AnalyzeLambda.
-            var unwrapped = UnwrapConversion(delegateCreation.Target);
-            if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
+            var semanticModel = context.Operation.SemanticModel;
+            if (semanticModel == null) return;
 
-            // Check if target type is Action or Func
-            if (!IsActionOrFunc(delegateCreation.Type)) return;
-
-            // Don't show warning if the "value" side is static field, method, property or other static member.
-            // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
-            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
-
-            context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, delegateCreation.Target.Syntax.GetLocation(), delegateCreation.Type.ToDisplayString()));
-        }
-
-        private static void AnalyzeLambda(SyntaxNodeAnalysisContext context)
-        {
-            if (context.Node is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
-
-            bool isEffectivelyStatic = IsEffectivelyStatic(lambda, context.SemanticModel);
-            if (isEffectivelyStatic)
+            if (IsEffectivelyStatic(lambda, semanticModel))
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
             }
-
-            // Report SMA7002 only for non-static lambdas that capture variables and are implicitly converted to Action/Func.
-            // DO NOT report SMA7002 if the lambda is effectively static (that's SMA7000).
-            if (!isEffectivelyStatic)
+            else
             {
-                if (Core.IsSuppressedByComment(lambda, SuppressionComment)) return;
+                if (Core.IsSuppressedByComment(lambda, SuppressionComment) || (anonFunc.Parent != null && Core.IsSuppressedByComment(anonFunc.Parent, SuppressionComment))) return;
 
                 // check if it is implicit conversion to delegate
-                var operation = context.SemanticModel.GetOperation(lambda, context.CancellationToken);
-                var parent = operation?.Parent;
-                if (parent == null) return;
-
-                if (Core.IsSuppressedByComment(parent, SuppressionComment)) return;
+                var parent = anonFunc.Parent;
 
                 if (parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type))
                 {
@@ -116,7 +92,43 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void ReportSMA7002(SyntaxNodeAnalysisContext context, LambdaExpressionSyntax lambda)
+        private static void AnalyzeImplicitConversion(OperationAnalysisContext context)
+        {
+            IOperation operand;
+            ITypeSymbol? type;
+            bool isImplicit;
+
+            if (context.Operation is IConversionOperation conversion)
+            {
+                operand = conversion.Operand;
+                type = conversion.Type;
+                isImplicit = conversion.IsImplicit;
+            }
+            else if (context.Operation is IDelegateCreationOperation delegateCreation)
+            {
+                operand = delegateCreation.Target;
+                type = delegateCreation.Type;
+                isImplicit = delegateCreation.IsImplicit;
+            }
+            else return;
+
+            if (!isImplicit) return;
+
+            // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
+            var unwrapped = UnwrapConversion(operand);
+            if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
+
+            // Check if target type is Action or Func
+            if (!IsActionOrFunc(type)) return;
+
+            // Don't show warning if the "value" side is static field, method, property or other static member.
+            // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
+            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), type.ToDisplayString()));
+        }
+
+        private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda)
         {
             Location location;
             if (lambda is SimpleLambdaExpressionSyntax simple)
@@ -133,25 +145,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var flow = semanticModel.AnalyzeDataFlow(lambda.Body);
             return !flow.CapturedInside.Any();
-        }
-
-        private static void AnalyzeConversion(OperationAnalysisContext context)
-        {
-            var conversion = (IConversionOperation)context.Operation;
-            if (!conversion.IsImplicit) return;
-
-            // Don't show warning if the "value" is lambda as it is handled by AnalyzeLambda.
-            var unwrapped = UnwrapConversion(conversion.Operand);
-            if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
-
-            // Check if target type is Action or Func
-            if (!IsActionOrFunc(conversion.Type)) return;
-
-            // Don't show warning if the "value" side is static field, method, property or other static member.
-            // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
-            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
-
-            context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, conversion.Operand.Syntax.GetLocation(), conversion.Type.ToDisplayString()));
         }
 
         private static IOperation UnwrapConversion(IOperation operation)
