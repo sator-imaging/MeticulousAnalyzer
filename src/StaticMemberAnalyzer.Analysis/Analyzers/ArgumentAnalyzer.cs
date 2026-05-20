@@ -127,9 +127,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Test framework methods can accept 'null' or 'default' as unnamed argument.
+            // Test framework methods are exempt from all checks.
             var invocationOp = argOp.Parent as IInvocationOperation;
-            if (invocationOp != null && IsKnownTestFramework(invocationOp))
+            if (invocationOp != null && IsKnownAssertionMethod(invocationOp))
             {
                 return;
             }
@@ -247,7 +247,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsKnownTestFramework(IInvocationOperation invocation)
+        private static bool IsKnownAssertionMethod(IInvocationOperation invocation)
         {
             return invocation.TargetMethod.ContainingType.Name is "Must" or "Assert" or "Debug";
         }
