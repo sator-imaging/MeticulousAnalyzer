@@ -127,6 +127,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var invocationOp = argOp.Parent as IInvocationOperation;
+            if (invocationOp != null && Core.IsKnownTestFramework(invocationOp))
+            {
+                return;
+            }
+
             var argValue = argOp.Value;
 
             if (!IsPossibleOperation(argValue, out var requireReporting))
@@ -138,8 +144,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // But 'null', 'default', or 'default(T)' is not allowed at all.
             if (!requireReporting)
             {
-                var invocationOp = argOp.Parent as IInvocationOperation;
-
                 if (argStx.Parent is ArgumentListSyntax argListStx &&
                     argListStx.Arguments.IndexOf(argStx) == 0)
                 {
