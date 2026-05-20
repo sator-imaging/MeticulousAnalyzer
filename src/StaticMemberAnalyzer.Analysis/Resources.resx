@@ -590,7 +590,7 @@
     <value>Non-static lambda declaration and implicit conversion causes allocation</value>
   </data>
   <data name="SMA7002_Description" xml:space="preserve">
-    <value>Non-static lambda declaration and implicit conversion causes allocation. Use '// Allow allocation' for allocation.</value>
+    <value>Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation".</value>
   </data>
   <data name="SMA7000__MD_TITLE__" xml:space="preserve">
     <value>Coding Assistance</value>

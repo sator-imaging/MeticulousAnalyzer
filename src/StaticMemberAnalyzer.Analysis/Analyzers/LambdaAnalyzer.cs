@@ -64,10 +64,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeAnonymousFunction(OperationAnalysisContext context)
         {
-            var anonFunc = (IAnonymousFunctionOperation)context.Operation;
-            if (anonFunc.Syntax is not LambdaExpressionSyntax lambda || lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
+            if (context.Operation is not IAnonymousFunctionOperation anonFunc ||
+                anonFunc.Syntax is not LambdaExpressionSyntax lambda ||
+                lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
 
-            var semanticModel = context.Operation.SemanticModel;
+            var semanticModel = anonFunc.SemanticModel ?? context.Operation.SemanticModel;
             if (semanticModel == null) return;
 
             if (IsEffectivelyStatic(lambda, semanticModel))
@@ -80,12 +81,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 // check if it is implicit conversion to delegate
                 var parent = anonFunc.Parent;
-
-                if (parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type))
-                {
-                    ReportSMA7002(context, lambda);
-                }
-                else if (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type))
+                if ((parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type)) ||
+                    (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type)))
                 {
                     ReportSMA7002(context, lambda);
                 }
