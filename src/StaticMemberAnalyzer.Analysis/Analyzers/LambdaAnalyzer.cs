@@ -15,6 +15,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class LambdaAnalyzer : DiagnosticAnalyzer
     {
+        private const string SuppressionComment = "// Allow allocation";
+
         public const string RuleId_LambdaShouldBeStatic = "SMA7000";
         private static readonly DiagnosticDescriptor Rule_LambdaShouldBeStatic = new(
             RuleId_LambdaShouldBeStatic,
@@ -94,24 +96,37 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // DO NOT report SMA7002 if the lambda is effectively static (that's SMA7000).
             if (!isEffectivelyStatic)
             {
-                if (Core.IsSuppressedByComment(lambda, "// Allow allocation")) return;
+                if (Core.IsSuppressedByComment(lambda, SuppressionComment)) return;
 
                 // check if it is implicit conversion to delegate
                 var operation = context.SemanticModel.GetOperation(lambda, context.CancellationToken);
                 var parent = operation?.Parent;
                 if (parent == null) return;
 
-                if (Core.IsSuppressedByComment(parent, "// Allow allocation")) return;
+                if (Core.IsSuppressedByComment(parent, SuppressionComment)) return;
 
                 if (parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, lambda.GetLocation()));
+                    ReportSMA7002(context, lambda);
                 }
                 else if (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, lambda.GetLocation()));
+                    ReportSMA7002(context, lambda);
                 }
             }
+        }
+
+        private static void ReportSMA7002(SyntaxNodeAnalysisContext context, LambdaExpressionSyntax lambda)
+        {
+            Location location;
+            if (lambda is SimpleLambdaExpressionSyntax simple)
+                location = simple.Parameter.GetLocation();
+            else if (lambda is ParenthesizedLambdaExpressionSyntax parenthesized)
+                location = parenthesized.ParameterList.GetLocation();
+            else
+                location = lambda.GetLocation();
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, location));
         }
 
         private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
