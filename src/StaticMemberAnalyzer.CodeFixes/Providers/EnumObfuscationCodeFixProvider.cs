@@ -30,10 +30,19 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
+        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            if (root == null) return;
+
             foreach (var diagnostic in context.Diagnostics)
             {
+                var diagnosticSpan = diagnostic.Location.SourceSpan;
+                var node = root.FindNode(diagnosticSpan);
+                var typeDecl = node?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
+                if (typeDecl == null || !typeDecl.Span.IntersectsWith(diagnosticSpan))
+                    continue;
+
                 // Register a code action that will invoke the fix.
                 context.RegisterCodeFix(
                     CodeAction.Create(
@@ -42,7 +51,6 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                         equivalenceKey: nameof(CodeFixResources.CodeFix_EnumObfuscation)),
                     diagnostic);
             }
-            return Task.CompletedTask;
         }
 
 
@@ -64,7 +72,8 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var typeDecl = root.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
+            var node = root.FindNode(diagnosticSpan);
+            var typeDecl = node?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
             if (typeDecl == null || !typeDecl.Span.IntersectsWith(diagnosticSpan))
                 return document;
 
