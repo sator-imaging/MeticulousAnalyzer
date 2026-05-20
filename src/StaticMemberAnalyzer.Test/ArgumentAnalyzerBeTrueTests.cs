@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerBeTrueTests
     {
         [TestMethod]
-        public async Task TestMustBeTrueBeFalse()
+        public async Task TestMustClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -18,7 +18,7 @@ namespace Test
     public static class Must
     {
         public static void BeTrue(bool b) {}
-        public static void BeFalse(bool b) {}
+        public static void Anything(int x, string s) {}
     }
 
     public class CTest
@@ -26,7 +26,7 @@ namespace Test
         public void Test()
         {
             Must.BeTrue(true);
-            Must.BeFalse(false);
+            Must.Anything(1, ""msg"");
         }
     }
 }
@@ -35,21 +35,23 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestKnownTestFrameworkIgnoresAllArguments()
+        public async Task TestDebugClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
 {
-    public static class Must
+    public static class Debug
     {
-        public static void BeTrue(bool b, string msg, int code) {}
+        public static void Assert(bool condition) {}
+        public static void Log(string msg, int level) {}
     }
 
     public class CTest
     {
         public void Test()
         {
-            Must.BeTrue(true, ""msg"", 1);
+            Debug.Assert(true);
+            Debug.Log(""msg"", 1);
         }
     }
 }
@@ -58,23 +60,21 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestExactMatchRequired()
+        public async Task TestOtherClassesStillReported()
         {
             var test = @"
 namespace Test
 {
-    public static class Must
+    public static class Other
     {
         public static void BeTrue(bool b) {}
-        public static void MyBeTrue(bool b) {}
     }
 
     public class CTest
     {
         public void Test()
         {
-            Must.BeTrue(true);
-            Must.MyBeTrue({|#0:true|});
+            Other.BeTrue({|#0:true|});
         }
     }
 }
@@ -90,12 +90,12 @@ namespace Test
 using System;
 namespace Test
 {
-    public class BeTrueAttribute : Attribute
+    public class MustAttribute : Attribute
     {
-        public BeTrueAttribute(bool b) {}
+        public MustAttribute(bool b) {}
     }
 
-    [BeTrue({|#0:true|})]
+    [Must({|#0:true|})]
     public class CTest
     {
     }

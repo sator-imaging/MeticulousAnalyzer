@@ -263,8 +263,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         internal static bool IsKnownTestFramework(IInvocationOperation invocation)
         {
-            var name = invocation.TargetMethod.Name;
-            return name is "BeTrue" or "BeFalse";
+            var name = invocation.TargetMethod.ContainingType.Name;
+            return name is "Must" or "Debug";
         }
 
 

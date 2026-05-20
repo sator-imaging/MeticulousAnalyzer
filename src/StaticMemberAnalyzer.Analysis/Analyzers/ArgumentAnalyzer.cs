@@ -127,15 +127,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var argValue = argOp.Value;
-
-            if (!IsPossibleOperation(argValue, out var requireReporting))
+            var invocationOp = argOp.Parent as IInvocationOperation;
+            if (invocationOp != null && Core.IsKnownTestFramework(invocationOp))
             {
                 return;
             }
 
-            var invocationOp = argOp.Parent as IInvocationOperation;
-            if (invocationOp != null && Core.IsKnownTestFramework(invocationOp))
+            var argValue = argOp.Value;
+
+            if (!IsPossibleOperation(argValue, out var requireReporting))
             {
                 return;
             }
