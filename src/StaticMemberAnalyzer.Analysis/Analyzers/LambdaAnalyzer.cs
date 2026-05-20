@@ -79,54 +79,42 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (Core.IsSuppressedByComment(lambda, SuppressionComment) || (anonFunc.Parent != null && Core.IsSuppressedByComment(anonFunc.Parent, SuppressionComment))) return;
 
-                // check if it is implicit conversion to delegate
-                var parent = anonFunc.Parent;
-                if ((parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type)) ||
-                    (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type)))
-                {
-                    ReportSMA7002(context, lambda);
-                }
+                ReportSMA7002(context, lambda, anonFunc.Parent);
             }
         }
 
         private static void AnalyzeImplicitConversion(OperationAnalysisContext context)
         {
-            IOperation operand;
-            ITypeSymbol? type;
-            bool isImplicit;
-
-            if (context.Operation is IConversionOperation conversion)
-            {
-                operand = conversion.Operand;
-                type = conversion.Type;
-                isImplicit = conversion.IsImplicit;
-            }
-            else if (context.Operation is IDelegateCreationOperation delegateCreation)
-            {
-                operand = delegateCreation.Target;
-                type = delegateCreation.Type;
-                isImplicit = delegateCreation.IsImplicit;
-            }
-            else return;
-
+            var op = context.Operation;
+            bool isImplicit = (op as IConversionOperation)?.IsImplicit ?? (op as IDelegateCreationOperation)?.IsImplicit ?? false;
             if (!isImplicit) return;
+
+            var operand = (op as IConversionOperation)?.Operand ?? (op as IDelegateCreationOperation)?.Target;
+            if (operand == null) return;
 
             // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
             var unwrapped = UnwrapConversion(operand);
             if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
 
             // Check if target type is Action or Func
-            if (!IsActionOrFunc(type)) return;
+            if (!IsActionOrFunc(op.Type)) return;
 
             // Don't show warning if the "value" side is static field, method, property or other static member.
             // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), type.ToDisplayString()));
+            context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
         }
 
-        private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda)
+        private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda, IOperation? parent)
         {
+            // check if it is implicit conversion to delegate
+            if (!((parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type)) ||
+                  (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type))))
+            {
+                return;
+            }
+
             Location location;
             if (lambda is SimpleLambdaExpressionSyntax simple)
                 location = simple.Parameter.GetLocation();
