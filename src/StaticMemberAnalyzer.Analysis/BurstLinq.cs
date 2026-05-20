@@ -55,14 +55,12 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         public static bool Where_Any<T>(
             this Linq_OfType_Where<ISymbol, ImmutableArray<ISymbol>, T> source,
-            Func<T, bool> static_lambda_where,
-            Func<T, bool> static_lambda_any
+            Func<T, bool> static_lambda_where
         )
         {
             foreach (var item in source)
             {
-                if (static_lambda_where.Invoke(item) &&
-                    static_lambda_any(item))
+                if (static_lambda_where.Invoke(item))
                 {
                     return true;
                 }

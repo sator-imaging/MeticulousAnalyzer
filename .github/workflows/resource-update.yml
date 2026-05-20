@@ -95,6 +95,7 @@ jobs:
         path: |
           src/**/Release/*.nupkg
           src/**/*.Designer.cs
+          src/**/*.resx
 
     - name: git setup
       run: |

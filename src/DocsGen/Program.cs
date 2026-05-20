@@ -1,4 +1,4 @@
-﻿// Licensed under the MIT License
+// Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using System;
@@ -137,7 +137,30 @@ internal class Program
         if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
             Directory.CreateDirectory(dirPath);
 
+
+        // Reorder <data> tags
+        var rootElements = root.Elements().ToArray();
+        var dataTags = new List<XElement>(capacity: rootElements.Length);
+        foreach (var candidate in rootElements)
+        {
+            if (candidate.Name.LocalName is "data")
+            {
+                dataTags.Add(candidate);
+                candidate.Remove();
+            }
+        }
+        foreach (var dt in dataTags.OrderBy(x => x.Attribute(XName.Get("name"))?.Value))
+        {
+            root.Add(dt);
+        }
+
         File.WriteAllText(outputPath, sb.ToString(), Encoding.UTF8);
+        File.WriteAllText(inputPath,
+            $"""
+            <?xml version="1.0" encoding="utf-8"?>
+            {xdoc}
+            """.ReplaceLineEndings("\n"),
+            Encoding.UTF8);
 
         Console.WriteLine(sb.ToString());
         Console.WriteLine(value: "DONE");

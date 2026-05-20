@@ -1,10 +1,11 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
-using Microsoft.CodeAnalysis.Testing;
-using Microsoft.CodeAnalysis;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
@@ -118,7 +119,7 @@ namespace Test
             };
 
             test.TestState.AnalyzerConfigFiles.Add(
-                ("/.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
+                ("/.globalconfig", $"is_global = true\n{Core.Config_EnableImmutableVariable} = true"));
 
             test.SolutionTransforms.Add((solution, projectId) =>
             {
