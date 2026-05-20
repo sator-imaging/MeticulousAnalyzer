@@ -355,11 +355,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return detect_duck_typing(disposableSymbol);
             static bool detect_duck_typing(INamedTypeSymbol disposableSymbol)
             {
-                const Accessibility ACCESS_HIDDEN = Accessibility.Protected | Accessibility.Private | Accessibility.NotApplicable;
-
                 var candidateMethods = disposableSymbol.GetMembers()
                     .OfType_Where<IMethodSymbol>(static x => x.Parameters.Length == 0
-                                                          && (x.DeclaredAccessibility & ~ACCESS_HIDDEN) != 0);
+                                                          && x.DeclaredAccessibility >= Accessibility.Internal);
 
                 var isDisposable = candidateMethods
                     .Where_Any(static x => x.Name == nameof(IDisposable.Dispose)
