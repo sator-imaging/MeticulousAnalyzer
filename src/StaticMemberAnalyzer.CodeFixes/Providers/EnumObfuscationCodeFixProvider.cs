@@ -30,27 +30,19 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
-            if (root == null)
-                return;
-            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            if (model == null)
-                return;
-
-            // TODO: Replace the following code with your own analysis, generating a CodeAction for each fix to suggest
-            // NOTE: this method is called when Alt+Enter is pressed on source code where diagnostic reported.
-            //       only need to provide codefix for first one.
-            var diagnostic = context.Diagnostics.First();
-
-            // Register a code action that will invoke the fix.
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: CodeFixResources.CodeFix_EnumObfuscation,
-                    createChangedDocument: token => ExcludeEnumFromObfuscation(diagnostic, context.Document, model, root, token),
-                    equivalenceKey: nameof(CodeFixResources.CodeFix_EnumObfuscation)),
-                diagnostic);
+            foreach (var diagnostic in context.Diagnostics)
+            {
+                // Register a code action that will invoke the fix.
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: CodeFixResources.CodeFix_EnumObfuscation,
+                        createChangedDocument: token => ExcludeEnumFromObfuscation(diagnostic, context.Document, token),
+                        equivalenceKey: nameof(CodeFixResources.CodeFix_EnumObfuscation)),
+                    diagnostic);
+            }
+            return Task.CompletedTask;
         }
 
 
@@ -59,11 +51,16 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         private async Task<Document> ExcludeEnumFromObfuscation(Diagnostic diagnostic,
                                                                 Document document,
-                                                                SemanticModel model,
-                                                                CompilationUnitSyntax root,
                                                                 CancellationToken token
             )
         {
+            var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
+            if (root == null)
+                return document;
+            var model = await document.GetSemanticModelAsync(token).ConfigureAwait(continueOnCapturedContext: false);
+            if (model == null)
+                return document;
+
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.

@@ -43,17 +43,23 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             title: CodeFixResources.CodeFix_NullSuppression,
-                            createChangedDocument: c => AddParenthesesFenceAsync(context.Document, suppression, c),
+                            createChangedDocument: c => AddParenthesesFenceAsync(context.Document, diagnostic, c),
                             equivalenceKey: nameof(CodeFixResources.CodeFix_NullSuppression)),
                         diagnostic);
                 }
             }
         }
 
-        private async Task<Document> AddParenthesesFenceAsync(Document document, PostfixUnaryExpressionSyntax suppression, CancellationToken cancellationToken)
+        private async Task<Document> AddParenthesesFenceAsync(Document document, Diagnostic diagnostic, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
+
+            var diagnosticSpan = diagnostic.Location.SourceSpan;
+            var node = root.FindNode(diagnosticSpan);
+
+            if (node is not PostfixUnaryExpressionSyntax suppression || !suppression.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                return document;
 
             // Unwrap existing parentheses
             var operand = suppression.Operand;
