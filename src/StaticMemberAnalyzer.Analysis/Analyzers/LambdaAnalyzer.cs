@@ -77,9 +77,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else
             {
-                if (Core.IsSuppressedByComment(lambda, SuppressionComment) || (anonFunc.Parent != null && Core.IsSuppressedByComment(anonFunc.Parent, SuppressionComment))) return;
-
-                ReportSMA7002(context, lambda, anonFunc.Parent);
+                var parent = anonFunc.Parent;
+                if ((parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type)) ||
+                    (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type)))
+                {
+                    ReportSMA7002(context, lambda, parent);
+                }
             }
         }
 
@@ -106,14 +109,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
         }
 
-        private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda, IOperation? parent)
+        private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda, IOperation parent)
         {
-            // check if it is implicit conversion to delegate
-            if (!((parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type)) ||
-                  (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type))))
-            {
-                return;
-            }
+            if (Core.IsSuppressedByComment(lambda, SuppressionComment) || Core.IsSuppressedByComment(parent, SuppressionComment)) return;
 
             Location location;
             if (lambda is SimpleLambdaExpressionSyntax simple)
