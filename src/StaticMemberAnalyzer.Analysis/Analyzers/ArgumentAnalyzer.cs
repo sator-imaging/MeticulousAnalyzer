@@ -141,19 +141,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var methodOrCtorContainer = invocationOp?.TargetMethod.ContainingType
                                          ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
 
-                if (methodOrCtorContainer == null ||
-                    IsKnownTestFrameworkOrPervasiveSystemLib(methodOrCtorContainer))
+                if (methodOrCtorContainer is not null)
                 {
-                    return;
-                }
-
-                // int, string or char is allowed if it's the first argument.
-                if (argStx.Parent is ArgumentListSyntax argListStx &&
-                    argListStx.Arguments.IndexOf(argStx) == 0)
-                {
-                    if (IsOmittableType(argValue, isConstructor: invocationOp == null))
+                    if (IsKnownTestFrameworkOrPervasiveSystemLib(methodOrCtorContainer))
                     {
                         return;
+                    }
+
+                    // int, string or char is allowed if it's the first argument.
+                    if (argStx.Parent is ArgumentListSyntax argListStx &&
+                        argListStx.Arguments.IndexOf(argStx) == 0)
+                    {
+                        if (IsOmittableType(argValue, isConstructor: invocationOp == null))
+                        {
+                            return;
+                        }
                     }
                 }
             }
