@@ -66,7 +66,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var argIndex = argListStx.Arguments.IndexOf(argStx);
+            int argIndex = argListStx.Arguments.IndexOf(argStx);
 
             // string or char is allowed if it's the first argument.
             if (!requireReporting &&
@@ -127,53 +127,31 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var invocationOp = argOp.Parent as IInvocationOperation;
-            if (invocationOp != null && Core.IsKnownTestFramework(invocationOp))
-            {
-                return;
-            }
-
             var argValue = argOp.Value;
 
+            // 'null', 'default', or 'default(T)' is not allowed at all.
             if (!IsPossibleOperation(argValue, out var requireReporting))
             {
                 return;
             }
 
-            // int, string or char is allowed if it's the first argument.
-            // But 'null', 'default', or 'default(T)' is not allowed at all.
             if (!requireReporting)
             {
+                var invocationOp = argOp.Parent as IInvocationOperation;
+                var methodOrCtorContainer = invocationOp?.TargetMethod.ContainingType
+                                         ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
+
+                if (methodOrCtorContainer == null ||
+                    IsKnownTestFrameworkOrPervasiveSystemLib(methodOrCtorContainer))
+                {
+                    return;
+                }
+
+                // int, string or char is allowed if it's the first argument.
                 if (argStx.Parent is ArgumentListSyntax argListStx &&
                     argListStx.Arguments.IndexOf(argStx) == 0)
                 {
                     if (IsOmittableType(argValue, isConstructor: invocationOp == null))
-                    {
-                        return;
-                    }
-                }
-
-                // String, System.Text and System.IO methods and constructors are intentionally allowed.
-                var containingType = invocationOp?.TargetMethod.ContainingType
-                    ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
-
-                if (containingType is not null)
-                {
-                    if (containingType.SpecialType == SpecialType.System_String)
-                    {
-                        return;
-                    }
-
-                    if (containingType.ContainingNamespace is INamespaceSymbol
-                        {
-                            Name: "Text" or "IO", ContainingNamespace: INamespaceSymbol
-                            {
-                                Name: "System", ContainingNamespace: INamespaceSymbol
-                                {
-                                    IsGlobalNamespace: true
-                                }
-                            }
-                        })
                     {
                         return;
                     }
@@ -259,6 +237,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             return false;
+        }
+
+
+        internal static bool IsKnownTestFrameworkOrPervasiveSystemLib(INamedTypeSymbol typeSymbol)
+        {
+            // String, System.Text and System.IO methods and constructors are intentionally allowed.
+            return typeSymbol.SpecialType is SpecialType.System_String
+                || typeSymbol.Name is "Must" or "Assert" or "Debug"
+                || typeSymbol.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "Text" or "IO", ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: "System", ContainingNamespace: INamespaceSymbol
+                        {
+                            IsGlobalNamespace: true,
+                        }
+                    }
+                };
         }
     }
 }
