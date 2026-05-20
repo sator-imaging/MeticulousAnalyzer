@@ -119,14 +119,11 @@
   </resheader>
   <data name="CodeFix_EnumObfuscation" xml:space="preserve">
     <value>Exclude Enum Member from Obfuscation</value>
-    <comment>The title of the code fix.</comment>
   </data>
   <data name="CodeFix_NamedArgument" xml:space="preserve">
     <value>Use named argument</value>
-    <comment>The title of the code fix.</comment>
   </data>
   <data name="CodeFix_NullSuppression" xml:space="preserve">
     <value>Add 3 parentheses fence</value>
-    <comment>The title of the code fix.</comment>
   </data>
 </root>

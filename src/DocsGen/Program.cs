@@ -156,9 +156,11 @@ internal class Program
 
         File.WriteAllText(outputPath, sb.ToString(), Encoding.UTF8);
         File.WriteAllText(inputPath,
+            // Newline at EOF is required.
             $"""
             <?xml version="1.0" encoding="utf-8"?>
             {xdoc}
+            
             """.ReplaceLineEndings("\n"),
             Encoding.UTF8);
 
