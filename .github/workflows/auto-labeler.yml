@@ -1,4 +1,4 @@
-name: Auto Labeler for GH Release
+name: Auto Labeler
 
 on:
   pull_request:
@@ -21,6 +21,10 @@ jobs:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          ##
+          ##  Labels chosen for GH Release Notes Generation
+          ##
+
           labels=()
 
           if echo "$TITLE" | grep -qE '^fix[:(]'; then
@@ -29,6 +33,10 @@ jobs:
 
           if echo "$TITLE" | grep -qE '^feat[:(]'; then
             labels+=("enhancement")
+          fi
+
+          if echo "$TITLE" | grep -qE '^docs[:(]'; then
+            labels+=("documentation")
           fi
 
           if echo "$TITLE" | grep -qE '^[a-z]+(\(.+\))?!:'; then

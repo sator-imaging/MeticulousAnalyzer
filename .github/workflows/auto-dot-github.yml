@@ -1,0 +1,55 @@
+name: Auto dot-github Sync
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  CENTRAL_REPO: ${{ github.repository_owner }}/.github
+  WORKDIR: dot-github-sync
+  TARGET_DIR: .github
+
+jobs:
+  sync:
+    runs-on: ubuntu-slim
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ env.CENTRAL_REPO }}
+          path: ${{ env.WORKDIR }}
+          sparse-checkout: |
+            .github
+          sparse-checkout-cone-mode: true
+
+      - name: Sync all files (additive)
+        run: |
+          mkdir -p "$TARGET_DIR"
+          rsync -av "$WORKDIR/.github/" "$TARGET_DIR/"
+
+      - name: Commit + Push + Create PR
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          TS=$(date -u +"%Y%m%d-%H%M%S")
+          BRANCH="bot/$WORKDIR-${TS}"
+
+          git checkout -B "$BRANCH"
+          git add "$TARGET_DIR"
+
+          git diff --cached --quiet && exit 0
+
+          git commit -m "[bot] Sync `.github` ($TS)"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --head "$BRANCH" \
+            --base main \
+            --fill \
+            || true
