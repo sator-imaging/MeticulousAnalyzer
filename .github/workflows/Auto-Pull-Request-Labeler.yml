@@ -12,18 +12,19 @@ permissions:
   pull-requests: write
   issues: write
 
+env:
+  GH_TOKEN: ${{ github.token }}  # For gh command
+  PR_TITLE: ${{ github.event.pull_request.title }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+  REPO: ${{ github.repository }}
+
 jobs:
   label:
     runs-on: ubuntu-slim
 
     steps:
       - name: Add labels based on Conventional Commits
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-          REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ## Check both PR title and merge commit title
 
