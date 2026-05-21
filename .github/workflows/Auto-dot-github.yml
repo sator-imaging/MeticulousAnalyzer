@@ -13,6 +13,7 @@ env:
   CENTRAL_REPO: ${{ github.repository_owner }}/.github
   WORKDIR: dot-github-sync
   TARGET_DIR: .github
+  GH_TOKEN: ${{ github.token }}  # For gh command
 
 jobs:
   sync:
@@ -57,5 +58,4 @@ jobs:
           gh pr create \
             --head "$BRANCH" \
             --base main \
-            --fill \
-            || true
+            --fill
