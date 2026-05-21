@@ -1,8 +1,12 @@
-name: Auto Labeler
+name: Auto PR Labeler
 
 on:
   pull_request:
-    types: [closed]
+    types:
+      - opened
+      - edited
+      - reopened
+      - closed
 
 permissions:
   pull-requests: write
@@ -22,11 +26,15 @@ jobs:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ## Labels chosen for GH Release Notes Generation
+          ## Check both PR title and merge commit title
 
-          COMMIT_TITLE=$(gh api \
-            repos/$REPO/commits/$MERGE_COMMIT_SHA \
-            --jq '.commit.message | split("\n")[0]')
+          if [ -n "$MERGE_COMMIT_SHA" ]; then
+            COMMIT_TITLE=$(gh api \
+              repos/$REPO/commits/$MERGE_COMMIT_SHA \
+              --jq '.commit.message | split("\n")[0]')
+          else
+            COMMIT_TITLE=""
+          fi
 
           echo "PR title: $PR_TITLE"
           echo "Merge commit title: $COMMIT_TITLE"
@@ -38,6 +46,8 @@ jobs:
               || echo "$COMMIT_TITLE" | grep -qE "$pattern"
           }
 
+
+          ## Labels chosen for GH Release Notes Generation
 
           labels=()
 
@@ -58,8 +68,10 @@ jobs:
           fi
 
 
+          ## Add detected labels or log warning
+
           if [ ${#labels[@]} -eq 0 ]; then
-            echo "::warning::No release-note label detected. PR title='$PR_TITLE' commit title='$COMMIT_TITLE'"
+            echo "::warning title=No release-note label detected::PR title='$PR_TITLE' commit title='$COMMIT_TITLE'"
           fi
 
           for label in "${labels[@]}"; do
