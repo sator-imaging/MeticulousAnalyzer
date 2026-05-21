@@ -21,6 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          sparse-checkout: |
+            ${{ env.TARGET_DIR }}
+          sparse-checkout-cone-mode: true
+
+      - uses: actions/checkout@v6
+        with:
           repository: ${{ env.CENTRAL_REPO }}
           path: ${{ env.WORKDIR }}
           sparse-checkout: |
