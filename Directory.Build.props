@@ -44,7 +44,7 @@
 
     <!-- don't forget to update the following PackageReference version range -->
     <GlobalPackageVersion>4.6.0</GlobalPackageVersion>
-    <GlobalPackageVersionSuffix>-rc.6</GlobalPackageVersionSuffix>
+    <GlobalPackageVersionSuffix>-rc.7</GlobalPackageVersionSuffix>
 
   </PropertyGroup>
 
