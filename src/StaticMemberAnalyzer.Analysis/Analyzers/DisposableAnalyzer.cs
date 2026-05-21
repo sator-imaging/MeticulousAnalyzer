@@ -496,8 +496,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         //       At this time, we just check only for the method argument.
                         //       --> Foo(obj as IDisposable);
                         //               ~~~~~~~~~~~~~~~~~~
-                        op is not IConversionOperation
-                        )
+                        op is not IConversionOperation)
                     {
                         goto NO_WARN;
                     }
