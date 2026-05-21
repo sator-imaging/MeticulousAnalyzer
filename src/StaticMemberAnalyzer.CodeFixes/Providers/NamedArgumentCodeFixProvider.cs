@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,7 +41,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
                 if (node == null) continue;
 
-                var argumentNode = node.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax or AttributeArgumentSyntax);
+                var argumentNode = node.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax or AttributeArgumentSyntax);
                 if (argumentNode == null) continue;
 
                 context.RegisterCodeFix(
@@ -59,7 +60,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
             var argumentSpan = diagnostic.Location.SourceSpan;
             var node = root.FindNode(argumentSpan, getInnermostNodeForTie: true);
-            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax or AttributeArgumentSyntax);
+            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax or AttributeArgumentSyntax);
             if (argumentNode == null) return document;
 
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -88,13 +89,14 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 }
             }
 
-            if (string.IsNullOrEmpty(parameterName)) return document;
+            if (parameterName == null || parameterName.Length == 0 || parameterName == "<unknown>") return document;
+            if (!SyntaxFacts.IsValidIdentifier(parameterName)) return document;
 
             var firstToken = argumentNode.GetFirstToken();
             var leadingTrivia = firstToken.LeadingTrivia;
 
             var nameColon = SyntaxFactory.NameColon(
-                SyntaxFactory.IdentifierName(parameterName!),
+                SyntaxFactory.IdentifierName(parameterName),
                 SyntaxFactory.Token(SyntaxKind.ColonToken).WithTrailingTrivia(SyntaxFactory.Space)
             ).WithLeadingTrivia(leadingTrivia);
 
