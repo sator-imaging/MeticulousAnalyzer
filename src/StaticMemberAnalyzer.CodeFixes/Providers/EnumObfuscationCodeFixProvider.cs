@@ -10,6 +10,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     CodeAction.Create(
                         title: CodeFixResources.CodeFix_EnumObfuscation,
                         createChangedDocument: token => ExcludeEnumFromObfuscation(diagnostic, context.Document, token),
-                        equivalenceKey: nameof(CodeFixResources.CodeFix_EnumObfuscation)),
+                        equivalenceKey: CodeFixResources.CodeFix_EnumObfuscation),
                     diagnostic);
             }
         }

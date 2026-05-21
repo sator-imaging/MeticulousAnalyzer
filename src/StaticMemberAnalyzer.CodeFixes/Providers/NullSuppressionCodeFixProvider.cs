@@ -44,7 +44,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                         CodeAction.Create(
                             title: CodeFixResources.CodeFix_NullSuppression,
                             createChangedDocument: c => AddParenthesesFenceAsync(context.Document, diagnostic, c),
-                            equivalenceKey: nameof(CodeFixResources.CodeFix_NullSuppression)),
+                            equivalenceKey: CodeFixResources.CodeFix_NullSuppression),
                         diagnostic);
                 }
             }
