@@ -1,4 +1,4 @@
-name: Auto dot-github Sync
+name: '[Auto] .github Sync'
 
 on:
   schedule:
@@ -48,7 +48,7 @@ jobs:
             git checkout -b "$BRANCH"
           fi
 
-          git pull origin
+          git pull origin "$BRANCH"
 
           # Sync all files (additive)
           mkdir -p "$TARGET_DIR"
