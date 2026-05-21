@@ -1,0 +1,24 @@
+name: '[Auto] Sync & PR Labeler'
+
+on:
+  schedule:
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - closed
+      - reopened
+
+jobs:
+  reuse:
+    uses: sator-imaging/.github/.github/workflows/Auto-dot-github.yml@main
+    secrets: inherit
+    permissions:
+      pull-requests: write
+      # .github sync
+      contents: write
+      # PR labeler
+      issues: write
