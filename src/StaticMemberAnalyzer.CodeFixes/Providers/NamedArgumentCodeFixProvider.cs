@@ -48,7 +48,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     CodeAction.Create(
                         title: CodeFixResources.CodeFix_NamedArgument,
                         createChangedDocument: c => AddNamedArgumentAsync(context.Document, diagnostic, c),
-                        equivalenceKey: nameof(CodeFixResources.CodeFix_NamedArgument)),
+                        equivalenceKey: CodeFixResources.CodeFix_NamedArgument),
                     diagnostic);
             }
         }
