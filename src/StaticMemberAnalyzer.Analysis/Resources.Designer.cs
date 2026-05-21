@@ -1456,6 +1456,33 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
             }
         }
 
+        /// <summary>
+        ///   Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation". に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7002_Description {
+            get {
+                return ResourceManager.GetString("SMA7002_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Non-static lambda declaration and implicit conversion causes allocation に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7002_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7002_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Lambda allocation に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7002_Title {
+            get {
+                return ResourceManager.GetString("SMA7002_Title", resourceCulture);
+            }
+        }
+
         ///   Explicit number declaration に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA8001_Title {

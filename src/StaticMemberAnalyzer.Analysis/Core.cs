@@ -315,6 +315,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             if (node is LocalDeclarationStatementSyntax
                      // Allow "Don't dispose" on field declaration
                      or FieldDeclarationSyntax
+                     // Allow "Allow allocation" on lambda
+                     or LambdaExpressionSyntax
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
