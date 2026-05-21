@@ -24,7 +24,7 @@ jobs:
           repository: ${{ env.CENTRAL_REPO }}
           path: ${{ env.WORKDIR }}
           sparse-checkout: |
-            $TARGET_DIR
+            ${{ env.TARGET_DIR }}
           sparse-checkout-cone-mode: true
 
       - name: Sync all files (additive)
