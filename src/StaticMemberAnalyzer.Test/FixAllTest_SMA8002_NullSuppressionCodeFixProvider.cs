@@ -15,33 +15,29 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class FixAllTest_SMA8002_NullSuppressionCodeFixProvider
     {
         private const string SourceTemplate = @"
-#nullable disable
 namespace TestNamespace_{0}
 {{
-    public class C
+    public class C_{0}
     {{
-        string s = null;
-        void Test()
+        public void M(object a, object b, object c)
         {{
-            var a = {{|#0:s!|}};
-            var b = {{|#1:s!|}};
-            var c = {{|#2:s!|}};
+            var v1 = {{|#0:a!|}};
+            var v2 = {{|#1:b!|}};
+            var v3 = {{|#2:c!|}};
         }}
     }}
 }}";
 
         private const string FixedTemplate = @"
-#nullable disable
 namespace TestNamespace_{0}
 {{
-    public class C
+    public class C_{0}
     {{
-        string s = null;
-        void Test()
+        public void M(object a, object b, object c)
         {{
-            var a = (((s)))!;
-            var b = (((s)))!;
-            var c = (((s)))!;
+            var v1 = (((a)))!;
+            var v2 = (((b)))!;
+            var v3 = (((c)))!;
         }}
     }}
 }}";
@@ -54,17 +50,20 @@ namespace TestNamespace_{0}
 
             for (int i = 0; i < 3; i++)
             {
-                var fname = $"File{i}.cs";
+                string fname = $"File{i}.cs";
                 int m0 = i * 3;
                 int m1 = i * 3 + 1;
                 int m2 = i * 3 + 2;
 
                 test.TestState.Sources.Add((fname, string.Format(SourceTemplate, i).Replace("#0", $"#{m0}").Replace("#1", $"#{m1}").Replace("#2", $"#{m2}")));
-                test.FixedState.Sources.Add((fname, string.Format(FixedTemplate, i)));
 
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(m0));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(m1));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(m2));
+                var fixedContent = string.Format(FixedTemplate, i);
+                test.FixedState.Sources.Add((fname, fixedContent));
+                test.BatchFixedState.Sources.Add((fname, fixedContent));
+
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: m0));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: m1));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: m2));
             }
 
             await test.RunAsync();

@@ -17,14 +17,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         private const string SourceTemplate = @"
 namespace TestNamespace_{0}
 {{
-    public class C
+    public class C_{0}
     {{
-        void M(int a, float b) {{ }}
-        void Test()
+        public void M(object p1, object p2, object p3) {{ }}
+        public void Test()
         {{
-            M(0, {{|#0:1.0f|}});
-            M(0, {{|#1:2.0f|}});
-            M(0, {{|#2:3.0f|}});
+            M({{|#0:null|}}, p2: null, p3: null);
+            M(p1: null, {{|#1:null|}}, p3: null);
+            M(p1: null, p2: null, {{|#2:null|}});
         }}
     }}
 }}";
@@ -32,14 +32,14 @@ namespace TestNamespace_{0}
         private const string FixedTemplate = @"
 namespace TestNamespace_{0}
 {{
-    public class C
+    public class C_{0}
     {{
-        void M(int a, float b) {{ }}
-        void Test()
+        public void M(object p1, object p2, object p3) {{ }}
+        public void Test()
         {{
-            M(0, b: 1.0f);
-            M(0, b: 2.0f);
-            M(0, b: 3.0f);
+            M(p1: null, p2: null, p3: null);
+            M(p1: null, p2: null, p3: null);
+            M(p1: null, p2: null, p3: null);
         }}
     }}
 }}";
@@ -52,17 +52,20 @@ namespace TestNamespace_{0}
 
             for (int i = 0; i < 3; i++)
             {
-                var fname = $"File{i}.cs";
+                string fname = $"File{i}.cs";
                 int m0 = i * 3;
                 int m1 = i * 3 + 1;
                 int m2 = i * 3 + 2;
 
-                test.TestState.Sources.Add((fname, string.Format(SourceTemplate, i, m0, m1, m2).Replace("#0", $"#{m0}").Replace("#1", $"#{m1}").Replace("#2", $"#{m2}")));
-                test.FixedState.Sources.Add((fname, string.Format(FixedTemplate, i)));
+                test.TestState.Sources.Add((fname, string.Format(SourceTemplate, i).Replace("#0", $"#{m0}").Replace("#1", $"#{m1}").Replace("#2", $"#{m2}")));
 
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(m0).WithArguments("b"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(m1).WithArguments("b"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(m2).WithArguments("b"));
+                var fixedContent = string.Format(FixedTemplate, i);
+                test.FixedState.Sources.Add((fname, fixedContent));
+                test.BatchFixedState.Sources.Add((fname, fixedContent));
+
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: m0).WithArguments("p1"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: m1).WithArguments("p2"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: m2).WithArguments("p3"));
             }
 
             await test.RunAsync();
