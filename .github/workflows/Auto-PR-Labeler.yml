@@ -5,8 +5,8 @@ on:
     types:
       - opened
       - edited
-      - reopened
       - closed
+      - reopened
 
 permissions:
   pull-requests: write
