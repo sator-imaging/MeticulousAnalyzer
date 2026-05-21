@@ -44,11 +44,10 @@ jobs:
           # If remote branch exists → track it
           if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
             git checkout -B "$BRANCH" "origin/$BRANCH"
+            git pull origin "$BRANCH"
           else
             git checkout -b "$BRANCH"
           fi
-
-          git pull origin "$BRANCH"
 
           # Sync all files (additive)
           mkdir -p "$TARGET_DIR"
