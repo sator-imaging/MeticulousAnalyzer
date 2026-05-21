@@ -35,10 +35,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
             foreach (var diagnostic in context.Diagnostics)
             {
-                var diagnosticSpan = diagnostic.Location.SourceSpan;
-                var node = root.FindNode(diagnosticSpan);
+                var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+                var suppression = node?.AncestorsAndSelf().OfType_FirstOrDefault<PostfixUnaryExpressionSyntax>();
 
-                if (node is PostfixUnaryExpressionSyntax suppression && suppression.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                if (suppression != null && suppression.IsKind(SyntaxKind.SuppressNullableWarningExpression))
                 {
                     context.RegisterCodeFix(
                         CodeAction.Create(
@@ -55,10 +55,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
 
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var node = root.FindNode(diagnosticSpan);
+            var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+            var suppression = node?.AncestorsAndSelf().OfType_FirstOrDefault<PostfixUnaryExpressionSyntax>();
 
-            if (node is not PostfixUnaryExpressionSyntax suppression || !suppression.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+            if (suppression == null || !suppression.IsKind(SyntaxKind.SuppressNullableWarningExpression))
                 return document;
 
             // Unwrap existing parentheses
@@ -68,15 +68,16 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 operand = parenthesized.Expression;
             }
 
-            // Add 3 parentheses
+            // Add 3 parentheses: (((variable)))!
             var newOperand = SyntaxFactory.ParenthesizedExpression(
                 SyntaxFactory.ParenthesizedExpression(
                     SyntaxFactory.ParenthesizedExpression(operand.WithoutTrivia())
                 )
             ).WithTriviaFrom(suppression.Operand);
 
-            var newSuppression = suppression.WithOperand(newOperand);
-            var newRoot = root.ReplaceNode(suppression, newSuppression);
+            var newNode = suppression.WithOperand(newOperand);
+
+            var newRoot = root.ReplaceNode(suppression, newNode);
 
             return document.WithSyntaxRoot(newRoot);
         }
