@@ -46,17 +46,18 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title: CodeFixResources.CodeFix_NamedArgument,
-                        createChangedDocument: c => AddNamedArgumentAsync(context.Document, argumentNode.Span, c),
+                        createChangedDocument: c => AddNamedArgumentAsync(context.Document, diagnostic, c),
                         equivalenceKey: nameof(CodeFixResources.CodeFix_NamedArgument)),
                     diagnostic);
             }
         }
 
-        private async Task<Document> AddNamedArgumentAsync(Document document, Microsoft.CodeAnalysis.Text.TextSpan argumentSpan, CancellationToken cancellationToken)
+        private async Task<Document> AddNamedArgumentAsync(Document document, Diagnostic diagnostic, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
 
+            var argumentSpan = diagnostic.Location.SourceSpan;
             var node = root.FindNode(argumentSpan, getInnermostNodeForTie: true);
             var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax or AttributeArgumentSyntax);
             if (argumentNode == null) return document;
