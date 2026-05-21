@@ -16,31 +16,50 @@ jobs:
     steps:
       - name: Add labels based on Conventional Commits
         env:
-          TITLE: ${{ github.event.pull_request.title }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ##
-          ##  Labels chosen for GH Release Notes Generation
-          ##
+          ## Labels chosen for GH Release Notes Generation
+
+          COMMIT_TITLE=$(gh api \
+            repos/$REPO/commits/$MERGE_COMMIT_SHA \
+            --jq '.commit.message | split("\n")[0]')
+
+          echo "PR title: $PR_TITLE"
+          echo "Merge commit title: $COMMIT_TITLE"
+
+          matches_pattern() {
+            local pattern="$1"
+
+            echo "$PR_TITLE" | grep -qE "$pattern" \
+            || echo "$COMMIT_TITLE" | grep -qE "$pattern"
+          }
+
 
           labels=()
 
-          if echo "$TITLE" | grep -qE '^fix[:(]'; then
+          if matches_pattern '^fix[:(]'; then
             labels+=("bug")
           fi
 
-          if echo "$TITLE" | grep -qE '^feat[:(]'; then
+          if matches_pattern '^feat[:(]'; then
             labels+=("enhancement")
           fi
 
-          if echo "$TITLE" | grep -qE '^docs[:(]'; then
+          if matches_pattern '^docs[:(]'; then
             labels+=("documentation")
           fi
 
-          if echo "$TITLE" | grep -qE '^[a-z]+(\(.+\))?!:'; then
+          if matches_pattern '^[a-z]+(\(.+\))?!:'; then
             labels+=("breaking-change")
+          fi
+
+
+          if [ ${#labels[@]} -eq 0 ]; then
+            echo "::warning::No release-note label detected. PR title='$PR_TITLE' commit title='$COMMIT_TITLE'"
           fi
 
           for label in "${labels[@]}"; do
