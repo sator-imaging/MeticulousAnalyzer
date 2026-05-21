@@ -34,11 +34,6 @@ jobs:
             ${{ env.TARGET_DIR }}
           sparse-checkout-cone-mode: true
 
-      - name: Sync all files (additive)
-        run: |
-          mkdir -p "$TARGET_DIR"
-          rsync -av "$WORKDIR/$TARGET_DIR/" "$TARGET_DIR/"
-
       - name: Commit + Push + Create PR
         run: |
           git config user.name  "github-actions[bot]"
@@ -52,6 +47,12 @@ jobs:
           else
             git checkout -b "$BRANCH"
           fi
+
+          git pull
+
+          # Sync all files (additive)
+          mkdir -p "$TARGET_DIR"
+          rsync -av "$WORKDIR/$TARGET_DIR/" "$TARGET_DIR/"
 
           git add "$TARGET_DIR"
           git diff --cached --quiet \
