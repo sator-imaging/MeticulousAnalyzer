@@ -52,7 +52,7 @@ jobs:
 
           git diff --cached --quiet && exit 0
 
-          git commit -m "[bot] Sync `$TARGET_DIR` ($TS)"
+          git commit -m "[bot] Sync \`${TARGET_DIR}\` ($TS)"
           git push origin "$BRANCH"
 
           gh pr create \
