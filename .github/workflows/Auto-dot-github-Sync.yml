@@ -48,7 +48,7 @@ jobs:
             git checkout -b "$BRANCH"
           fi
 
-          git pull
+          git pull origin
 
           # Sync all files (additive)
           mkdir -p "$TARGET_DIR"
