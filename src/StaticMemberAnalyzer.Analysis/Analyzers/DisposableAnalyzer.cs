@@ -442,7 +442,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // MUST check before unpacking implicit cast
             bool isCreationOp = op.Kind is OperationKind.ObjectCreation
-                                        or OperationKind.Conversion
+                                        or OperationKind.Conditional
                                         or OperationKind.AnonymousObjectCreation
                                         or OperationKind.TypeParameterObjectCreation
                                         or OperationKind.DefaultValue
@@ -490,7 +490,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                     }
 
-                    if (!isCreationOp)
+                    if (!isCreationOp &&
+                        // TODO: If isCreationOp includes Conversion operation, analyzer will report so many false positives.
+                        //         e.g., `disposable == null`
+                        //       At this time, we just check only for the method argument.
+                        //       --> Foo(obj as IDisposable);
+                        //               ~~~~~~~~~~~~~~~~~~
+                        op is not IConversionOperation)
                     {
                         goto NO_WARN;
                     }
