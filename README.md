@@ -477,9 +477,9 @@ var x = (((foo)))!;
 ```
 
 > [!TIP]
-> Strongly recommended that safely suppressing it by adding `Debug.Assert(foo is not null);` without introducing runtime overhead in Release build.
->
 > Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
+>
+> After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
 
 
 
