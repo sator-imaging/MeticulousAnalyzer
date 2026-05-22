@@ -73,7 +73,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingAwait, assignment.Value.Syntax.GetLocation(), "_"));
+            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingAwait, assignment.Value.Syntax.GetLocation(), assignment.Target.Syntax.ToString()));
         }
 
         private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
