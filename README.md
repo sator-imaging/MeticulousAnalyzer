@@ -754,7 +754,7 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
 Add a single-line comment starting with a specific string (case-insensitive but white space sensitive) immediately before the local variable declaration or discard assignment. Blank lines are ignored when searching for the suppression comment.
 
 > [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+> This suppression is effective for initial local variable declarations and assignments.
 >
 > Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
 

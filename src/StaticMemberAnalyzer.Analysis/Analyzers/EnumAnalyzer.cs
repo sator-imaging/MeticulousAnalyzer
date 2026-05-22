@@ -819,7 +819,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsEnumDerivedType(ITypeSymbol symbol)
         {
-            return symbol.TypeKind == TypeKind.Enum && symbol.SpecialType != SpecialType.System_Enum;
+            return symbol.TypeKind == TypeKind.Enum || symbol.SpecialType == SpecialType.System_Enum;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
