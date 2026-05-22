@@ -48,6 +48,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+        }
+
+        private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
+        {
+            if (context.Operation is not ISimpleAssignmentOperation assignment)
+            {
+                return;
+            }
+
+            if (assignment.Target is not IDiscardOperation)
+            {
+                return;
+            }
+
+            if (!IsTask(assignment.Value.Type))
+            {
+                return;
+            }
+
+            if (Core.IsSuppressedByComment(assignment.Syntax, SuppressionComment, isDiscardOperation: true))
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingAwait, assignment.Value.Syntax.GetLocation(), "_"));
         }
 
         private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
