@@ -212,13 +212,15 @@ namespace Test
         public ETest EnumProp { get; set; }
         public void Test(CTest foo)
         {
-            var x = {|#0:foo?.EnumProp.HasFlag(ETest.Value)|};
+            var x = {|#0:foo?.EnumProp.HasFlag({|#1:{|#2:ETest.Value|}|})|};
         }
     }
 }
 ";
             var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("Enum");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 2).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected, expected1, expected2);
         }
 
         [TestMethod]
