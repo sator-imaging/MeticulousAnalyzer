@@ -477,7 +477,7 @@ var x = (((foo)))!;
 ```
 
 > [!TIP]
-> 相比抑制注释，更推荐使用 `Debug.Assert`。你可以通过 `Debug.Assert(foo is not null);` 安全地抑制警告，且不会在 Release 构建中引入运行时开销。
+> 强烈建议通过添加 `Debug.Assert(foo is not null);` 而不是使用 `!` 来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
 >
 > 通过 `dotnet format analyzers --diagnostics SMA8002` 应用代码修复，可以揭示代码库中所有的 Null 警告抑制。
 
