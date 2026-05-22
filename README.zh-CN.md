@@ -477,9 +477,9 @@ var x = (((foo)))!;
 ```
 
 > [!TIP]
-> 强烈建议通过添加 `Debug.Assert(foo is not null);` 来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
->
 > 通过 `dotnet format analyzers --diagnostics SMA8002` 应用代码修复，可以揭示代码库中所有的 Null 警告抑制。
+>
+> 之后，强烈建议使用 `Debug.Assert(foo is not null);` 代替 `!` 运算符来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
 
 
 
