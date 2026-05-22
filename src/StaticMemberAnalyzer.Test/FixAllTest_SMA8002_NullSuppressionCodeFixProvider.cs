@@ -1,9 +1,14 @@
-// Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+/*
+ * FixAllTest_SMA8002_NullSuppressionCodeFixProvider.cs
+ *
+ * Copyright (c) 2024 Sator Imaging
+ */
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
-using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
+using SatorImaging.StaticMemberAnalyzer.Test;
+using StaticMemberAnalyzer.Test;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.NullSuppressionAnalyzer,
@@ -14,59 +19,81 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     [TestClass]
     public class FixAllTest_SMA8002_NullSuppressionCodeFixProvider
     {
-        private const string SourceTemplate = @"
-namespace TestNamespace_{0}
-{{
-    public class C_{0}
-    {{
-        public void M(object a, object b, object c)
-        {{
-            var v1 = {{|#0:a!|}};
-            var v2 = {{|#1:b!|}};
-            var v3 = {{|#2:c!|}};
-        }}
-    }}
-}}";
-
-        private const string FixedTemplate = @"
-namespace TestNamespace_{0}
-{{
-    public class C_{0}
-    {{
-        public void M(object a, object b, object c)
-        {{
-            var v1 = (((a)))!;
-            var v2 = (((b)))!;
-            var v3 = (((c)))!;
-        }}
-    }}
-}}";
-
         [TestMethod]
-        public async Task TestFixAll()
+        public async Task FixAll_SMA8002()
         {
-            var test = new VerifyCS.Test();
-            test.CodeActionEquivalenceKey = "Add 3 parentheses fence";
-
-            for (int i = 0; i < 3; i++)
+            var test = new VerifyCS.Test
             {
-                string fname = $"File{i}.cs";
-                int m0 = i * 3;
-                int m1 = i * 3 + 1;
-                int m2 = i * 3 + 2;
+                CodeActionEquivalenceKey = "Add 3 parentheses fence",
+                FixAllProvider = CodeFixHelpers.BatchFixAllProvider,
+            };
 
-                test.TestState.Sources.Add((fname, string.Format(SourceTemplate, i).Replace("#0", $"#{m0}").Replace("#1", $"#{m1}").Replace("#2", $"#{m2}")));
+            test.CodeActionValidationMode = CodeActionValidationMode.None;
 
-                var fixedContent = string.Format(FixedTemplate, i);
-                test.FixedState.Sources.Add((fname, fixedContent));
-                test.BatchFixedState.Sources.Add((fname, fixedContent));
+            for (int p = 0; p < 3; p++)
+            {
+                var projectName = "Project" + p.ToString();
+                var project = p == 0 ? test.TestState : new ProjectState(name: projectName, language: LanguageNames.CSharp, defaultPrefix: projectName, defaultExtension: "cs");
+                if (p > 0) test.TestState.AdditionalProjects.Add(projectName, project);
 
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: m0));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: m1));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: m2));
+                var batchFixedProject = p == 0 ? test.BatchFixedState : new ProjectState(name: projectName, language: LanguageNames.CSharp, defaultPrefix: projectName, defaultExtension: "cs");
+                if (p > 0) test.BatchFixedState.AdditionalProjects.Add(projectName, batchFixedProject);
+
+                for (int f = 0; f < 3; f++)
+                {
+                    var fileName = (f == 0 && p == 0) ? "Test0.cs" : ("File" + p.ToString() + "_" + f.ToString() + ".cs");
+                    project.Sources.Add((fileName, GetSource(p: p, f: f)));
+                    batchFixedProject.Sources.Add((fileName, GetFixedSource(p: p, f: f)));
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var diag = VerifyCS.Diagnostic().WithLocation(path: fileName, line: 7 + i, column: 21);
+                        test.ExpectedDiagnostics.Add(diag);
+                    }
+                }
             }
+            test.TestState.Sources.Add(("Empty.cs", ""));
+            test.BatchFixedState.Sources.Add(("Empty.cs", ""));
 
-            await test.RunAsync();
+            test.FixedState.InheritanceMode = StateInheritanceMode.AutoInheritAll;
+            test.FixedState.Sources.Add(("Test0.cs", GetFixedSource(p: 0, f: 0)));
+
+            // FixAllProvider test cannot be done with current Roslyn version (3.8.0).
+            //   e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
+            // It's available in Roslyn version (4.4.0 or later).
+            await test.VerifyAsync().ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private static string GetSource(int p, int f)
+        {
+            return string.Format(@"namespace Project{0}.Namespace{1}
+{{
+    public class C
+    {{
+        public void Test(string s)
+        {{
+            var a = s!;
+            var b = s!;
+            var c = s!;
+        }}
+    }}
+}}", (object)p.ToString(), (object)f.ToString());
+        }
+
+        private static string GetFixedSource(int p, int f)
+        {
+            return string.Format(@"namespace Project{0}.Namespace{1}
+{{
+    public class C
+    {{
+        public void Test(string s)
+        {{
+            var a = (((s)))!;
+            var b = (((s)))!;
+            var c = (((s)))!;
+        }}
+    }}
+}}", (object)p.ToString(), (object)f.ToString());
         }
     }
 }
