@@ -19,11 +19,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     [TestClass]
     public class NullSuppressionAnalyzerTests
     {
-        private static DiagnosticResult CreateExpectedDiagnostic(int locationIndex)
+        private static DiagnosticResult CreateExpectedDiagnostic(int locationIndex, string operand)
         {
             return VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression)
                 .WithLocation(locationIndex)
-                .WithSeverity(DiagnosticSeverity.Warning);
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithArguments(operand);
         }
 
         [TestMethod]
@@ -38,7 +39,7 @@ class C
         var x = {|#0:foo!|};
     }
 }";
-            var expected = CreateExpectedDiagnostic(0);
+            var expected = CreateExpectedDiagnostic(0, operand: "foo");
 
             var fixedSource = @"#nullable enable
 class C
@@ -94,7 +95,7 @@ class C
         var x = {|#0:(this.foo)!|};
     }
 }";
-            var expected = CreateExpectedDiagnostic(0);
+            var expected = CreateExpectedDiagnostic(0, operand: "this.foo");
 
             var fixedSource = @"#nullable enable
 class C
@@ -120,7 +121,7 @@ class C
         var x = {|#0:((this.foo))!|};
     }
 }";
-            var expected = CreateExpectedDiagnostic(0);
+            var expected = CreateExpectedDiagnostic(0, operand: "this.foo");
 
             var fixedSource = @"#nullable enable
 class C
@@ -146,7 +147,7 @@ class C
         var x = ({|#0:foo!|});
     }
 }";
-            var expected = CreateExpectedDiagnostic(0);
+            var expected = CreateExpectedDiagnostic(0, operand: "foo");
 
             var fixedSource = @"#nullable enable
 class C
@@ -172,7 +173,7 @@ class C
         var x = {|#0:(foo ?? """")!|};
     }
 }";
-            var expected = CreateExpectedDiagnostic(0);
+            var expected = CreateExpectedDiagnostic(0, operand: "foo ?? \"\"");
 
             var fixedSource = @"#nullable enable
 class C
@@ -198,7 +199,7 @@ class C
         var x = {|#0:((foo ?? """"))!|};
     }
 }";
-            var expected = CreateExpectedDiagnostic(0);
+            var expected = CreateExpectedDiagnostic(0, operand: "foo ?? \"\"");
 
             var fixedSource = @"#nullable enable
 class C

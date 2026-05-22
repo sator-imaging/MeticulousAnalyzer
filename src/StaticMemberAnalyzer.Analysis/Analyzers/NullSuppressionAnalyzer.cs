@@ -54,7 +54,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_NullSuppression,
-                    node.GetLocation()));
+                    node.GetLocation(),
+                    operand.ToString()));
             }
         }
     }
