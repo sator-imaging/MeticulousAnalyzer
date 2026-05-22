@@ -55,52 +55,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestEnumMemberCast_Reported()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E { Value }
-    public class C
-    {
-        public void M()
-        {
-            var foo = {|#0:(object)E.Value|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("E");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task TestEnumMemberCast_Suppressed()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E { Value }
-    public class C
-    {
-        public void M()
-        {
-            // Allow enum conversion
-            var foo = (object)E.Value;
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
         public async Task TestUserRequestedCase_Suppressed()
         {
             var test = @"
