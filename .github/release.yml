@@ -1,13 +1,13 @@
 changelog:
   categories:
-    - title: 🎉 New Version
+    - title: ✨ Breaking Changes
       labels:
         - breaking-change
     - title: 🚀 Features
       labels:
         - enhancement
         - feature
-    - title: ✨ Bug Fixes
+    - title: 🧹 Bug Fixes
       labels:
         - bug
         - fix
