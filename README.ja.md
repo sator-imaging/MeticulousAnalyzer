@@ -477,6 +477,8 @@ var x = (((foo)))!;
 ```
 
 > [!TIP]
+> 抑制コメントよりも `Debug.Assert` を優先してください。`Debug.Assert(foo is not null);` を使用することで、Release ビルドでの実行時オーバーヘッドを発生させることなく、安全に警告を抑制できます。
+>
 > `dotnet format analyzers --diagnostics SMA8002` を実行してコード修正を適用することで、コードベース内のすべての Null 抑制箇所を可視化できます。
 
 

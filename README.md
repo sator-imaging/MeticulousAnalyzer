@@ -477,6 +477,8 @@ var x = (((foo)))!;
 ```
 
 > [!TIP]
+> Prefer `Debug.Assert` than suppression comment. You can suppress safely by `Debug.Assert(foo is not null);` without introducing runtime overhead in Release build.
+>
 > Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
 
 
