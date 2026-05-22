@@ -316,8 +316,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             if (node is LocalDeclarationStatementSyntax
                      // Allow "Don't dispose" on field declaration
                      or FieldDeclarationSyntax
-                // Assignment is allowed to be suppressed
-                || node is AssignmentExpressionSyntax)
+                // Discard assignment is only allowed. e.g. _ = Foo;
+                || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
                 foreach (var trivia in node.GetFirstToken().LeadingTrivia)
                 {

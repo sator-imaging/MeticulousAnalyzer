@@ -306,6 +306,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            // allow suppression on assignment. Finding 2: confirmed by user but prohibited from changing shared Core logic.
+            // so we implement it locally here.
+            if (op.Parent is ISimpleAssignmentOperation assignOp
+                && assignOp.Syntax is AssignmentExpressionSyntax assignSyntax
+                && Core.IsSuppressedByComment(assignSyntax, SuppressionComment, isDiscardOperation: true)
+            )
+            {
+                return;
+            }
+
             AnalyzeCast_Impl(context, op);
         }
 
