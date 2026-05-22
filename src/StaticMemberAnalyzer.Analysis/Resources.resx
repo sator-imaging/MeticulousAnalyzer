@@ -575,9 +575,9 @@
     <value>Null suppression operation</value>
   </data>
   <data name="SMA8002_MessageFormat" xml:space="preserve">
-    <value>Null suppression operation should be fenced with 3 parentheses. Prefer Debug.Assert than suppression comment. You can suppress safely by Debug.Assert({0} is not null); without introducing runtime overhead in Release build.</value>
+    <value>Null suppression operation should be fenced with 3 parentheses. Prefer Debug.Assert than suppression comment. You can suppress safely by `Debug.Assert({0} is not null);` without introducing runtime overhead in Release build.</value>
   </data>
   <data name="SMA8002_Description" xml:space="preserve">
-    <value>Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Prefer Debug.Assert than suppression comment. You can suppress safely by Debug.Assert({0} is not null); without introducing runtime overhead in Release build.</value>
+    <value>Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Prefer Debug.Assert than suppression comment. You can suppress safely by `Debug.Assert({0} is not null);` without introducing runtime overhead in Release build.</value>
   </data>
 </root>
