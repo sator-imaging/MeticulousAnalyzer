@@ -99,7 +99,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeCast(OperationAnalysisContext context)
         {
             if (context.Operation is not IConversionOperation op)
+            {
                 return;
+            }
 
             // Ignore conversions from null, as this is handled by AnalyzeSimpleAssignment.
             if (op.Operand.ConstantValue.HasValue && op.Operand.ConstantValue.Value == null)
@@ -123,7 +125,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
             if (context.Operation is not IInvocationOperation op)
+            {
                 return;
+            }
 
             var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
             if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
@@ -133,7 +137,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var returnSymbol = op.TargetMethod.ReturnType;
             if (returnSymbol is not INamedTypeSymbol named || !IsDisposable(context, named))
+            {
                 return;
+            }
 
             CheckAssignmentAndUsingStatementExistence(context, op, returnSymbol);
         }
@@ -142,10 +148,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeUsualCreation(OperationAnalysisContext context)
         {
             if (context.Operation is not IObjectCreationOperation op)
+            {
                 return;
+            }
 
             if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            {
                 return;
+            }
 
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
@@ -153,10 +163,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeAnonymousCreation(OperationAnalysisContext context)
         {
             if (context.Operation is not IAnonymousObjectCreationOperation op)
+            {
                 return;
+            }
 
             if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            {
                 return;
+            }
 
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
@@ -165,16 +179,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzePropertyReference(OperationAnalysisContext context)
         {
             if (context.Operation is not IPropertyReferenceOperation op)
+            {
                 return;
+            }
 
             if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            {
                 return;
+            }
 
             // ignore right hand
             if (op.Parent is IAssignmentOperation assignOp)
             {
                 if (op == assignOp.Value)
+                {
                     return;
+                }
             }
             else
             {
@@ -192,16 +212,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeArrayElementReference(OperationAnalysisContext context)
         {
             if (context.Operation is not IArrayElementReferenceOperation op)
+            {
                 return;
+            }
 
             if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            {
                 return;
+            }
 
             // ignore right hand
             if (op.Parent is IAssignmentOperation assignOp)
             {
                 if (op == assignOp.Value)
+                {
                     return;
+                }
             }
             else
             {
@@ -219,7 +245,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeNullAssignment(OperationAnalysisContext context)
         {
             if (context.Operation is not IAssignmentOperation assignmentOp)
+            {
                 return;
+            }
 
             // Check if the assigned value is null
             if (assignmentOp.Value.ConstantValue.HasValue && assignmentOp.Value.ConstantValue.Value == null)
@@ -230,10 +258,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     var semanticModel = assignmentOp.SemanticModel ?? context.Compilation.GetSemanticModel(assignmentOp.Syntax.SyntaxTree);
                     var targetSymbolInfo = semanticModel.GetSymbolInfo(assignmentOp.Target.Syntax);
                     if (targetSymbolInfo.Symbol == null)
+                    {
                         return;
+                    }
 
-                    if (assignmentOp.Syntax.Parent is not ExpressionStatementSyntax assignmentStatement) return;
-                    if (assignmentStatement.Parent is not BlockSyntax block) return;
+                    if (assignmentOp.Syntax.Parent is not ExpressionStatementSyntax assignmentStatement)
+                    {
+                        return;
+                    }
+
+                    if (assignmentStatement.Parent is not BlockSyntax block)
+                    {
+                        return;
+                    }
 
                     var statements = block.Statements;
                     int assignmentIndex = statements.IndexOf(assignmentStatement);
@@ -438,19 +475,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             )
         {
             if (disposableSymbol == null)
+            {
                 return;
+            }
 
             // MUST check before unpacking implicit cast
             bool isCreationOp = op.Kind is OperationKind.ObjectCreation
-                                        or OperationKind.Conditional
                                         or OperationKind.AnonymousObjectCreation
                                         or OperationKind.TypeParameterObjectCreation
                                         or OperationKind.DefaultValue
                                         ;
 
-            // NOTE: unpack implicit cast operation
+            // NOTE: Unpack implicit cast operation
             //       --> Method(new Disposable())
-            //                  ^^^^^^^^^^^^^^^^ implicit cast may happen
+            //                  ^^^^^^^^^^^^^^^^ Implicit cast may happen
             {
                 IConversionOperation? castOp = op.Parent as IConversionOperation;
                 while (castOp != null)
@@ -465,9 +503,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
-            // NOTE: this code can check using 'block' statement only
+            // NOTE: This code can check using 'block' statement only
             //       --> using (new Disposable()) { ... }
-            // NOTE: block-less using statement cannot be checked! it checked later!!
+            // NOTE: Block-less using statement cannot be checked! it checked later!!
             //       --> using var x = new...
             {
                 if (op.Parent is IUsingOperation)
@@ -477,7 +515,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
-            // method argument?
+            // Method argument?
             {
                 if (op.Parent is IArgumentOperation argumentOp)
                 {
@@ -523,7 +561,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var memberRefOrInvokeOp = Core.UnwrapNullCoalesceOperation(op);
 
-            // member reference!!
+            // Member reference!!
             // --> disposable.Property;
             // --> disposable?.Property;
             {
@@ -546,7 +584,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 }
                                 else
                                 {
-                                    // NOTE: need to check subsequent method chain
+                                    // NOTE: Need to check subsequent method chain
                                     //       --> ...Prop.ToString();
                                     //                   ^^^^^^^^^^
                                     memberRefOrInvokeOp = parentOp;
@@ -557,7 +595,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // method receiver!!
+            // Method receiver!!
             // --> disposable.Return();
             // --> disposable?.Return();
             {
@@ -571,9 +609,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                         else
                         {
-                            //Core.ReportDebugMessage(context.ReportDiagnostic, op);
-
-                            // check original operation type to determine code path is redirect from member ref or not
+                            // Check original operation type to determine code path is redirect from member ref or not
                             if (op is IMemberReferenceOperation)
                             {
                                 goto NO_WARN;
@@ -584,7 +620,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
-            // NOTE: in the following, cannot use I***Operation to analyze usage
+            // NOTE: In the following, cannot use I***Operation to analyze usage
             //       because unity doesn't allow using latest roslyn analyzer
             var syntax = op.Syntax;
 
@@ -595,7 +631,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             bool IsSyntaxIgnorable()
             {
-                // NOTE: if switch arm expression found, move focus to parent expression
+                // NOTE: If switch arm expression found, move focus to parent expression
                 //       > var x = value switch { ... };
                 //                              ~~~~~~~ current focus
                 //       > var x = value switch { ... };
@@ -614,13 +650,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
 
-                // NOTE: remove parenthesizes and null warning suppressor!!
+                // NOTE: Remove parenthesizes and null warning suppressor!!
                 //       --> (((new Disposable()))) --> new Disposable()
                 //       --> (new Disposable())! --> new Disposable()
-                syntax = Core.UnwrapParenthesizeAndNullSuppressorNodes(syntax);
+                while (syntax.Parent is ParenthesizedExpressionSyntax || syntax.Parent.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                {
+                    syntax = syntax.Parent;
+                }
 
-
-                // return statement?
+                // Return statement?
                 // --> Method() => new Disposable();
                 // --> Method() { return new Disposable(); }
                 {
@@ -634,7 +672,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
                 if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
                 {
-                    // using statement w/o block scope?
+                    // 'using' statement w/o block scope?
                     // --> using var x = new Disposable();
                     // --> using(var x = new Disposable()) { ... }
                     if (equalsStx.Parent is VariableDeclaratorSyntax declaratorStx
@@ -648,8 +686,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                         else if (parStx is LocalDeclarationStatementSyntax localVarStx)
                         {
-                            // DON'T check localVarStx variable type is disposable or not
-                            // just check using keyword existence
+                            // DON'T check localVarStx variable type is disposable or not.
+                            // Just check using keyword existence.
                             if (localVarStx.UsingKeyword != default)
                             {
                                 return true;
@@ -674,12 +712,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                         //       --> var d = new MyDisposable();
                                         //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
-                                        // reporting detailed diagnostic instead of generic one.
+                                        // Reporting detailed diagnostic instead of generic one.
                                         context.ReportDiagnostic(Diagnostic.Create(
                                             Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier.ToString()));
                                     }
 
-                                    // then, just go to NO_WARN to avoid additionally reporting SMA0040.
+                                    // Then, just go to NO_WARN to avoid additionally reporting SMA0040.
                                     return true;
                                 }
                             }
@@ -688,7 +726,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
                 else
                 {
-                    // NOTE: ignore field/property assignment even if field/property type is disposable
+                    // NOTE: Ignore field/property assignment even if field/property type is disposable
                     //       --> Field = new Disposable();
                     //       --> Property = new Disposable();
                     if (syntax.Parent is AssignmentExpressionSyntax assignStx)
@@ -781,13 +819,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             inAllCodePaths = false;
 
             var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax);
-            if (enclosingMember == null) return false;
+            if (enclosingMember == null)
+            {
+                return false;
+            }
 
             var semanticModel = context.Operation.SemanticModel;
-            if (semanticModel == null) return false;
+            if (semanticModel == null)
+            {
+                return false;
+            }
 
             var declaredSymbol = semanticModel.GetDeclaredSymbol(variableDeclarator);
-            if (declaredSymbol == null) return false;
+            if (declaredSymbol == null)
+            {
+                return false;
+            }
 
             SyntaxNode? body = null;
             ArrowExpressionClauseSyntax? expressionBody = null;
@@ -847,7 +894,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 var isVariableEverReturned = false;
-                var handledPaths = 0;
+                int handledPaths = 0;
 
                 foreach (var returnSyntax in returnStatements)
                 {

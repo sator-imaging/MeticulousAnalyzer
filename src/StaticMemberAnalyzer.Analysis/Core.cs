@@ -245,16 +245,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  node & operation  ================================================================ */
 
-        internal static SyntaxNode UnwrapParenthesizeAndNullSuppressorNodes(this SyntaxNode syntax)
-        {
-            while (syntax.Parent is ParenthesizedExpressionSyntax || syntax.Parent.IsKind(SyntaxKind.SuppressNullableWarningExpression))
-            {
-                syntax = syntax.Parent;
-            }
-            return syntax;
-        }
-
-
         internal static IOperation UnwrapNullCoalesceOperation(this IOperation op)
         {
             return (op as IConditionalAccessOperation)?.Operation ?? op;
