@@ -14,6 +14,7 @@ obj
 !*.slnx
 
 *.md
+!CHANGELOG.md
 !README*.md
 !LICENSE.md
 !RULES.md
