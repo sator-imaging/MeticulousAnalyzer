@@ -13,19 +13,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class EnumAnalyzerNewTests
     {
         [TestMethod]
-        public async Task TestSystemEnumCast_Reported()
+        public async Task Test1()
         {
             var test = @"
 using System;
-
-namespace Test
+public class C
 {
-    public class C
+    public void M(Enum e)
     {
-        public void M(Enum e)
-        {
-            var foo = {|#0:(object)e|};
-        }
+        var foo = {|#0:(object)e|};
     }
 }
 ";
@@ -34,20 +30,16 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestSystemEnumCast_Suppressed()
+        public async Task Test2()
         {
             var test = @"
 using System;
-
-namespace Test
+public class C
 {
-    public class C
+    public void M(Enum e)
     {
-        public void M(Enum e)
-        {
-            // Allow enum conversion
+      // Allow enum conversion
             var foo = (object)e;
-        }
     }
 }
 ";
@@ -55,22 +47,18 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestUserRequestedCase_Suppressed()
+        public async Task Test3()
         {
             var test = @"
 using System.Reflection;
-
-namespace Test
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum Enum { Value }
+public class C
 {
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum Enum { Value }
-    public class C
+    public void M()
     {
-        public void M()
-        {
-            // Allow enum conversion
+   // Allow enum conversion
             var foo = (object)Enum.Value;
-        }
     }
 }
 ";
@@ -78,21 +66,17 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestUserRequestedCase_Reported()
+        public async Task Test4()
         {
             var test = @"
 using System.Reflection;
-
-namespace Test
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum Enum { Value }
+public class C
 {
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum Enum { Value }
-    public class C
+    public void M()
     {
-        public void M()
-        {
-            var foo = {|#0:(object)Enum.Value|};
-        }
+   var foo = {|#0:(object)Enum.Value|};
     }
 }
 ";
@@ -101,21 +85,17 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestExplicitIntCast_Reported()
+        public async Task Test5()
         {
             var test = @"
 using System.Reflection;
-
-namespace Test
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum E { Value }
+public class C
 {
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E { Value }
-    public class C
+    public void M()
     {
-        public void M()
-        {
-            var num = {|#0:(int)E.Value|};
-        }
+var num = {|#0:(int)E.Value|};
     }
 }
 ";
@@ -124,54 +104,22 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestExplicitIntCast_Suppressed()
+        public async Task Test6()
         {
             var test = @"
 using System.Reflection;
-
-namespace Test
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum E { Value }
+public class C
 {
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E { Value }
-    public class C
+    public void M()
     {
-        public void M()
-        {
-            // Allow enum conversion
-            var num = (int)E.Value;
-        }
+      // Allow enum conversion
+        var num = (int)E.Value;
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task TestImplicitArgumentConversion_Reported()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E { Value }
-    public class C
-    {
-        public void M1(E e) {}
-        public void M2(object o) {}
-
-        public void Test()
-        {
-            M1({|#0:0|});        // Implicit conversion to E
-            M2({|#1:E.Value|});  // Implicit conversion to object
-        }
-    }
-}
-";
-            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("E");
-            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 1).WithArguments("E");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
     }
 }

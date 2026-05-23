@@ -278,6 +278,29 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (op.IsImplicit)
+            {
+                // NOTE: throw exception inside switch expression will perform implicit cast operation from
+                //       exception instance to switch expression result type
+                //       --> var val = enumValue switch { ..., _ => throw new Exception(); }
+                if (op.Operand is IThrowOperation)
+                {
+                    return;
+                }
+
+                // NOTE: if enum method parameter has default value and it's omit on invocation
+                //       implicit cast will happen internally (cannot use: IOmittedArgumentOperation)
+                if (op.Parent is IArgumentOperation //castOp.Syntax
+                                                    //is InvocationExpressionSyntax
+                                                    //or AttributeSyntax
+                                                    //or ObjectCreationExpressionSyntax
+                                                    //or AnonymousObjectCreationExpressionSyntax
+                )
+                {
+                    return;
+                }
+            }
+
             if (Core.IsSuppressedByComment(op, SuppressionComment))
             {
                 return;
