@@ -125,7 +125,54 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task TernaryWithCastInUsing_ReportsDiagnostic()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(IDisposable foo, bool isEmpty)
+        {
+            var d = isEmpty ? null : {|#0:foo as object|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task TernaryWithFooAndCastInUsing_ReportsDiagnosticOnCast()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        IDisposable Foo(object d) => (IDisposable)d;
+        void Method(IDisposable bar, bool isEmpty)
+        {
+            using var d = isEmpty ? null : Foo({|#0:bar as object|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TernaryWithFooAndCastInUsing_ReportsNoDiagnosticOnCast()
         {
             var test = @"
 using System;
@@ -137,15 +184,12 @@ namespace Test
         IDisposable Foo(IDisposable d) => d;
         void Method(object bar, bool isEmpty)
         {
-            using var d = isEmpty ? null : Foo({|#0:bar as IDisposable|});
+            using var d = isEmpty ? null : Foo(bar as IDisposable);
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -169,7 +213,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable");
+                .WithArguments("MemoryStream");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

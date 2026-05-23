@@ -144,16 +144,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
-            op = UnwrapNullCoalesceOperation(op);
+            op = UnwrapAllNullCoalesceOperation(op);
 
             var firstChildOp = op.Children?.FirstOrDefault();
 
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Op: {op.Kind} ({op.Type?.Name})",
-                $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
-                $"Grand Parent: {op.Parent?.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Parent?.Type?.Name})",
+                $"Parent: {op.Parent?.UnwrapAllNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
+                $"Grand Parent: {op.Parent?.Parent?.UnwrapAllNullCoalesceOperation().Kind} ({op.Parent?.Parent?.Type?.Name})",
                 "> " + NormalizeTextWithEllipsis(op.Syntax?.ToString()),
-                $"Child: {firstChildOp?.UnwrapNullCoalesceOperation().Kind} ({firstChildOp?.Type?.Name})"
+                $"Child: {firstChildOp?.UnwrapAllNullCoalesceOperation().Kind} ({firstChildOp?.Type?.Name})"
                 );
         }
 
@@ -245,8 +245,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  node & operation  ================================================================ */
 
-        internal static IOperation UnwrapNullCoalesceOperation(this IOperation op)
+        internal static IOperation UnwrapAllNullCoalesceOperation(this IOperation op)
         {
+            // NOTE: IConditionalAccessOperation returns entire conditional access chain operation.
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
@@ -351,8 +352,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                   || (
                         symbol.ContainingNamespace is INamespaceSymbol
                         {
-                            Name: "System",
-                            ContainingNamespace: INamespaceSymbol
+                            Name: "System", ContainingNamespace: INamespaceSymbol
                             {
                                 IsGlobalNamespace: true,
                             }

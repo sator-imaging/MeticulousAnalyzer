@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -337,8 +338,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return typeSymbol.Name is "IAsyncDisposable"
                 && typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
-                    Name: "System",
-                    ContainingNamespace: INamespaceSymbol
+                    Name: "System", ContainingNamespace: INamespaceSymbol
                     {
                         IsGlobalNamespace: true,
                     }
@@ -358,14 +358,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (disposableSymbol.Name is nameof(Task) &&
                 disposableSymbol.ContainingNamespace is INamespaceSymbol
                 {
-                    Name: nameof(System.Threading.Tasks),
-                    ContainingNamespace: INamespaceSymbol
+                    Name: nameof(System.Threading.Tasks), ContainingNamespace: INamespaceSymbol
                     {
-                        Name: nameof(System.Threading),
-                        ContainingNamespace: INamespaceSymbol
+                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
                         {
-                            Name: nameof(System),
-                            ContainingNamespace: INamespaceSymbol
+                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
                             {
                                 IsGlobalNamespace: true,
                             }
@@ -412,14 +409,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         && x.ReturnType.Name is nameof(ValueTask)
                         && x.ReturnType.ContainingNamespace is INamespaceSymbol
                         {
-                            Name: nameof(System.Threading.Tasks),
-                            ContainingNamespace: INamespaceSymbol
+                            Name: nameof(System.Threading.Tasks), ContainingNamespace: INamespaceSymbol
                             {
-                                Name: nameof(System.Threading),
-                                ContainingNamespace: INamespaceSymbol
+                                Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
                                 {
-                                    Name: nameof(System),
-                                    ContainingNamespace: INamespaceSymbol
+                                    Name: nameof(System), ContainingNamespace: INamespaceSymbol
                                     {
                                         IsGlobalNamespace: true,
                                     }
@@ -467,196 +461,240 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         }
 
 
+        private static bool TryUnwrapSafeConversion(
+            OperationAnalysisContext ctx,
+            IConversionOperation castOp,
+            out IOperation operation,
+            out ITypeSymbol symbol)
+        {
+            var safeCastOnly = true;
+
+            var safeRootOp = castOp;
+            do
+            {
+                if (castOp.Type is not INamedTypeSymbol named ||
+                    !IsDisposable(ctx, named))
+                {
+                    safeCastOnly = false;
+                    break;
+                }
+
+                safeRootOp = castOp;
+            }
+            while ((castOp = (((castOp.Parent as IConversionOperation)))!) != null);
+
+            operation = safeRootOp;
+            symbol = safeRootOp.Type;
+
+            return safeCastOnly;
+        }
+
+
         /*  check  ================================================================ */
 
-        private static void CheckAssignmentAndUsingStatementExistence(OperationAnalysisContext context,
-                                                                      IOperation op,
-                                                                      ITypeSymbol? disposableSymbol
-            )
+        private static void CheckAssignmentAndUsingStatementExistence(
+            OperationAnalysisContext context,
+            IOperation operation,
+            ITypeSymbol disposableSymbol
+        )
         {
-            if (disposableSymbol == null)
-            {
-                return;
-            }
+            var focusedSymbol = disposableSymbol;
+            var focusedOp = operation;
 
-            // MUST check before unpacking implicit cast
-            bool isCreationOp = op.Kind is OperationKind.ObjectCreation
-                                        or OperationKind.AnonymousObjectCreation
-                                        or OperationKind.TypeParameterObjectCreation
-                                        or OperationKind.DefaultValue
-                                        ;
+            // MUST check before unpacking conversion operation.
+            bool isCreationOp = focusedOp.Kind is OperationKind.ObjectCreation
+                                               or OperationKind.AnonymousObjectCreation
+                                               or OperationKind.TypeParameterObjectCreation
+                                               or OperationKind.DefaultValue
+                                               ;
 
-            // NOTE: Unpack implicit cast operation
+            // NOTE: Unpack conversion operation.
             //       --> Method(new Disposable())
-            //                  ^^^^^^^^^^^^^^^^ Implicit cast may happen
+            //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
             {
-                IConversionOperation? castOp = op.Parent as IConversionOperation;
-                while (castOp != null)
+                if (focusedOp is IConversionOperation castOp)
                 {
-                    if (castOp.IsImplicit && castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
+                    if (!TryUnwrapSafeConversion(context, castOp, out focusedOp, out focusedSymbol))
                     {
-                        op = castOp;
-                        disposableSymbol = op.Type;
+                        // Don't consider '+' or other binary operation.
+                        // It may create new IDisposable instance? haha.
+                        if (focusedOp.Parent is not IBinaryOperation
+                                            and not IIsPatternOperation)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule_MissingUsing, focusedOp.Syntax.GetLocation(), focusedSymbol.Name));
+
+                            return;
+                        }
                     }
-                    castOp = castOp.Parent as IConversionOperation;
                 }
             }
 
-
-            // NOTE: This code can check using 'block' statement only
-            //       --> using (new Disposable()) { ... }
-            // NOTE: Block-less using statement cannot be checked! it checked later!!
-            //       --> using var x = new...
+            // Unwrap ternary operator.
+            if (focusedOp.Parent is IConditionalOperation)
             {
-                if (op.Parent is IUsingOperation)
+                focusedOp = focusedOp.Parent;
+            }
+
+            // Unwrap '?.' operation chain.
+            // --> a?.b?.c?.member
+            //     ~~~~~~~~~ Unpack all chained access
+            focusedOp = Core.UnwrapAllNullCoalesceOperation(focusedOp);
+
+            // 'using' or 'foreach' statement?
+            // --> using (new Disposable()) { ... }
+            // --> using var x = new...
+            // --> foreach (var foo in some.MethodOrPropertyReturnsDisposable())
+            {
+                if (focusedOp.Parent is IUsingOperation
+                                     or IUsingDeclarationOperation
+                                     or IForEachLoopOperation)
                 {
                     goto NO_WARN;
                 }
             }
 
 
-            // Method argument?
+            if (IsOperationIgnorable(context, isCreationOp, ref focusedOp))
             {
-                if (op.Parent is IArgumentOperation argumentOp)
-                {
-                    if (argumentOp.Parent is IInvocationOperation invocationOp)
-                    {
-                        var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
-                        if (interlockedType != null && SymbolEqualityComparer.Default.Equals(invocationOp.TargetMethod.ContainingType, interlockedType))
-                        {
-                            goto NO_WARN;
-                        }
-                    }
-
-                    if (!isCreationOp &&
-                        // TODO: If isCreationOp includes Conversion operation, analyzer will report so many false positives.
-                        //         e.g., `disposable == null`
-                        //       At this time, we just check only for the method argument.
-                        //       --> Foo(obj as IDisposable);
-                        //               ~~~~~~~~~~~~~~~~~~
-                        op is not IConversionOperation)
-                    {
-                        goto NO_WARN;
-                    }
-                }
+                goto NO_WARN;
             }
 
-            // `is null` or `is not null` pattern
+            static bool IsOperationIgnorable(
+                OperationAnalysisContext context,
+                bool isCreationOp,
+                ref IOperation focusedOp
+            )
             {
-                if (op.Parent is IIsPatternOperation isPatternOp)
+                // Method argument?
                 {
-                    if (isPatternOp.Pattern is IConstantPatternOperation constantPattern)
+                    if (focusedOp.Parent is IArgumentOperation argumentOp)
                     {
-                        if (constantPattern.Value.ConstantValue.HasValue && constantPattern.Value.ConstantValue.Value == null)
+                        if (!isCreationOp)
                         {
-                            if (!isCreationOp)
+                            return true;
+                        }
+
+                        if (argumentOp.Parent is IInvocationOperation invocationOp)
+                        {
+                            // Interlocked methods are intentionally allowed.
+                            if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
+                                {
+                                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                                    {
+                                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                                        {
+                                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                                            {
+                                                IsGlobalNamespace: true,
+                                            },
+                                        },
+                                    },
+                                })
                             {
-                                goto NO_WARN;
+                                return true;
                             }
                         }
                     }
                 }
-            }
 
-
-            var memberRefOrInvokeOp = Core.UnwrapNullCoalesceOperation(op);
-
-            // Member reference!!
-            // --> disposable.Property;
-            // --> disposable?.Property;
-            {
-                if (memberRefOrInvokeOp is IMemberReferenceOperation memberRefOp)
+                if (!isCreationOp)
                 {
-                    if (!isCreationOp)
+                    // Comparison?
+                    // --> foo == null
+                    // --> foo != other
+                    // --> is null
+                    // --> is not null
+                    if (focusedOp.Parent is IBinaryOperation
+                                         or IIsPatternOperation)
                     {
-                        if (memberRefOp.Type is INamedTypeSymbol named && !IsDisposable(context, named))
+                        return true;
+                    }
+
+                    // Member reference!!
+                    // --> disposable.Property;
+                    // --> disposable?.Property;
+                    // --> disposable.Return();
+                    // --> disposable?.Return();
+                    if (focusedOp is IMemberReferenceOperation memberRefOp)
+                    {
+                        if (memberRefOp.Type is INamedTypeSymbol memberType &&
+                            !IsDisposable(context, memberType))
                         {
-                            goto NO_WARN;
+                            return true;
                         }
                         else
                         {
-                            var parentOp = Core.UnwrapNullCoalesceOperation(memberRefOrInvokeOp.Parent);
-                            if (parentOp != null)
+                            var parentOp = Core.UnwrapAllNullCoalesceOperation(focusedOp.Parent);
+                            if (parentOp is IMemberReferenceOperation or ILocalReferenceOperation)
                             {
-                                if (parentOp is IMemberReferenceOperation or ILocalReferenceOperation)
+                                return true;
+                            }
+                            else
+                            {
+                                // NOTE: Need to check subsequent method chain
+                                //       --> ...Prop.ToString();
+                                //                   ^^^^^^^^^^
+                                if (parentOp is IInvocationOperation invokeOp)
                                 {
-                                    goto NO_WARN;
-                                }
-                                else
-                                {
-                                    // NOTE: Need to check subsequent method chain
-                                    //       --> ...Prop.ToString();
-                                    //                   ^^^^^^^^^^
-                                    memberRefOrInvokeOp = parentOp;
+                                    if (invokeOp.TargetMethod.ReturnType is INamedTypeSymbol methodReturn &&
+                                        !IsDisposable(context, methodReturn))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // Method receiver!!
-            // --> disposable.Return();
-            // --> disposable?.Return();
-            {
-                if (memberRefOrInvokeOp is IInvocationOperation invokeOp)
-                {
-                    if (!isCreationOp)
-                    {
-                        if (invokeOp.TargetMethod.ReturnType is INamedTypeSymbol named && !IsDisposable(context, named))
-                        {
-                            goto NO_WARN;
-                        }
-                        else
-                        {
-                            // Check original operation type to determine code path is redirect from member ref or not
-                            if (op is IMemberReferenceOperation)
-                            {
-                                goto NO_WARN;
-                            }
-                        }
-                    }
-                }
+                return false;
             }
 
 
             // NOTE: In the following, cannot use I***Operation to analyze usage
             //       because unity doesn't allow using latest roslyn analyzer
-            var syntax = op.Syntax;
+            var syntax = focusedOp.Syntax;
 
-            if (IsSyntaxIgnorable())
+            if (IsSyntaxIgnorable(context, isCreationOp, ref syntax, ref focusedOp, ref focusedSymbol))
             {
                 goto NO_WARN;
             }
 
-            bool IsSyntaxIgnorable()
+            static bool IsSyntaxIgnorable(
+                OperationAnalysisContext context,
+                bool isCreationOp,
+                ref SyntaxNode syntax,
+                ref IOperation focusedOp,
+                ref ITypeSymbol focusedSymbol
+            )
             {
+                // NOTE: Remove parenthesizes and null warning suppressor!!
+                //       --> (((new Disposable()))) --> new Disposable()
+                //       --> (new Disposable())! --> new Disposable()
+                while (syntax.Parent?.Kind() is SyntaxKind.ParenthesizedExpression or SyntaxKind.SuppressNullableWarningExpression)
+                {
+                    syntax = syntax.Parent;
+                }
+
+
                 // NOTE: If switch arm expression found, move focus to parent expression
                 //       > var x = value switch { ... };
                 //                              ~~~~~~~ current focus
                 //       > var x = value switch { ... };
                 //                 ~~~~~~~~~~~~~~~~~~~~ moving to here
                 {
-                    if (op.Parent is ISwitchExpressionArmOperation switchArmOp
-                     && switchArmOp.Parent is ISwitchExpressionOperation switchOp
+                    if (focusedOp.Parent is ISwitchExpressionArmOperation switchArmOp &&
+                        switchArmOp.Parent is ISwitchExpressionOperation switchOp
                     )
                     {
+                        focusedOp = switchOp;
+                        focusedSymbol = switchOp.Type;
+
                         syntax = switchOp.Syntax;
                     }
-                    else if (op.Parent is IConditionalOperation conditionalOp)
-                    {
-                        syntax = conditionalOp.Syntax;
-                    }
                 }
 
-
-                // NOTE: Remove parenthesizes and null warning suppressor!!
-                //       --> (((new Disposable()))) --> new Disposable()
-                //       --> (new Disposable())! --> new Disposable()
-                while (syntax.Parent is ParenthesizedExpressionSyntax || syntax.Parent.IsKind(SyntaxKind.SuppressNullableWarningExpression))
-                {
-                    syntax = syntax.Parent;
-                }
 
                 // Return statement?
                 // --> Method() => new Disposable();
@@ -668,63 +706,78 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
                 }
 
-
                 // NOTE: IUsingOperation is not pointing to block-less using syntax --> using var x = ...
                 if (syntax.Parent is EqualsValueClauseSyntax equalsStx)
                 {
-                    // 'using' statement w/o block scope?
-                    // --> using var x = new Disposable();
-                    // --> using(var x = new Disposable()) { ... }
-                    if (equalsStx.Parent is VariableDeclaratorSyntax declaratorStx
-                     && declaratorStx.Parent is VariableDeclarationSyntax varDeclStx
+                    return AnalyzeEqualsSyntax(context, equalsStx);
+                    static bool AnalyzeEqualsSyntax(
+                        OperationAnalysisContext context,
+                        EqualsValueClauseSyntax equalsStx
                     )
                     {
-                        var parStx = varDeclStx.Parent;
-                        if (parStx is UsingStatementSyntax or MemberDeclarationSyntax)
+                        // 'using' statement w/o block scope?
+                        // --> using var x = new Disposable();
+                        // --> using(var x = new Disposable()) { ... }
+                        if (equalsStx.Parent is VariableDeclaratorSyntax declaratorStx &&
+                            declaratorStx.Parent is VariableDeclarationSyntax varDeclStx
+                        )
                         {
-                            return true;
-                        }
-                        else if (parStx is LocalDeclarationStatementSyntax localVarStx)
-                        {
-                            // DON'T check localVarStx variable type is disposable or not.
-                            // Just check using keyword existence.
-                            if (localVarStx.UsingKeyword != default)
+                            var parStx = varDeclStx.Parent;
+                            if (parStx is UsingStatementSyntax or MemberDeclarationSyntax)
                             {
                                 return true;
                             }
-
-                            if (Core.IsSuppressedByComment(localVarStx, SuppressionComment))
+                            else if (parStx is LocalDeclarationStatementSyntax localVarStx)
                             {
-                                return true;
-                            }
-
-                            if (localVarStx.Declaration.Variables.Count == 1)
-                            {
-                                var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
-                                if (IsLocalVariableReturned(context, localVarDeclaratorStx, out var inAllCodePaths))
+                                // DON'T check localVarStx variable type is disposable or not.
+                                // Just check using keyword existence.
+                                if (localVarStx.UsingKeyword != default)
                                 {
-                                    if (!inAllCodePaths)
-                                    {
-                                        // NOTE: Workaround for Roslyn bug
-                                        //       Even through 'localVarDeclaratorStx.Identifier.ToString()' returns 'd',
-                                        //       'localVarDeclaratorStx.Identifier.GetLocation()' may NOT be pointing 'd' location.
-                                        //       As a result, although a violation is detected correctly, a warning is not reported at all.
-                                        //       --> var d = new MyDisposable();
-                                        //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
-
-                                        // Reporting detailed diagnostic instead of generic one.
-                                        context.ReportDiagnostic(Diagnostic.Create(
-                                            Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier.ToString()));
-                                    }
-
-                                    // Then, just go to NO_WARN to avoid additionally reporting SMA0040.
                                     return true;
+                                }
+
+                                if (Core.IsSuppressedByComment(localVarStx, SuppressionComment))
+                                {
+                                    return true;
+                                }
+
+                                if (localVarStx.Declaration.Variables.Count == 1)
+                                {
+                                    var localVarDeclaratorStx = localVarStx.Declaration.Variables[0];
+                                    if (IsLocalVariableReturned(context, localVarDeclaratorStx, out var inAllCodePaths))
+                                    {
+                                        if (!inAllCodePaths)
+                                        {
+                                            // NOTE: Workaround for Roslyn bug
+                                            //       Even through 'localVarDeclaratorStx.Identifier.ToString()' returns 'd',
+                                            //       'localVarDeclaratorStx.Identifier.GetLocation()' may NOT be pointing 'd' location.
+                                            //       As a result, although a violation is detected correctly, a warning is not reported at all.
+                                            //       --> var d = new MyDisposable();
+                                            //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
+
+                                            // Reporting detailed diagnostic instead of generic one.
+                                            context.ReportDiagnostic(Diagnostic.Create(
+                                                Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier.ToString()));
+                                        }
+
+                                        // Then, just go to NO_WARN to avoid additionally reporting SMA0040.
+                                        return true;
+                                    }
                                 }
                             }
                         }
+
+                        return false;
                     }
                 }
-                else
+
+                return AnalyzeOtherSyntax(context, isCreationOp, ref syntax, ref focusedOp);
+                static bool AnalyzeOtherSyntax(
+                    OperationAnalysisContext context,
+                    bool isCreationOp,
+                    ref SyntaxNode syntax,
+                    ref IOperation focusedOp
+                )
                 {
                     // NOTE: Ignore field/property assignment even if field/property type is disposable
                     //       --> Field = new Disposable();
@@ -733,7 +786,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         var leftStx = assignStx.Left;
 
-                        var model = op.SemanticModel ?? context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                        var model = focusedOp.SemanticModel ?? context.Compilation.GetSemanticModel(syntax.SyntaxTree);
                         var leftOp = model.GetOperation(leftStx);
 
                         // Discarding?
@@ -760,21 +813,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             // Ignore field/property
                             if (leftOp?.Kind is OperationKind.FieldReference or OperationKind.PropertyReference)
                             {
-                                // don't allow cast and forget
-                                // NG --> m_objectField = (new Disposable()) as object;
-                                if (!isCreationOp
-                                || op.Parent is not IConversionOperation castOp
-                                || (castOp.Type is INamedTypeSymbol named && IsDisposable(context, named))
-                                )
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
                     // --> if (disposable == ...)
                     // --> while (disposable == ...)
-                    else if (op.Parent is IBinaryOperation)
+                    else if (focusedOp.Parent is IBinaryOperation)
                     {
                         // don't allow creation operation pass the warning
                         if (!isCreationOp)
@@ -782,9 +827,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             return true;
                         }
                     }
-                }
 
-                return false;
+                    return false;
+                }
             }
 
 
@@ -792,24 +837,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
 
-            //Core.ReportDebugMessage(context.ReportDiagnostic,
-            //    "WARN",
-            //    op.Syntax.GetLocation(),
-            //    "target: " + op.Kind,
-            //    "parent: " + op.Parent.Kind,
-            //    "symbol: " + disposableSymbol.Name
-            //    );
-
             return;
 
+
         NO_WARN:
-            //Core.ReportDebugMessage(context.ReportDiagnostic,
-            //    "NO WARN",
-            //    op.Syntax.GetLocation(),
-            //    "target: " + op.Kind,
-            //    "parent: " + op.Parent.Kind,
-            //    "symbol: " + disposableSymbol.Name
-            //    );
 
             return;
         }
