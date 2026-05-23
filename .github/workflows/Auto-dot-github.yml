@@ -1,4 +1,4 @@
-name: '[Auto] Sync & PR Labeler'
+name: '[Auto] Repo Gardening'
 
 on:
   schedule:
@@ -11,6 +11,9 @@ on:
       - edited
       - closed
       - reopened
+  release:
+    types:
+      - published
 
 jobs:
   reuse:
@@ -18,7 +21,5 @@ jobs:
     secrets: inherit
     permissions:
       pull-requests: write
-      # .github sync
-      contents: write
-      # PR labeler
-      issues: write
+      contents: write  # Sync .github | Auto changelog
+      issues: write    # PR labeler
