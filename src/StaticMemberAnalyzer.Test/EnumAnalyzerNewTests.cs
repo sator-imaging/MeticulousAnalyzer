@@ -38,8 +38,8 @@ public class C
 {
     public void M(Enum e)
     {
-      // Allow enum conversion
-            var foo = (object)e;
+        // Allow enum conversion
+        var foo = (object)e;
     }
 }
 ";
@@ -57,8 +57,8 @@ public class C
 {
     public void M()
     {
-   // Allow enum conversion
-            var foo = (object)Enum.Value;
+        // Allow enum conversion
+        var foo = (object)Enum.Value;
     }
 }
 ";
@@ -76,7 +76,7 @@ public class C
 {
     public void M()
     {
-   var foo = {|#0:(object)Enum.Value|};
+        var foo = {|#0:(object)Enum.Value|};
     }
 }
 ";
@@ -95,7 +95,7 @@ public class C
 {
     public void M()
     {
-var num = {|#0:(int)E.Value|};
+        var num = {|#0:(int)E.Value|};
     }
 }
 ";
@@ -114,7 +114,7 @@ public class C
 {
     public void M()
     {
-      // Allow enum conversion
+        // Allow enum conversion
         var num = (int)E.Value;
     }
 }
