@@ -28,6 +28,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     public sealed class EnumAnalyzer : DiagnosticAnalyzer
     {
         private const string SuppressionComment = "// Allow enum conversion";
+        private const string UnknownEnumTypeName = "<Unknown Enum>";
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -201,7 +202,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     var (enumType, _) = GetEnumInfo(op.Instance?.Type ?? receiverType);
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_EnumToString, GetReportLocation(op), enumType?.Name ?? "Enum"));
+                        Rule_EnumToString, GetReportLocation(op), enumType?.Name ?? UnknownEnumTypeName));
                 }
                 else
                 {
@@ -254,7 +255,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var (enumType, _) = GetEnumInfo(op.Type);
-
             if (enumType != null)
             {
                 // context.Operation: {foo} -> Parent: $"...{foo}..."
@@ -819,7 +819,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsEnumDerivedType(ITypeSymbol symbol)
         {
-            return symbol.TypeKind == TypeKind.Enum && symbol.SpecialType != SpecialType.System_Enum;
+            return symbol.TypeKind == TypeKind.Enum || symbol.SpecialType == SpecialType.System_Enum;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
