@@ -1,4 +1,4 @@
-namespace AnalyzerCheck;
+namespace AnalyzerDebug;
 
 public class MyClassInt { public MyClassInt(int i) { } public void M(int i) { } }
 public class MyClassStr { public MyClassStr(string s) { } public void M(string s) { } }

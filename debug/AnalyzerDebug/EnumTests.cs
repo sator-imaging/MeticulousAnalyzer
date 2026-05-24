@@ -4,7 +4,14 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using ShortAlias = System.Int16;
 
-namespace AnalyzerCheck;
+#pragma warning disable SMA8000 // Literal should be passed as named argument
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8601 // Possible null reference assignment.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8604 // Possible null reference argument for parameter.
+
+namespace AnalyzerDebug;
 
 file static class Extensions
 {
@@ -18,7 +25,7 @@ file static class ThrowHelper
 
 internal class EnumTests
 {
-    // expect: warning on enum underlying values
+    // NG: warning on enum identifier and underlying values
     public enum EShort : ShortAlias { Value }
     public enum EUShort : ushort { Value }
 
@@ -28,19 +35,25 @@ internal class EnumTests
     [Obfuscation(StripAfterObfuscation = true)]
     public enum ELong : long { Value }
 
+    // NG: warning only on enum identifier
     public enum EInt : int  // <-- int is allowed
     {
-        // warning: unusual enum definition is not allowed if no 'Flags' attribute
+        // NG: unusual enum definition is not allowed if no 'Flags' attribute
         Value = 0,
 
-        [EnumMember(Value = "Name")]  // expect: no warn
-        Other = 1,
+        [EnumMember(Value = "Name")]  // OK: no warn (not sure; may be enum-like implementation analyzer test?)
+        Other = 1,  // NG: '= 1' get warn because no 'Flags' attribute
     }
 
-    // obfuscation have controlled?
+    // OK: obfuscation have controlled?
     //   check both Exclude and ApplyToMembers are set to true
     //   expression resulting `true` are accepted
     [Obfuscation(ApplyToMembers = "A" != "B", Exclude = true)]
+    // NG: Attribute parameter handling is ok.
+    //     But enum declaration get warning on:
+    //     - 'ulong'
+    //     - '= 10'
+    //     - '= 20'
     public enum EULong : ulong
     {
         Value = 10,
@@ -49,12 +62,12 @@ internal class EnumTests
 
     [Flags]  // <-- unusual definition check is disabled by adding 'Flags' attribute
     [Obfuscation(Exclude = true)]
+    // NG: enum identifier still get warning because Obfuscation attribute is not complete.
     public enum EUInt : uint
     {
         Value = 0,
         Other = 1,
     }
-
 
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     class AttrTest : Attribute
@@ -73,7 +86,7 @@ internal class EnumTests
     [AttrTest, AttrTest()]  // <-- no warning is expected even if default enum parameter is omitted
     string ImplicitCastHappensIfMethodDefaultParameterOmitted(EInt value, string? test = null)
     {
-        // expect: these lines must not get warning
+        // OK: these lines must not get warning
         var value1 = MethodDefaultParams();
         var value2 = MethodDefaultParams(EInt.Value);
         var value3 = MethodDefaultParams(other: EInt.Value);
@@ -82,27 +95,27 @@ internal class EnumTests
         var valFromArray = EnumArrayField[0];
         valFromArray = EnumHolderArrayField[0].Value;
 
-        // these lines get warning
+        // NG: these lines get warning
         object obj = EInt.Value;
         Enum @enum = EInt.Other;
         var valueCast2 = MethodDefaultParams((EInt)EUInt.Value);
         var valueCast3 = MethodDefaultParams(other: (EInt)EUInt.Value);
 
-        // expect: warn
+        // NG: warn on right hand side
         object valObj = value switch
         {
             EInt.Value => EUInt.Value,
             _ => throw new Exception(value.ToStringNoWarn()),
         };
 
-        // expect: warn
+        // NG: warn on right hand side
         this.ObjectField = value switch
         {
             EInt.Value => EUInt.Value,
             _ => throw new Exception(value.ToStringNoWarn()),
         };
 
-        // expect: no warn after this line except for switch arm statement
+        // OK: no warn after this line except for switch arm statement
         switch (value)
         {
             case EInt.Value:
@@ -126,11 +139,12 @@ internal class EnumTests
         EUInt val = value switch
         {
             EInt.Value => EUInt.Value,
-            _ => throw new Exception(value.ToStringNoWarn()),  // check: this line could get warning
-                                                               //        * internally, cast operation happens from exception to enum value
+            _ => throw new Exception(value.ToStringNoWarn()),  // TODO: this line *may* get warning
+                                                               //       * internally, cast operation happens from exception to enum value
         };
 
-        // expect: ToString get warning
+        // NG: ToString get warning.
+        // OK: ToStringNoWarn
         return value switch
         {
             EInt.Value => value.ToString(),
@@ -140,10 +154,10 @@ internal class EnumTests
     }
 
 
-    // expect warnings on all lines
+    // cast from enum
     void EnumCastTests()
     {
-        // cast from enum
+        // NG: expect warnings on all lines
         _ = (sbyte)EInt.Other;
         _ = (byte)EInt.Other;
         _ = (short)EInt.Other;
@@ -158,19 +172,19 @@ internal class EnumTests
         _ = (EULong)(object)(EUInt.Value);
     }
 
-    // expect: warn on 'default'
+    // NG: warn on 'default' clause
     static EInt GetEnum(string text, StringComparison other = StringComparison.Ordinal, EInt value = default) => value;
     static TEnum GetGenericEnum<TEnum>(string text, StringComparison other = StringComparison.Ordinal, TEnum value = default)
         where TEnum : Enum => value;
 
     void BasicTests<TEnum>(EInt value) where TEnum : Enum, new()
     {
-        // cast to enum can lead invalid value creation
+        // NG: cast to enum can lead invalid value creation
         _ = (EInt)310;
         _ = (EUInt)(-310 * -1);
         _ = (EULong)ulong.MaxValue;
 
-        // struct creation
+        // NG: struct creation
         _ = new EInt();
         EInt val1 = new();
         EInt val2 = default;
@@ -180,12 +194,12 @@ internal class EnumTests
         TEnum gen2 = default;
         TEnum gen4 = default(TEnum);
 
-        // expect: no warn on method invocation which has generic enum default clause on parameter
+        // OK: expect no warn on method invocation which has generic enum default clause on parameter
         _ = GetEnum("");
         _ = GetGenericEnum<TEnum>("");
         _ = GetGenericEnum<EUShort>("");
 
-        // expect: warn on 'default' clause
+        // NG: expect warn on all lines
         _ = GetEnum("", new(), new());
         _ = GetEnum("", default, default);
         _ = GetEnum("", default(StringComparison), default(EInt));
@@ -196,19 +210,19 @@ internal class EnumTests
         _ = GetGenericEnum<EUShort>("", default, default);
         _ = GetGenericEnum<EUShort>("", default(StringComparison), default(EUShort));
 
-        // cast from enum makes value untyped and untraceable
+        // NG: cast from enum makes value untyped and untraceable
         _ = (int)EInt.Value;
         _ = (EULong)EUInt.Value;
         object obj = EInt.Value;
         Enum @enum = EInt.Other;
 
-        // all of Enum methods get warning to avoid user-level conversion
+        // NG: all of Enum methods get warning to avoid user-level conversion
         _ = Enum.GetName(EInt.Value);
         _ = Enum.ToObject(typeof(EInt), 0);
         _ = Enum.TryParse<EInt>("", out _);
 
-        // string conversion should be encapsulated and controlled only in
-        // app's enum utility. it should not be done freely in user code
+        // NG: string conversion should be encapsulated and controlled only in
+        //     app's enum utility. it should not be done freely in user code
         string name = EInt.Value.ToString();
         string other = value.ToString();
         string concat = "value: " + value;
@@ -220,9 +234,10 @@ internal class EnumTests
 
     int EnumConstraintGenericType<T>(T value) where T : Enum
     {
+        // NG: expect warn on all lines
         _ = value.ToString();
         _ = value.Equals(null);
-        _ = (T)(object)(310 + 310);  // require intermediate cast
+        _ = (T)(object)(310 + 310);
         _ = (T)(object)value;
         _ = "value: " + value;
         _ = $"value: {value} {"" + value + 0} {value.ToString()} {(((value)))}";
@@ -230,9 +245,9 @@ internal class EnumTests
     }
 
 
-    // expect no warnings
     int NonEnumGenericTypeParameter<T>(T value) where T : struct
     {
+        // OK: expect no warnings ('T' doesn't have Enum constraint)
         _ = value.ToString();
         _ = (T)(object)310;
         return (int)(object)value;

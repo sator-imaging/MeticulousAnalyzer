@@ -1,6 +1,6 @@
 using System;
 
-namespace AnalyzerCheck;
+namespace AnalyzerDebug;
 
 public partial struct PartialStruct
 {

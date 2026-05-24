@@ -2,7 +2,7 @@
 
 using System.ComponentModel;
 
-namespace AnalyzerCheck.Screenshot;
+namespace AnalyzerDebug.Screenshot;
 
 
 // NOTE: code fix provider seems that is depending on formatter

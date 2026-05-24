@@ -5,9 +5,16 @@ using System.Reflection;
 using System.Threading.Tasks;
 using NIE = System.NotImplementedException;
 
-[assembly: AnalyzerCheck.DisposableAnalyzerSuppressor(typeof(object), typeof(AnalyzerCheck.DisposableTests.DisposableNoNoWarn))]
+[assembly: AnalyzerDebug.DisposableAnalyzerSuppressor(typeof(object), typeof(AnalyzerDebug.DisposableTests.DisposableNoNoWarn))]
 
-namespace AnalyzerCheck;
+#pragma warning disable SMA0032 // Implicit Boxing Conversion
+#pragma warning disable SMA0044 // Missing Dispose Implementation
+#pragma warning disable SMA0045 // Missing IDisposable Interface
+#pragma warning disable SMA0070 // Task Not Awaited
+#pragma warning disable SMA8002 // Null suppression operation
+#pragma warning disable SMA8000 // Literal should be passed as named argument
+
+namespace AnalyzerDebug;
 
 [Conditional("DEBUG"), AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 sealed class DisposableAnalyzerSuppressor : Attribute { public DisposableAnalyzerSuppressor(params Type[] _) { } }
@@ -15,7 +22,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute { public DisposableAnalyze
 
 internal class DisposableTests
 {
-    // expect no warnings until 'void Test()'
+    // OK: expect no warnings until 'void Test()'
     class ClassNoInterface { public void Dispose() { } }
     class ClassWithInterface : IDisposable { public void Dispose() { } }
     class ClassDeriveDisposable : ClassWithInterface { }
@@ -59,7 +66,7 @@ internal class DisposableTests
     }
 
 
-    // field initializer never get warning
+    // OK: field initializer never get warning
     ClassNoInterface classNoInterface = new();
     ClassWithInterface classWithInterface = new();
     ClassDeriveDisposable classDeriveDisposable = new();
@@ -68,11 +75,11 @@ internal class DisposableTests
     ClassAsyncDisposable classAsyncDisposable = new();
     StructAsyncDisposable structAsyncDisposable = new();
 
-    static object? ObjectField;
+    static object? StaticFieldOfTypeObject;
     static string? StringField;
     static IDisposable? IDisposableField;
 
-    // no error on return statement
+    // OK: no error on return statement
     Disposable MethodReturn1() => new();
     Disposable MethodReturn2() { return new Disposable(); }
 
@@ -86,35 +93,14 @@ internal class DisposableTests
     EInt EnumValueField = EInt.Other;
     Exception ExceptionField = new Exception();
 
-    void SuppressionTestAlpha()
-    {
-        // Don't dispose: the following line don't show error.
-        var x = new DisposableNoNoWarn();
-
-        // Don't dispose: Discard can have suppression comment
-        _ = new DisposableNoNoWarn();
-    }
-
-    void SuppressionTestBravo()
-    {
-        IDisposable _;
-
-        // Don't dispose
-        _ = new Disposable();  // Warning: Assigning to the variable '_' (not discarding).
-                               //          Removing the above line wil solve (comment-out won't solve).
-    }
-
 
     void Test(Disposable methodParam, EInt value)
     {
-        // no warn if using statement found
+        // OK: using statement found
         using Disposable localVar = new Disposable();
         using var genericDisposable = new Disposable<int>();
 
-        // no warn because analysis on this type is suppressed by assembly attribute
-        var noWarn = new DisposableNoNoWarn();
-
-        // expect no warning even though Task and Task<T> implement IDisposable
+        // OK: even though Task and Task<T> implement IDisposable
         _ = Task.CompletedTask;
         _ = Task.CompletedTask.GetAwaiter();
         _ = new Task(() => { });
@@ -124,7 +110,7 @@ internal class DisposableTests
         _ = new ValueTask<int>(new Task<int>(() => 0));
         _ = new ValueTask<int>(new Task<int>(() => 0)).AsTask();
 
-        // no error, field or property access
+        // OK: field or property access
         var fa = DisposableArrayField[0];
         fa = DisposableArrayField[1];
         DisposableArrayField[0] = new Disposable();
@@ -133,39 +119,42 @@ internal class DisposableTests
         fl = DisposableListField[1];
         DisposableListField[0] = new Disposable();
         DisposableListField[1] = DisposableListField[0];
-        DisposableListField.Add(new Disposable());        // expect: warning on 'create and forget'
+        // NG: but warning on 'create and forget'
+        DisposableListField.Add(new Disposable());
 
         var flField = DisposableContainerListField[0].Disposable;
         flField = DisposableContainerListField[1].Disposable;
         var faField = DisposableContainerArrayField[0].Disposable;
         faField = DisposableContainerArrayField[1].Disposable;
 
-        // warning on assignment to local collection variables
+        var localList = new List<IDisposable>();
+        // NG: warning collection initialization with new()
         var localArray = new IDisposable[] { new Disposable() };
-        localArray[0] = new Disposable();
+        // NG: warning on assignment to local collection variables (existing instance; left hand side only)
         localArray[0] = localArray[1];
-        var localList = new List<IDisposable>(localArray);
-        localList[0] = new Disposable();
         localList[0] = localList[1];
+        // NG: warning on assignment to local collection (both side)
+        localArray[0] = new Disposable();
+        localList[0] = new Disposable();
+        // NG: adding new instance to local collection variable
         localList.Add(new Disposable());
 
-
-        // expect: warning
+        // NG: assignment to local array (both side)
         localArray[0] = value switch
         {
             EInt.Value => new Disposable(),
             _ => throw new Exception(),
         };
 
-        // expect: warning
+        // NG: assignment to local list (indexer; both side)
         localList[0] = value switch
         {
             EInt.Value => new Disposable(),
             _ => throw new Exception(),
         };
 
-        // expect: warning
-        ObjectField = value switch
+        // NG: assign to field but casting to non-IDisposable (right hand side only)
+        StaticFieldOfTypeObject = value switch
         {
             EInt.Value => new Disposable(),
             _ => throw new Exception(),
@@ -173,6 +162,8 @@ internal class DisposableTests
         as object
         ;
 
+
+        // OK: with using statement
         using  // <-- comment out to show warning on switch expression
         var switchExpr = value switch
         {
@@ -180,42 +171,43 @@ internal class DisposableTests
             _ => throw new Exception(),
         };
 
-        DisposableArrayField[0] = value switch
-        {
-            EInt.Value => new Disposable(),
-            _ => throw new Exception(),
-        };
-
+        // OK: assign to field (array) is allowed
         IDisposableField = value switch
         {
             EInt.Value => new Disposable(),
             _ => throw new Exception(),
         };
 
+        // OK: assign to field (array) is also allowed
+        DisposableArrayField[0] = value switch
+        {
+            EInt.Value => new Disposable(),
+            _ => throw new Exception(),
+        };
 
-        // cast operation: won't show warning if both type are disposable
+
+        // OK: cast operation won't show warning if both type are disposable
         _ = localVar as IDisposable;
         _ = (IDisposable)localVar;
         _ = methodParam as IDisposable;
         _ = (IDisposable)methodParam;
-        _ = localVar as object;     // expect: warn
-        _ = methodParam as object;  // expect: warn
-
-        // show warning
+        // NG: cast from/to non-disposable
+        _ = localVar as object;
+        _ = methodParam as object;
         IDisposable notUsing1 = ((new object() as IDisposable))!;
         IDisposable notUsing2 = new object() as IDisposable;
         _ = (new object()) as Disposable;
         _ = (IDisposable)(new object());
         _ = (new Disposable()) as object;
 
-        // no warn if receiver is existing instance but method which returns disposable instance
+        // OK: if receiver is existing instance (property)
         localVar.Dispose();
         _ = localVar.ToString();
         _ = localVar.Self;
         _ = localVar.Self.ToString();
         _ = localVar.Self.Self;
         _ = localVar.Self.Self.ToString();
-        // warning on method that returns disposable instance
+        // NG: but warning on method that returns disposable instance
         _ = localVar.GetSelf().ToString();
         _ = localVar.GetSelf().Self;
         _ = localVar.GetSelf()?.Self;
@@ -232,14 +224,16 @@ internal class DisposableTests
         _ = localVar?.GetSelf()?.ToString();
         _ = localVar?.Self.GetSelf();
         _ = localVar?.Self?.GetSelf();
+        // OK: no warn on chained property access.
         _ = localVar?.Self;
         _ = localVar?.Self?.Self;
         _ = localVar?.Self?.ToString();
         _ = localVar?.Self?.ToString();
-        _ = localVar?.Self?.Self.GetSelf()?.ToString();
+        // NG: but get warn on intermediate method invocation (on `.Self.GetSelf()`)
+        _ = localVar?.Self?.Self.GetSelf()?.Self.Self?.Self.GetSelf()?.Self.Self?.ToString()?.ToString();
 
 
-        // no warn in 'if' or other flow controls
+        // OK: 'if' or other flow controls
         if (localVar == null || localVar is IDisposable ID && ID is { } && ID is not object)
         {
             switch (localVar)
@@ -252,7 +246,7 @@ internal class DisposableTests
                     break;
             }
         }
-        // warn on creation
+        // NG: but warn on instantiate
         else if (new Disposable() != null)
         {
             switch (new Disposable())
@@ -269,13 +263,10 @@ internal class DisposableTests
         DisposableBase GetDisposable(EInt _)
         {
             // create in 'return' statement won't show warning
-            //using
-            //var ret =
-            return
-            this.EnumValueField switch
+            return this.EnumValueField switch
             {
                 EInt.Value => new DisposableBase(),
-                EInt.Other => new DisposableDerived(310),  // check: when each switch arm return different type, it may show error
+                EInt.Other => new DisposableDerived(310),  // TODO: warn when switch arms return different IDisposable type
 
                 EInt.Etcetera => throw new Exception(),
                 _ => throw ExceptionField,
@@ -283,25 +274,27 @@ internal class DisposableTests
         }
 
         using var usingDisposableFromMethod = GetDisposable(EInt.Other);
+        using var disposable = new Disposable();
 
-
-        // field assignment won't show warning
+        // OK: field assignment to IDisposable won't show warning as they should be managed by field owner
         IDisposableField = (((new object()) as IDisposable)!);
         IDisposableField = (new object()) as Disposable;
         IDisposableField = (IDisposable)(new object());
-        //IDisposableField = (new Disposable()) as object;
-        ObjectField = ((new object() as IDisposable)!);
-        ObjectField = (new object()) as Disposable;
-        ObjectField = (IDisposable)(new object());
-        ObjectField = new Disposable() as object;   // warn: it's casted from disposable to non-disposable
+        // NG: but assigning to non-disposable field get warning
+        StaticFieldOfTypeObject = ((new object() as IDisposable)!);
+        StaticFieldOfTypeObject = (new object()) as Disposable;
+        StaticFieldOfTypeObject = (IDisposable)(new object());
+        StaticFieldOfTypeObject = new Disposable();
+        StaticFieldOfTypeObject = disposable;
+        StaticFieldOfTypeObject = genericDisposable;
 
-        // OK: left hand is field or property
+        // OK: left hand side is field or property
         IDisposableField = new Disposable();
         IDisposableField = new ImplicitConversion();
 
         // NG: don't allow `create and forget`
-        ObjectField = new ImplicitConversion();
-        ObjectField = new Disposable();
+        StaticFieldOfTypeObject = new ImplicitConversion();
+        StaticFieldOfTypeObject = new Disposable();
         string s = new ImplicitConversion();
         s = new ImplicitConversion();
         StringField = new ImplicitConversion();
@@ -316,29 +309,33 @@ internal class DisposableTests
         _ = Disposable.New?.ToString();
 
         using var convertibleDisposable = new ImplicitConversion();
-        StringField = convertibleDisposable;  // OK: assigning local variable
-        s = convertibleDisposable;            // NG: implicit cast on local variable assignment
+        // NG: implicit cast to non-IDisposable
+        StringField = convertibleDisposable;
+        // NG: implicit cast on local variable assignment
+        s = convertibleDisposable;
 
-        // show warning
+        // NG: right hand side show warning
         IDisposable d = new ImplicitConversion();
         d = new ImplicitConversion();
         d = new Disposable();
 
-        // assignment won't get warning including implicit cast
+        // OK: assignment won't get warning including implicit cast
         d = notUsing1;
         d = convertibleDisposable;
 
         IDisposableField = new ClassWithInterface();
         IDisposableField = new ClassDeriveDisposable();
         IDisposableField = new StructWithInterface();
+
+        //// OLD TEST
         //IDisposableField = new RefLikeAccessible();
-        //ObjectField = new RefLikeAccessible();
-        //ObjectField = new ClassWithInterface();
-        //ObjectField = new ClassDeriveDisposable();
-        //ObjectField = new StructWithInterface();
+        //StaticFieldOfTypeObject = new RefLikeAccessible();
+        //StaticFieldOfTypeObject = new ClassWithInterface();
+        //StaticFieldOfTypeObject = new ClassDeriveDisposable();
+        //StaticFieldOfTypeObject = new StructWithInterface();
 
         //----------------------------------------------------------------------
-        // NG: disposable not using-ed
+        // NG: disposable without using statement
         //----------------------------------------------------------------------
 
         new ClassWithInterface();
@@ -359,11 +356,12 @@ internal class DisposableTests
         _ = Create<StructWithInterface>();
         MethodArg(new StructWithInterface());
 
-        new RefLikeAccessible();
-        var rla = new RefLikeAccessible();
-        CreateRefLikeAccessible();
-        _ = CreateRefLikeAccessible();
-        MethodArg(new RefLikeAccessible());
+        //// NOTE: Duck-typing support is dropped.
+        //new RefLikeAccessible();
+        //var rla = new RefLikeAccessible();
+        //CreateRefLikeAccessible();
+        //_ = CreateRefLikeAccessible();
+        //MethodArg(new RefLikeAccessible());
 
 
         //----------------------------------------------------------------------
@@ -374,6 +372,7 @@ internal class DisposableTests
         using var cwiOK = new ClassWithInterface();
         using (Create<ClassWithInterface>()) { }
         using var cwiMethodOK = Create<ClassWithInterface>();
+        // NG: but got warn on argument that leads cast to 'object'
         MethodArg(cwiOK);
         MethodArg(cwiMethodOK);
 
@@ -381,6 +380,7 @@ internal class DisposableTests
         using var cddOK = new ClassDeriveDisposable();
         using (Create<ClassDeriveDisposable>()) { }
         using var cddMethodOK = Create<ClassDeriveDisposable>();
+        // NG: but got warn on argument that leads cast to 'object'
         MethodArg(cddOK);
         MethodArg(cddMethodOK);
 
@@ -388,26 +388,29 @@ internal class DisposableTests
         using var swiOK = new StructWithInterface();
         using (Create<StructWithInterface>()) { }
         using var swiMethodOK = Create<StructWithInterface>();
+        // NG: but got warn on argument that leads cast to 'object'
         MethodArg(swiOK);
         MethodArg(swiMethodOK);
 
-        using (new RefLikeAccessible()) { }
-        using var rlaOK = new RefLikeAccessible();
-        using (CreateRefLikeAccessible()) { }
-        using var rlaMethodOK = CreateRefLikeAccessible();
-        MethodArg(rlaOK);
-        MethodArg(rlaMethodOK);
+        //// NOTE: Duck-typing support is dropped.
+        //using (new RefLikeAccessible()) { }
+        //using var rlaOK = new RefLikeAccessible();
+        //using (CreateRefLikeAccessible()) { }
+        //using var rlaMethodOK = CreateRefLikeAccessible();
+        //MethodArg(rlaOK);
+        //MethodArg(rlaMethodOK);
     }
 
 
     static async void TestAsync()
     {
+        //// OLD TEST
         //IDisposableField = new ClassAsyncDisposable();
         //IDisposableField = new StructAsyncDisposable();
         //IDisposableField = new RefLikeAsyncDisposable();
-        //ObjectField = new RefLikeAsyncDisposable();
-        //ObjectField = new ClassAsyncDisposable();
-        //ObjectField = new StructAsyncDisposable();
+        //StaticFieldOfTypeObject = new RefLikeAsyncDisposable();
+        //StaticFieldOfTypeObject = new ClassAsyncDisposable();
+        //StaticFieldOfTypeObject = new StructAsyncDisposable();
 
         //----------------------------------------------------------------------
         // NG: not using
@@ -425,11 +428,12 @@ internal class DisposableTests
         _ = Create<StructAsyncDisposable>();
         MethodArg(new StructAsyncDisposable());
 
-        new RefLikeAsyncDisposable();
-        var rlad = new RefLikeAsyncDisposable();
-        CreateRefLikeAsyncDisposable();
-        _ = CreateRefLikeAsyncDisposable();
-        MethodArg(new RefLikeAsyncDisposable());
+        //// NOTE: Duck-typing support is dropped.
+        //new RefLikeAsyncDisposable();
+        //var rlad = new RefLikeAsyncDisposable();
+        //CreateRefLikeAsyncDisposable();
+        //_ = CreateRefLikeAsyncDisposable();
+        //MethodArg(new RefLikeAsyncDisposable());
 
 
         //----------------------------------------------------------------------
@@ -440,6 +444,7 @@ internal class DisposableTests
         await using var cadOK = new ClassAsyncDisposable();
         await using (Create<ClassAsyncDisposable>()) { }
         await using var cadMethodOK = Create<ClassAsyncDisposable>();
+        // NG: but got warn on argument that leads cast to 'object'
         MethodArg(cadOK);
         MethodArg(cadMethodOK);
 
@@ -447,6 +452,7 @@ internal class DisposableTests
         await using var sadOK = new StructAsyncDisposable();
         await using (Create<StructAsyncDisposable>()) { }
         await using var sadMethodOK = Create<StructAsyncDisposable>();
+        // NG: but got warn on argument that leads cast to 'object'
         MethodArg(sadOK);
         MethodArg(sadMethodOK);
 
@@ -454,22 +460,25 @@ internal class DisposableTests
         await using var rladOK = new RefLikeAsyncDisposable();
         await using (CreateRefLikeAsyncDisposable()) { }
         await using var rladMethodOK = CreateRefLikeAsyncDisposable();
-        MethodArg(rladOK);
-        MethodArg(rladMethodOK);
+        ////// NOTE: Duck-typing support is dropped.
+        //// NG: but got warn on argument that leads cast to 'object'
+        //MethodArg(rladOK);
+        //MethodArg(rladMethodOK);
 
     }
 
 
     static void TestNonDisposable()
     {
+        //// OLD TEST
         //IDisposableField = new ClassNoInterface();
         //IDisposableField = new StructNoInterface();
         //IDisposableField = new RefLikeHidden();
         //IDisposableField = new RefLikeAsyncHidden();
-        //ObjectField = new RefLikeHidden();
-        //ObjectField = new RefLikeAsyncHidden();
-        ObjectField = new ClassNoInterface();
-        ObjectField = new StructNoInterface();
+        //StaticFieldOfTypeObject = new RefLikeHidden();
+        //StaticFieldOfTypeObject = new RefLikeAsyncHidden();
+        StaticFieldOfTypeObject = new ClassNoInterface();
+        StaticFieldOfTypeObject = new StructNoInterface();
 
         //----------------------------------------------------------------------
         // OK: not disposable
@@ -512,4 +521,23 @@ internal class DisposableTests
     static RefLikeAccessible CreateRefLikeAccessible() => new();
     static RefLikeAsyncDisposable CreateRefLikeAsyncDisposable() => new();
     static RefLikeAsyncHidden CreateRefLikeAsyncHidden() => new();
+
+
+    void SuppressionTestAlpha()
+    {
+        // Don't dispose: the following line don't show error.
+        var x = new DisposableNoNoWarn();
+
+        // Don't dispose: Discard can have suppression comment
+        _ = new DisposableNoNoWarn();
+    }
+
+    void SuppressionTestBravo()
+    {
+        IDisposable _;
+
+        // Don't dispose
+        _ = new Disposable();  // NG: Assigning to the variable named '_' (not discarding).
+                               //     **DELETING** the above declaration wil solve (comment-out won't solve because "Don't dispose" is not the first line).
+    }
 }
