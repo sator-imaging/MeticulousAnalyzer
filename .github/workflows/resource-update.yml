@@ -120,7 +120,7 @@ jobs:
         ##################
         # commit RULES.md
         #
-        dotnet run -c Release --project ./src/DocsGen \
+        dotnet run -c Release --project ./eng/DocsGen \
           "./src/StaticMemberAnalyzer.Analysis/Resources.resx" \
           "./${{ env.docsgen_file_name }}"
         git add ${{ env.docsgen_file_name }}
