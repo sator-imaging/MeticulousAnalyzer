@@ -47,41 +47,41 @@ public class C
         }
 
         [TestMethod]
-        public async Task Test3()
-        {
-            var test = @"
-using System.Reflection;
-[Obfuscation(Exclude = true, ApplyToMembers = true)]
-public enum Enum { Value }
-public class C
-{
-    public void M()
-    {
-        // Allow enum conversion
-        var foo = (object)Enum.Value;
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
         public async Task Test4()
         {
             var test = @"
 using System.Reflection;
 [Obfuscation(Exclude = true, ApplyToMembers = true)]
-public enum Enum { Value }
+public enum ETest { Value }
 public class C
 {
     public void M()
     {
-        var foo = {|#0:(object)Enum.Value|};
+        var foo = {|#0:(object)ETest.Value|};
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("Enum");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task Test3()
+        {
+            var test = @"
+using System.Reflection;
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum ETest { Value }
+public class C
+{
+    public void M()
+    {
+        // Allow enum conversion
+        var foo = (object)ETest.Value;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -90,16 +90,16 @@ public class C
             var test = @"
 using System.Reflection;
 [Obfuscation(Exclude = true, ApplyToMembers = true)]
-public enum E { Value }
+public enum ETest { Value }
 public class C
 {
     public void M()
     {
-        var num = {|#0:(int)E.Value|};
+        var num = {|#0:(int)ETest.Value|};
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("E");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -109,13 +109,13 @@ public class C
             var test = @"
 using System.Reflection;
 [Obfuscation(Exclude = true, ApplyToMembers = true)]
-public enum E { Value }
+public enum ETest { Value }
 public class C
 {
     public void M()
     {
         // Allow enum conversion
-        var num = (int)E.Value;
+        var num = (int)ETest.Value;
     }
 }
 ";
