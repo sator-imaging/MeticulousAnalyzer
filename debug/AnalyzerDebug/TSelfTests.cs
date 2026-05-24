@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace AnalyzerCheck
+namespace AnalyzerDebug
 {
     [DescriptionAttribute]
     public class Value { }

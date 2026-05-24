@@ -5,6 +5,7 @@ obj
 
 !.github
 !assets
+!debug
 !eng
 !src
 !Unity

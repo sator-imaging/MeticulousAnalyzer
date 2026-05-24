@@ -1,0 +1,33 @@
+[*.{cs,vb}]
+
+dotnet_diagnostic.IDE0079.severity = none  # Remove unnecessary suppression (IDE0079)
+dotnet_diagnostic.IDE0062.severity = none  # Make local function static (IDE0062)
+dotnet_diagnostic.IDE0059.severity = none  # Remove unnecessary value assignment (IDE0059)
+dotnet_diagnostic.IDE0039.severity = none  # Use local function instead of lambda (IDE0039)
+dotnet_diagnostic.CS0168.severity = none
+dotnet_diagnostic.IDE0060.severity = none  # Remove unused parameter (IDE0060)
+dotnet_diagnostic.IDE0052.severity = none  # Remove unread private member (IDE0052)
+dotnet_diagnostic.IDE0044.severity = none  # Add readonly modifier (IDE0044)
+dotnet_diagnostic.IDE0051.severity = none  # Remove unused private member (IDE0051)
+dotnet_diagnostic.CS8618.severity = none
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CA2211.severity = none
+dotnet_diagnostic.CA1825.severity = none
+dotnet_diagnostic.IDE0300.severity = none  # Use collection expression for array (IDE0300)
+dotnet_diagnostic.CS0219.severity = none
+dotnet_diagnostic.CA1806.severity = none
+dotnet_diagnostic.IDE0251.severity = none  # Member can be made 'readonly' (IDE0251)
+dotnet_diagnostic.CA1816.severity = none
+dotnet_diagnostic.IDE0090.severity = none  # Simplify `new` expression (IDE0090)
+dotnet_diagnostic.IDE0290.severity = none  # Use primary constructor (IDE0290)
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.CA1805.severity = none
+dotnet_diagnostic.IDE0028.severity = none  # Use collection initializers or expressions (IDE0028)
+dotnet_diagnostic.IDE0250.severity = none  # Struct can be made 'readonly' (IDE0250)
+dotnet_diagnostic.IDE0010.severity = none  # Add missing cases to switch statement (IDE0010)
+dotnet_diagnostic.IDE0072.severity = none  # Add missing cases to switch expression (IDE0072)
+dotnet_diagnostic.IDE0048.severity = none  # Parentheses preferences (IDE0047 and IDE0048)
+dotnet_diagnostic.IDE0078.severity = none  # Use pattern matching (IDE0078 and IDE0260)
+dotnet_diagnostic.IDE0004.severity = none  # Remove unnecessary cast (IDE0004)
+dotnet_diagnostic.IDE0034.severity = none  # Simplify 'default' expression (IDE0034)
+dotnet_diagnostic.IDE0001.severity = none  # Simplify name (IDE0001)

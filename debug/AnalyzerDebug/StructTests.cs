@@ -1,6 +1,6 @@
 using System;
 
-namespace AnalyzerCheck;
+namespace AnalyzerDebug;
 
 internal class StructTests
 {

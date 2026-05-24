@@ -1,8 +1,8 @@
 using System;
 
-//[assembly: AnalyzerCheck.EnumLikePattern("Entries")]
+//[assembly: AnalyzerDebug.EnumLikePattern("Entries")]
 
-namespace AnalyzerCheck;
+namespace AnalyzerDebug;
 
 //[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
 //public sealed class EnumLikePatternAttribute : Attribute { public EnumLikePatternAttribute(string memberName) { } }
