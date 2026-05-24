@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -66,10 +65,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (context.Operation is not IAnonymousFunctionOperation anonFunc ||
                 anonFunc.Syntax is not LambdaExpressionSyntax lambda ||
-                lambda.Modifiers.Any(SyntaxKind.StaticKeyword)) return;
+                lambda.Modifiers.Any(SyntaxKind.StaticKeyword))
+            {
+                return;
+            }
 
             var semanticModel = anonFunc.SemanticModel ?? context.Operation.SemanticModel;
-            if (semanticModel == null) return;
+            if (semanticModel == null)
+            {
+                return;
+            }
 
             if (IsEffectivelyStatic(lambda, semanticModel))
             {
@@ -90,36 +95,60 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var op = context.Operation;
             bool isImplicit = (op as IConversionOperation)?.IsImplicit ?? (op as IDelegateCreationOperation)?.IsImplicit ?? false;
-            if (!isImplicit) return;
+            if (!isImplicit)
+            {
+                return;
+            }
 
             var operand = (op as IConversionOperation)?.Operand ?? (op as IDelegateCreationOperation)?.Target;
-            if (operand == null) return;
+            if (operand == null)
+            {
+                return;
+            }
 
             // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
             var unwrapped = UnwrapConversion(operand);
-            if (unwrapped.Kind == OperationKind.AnonymousFunction) return;
+            if (unwrapped.Kind == OperationKind.AnonymousFunction)
+            {
+                return;
+            }
 
             // Check if target type is Action or Func
-            if (!IsActionOrFunc(op.Type)) return;
+            if (!IsActionOrFunc(op.Type))
+            {
+                return;
+            }
 
             // Don't show warning if the "value" side is static field, method, property or other static member.
             // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
-            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped)) return;
+            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped))
+            {
+                return;
+            }
 
             context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
         }
 
         private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda, IOperation parent)
         {
-            if (Core.IsSuppressedByComment(lambda, SuppressionComment) || Core.IsSuppressedByComment(parent, SuppressionComment)) return;
+            if (Core.IsSuppressedByComment(lambda, SuppressionComment) || Core.IsSuppressedByComment(parent, SuppressionComment))
+            {
+                return;
+            }
 
             Location location;
             if (lambda is SimpleLambdaExpressionSyntax simple)
+            {
                 location = simple.Parameter.GetLocation();
+            }
             else if (lambda is ParenthesizedLambdaExpressionSyntax parenthesized)
+            {
                 location = parenthesized.ParameterList.GetLocation();
+            }
             else
+            {
                 location = lambda.GetLocation();
+            }
 
             context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, location));
         }
@@ -144,13 +173,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var current = UnwrapConversion(operation);
 
             if (current is IMemberReferenceOperation memRef)
+            {
                 return memRef.Member.IsStatic;
+            }
 
             if (current is IInvocationOperation invocation)
+            {
                 return invocation.TargetMethod.IsStatic;
+            }
 
             if (current is IMethodReferenceOperation methodRef)
+            {
                 return methodRef.Method.IsStatic;
+            }
 
             return false;
         }
