@@ -20,7 +20,7 @@
 - [Disposable 分析器](#disposable-分析器) 检测缺少 `using` 语句
 - [异步上下文分析](#异步上下文分析) 检测 `Task` 或 `ValueTask` 缺少 await
 - [Coding Assistance](RULES.md#coding-assistance) (提高性能与代码质量的分析；详见 [**RULES.md**](RULES.md) (英文))
-- `struct` 无参构造函数误用分析
+- [结构体分析](#结构体分析) 检测无参构造函数误用等
 - `TSelf` 泛型类型参数与类型约束分析
 - 文件头注释强制规则
 - ~~对字段/属性等进行自定义消息标注与下划线~~
@@ -433,9 +433,11 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`、`System.Text` 和 `System.IO` 的方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
+> `string`、`System.Text` 或 `System.IO` 方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
 >
 > 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
+>
+> (已知的测试框架方法免于所有检查)
 
 
 ## 数值类型的显式声明
@@ -458,6 +460,27 @@ double floating = 1;
 
 > [!IMPORTANT]
 > 此分析仅针对 `var` 声明，不考虑隐式类型转换。
+
+
+## Null 抑制操作
+
+为了提高视觉注意力和基于文本的可追溯性，Null 抑制操作应使用 3 层括号进行隔离。
+
+```cs
+var x = foo!;
+//      ~~~~ 报告：Null 抑制操作应使用 3 层括号进行隔离
+```
+
+期望的代码：
+
+```cs
+var x = (((foo)))!;
+```
+
+> [!TIP]
+> 通过 `dotnet format analyzers --diagnostics SMA8002` 应用代码修复，可以揭示代码库中所有的 Null 警告抑制。
+>
+> 之后，强烈建议使用 `Debug.Assert(foo is not null);` 代替 `!` 运算符来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
 
 
 
@@ -616,6 +639,23 @@ class Demo
 
 
 
+
+
+&nbsp;
+
+# 结构体分析
+
+分析 `struct` 类型的使用，防止常见的错误和性能问题。
+
+- SMA0030: Invalid Struct Constructor
+    - 已经显式声明了构造函数，因此不应使用无参构造函数。
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - 不应将可变结构体类型设置为 `readonly` 字段。
+- SMA0032: Implicit Boxing Conversion
+    - 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。注意，显式转换（explicit cast）不在此分析范围内。
+
+> [!TIP]
+> 可以通过注释 `// Allow boxing` 来抑制隐式装箱分析（SMA0032）；详见 [通过注释抑制](#通过注释抑制) 章节。
 
 
 &nbsp;

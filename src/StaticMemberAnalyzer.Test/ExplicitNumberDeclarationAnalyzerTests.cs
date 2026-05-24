@@ -124,5 +124,36 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task VarWithNumberFromMembers_ReportsDiagnostics()
+        {
+            var test = @"
+namespace Test
+{
+    public class Some
+    {
+        public int intField;
+        public float floatProperty { get; set; }
+        public decimal MethodReturnsDecimal() => 0m;
+    }
+
+    public class C
+    {
+        public void M(Some some)
+        {
+            var {|#0:foo|} = some.intField;
+            var {|#1:bar|} = some.floatProperty;
+            var {|#2:baz|} = some.MethodReturnsDecimal();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("foo"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("bar"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("baz")
+            );
+        }
     }
 }

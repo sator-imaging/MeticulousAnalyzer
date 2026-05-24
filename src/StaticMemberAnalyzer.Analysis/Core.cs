@@ -9,6 +9,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
     {
         // https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Utilities/Compiler/DiagnosticCategoryAndIdRanges.txt
         internal const string Category = nameof(StaticMemberAnalyzer);
+
+        const string ConfigPrefix = "sator_imaging.";
+        public const string Config_EnableImmutableVariable = ConfigPrefix + "immutable_variable";
+        public const string Config_EnableDuckTypingRecognition = ConfigPrefix + "duck_typing_recognition";
+
+        public static bool GetConfiguration(CompilationStartAnalysisContext context, string key)
+        {
+            // GlobalOptions is NOT .editorconfig. Just check falsy.
+            return context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
+                && !value.Equals("false", StringComparison.OrdinalIgnoreCase);
+        }
+
+
+        /*  Debug Reporter  ================================================================ */
 
         // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
         // See https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Localizing%20Analyzers.md for more on localization
@@ -49,8 +64,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             isEnabledByDefault: true,
             description: RuleId_DebugWarn);
 
-
-        /*  report  ================================================================ */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Report(Action<Diagnostic> reportMethod,
@@ -95,8 +108,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
 
-        /*  DEBUG  ================================================================ */
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static string NormalizeTextWithEllipsis(string? input)
         {
@@ -133,16 +144,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
-            op = UnwrapNullCoalesceOperation(op);
+            op = UnwrapAllNullCoalesceOperation(op);
 
             var firstChildOp = op.Children?.FirstOrDefault();
 
             ReportDebugMessage(reportMethod, $"{callerMember}\n#{lineNumber}", ImmutableArray.Create(location),
                 $"Op: {op.Kind} ({op.Type?.Name})",
-                $"Parent: {op.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
-                $"Grand Parent: {op.Parent?.Parent?.UnwrapNullCoalesceOperation().Kind} ({op.Parent?.Parent?.Type?.Name})",
+                $"Parent: {op.Parent?.UnwrapAllNullCoalesceOperation().Kind} ({op.Parent?.Type?.Name})",
+                $"Grand Parent: {op.Parent?.Parent?.UnwrapAllNullCoalesceOperation().Kind} ({op.Parent?.Parent?.Type?.Name})",
                 "> " + NormalizeTextWithEllipsis(op.Syntax?.ToString()),
-                $"Child: {firstChildOp?.UnwrapNullCoalesceOperation().Kind} ({firstChildOp?.Type?.Name})"
+                $"Child: {firstChildOp?.UnwrapAllNullCoalesceOperation().Kind} ({firstChildOp?.Type?.Name})"
                 );
         }
 
@@ -234,18 +245,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  node & operation  ================================================================ */
 
-        internal static SyntaxNode UnwrapParenthesizeAndNullSuppressorNodes(this SyntaxNode syntax)
+        internal static IOperation UnwrapAllNullCoalesceOperation(this IOperation op)
         {
-            while (syntax.Parent is ParenthesizedExpressionSyntax || syntax.Parent.IsKind(SyntaxKind.SuppressNullableWarningExpression))
-            {
-                syntax = syntax.Parent;
-            }
-            return syntax;
-        }
-
-
-        internal static IOperation UnwrapNullCoalesceOperation(this IOperation op)
-        {
+            // NOTE: IConditionalAccessOperation returns entire conditional access chain operation.
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
@@ -290,7 +292,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
 
-        /*  suppression  ================================================================ */
+        /*  Suppression  ================================================================ */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsSuppressedByComment(IOperation operation, string suppressionComment)
@@ -335,7 +337,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
 
-        /*  polyfill  ================================================================ */
+        /*  Polyfill  ================================================================ */
 
         public static bool IsKnownImmutableType(ITypeSymbol? symbol)
         {
@@ -352,8 +354,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                   || (
                         symbol.ContainingNamespace is INamespaceSymbol
                         {
-                            Name: "System",
-                            ContainingNamespace: INamespaceSymbol
+                            Name: "System", ContainingNamespace: INamespaceSymbol
                             {
                                 IsGlobalNamespace: true,
                             }

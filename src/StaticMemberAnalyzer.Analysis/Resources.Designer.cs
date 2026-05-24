@@ -1490,5 +1490,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA8001_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8002_Description {
+            get {
+                return ResourceManager.GetString("SMA8002_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Null suppression operation should be fenced with 3 parentheses に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8002_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA8002_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Null suppression operation に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA8002_Title {
+            get {
+                return ResourceManager.GetString("SMA8002_Title", resourceCulture);
+            }
+        }
     }
 }

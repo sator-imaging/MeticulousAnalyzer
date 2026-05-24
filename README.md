@@ -20,7 +20,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Coding Assistance](RULES.md#coding-assistance) for better performance and code quality (See [**RULES.md**](RULES.md))
-- `struct` parameter-less constructor misuse analysis
+- [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - `TSelf` generic type argument & type constraint analysis
 - File header comment enforcement
 - ~~Annotating and underlining field, property or etc with custom message~~
@@ -433,9 +433,11 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`, `System.Text`, and `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
+> `string`, `System.Text`, or `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
 >
 > Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
+>
+> (Known test framework methods are exempt from all checks)
 
 
 ## Explicit Number Declaration
@@ -458,6 +460,27 @@ double floating = 1;
 
 > [!IMPORTANT]
 > This analysis only targets `var` declarations and does not consider implicit conversions.
+
+
+## Null suppression operation
+
+Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
+
+```cs
+var x = foo!;
+//      ~~~~ reported: null suppression operation should be fenced with 3 parentheses
+```
+
+Expected:
+
+```cs
+var x = (((foo)))!;
+```
+
+> [!TIP]
+> Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
+>
+> After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
 
 
 
@@ -616,6 +639,23 @@ class Demo
 
 
 
+
+
+&nbsp;
+
+# Struct Analysis
+
+Analyze the use of `struct` types to prevent common mistakes and performance issues.
+
+- SMA0030: Invalid Struct Constructor
+    - Constructor has declared explicitly so should not use parameter-less one.
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - Mutable struct type should not be set to `readonly` field.
+- SMA0032: Implicit Boxing Conversion
+    - Implicit conversion from struct to reference type (including interface) causes boxing. Note that explicit casts are exempt from this analysis.
+
+> [!TIP]
+> You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 &nbsp;

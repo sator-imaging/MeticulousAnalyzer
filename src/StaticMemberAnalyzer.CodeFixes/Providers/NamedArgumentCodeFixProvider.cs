@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,44 +39,45 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 var diagnosticSpan = diagnostic.Location.SourceSpan;
 
                 var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
-                if (node == null) continue;
-
-                var argumentNode = node.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax or AttributeArgumentSyntax);
+                var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax or AttributeArgumentSyntax);
                 if (argumentNode == null) continue;
 
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title: CodeFixResources.CodeFix_NamedArgument,
-                        createChangedDocument: c => AddNamedArgumentAsync(context.Document, argumentNode.Span, c),
-                        equivalenceKey: nameof(CodeFixResources.CodeFix_NamedArgument)),
+                        createChangedDocument: c => AddNamedArgumentAsync(context.Document, diagnostic, c),
+                        equivalenceKey: CodeFixResources.CodeFix_NamedArgument),
                     diagnostic);
             }
         }
 
-        private async Task<Document> AddNamedArgumentAsync(Document document, Microsoft.CodeAnalysis.Text.TextSpan argumentSpan, CancellationToken cancellationToken)
+        private async Task<Document> AddNamedArgumentAsync(Document document, Diagnostic diagnostic, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (root == null) return document;
 
+            var argumentSpan = diagnostic.Location.SourceSpan;
             var node = root.FindNode(argumentSpan, getInnermostNodeForTie: true);
-            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(n => n is ArgumentSyntax or AttributeArgumentSyntax);
+            var argumentNode = node?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax or AttributeArgumentSyntax);
             if (argumentNode == null) return document;
 
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (semanticModel == null) return document;
 
             string? parameterName = null;
+            ExpressionSyntax? expression = null;
             if (argumentNode is ArgumentSyntax argument)
             {
                 var argOp = semanticModel.GetOperation(argument, cancellationToken) as IArgumentOperation;
                 parameterName = argOp?.Parameter?.Name;
+                expression = argument.Expression;
             }
             else if (argumentNode is AttributeArgumentSyntax attrArg)
             {
+                expression = attrArg.Expression;
                 if (attrArg.Parent is AttributeArgumentListSyntax argList && argList.Parent is AttributeSyntax attr)
                 {
-                    var symbolInfo = semanticModel.GetSymbolInfo(attr, cancellationToken);
-                    var symbol = symbolInfo.Symbol as IMethodSymbol;
+                    var symbol = semanticModel.GetSymbolInfo(attr, cancellationToken).Symbol as IMethodSymbol;
                     if (symbol != null)
                     {
                         int index = argList.Arguments.IndexOf(attrArg);
@@ -87,13 +89,16 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 }
             }
 
-            if (string.IsNullOrEmpty(parameterName)) return document;
+            if (parameterName is not { Length: > 0 } || parameterName == "<unknown>" || expression == null) return document;
+            var paramName = parameterName;
+
+            if (!SyntaxFacts.IsValidIdentifier(paramName)) return document;
 
             var firstToken = argumentNode.GetFirstToken();
             var leadingTrivia = firstToken.LeadingTrivia;
 
             var nameColon = SyntaxFactory.NameColon(
-                SyntaxFactory.IdentifierName(parameterName!),
+                SyntaxFactory.IdentifierName(paramName),
                 SyntaxFactory.Token(SyntaxKind.ColonToken).WithTrailingTrivia(SyntaxFactory.Space)
             ).WithLeadingTrivia(leadingTrivia);
 
@@ -101,12 +106,12 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             if (argumentNode is ArgumentSyntax arg)
             {
                 newNode = arg.WithNameColon(nameColon)
-                             .WithExpression(arg.Expression.WithLeadingTrivia(SyntaxTriviaList.Empty));
+                             .WithExpression(expression.WithLeadingTrivia(SyntaxTriviaList.Empty));
             }
             else if (argumentNode is AttributeArgumentSyntax aArg)
             {
                 newNode = aArg.WithNameColon(nameColon)
-                              .WithExpression(aArg.Expression.WithLeadingTrivia(SyntaxTriviaList.Empty));
+                              .WithExpression(expression.WithLeadingTrivia(SyntaxTriviaList.Empty));
             }
 
             if (newNode == null) return document;

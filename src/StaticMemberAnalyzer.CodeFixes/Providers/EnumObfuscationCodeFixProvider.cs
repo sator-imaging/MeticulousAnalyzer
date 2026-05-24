@@ -10,6 +10,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,43 +33,49 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
-            if (root == null)
-                return;
-            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            if (model == null)
-                return;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            if (root == null) return;
 
-            // TODO: Replace the following code with your own analysis, generating a CodeAction for each fix to suggest
-            // NOTE: this method is called when Alt+Enter is pressed on source code where diagnostic reported.
-            //       only need to provide codefix for first one.
-            var diagnostic = context.Diagnostics.First();
+            foreach (var diagnostic in context.Diagnostics)
+            {
+                var diagnosticSpan = diagnostic.Location.SourceSpan;
+                var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
+                var typeDecl = node?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
+                if (typeDecl == null)
+                    continue;
 
-            // Register a code action that will invoke the fix.
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: CodeFixResources.CodeFix_EnumObfuscation,
-                    createChangedDocument: token => ExcludeEnumFromObfuscation(diagnostic, context.Document, model, root, token),
-                    equivalenceKey: nameof(CodeFixResources.CodeFix_EnumObfuscation)),
-                diagnostic);
+                // Register a code action that will invoke the fix.
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: CodeFixResources.CodeFix_EnumObfuscation,
+                        createChangedDocument: token => ExcludeEnumFromObfuscation(diagnostic, context.Document, token),
+                        equivalenceKey: CodeFixResources.CodeFix_EnumObfuscation),
+                    diagnostic);
+            }
         }
 
 
-        readonly static string ATTR_OBFUSCATION_SHORT_NAME
-            = nameof(ObfuscationAttribute).Substring(startIndex: 0, (nameof(ObfuscationAttribute).Length - nameof(Attribute).Length));
+        const string ATTR_OBFUSCATION_SHORT_NAME = "Obfuscation";
 
         private async Task<Document> ExcludeEnumFromObfuscation(Diagnostic diagnostic,
                                                                 Document document,
-                                                                SemanticModel model,
-                                                                CompilationUnitSyntax root,
                                                                 CancellationToken token
             )
         {
+            var root = await document.GetSyntaxRootAsync(token).ConfigureAwait(continueOnCapturedContext: false) as CompilationUnitSyntax;
+            if (root == null)
+                return document;
+
+            var model = await document.GetSemanticModelAsync(token).ConfigureAwait(continueOnCapturedContext: false);
+            if (model == null)
+                return document;
+
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var typeDecl = root.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
-            if (typeDecl == null || !typeDecl.Span.IntersectsWith(diagnosticSpan))
+            var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
+            var typeDecl = node?.AncestorsAndSelf().OfType_FirstOrDefault<EnumDeclarationSyntax>();
+            if (typeDecl == null)
                 return document;
 
             // Get the symbol representing the type to be renamed.
@@ -94,14 +101,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             }
 
             var attr = typeSymbol.GetAttributes()
-                .FirstOrDefault(attr =>
+                .FirstOrDefault(static attr =>
                 {
-                    if (attr.AttributeClass?.Name == nameof(ObfuscationAttribute)
-                     && attr.AttributeClass.ToString() == NS_OBFUSCATION + "." + nameof(ObfuscationAttribute))
-                    {
-                        return true;
-                    }
-                    return false;
+                    return attr.AttributeClass?.Name == nameof(ObfuscationAttribute)
+                        && attr.AttributeClass.ToString() == NS_OBFUSCATION + "." + nameof(ObfuscationAttribute);
                 });
 
             if (attr == null)
@@ -140,61 +143,43 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             // update existing
             else
             {
-                var foundAttr = typeDecl.AttributeLists
-                    .SelectMany_FirstOrDefault(
-                        static x => x.Attributes,
-                        static x =>
-                        {
-                            var name = x.Name.ToString();
-                            if (name == ATTR_OBFUSCATION_SHORT_NAME
-                             || name.EndsWith(ATTR_OBFUSCATION_SHORT_NAME, StringComparison.Ordinal)
-                             || name == nameof(ObfuscationAttribute)
-                             || name.EndsWith(nameof(ObfuscationAttribute), StringComparison.Ordinal)
-                            )
-                            {
-                                return true;
-                            }
-                            return false;
-                        })
-                        ;
-
+                var foundAttr = attr.ApplicationSyntaxReference?.GetSyntax(token) as AttributeSyntax;
                 if (foundAttr == null)
                     return document;
 
                 // NOTE: to prevent error on no parentheses syntax --> `[Obfuscation]` (no '()' at end)
                 var updatedArgList = foundAttr.ArgumentList ?? SyntaxFactory.AttributeArgumentList();
-                var updatedArgs = updatedArgList.Arguments.Where(static x =>
-                {
-                    return x.NameEquals?.Name.ToString() is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers);
-                });
 
-                updatedArgs = updatedArgs.ToImmutableArray()
-                    //1st
-                    .Insert(index: 0, SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.NameEquals(
-                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
-                        ),
-                        nameColon: null,
-                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                    ))
-                    //2nd
-                    .Insert(index: 1, SyntaxFactory.AttributeArgument(
-                        SyntaxFactory.NameEquals(
-                            SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
-                        ),
-                        nameColon: null,
-                        SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                    ))
-                    ;
+                var builder = ImmutableArray.CreateBuilder<AttributeArgumentSyntax>();
+                builder.Add(SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals(
+                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
+                    ),
+                    nameColon: null,
+                    SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                ));
+                builder.Add(SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals(
+                        SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
+                    ),
+                    nameColon: null,
+                    SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                ));
+
+                foreach (var arg in updatedArgList.Arguments)
+                {
+                    var argName = arg.NameEquals?.Name.ToString();
+                    if (argName is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers))
+                    {
+                        builder.Add(arg);
+                    }
+                }
 
                 root = root.ReplaceNode(
-                    typeDecl,
-                    typeDecl.ReplaceNode(
-                        foundAttr,
-                        foundAttr.WithArgumentList(
-                            updatedArgList.WithArguments(
-                                SyntaxFactory.SeparatedList(updatedArgs)
-                            )
+                    foundAttr,
+                    foundAttr.WithArgumentList(
+                        updatedArgList.WithArguments(
+                            SyntaxFactory.SeparatedList(builder.ToImmutable())
                         )
                     )
                 );

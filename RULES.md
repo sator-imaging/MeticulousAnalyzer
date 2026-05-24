@@ -80,6 +80,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 |---------|--------------------------------------------|-------------
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 | SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
+| SMA8002 | Null suppression operation                 | Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Strongly recommended that safely suppressing it by adding `Debug.Assert({0} is not null);` without introducing runtime overhead in Release build.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description

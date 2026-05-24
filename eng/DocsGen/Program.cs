@@ -1,4 +1,4 @@
-﻿// Licensed under the MIT License
+// Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using System;
@@ -15,14 +15,12 @@ namespace DocsGen;
 internal class Program
 {
     const string HELP_USAGE = "USAGE: dotnet run -c Release  \"path/to/input.resx\"  \"path/to/output.md\"";
-    const string DEBUG_FILE_INPUT = "../StaticMemberAnalyzer.Analysis/Resources.resx";
-    const string DEBUG_FILE_OUTPUT = "./.__Test.md";
 
     const string SUFFIX_TITLE = "_Title";
     const string SUFFIX_DESCRIPTION = "_Description";
     const string SUFFIX_MD_TITLE = "__MD_TITLE__";
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         string? inputPath;
         string? outputPath;
@@ -34,12 +32,8 @@ internal class Program
         || !outputPath.EndsWith(value: ".md", StringComparison.OrdinalIgnoreCase)
         )
         {
-#if DEBUG == false
             Console.Error.WriteLine(HELP_USAGE + Environment.NewLine);
-            throw new ArgumentException(HELP_USAGE);
-#endif
-            inputPath = DEBUG_FILE_INPUT;
-            outputPath = DEBUG_FILE_OUTPUT;
+            return 1;
         }
 
         var analyzerInfo = new Dictionary<string, (string diagnosticId, string title, string description)>();
@@ -137,10 +131,35 @@ internal class Program
         if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
             Directory.CreateDirectory(dirPath);
 
+
+        // Reorder <data> tags
+        var rootElements = root.Elements().ToArray();
+        var dataTags = new List<XElement>(capacity: rootElements.Length);
+        foreach (var candidate in rootElements)
+        {
+            if (candidate.Name.LocalName is "data")
+            {
+                dataTags.Add(candidate);
+                candidate.Remove();
+            }
+        }
+        foreach (var dt in dataTags.OrderBy(x => x.Attribute(XName.Get("name"))?.Value))
+        {
+            root.Add(dt);
+        }
+
         File.WriteAllText(outputPath, sb.ToString(), Encoding.UTF8);
+        File.WriteAllText(inputPath,
+            $"""
+            <?xml version="1.0" encoding="utf-8"?>
+            {xdoc}
+            """.ReplaceLineEndings("\n"),
+            Encoding.UTF8);
 
         Console.WriteLine(sb.ToString());
         Console.WriteLine(value: "DONE");
+
+        return 0;
     }
 
 

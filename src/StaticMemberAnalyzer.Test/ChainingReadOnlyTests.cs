@@ -4,6 +4,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Linq;
 using System.Threading.Tasks;
@@ -372,7 +373,7 @@ namespace Test
             };
 
             test.TestState.AnalyzerConfigFiles.Add(
-                ("/.globalconfig", "is_global = true\ndotnet_analyzer_diagnostic.category-ImmutableVariable.severity = error"));
+                ("/.globalconfig", $"is_global = true\n{Core.Config_EnableImmutableVariable} = true"));
 
             test.SolutionTransforms.Add((solution, projectId) =>
             {

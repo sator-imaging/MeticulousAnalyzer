@@ -92,7 +92,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact_name }}
-        path: 'src/**/Release/*.nupkg'
+        path: |
+          src/**/Release/*.nupkg
+          src/**/*.Designer.cs
+          src/**/*.resx
 
     - name: git setup
       run: |
@@ -117,7 +120,7 @@ jobs:
         ##################
         # commit RULES.md
         #
-        dotnet run -c Release --project ./src/DocsGen \
+        dotnet run -c Release --project ./eng/DocsGen \
           "./src/StaticMemberAnalyzer.Analysis/Resources.resx" \
           "./${{ env.docsgen_file_name }}"
         git add ${{ env.docsgen_file_name }}
@@ -128,7 +131,9 @@ jobs:
         #
         # trailing slash is required to sync (copy) contents instead of directory
         rsync -avr --existing --checksum src/StaticMemberAnalyzer.Package/bin/Release/*/  ${{ env.unity_folder }}
-        git add --update --ignore-removal  ${{ env.unity_folder }}
+        git add --update --ignore-removal \
+          ${{ env.unity_folder }} \
+          ./src  # .resx and .Designer.cs
         git commit -m "[bot] Precompiled Assembly for Unity ${{ inputs.release_ver }}" || true
 
         ### try push and create PR if any changes otherwise exit successfully

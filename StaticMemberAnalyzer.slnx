@@ -3,6 +3,7 @@
     <File Path="src/AssemblyInfo.cs" />
     <File Path="src/Directory.Build.props" />
   </Folder>
+  <Project Path="eng/DocsGen/DocsGen.csproj" />
   <Project Path="src/StaticMemberAnalyzer.Analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
   <Project Path="src/StaticMemberAnalyzer.CodeFixes/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
   <Project Path="src/StaticMemberAnalyzer.Package/SatorImaging.StaticMemberAnalyzer.Package.csproj" />

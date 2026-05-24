@@ -5,6 +5,8 @@ obj
 
 !.github
 !assets
+!debug
+!eng
 !src
 !Unity
 
@@ -14,6 +16,7 @@ obj
 !*.slnx
 
 *.md
+!CHANGELOG.md
 !README*.md
 !LICENSE.md
 !RULES.md
