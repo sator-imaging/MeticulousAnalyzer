@@ -22,10 +22,10 @@ on:
       auto-bump:
         type: boolean
         default: false
-        required: false
+        description: |
+          Auto Bump & CHANGELOG: Create draft release before proceeding
       auto-bump-args:
         type: string
-        required: false
         # DEBUG
         description: '**DEBUG**: NOT WORKING'
         default: csproj=GlobalPackageVersion
@@ -34,10 +34,8 @@ on:
       auto-bump:
         type: boolean
         default: false
-        required: false  # False for backward compatibility
       auto-bump-args:
         type: string
-        required: false  # False for backward compatibility
         description: |
 
           Auto bump PR
@@ -52,20 +50,21 @@ on:
             --> NOTE: This is a naive string replacement (not XML-aware, not schema-aware).
                 Carefully review PR.
 
+      # Backward compatibility
+      auto-bump-version:
+        type: string
+
 jobs:
   main:
     uses: sator-imaging/.github/.github/workflows/Auto-dot-github.yml@main
-    with:
-
-
-      # See above
-      auto-bump-args: $$$  ### <-- UPDATE HERE #######
-
-
-      auto-bump: ${{ inputs.auto-bump }}
     secrets: inherit
     permissions:
       pull-requests: write
       contents: write  # Sync .github | Auto bump
       issues: write    # PR labeler
+    with:
+      auto-bump: ${{ inputs.auto-bump || false }}
+
+      # See above
+      auto-bump-args: $$$  ### <-- UPDATE HERE #######
 ```
