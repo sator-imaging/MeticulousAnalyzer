@@ -67,8 +67,8 @@
 		<StartArguments>/rootsuffix $(VSSDKTargetPlatformRegRootSuffix)</StartArguments>
 		<PackageLicenseExpression>$(GlobalPackageLicenseSPDX)</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<AssemblyVersion>$(GlobalPackageVersion)</AssemblyVersion>
-		<FileVersion>$(GlobalPackageVersion)</FileVersion>
+		<AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
+		<FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
 		<RepositoryUrl>$(GlobalPackageRepository)</RepositoryUrl>
 		<PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
 		<Copyright>$(GlobalPackageCopyright)</Copyright>

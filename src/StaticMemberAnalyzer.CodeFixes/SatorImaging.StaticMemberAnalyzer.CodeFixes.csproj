@@ -14,8 +14,8 @@
     <Copyright>$(GlobalPackageCopyright)</Copyright>
     <PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
     <RepositoryUrl>$(GlobalPackageRepository)</RepositoryUrl>
-    <AssemblyVersion>$(GlobalPackageVersion)</AssemblyVersion>
-    <FileVersion>$(GlobalPackageVersion)</FileVersion>
+    <AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
+    <FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

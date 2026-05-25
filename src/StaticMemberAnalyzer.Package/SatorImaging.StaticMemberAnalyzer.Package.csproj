@@ -9,7 +9,7 @@
 
 	<PropertyGroup>
 		<PackageId>$(GlobalPackageID)</PackageId>
-		<PackageVersion>$(GlobalPackageVersion)$(GlobalPackageVersionSuffix)</PackageVersion>
+		<PackageVersion>$(GlobalPackageVersion)</PackageVersion>
 		<Authors>$(GlobalPackageOwner)</Authors>
 		<!--<PackageLicenseUrl>$(GlobalPackageLicenseUrl)</PackageLicenseUrl>-->
 		<PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
@@ -33,7 +33,7 @@
 
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 
-		<Version>$(GlobalPackageVersion)$(GlobalPackageVersionSuffix)</Version>
+		<Version>$(GlobalPackageVersion)</Version>
 
 		<Company>$(GlobalPackageCompany)</Company>
 
@@ -43,9 +43,9 @@
 
 		<PackageIcon>icon-128px.png</PackageIcon>
 
-		<AssemblyVersion>$(GlobalPackageVersion)</AssemblyVersion>
+		<AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
 
-		<FileVersion>$(GlobalPackageVersion)</FileVersion>
+		<FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
