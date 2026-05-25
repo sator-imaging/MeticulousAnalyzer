@@ -82,9 +82,9 @@ namespace Test_{0}
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 2));
             }
 
-            // FixAllProvider test cannot be done with current Roslyn version (3.8.0).
-            //   e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
-            // It's available in Roslyn version (4.4.0 or later).
+            // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
+            //         e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
+            //       It's available in Roslyn version (4.4.0 or later).
             // test.FixAllScope = FixAllScope.Solution;
             await test.RunAsync();
         }

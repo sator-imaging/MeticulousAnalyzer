@@ -89,9 +89,9 @@ namespace Test_{0}
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(NullSuppressionAnalyzer.RuleId_NullSuppression).WithLocation(markupKey: i * 3 + 2).WithArguments("f"));
             }
 
-            // FixAllProvider test cannot be done with current Roslyn version (3.8.0).
-            //   e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
-            // It's available in Roslyn version (4.4.0 or later).
+            // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
+            //         e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
+            //       It's available in Roslyn version (4.4.0 or later).
             // test.FixAllScope = FixAllScope.Solution;
             await test.RunAsync();
         }
