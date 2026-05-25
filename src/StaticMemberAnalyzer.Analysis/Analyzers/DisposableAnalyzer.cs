@@ -352,15 +352,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 return false;
             }
-
 #endif
-
-            // IEnumerator implements IDisposable...!!
-            if (disposableSymbol.Name.EndsWith("Enumerator"))
-            {
-                return false;
-            }
-
             // Task implements IDisposable...!!
             if (disposableSymbol.Name is nameof(Task) &&
                 disposableSymbol.ContainingNamespace is INamespaceSymbol
