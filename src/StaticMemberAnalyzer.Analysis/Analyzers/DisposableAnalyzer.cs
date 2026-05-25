@@ -353,6 +353,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return false;
             }
 #endif
+
             // Task implements IDisposable...!!
             if (disposableSymbol.Name is nameof(Task) &&
                 disposableSymbol.ContainingNamespace is INamespaceSymbol
