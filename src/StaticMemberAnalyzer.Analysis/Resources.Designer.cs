@@ -875,6 +875,33 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
+        ///   Unsafe conversion from/to disposable type. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0046_Description {
+            get {
+                return ResourceManager.GetString("SMA0046_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Unsafe conversion from/to disposable type &apos;{0}&apos; (UnsafeConversion) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0046_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0046_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Unsafe Disposable Conversion に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0046_Title {
+            get {
+                return ResourceManager.GetString("SMA0046_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   File Structure Analysis に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0050__MD_TITLE__ {

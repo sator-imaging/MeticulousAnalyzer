@@ -55,6 +55,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0042_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_UnsafeConversion = "SMA0046";
+        private static readonly DiagnosticDescriptor Rule_UnsafeConversion = new(
+            RuleId_UnsafeConversion,
+            new LocalizableResourceString(nameof(Resources.SMA0046_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0046_Description), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
 
@@ -65,7 +75,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 #endif
             Rule_MissingUsing,
             Rule_NullAssignment,
-            Rule_NotAllCodePathsReturn
+            Rule_NotAllCodePathsReturn,
+            Rule_UnsafeConversion
             );
 
 
@@ -522,7 +533,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                             and not IIsPatternOperation)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_MissingUsing, focusedOp.Syntax.GetLocation(), focusedSymbol.Name));
+                                Rule_UnsafeConversion, focusedOp.Syntax.GetLocation(), focusedSymbol.Name));
 
                             return;
                         }
@@ -834,8 +845,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
             // !! REPORT !!
+            var rule = operation is IConversionOperation ? Rule_UnsafeConversion : Rule_MissingUsing;
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
+                rule, syntax.GetLocation(), disposableSymbol.Name));
 
             return;
 

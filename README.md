@@ -314,7 +314,7 @@ var d = new Disposable();
 //      ~~~~~~~~~~~~~~~~ no `using` statement found
 
 d = (new object()) as IDisposable;
-//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ cast from/to disposable
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Unsafe conversion from/to disposable type
 ```
 
 

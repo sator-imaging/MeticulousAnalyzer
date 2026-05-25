@@ -532,7 +532,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_UnsafeConversion)
                 .WithLocation(markupKey: 0)
                 .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);

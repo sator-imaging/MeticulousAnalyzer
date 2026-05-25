@@ -314,7 +314,7 @@ var d = new Disposable();
 //      ~~~~~~~~~~~~~~~~ using 文が見つからない
 
 d = (new object()) as IDisposable;
-//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Disposable 型への/からのキャスト
+//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 不安全な Disposable への/からの変換
 ```
 
 
