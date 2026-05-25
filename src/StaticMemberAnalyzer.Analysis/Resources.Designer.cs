@@ -884,7 +884,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Untracked conversion from/to disposable type &apos;{0}&apos; (UnsafeConversion) に類似しているローカライズされた文字列を検索します。
+        ///   Untracked disposable type conversion from &apos;{0}&apos; to &apos;{1}&apos; (UntrackedConversion) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0046_MessageFormat {
             get {

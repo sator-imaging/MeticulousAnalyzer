@@ -141,7 +141,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_UntrackedConversion)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("Object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -165,7 +165,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_UntrackedConversion)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("Object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -236,7 +236,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_UntrackedConversion)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable");
+                .WithArguments("Object", "IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

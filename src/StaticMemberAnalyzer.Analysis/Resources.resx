@@ -461,7 +461,7 @@
     <value>Untracked conversion from/to disposable type.</value>
   </data>
   <data name="SMA0046_MessageFormat" xml:space="preserve">
-    <value>Untracked conversion from/to disposable type '{0}' (UnsafeConversion)</value>
+    <value>Untracked disposable type conversion from '{0}' to '{1}' (UntrackedConversion)</value>
   </data>
   <data name="SMA0060__MD_TITLE__" xml:space="preserve">
     <value>Read-Only Variable Analysis</value>

@@ -533,7 +533,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                             and not IIsPatternOperation)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_UntrackedConversion, focusedOp.Syntax.GetLocation(), focusedSymbol.Name));
+                                Rule_MissingUsing, focusedOp.Syntax.GetLocation(), focusedSymbol.Name));
 
                             return;
                         }
@@ -845,9 +845,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
             // !! REPORT !!
-            var rule = operation is IConversionOperation ? Rule_UntrackedConversion : Rule_MissingUsing;
-            context.ReportDiagnostic(Diagnostic.Create(
-                rule, syntax.GetLocation(), disposableSymbol.Name));
+            if (operation is IConversionOperation conversion)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_UntrackedConversion, syntax.GetLocation(), conversion.Operand.Type?.Name, disposableSymbol.Name));
+            }
+            else
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
+            }
 
             return;
 
