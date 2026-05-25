@@ -74,8 +74,6 @@ namespace Test_{0}
                 NumberOfIncrementalIterations = 9,
             };
 
-            test.FixAllScope = FixAllScope.Solution;
-
             for (int i = 0; i < 3; i++)
             {
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 0).WithArguments(string.Format("E_{0}_0", i)));

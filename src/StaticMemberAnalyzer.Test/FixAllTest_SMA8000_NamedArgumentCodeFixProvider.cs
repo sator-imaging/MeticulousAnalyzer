@@ -70,8 +70,6 @@ namespace Test_{0}
                 NumberOfIncrementalIterations = 9,
             };
 
-            test.FixAllScope = FixAllScope.Solution;
-
             for (int i = 0; i < 3; i++)
             {
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: i * 3 + 0).WithArguments("a"));
