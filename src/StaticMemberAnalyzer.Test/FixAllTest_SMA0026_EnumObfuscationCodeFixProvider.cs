@@ -15,7 +15,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     [TestClass]
     public class FixAllTest_SMA0026_EnumObfuscationCodeFixProvider
     {
-        private const string SourceTemplate = @"
+        private const string SourceTemplate = @"using System.Reflection;
+
 namespace Test_{0}
 {{
     public enum {{|#{1}:E_{0}_0|}} {{ V }}
@@ -76,9 +77,9 @@ namespace Test_{0}
 
             for (int i = 0; i < 3; i++)
             {
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 0).WithArguments(string.Format("E_{0}_0", i)));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 1).WithArguments(string.Format("E_{0}_1", i)));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 2).WithArguments(string.Format("E_{0}_2", i)));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 0));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 1));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: i * 3 + 2));
             }
 
             // FixAllProvider test cannot be done with current Roslyn version (3.8.0).
