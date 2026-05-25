@@ -49,7 +49,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0043 | Undisposed Member                          | All disposable fields must be disposed in the Dispose method.
 | SMA0044 | Missing Dispose Implementation             | Types that own disposable fields should implement the IDisposable pattern.
 | SMA0045 | Missing IDisposable Interface              | Types that own disposable fields should implement IDisposable interface.
-| SMA0046 | Unsafe Disposable Conversion               | Unsafe conversion from/to disposable type.
+| SMA0046 | Untracked Disposable Conversion            | Untracked conversion from/to disposable type.
 
 ## File Structure Analysis
 | ID      | Diagnostic                                 | Description

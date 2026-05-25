@@ -875,7 +875,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Unsafe conversion from/to disposable type. に類似しているローカライズされた文字列を検索します。
+        ///   Untracked conversion from/to disposable type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0046_Description {
             get {
@@ -884,7 +884,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Unsafe conversion from/to disposable type &apos;{0}&apos; (UnsafeConversion) に類似しているローカライズされた文字列を検索します。
+        ///   Untracked conversion from/to disposable type &apos;{0}&apos; (UnsafeConversion) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0046_MessageFormat {
             get {
@@ -893,7 +893,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Unsafe Disposable Conversion に類似しているローカライズされた文字列を検索します。
+        ///   Untracked Disposable Conversion に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0046_Title {
             get {
