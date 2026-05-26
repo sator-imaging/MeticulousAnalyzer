@@ -110,6 +110,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     : lambda.GetLocation();
 
                 context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, location));
+            }
         }
 
         private static void AnalyzeImplicitConversion(OperationAnalysisContext context)
