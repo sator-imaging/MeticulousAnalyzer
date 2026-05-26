@@ -315,8 +315,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             SyntaxTrivia comment = default;
 
             if (node is LocalDeclarationStatementSyntax
-                     // Allow "Don't dispose" on field declaration
+                     // Allow suppression comment "Don't dispose" on field declaration
                      or FieldDeclarationSyntax
+                     // Allow suppression comment "Allow allocation" on lambda declaration
+                     or LambdaExpressionSyntax
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {

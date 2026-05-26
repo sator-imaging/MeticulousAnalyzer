@@ -562,6 +562,36 @@
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Async Context Analysis</value>
   </data>
+  <data name="SMA7000_Title" xml:space="preserve">
+    <value>Lambda can be static</value>
+  </data>
+  <data name="SMA7000_MessageFormat" xml:space="preserve">
+    <value>Lambda declaration can be 'static'</value>
+  </data>
+  <data name="SMA7000_Description" xml:space="preserve">
+    <value>Lambda declaration should add 'static' keyword for clarity.</value>
+  </data>
+  <data name="SMA7001_Title" xml:space="preserve">
+    <value>Inefficient delegate declaration</value>
+  </data>
+  <data name="SMA7001_MessageFormat" xml:space="preserve">
+    <value>Implicit conversion to '{0}' delegate</value>
+  </data>
+  <data name="SMA7001_Description" xml:space="preserve">
+    <value>Older runtime inefficiently handle direct passing of method.</value>
+  </data>
+  <data name="SMA7002_Title" xml:space="preserve">
+    <value>Lambda allocation</value>
+  </data>
+  <data name="SMA7002_MessageFormat" xml:space="preserve">
+    <value>Non-static lambda declaration and implicit conversion causes allocation</value>
+  </data>
+  <data name="SMA7002_Description" xml:space="preserve">
+    <value>Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation".</value>
+  </data>
+  <data name="SMA7000__MD_TITLE__" xml:space="preserve">
+    <value>Coding Assistance</value>
+  </data>
   <data name="SMA8001_Title" xml:space="preserve">
     <value>Explicit number declaration</value>
   </data>

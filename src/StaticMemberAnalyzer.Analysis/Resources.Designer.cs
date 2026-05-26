@@ -1378,6 +1378,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
+        ///   Coding Assistance に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000__MD_TITLE__ {
+            get {
+                return ResourceManager.GetString("SMA7000__MD_TITLE__", resourceCulture);
+            }
+        }
+
         ///   All system primitive numbers, from byte to decimal, should be declared explicitly typed. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA8001_Description {
@@ -1387,6 +1395,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
+        ///   Lambda declaration should be static to avoid unnecessary allocations. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000_Description {
+            get {
+                return ResourceManager.GetString("SMA7000_Description", resourceCulture);
+            }
+        }
+
         ///   Variable &apos;{0}&apos; should be declared with an explicit number type instead of &apos;var&apos; (ExplicitNumber) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA8001_MessageFormat {
@@ -1396,6 +1412,77 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
+        ///   Lambda declaration is not &apos;static&apos; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7000_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Lambda should be static に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7000_Title {
+            get {
+                return ResourceManager.GetString("SMA7000_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit conversion to Action or Func delegate from instance member causes allocation. Use lambda or static member instead. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7001_Description {
+            get {
+                return ResourceManager.GetString("SMA7001_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit conversion to &apos;{0}&apos; delegate に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7001_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7001_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Implicit conversion to delegate に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7001_Title {
+            get {
+                return ResourceManager.GetString("SMA7001_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation". に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7002_Description {
+            get {
+                return ResourceManager.GetString("SMA7002_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Non-static lambda declaration and implicit conversion causes allocation に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7002_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7002_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Lambda allocation に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA7002_Title {
+            get {
+                return ResourceManager.GetString("SMA7002_Title", resourceCulture);
+            }
+        }
+
         ///   Explicit number declaration に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA8001_Title {
