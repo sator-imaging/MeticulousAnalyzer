@@ -134,16 +134,16 @@ namespace Test
 {
     class Program
     {
-        void Method(object foo, bool isEmpty)
+        void Method(IDisposable foo, bool isEmpty)
         {
-            var d = {|#0:isEmpty ? null : foo as IDisposable|};
+            var d = isEmpty ? null : {|#0:foo as object|};
         }
     }
 }
 ";
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_UntrackedConversion)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Object", "IDisposable");
+                .WithArguments("IDisposable", "Object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
