@@ -580,4 +580,13 @@
   <data name="SMA8002_Description" xml:space="preserve">
     <value>Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Strongly recommended that safely suppressing it by using `Debug.Assert({0} is not null);` instead of `!` operator.</value>
   </data>
+  <data name="SMA0046_Title" xml:space="preserve">
+    <value>Untracked Disposable Conversion</value>
+  </data>
+  <data name="SMA0046_MessageFormat" xml:space="preserve">
+    <value>Untracked conversion from '{0}' to '{1}' (UntrackedConversion)</value>
+  </data>
+  <data name="SMA0046_Description" xml:space="preserve">
+    <value>IDisposable should not be cast from/to non-IDisposable.</value>
+  </data>
 </root>

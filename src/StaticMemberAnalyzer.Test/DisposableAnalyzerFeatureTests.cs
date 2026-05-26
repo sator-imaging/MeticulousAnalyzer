@@ -515,7 +515,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_CastAs_NotSuppressed()
+        public async Task SMA0046_CastAs_NotSuppressed()
         {
             var test = @"
 using System;
@@ -532,9 +532,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_UntrackedConversion)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable");
+                .WithArguments("Object", "IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

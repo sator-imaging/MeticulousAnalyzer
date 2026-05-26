@@ -1430,5 +1430,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA8002_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   IDisposable should not be cast from/to non-IDisposable. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0046_Description {
+            get {
+                return ResourceManager.GetString("SMA0046_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Untracked conversion from &apos;{0}&apos; to &apos;{1}&apos; (UntrackedConversion) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0046_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0046_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Untracked Disposable Conversion に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SMA0046_Title {
+            get {
+                return ResourceManager.GetString("SMA0046_Title", resourceCulture);
+            }
+        }
     }
 }
