@@ -462,7 +462,7 @@ public class C
     void M()
     {
         int x = 0;
-        Action a = {|#0:()|} => { x++; };
+        Action a = {|#0:() =>|} { x++; };
     }
 }
 ";
@@ -480,8 +480,8 @@ public class C
     void M()
     {
         int x = 0;
-        Action<int> a = {|#0:y|} => { x++; };
-        Action<int, int> b = {|#1:(y, z)|} => { x++; };
+        Action<int> a = {|#0:y =>|} { x++; };
+        Action<int, int> b = {|#1:(y, z) =>|} { x++; };
     }
 }
 ";

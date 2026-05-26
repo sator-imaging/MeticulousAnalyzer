@@ -82,12 +82,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else
             {
-                var parent = anonFunc.Parent;
-                if ((parent is IConversionOperation { IsImplicit: true } conversion && IsActionOrFunc(conversion.Type)) ||
-                    (parent is IDelegateCreationOperation { IsImplicit: true } delegateCreation && IsActionOrFunc(delegateCreation.Type)))
+                var op = UnwrapConversion(anonFunc);
+
+                // NOTE: For lambda, additionally allow placing comment on declaration.
+                //       --> DoSomething(
+                //               // Allow allocation
+                //               () => { },
+                //               // Allow allocation
+                //               (x) => x * x
+                //           );
+                if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment) ||
+                    // Also check variable declaration.
+                    Core.IsSuppressedByComment(op.Parent, SuppressionComment))
                 {
-                    ReportSMA7002(context, lambda, parent);
+                    return;
                 }
+
+                // NOTE: To support both SimpleLambdaExpressionSyntax and ParenthesizedLambdaExpressionSyntax.
+                //       --> ([optional args...]) => { }
+                //           ~~~~~~~~~~~~~~~~~~~~~~~
+                //           ^ lambda start        ^ arrow end
+                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation,
+                    Location.Create(lambda.SyntaxTree, new(lambda.SpanStart, lambda.ArrowToken.Span.End - lambda.SpanStart))));
             }
         }
 
@@ -127,30 +143,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
-        }
-
-        private static void ReportSMA7002(OperationAnalysisContext context, LambdaExpressionSyntax lambda, IOperation parent)
-        {
-            if (Core.IsSuppressedByComment(lambda, SuppressionComment) || Core.IsSuppressedByComment(parent, SuppressionComment))
-            {
-                return;
-            }
-
-            Location location;
-            if (lambda is SimpleLambdaExpressionSyntax simple)
-            {
-                location = simple.Parameter.GetLocation();
-            }
-            else if (lambda is ParenthesizedLambdaExpressionSyntax parenthesized)
-            {
-                location = parenthesized.ParameterList.GetLocation();
-            }
-            else
-            {
-                location = lambda.GetLocation();
-            }
-
-            context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, location));
         }
 
         private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
@@ -201,8 +193,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return type?.Name is "Action" or "Func"
                 && type.ContainingNamespace is INamespaceSymbol
                 {
-                    Name: "System",
-                    ContainingNamespace: INamespaceSymbol
+                    Name: "System", ContainingNamespace: INamespaceSymbol
                     {
                         IsGlobalNamespace: true,
                     }
