@@ -1,12 +1,11 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path="src/AssemblyInfo.cs" />
-    <File Path="src/Directory.Build.props" />
+    <File Path="./src/AssemblyInfo.cs" />
   </Folder>
-  <Project Path="eng/DocsGen/DocsGen.csproj" />
-  <Project Path="src/StaticMemberAnalyzer.Analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
-  <Project Path="src/StaticMemberAnalyzer.CodeFixes/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
-  <Project Path="src/StaticMemberAnalyzer.Package/SatorImaging.StaticMemberAnalyzer.Package.csproj" />
-  <Project Path="src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj" />
-  <Project Path="src/StaticMemberAnalyzer.Vsix/SatorImaging.StaticMemberAnalyzer.Vsix.csproj" />
+  <Project Path="./eng/DocsGen/DocsGen.csproj" />
+  <Project Path="./src/StaticMemberAnalyzer.Analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+  <Project Path="./src/StaticMemberAnalyzer.CodeFixes/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
+  <Project Path="./src/StaticMemberAnalyzer.Package/SatorImaging.StaticMemberAnalyzer.Package.csproj" />
+  <Project Path="./src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj" />
+  <Project Path="./src/StaticMemberAnalyzer.Vsix/SatorImaging.StaticMemberAnalyzer.Vsix.csproj" />
 </Solution>

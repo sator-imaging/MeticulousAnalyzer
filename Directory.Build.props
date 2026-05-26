@@ -7,13 +7,13 @@
   -->
 
   <!-- CMD: dotnet restore -p:DontReferenceItself=true  other-options... -->
-  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true' AND '$(MSBuildProjectFile)' != 'AnalyzerDebug.csproj' ">
-
+  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true'
+                     AND '$(MSBuildProjectFile)' != 'AnalyzerDebug.csproj'
+  ">
     <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-
   </ItemGroup>
 
   <Target Name="GetVsixVersion" Outputs="$(GlobalPackageVersion)" />
