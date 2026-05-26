@@ -68,4 +68,3 @@ jobs:
       # See above
       auto-bump-args: ${{}}  ### <-- UPDATE HERE #######
 ```
-test
