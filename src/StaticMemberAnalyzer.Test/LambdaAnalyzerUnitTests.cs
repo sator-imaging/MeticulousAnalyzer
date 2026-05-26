@@ -215,7 +215,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestNonActionFuncDelegateConversionNotReported()
+        public async Task TestNonActionFuncDelegateConversionReported()
         {
             var test = @"
 using System;
@@ -225,7 +225,28 @@ public class C
     void InstanceMethod() { }
     void M()
     {
-        MyDelegate d = InstanceMethod;
+        MyDelegate d = {|#0:InstanceMethod|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDelegate");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task TestNonActionFuncStaticMethodConversionNotReported()
+        {
+            var test = @"
+using System;
+public delegate void MyDelegate();
+public class C
+{
+    static void StaticMethod() { }
+    void M()
+    {
+        MyDelegate d = StaticMethod;
     }
 }
 ";
