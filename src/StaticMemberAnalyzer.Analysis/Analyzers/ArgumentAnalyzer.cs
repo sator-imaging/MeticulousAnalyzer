@@ -249,13 +249,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsKnownAssertionMethod(IInvocationOperation invocation)
         {
-            return invocation.TargetMethod.ContainingType.Name is "Must" or "Assert" or "Debug";
+            return invocation.TargetMethod.ContainingType.Name is "Must" or "Assert" or "Debug"
+                || invocation.TargetMethod.ContainingType.Name is "Mathf"; // Mathf: wierd but for Unity engine.
         }
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
         {
-            // String, System.Text and System.IO methods and constructors are intentionally allowed.
+            // String, System.Math, System.Text and System.IO methods and constructors are intentionally allowed.
             return typeSymbol.SpecialType is SpecialType.System_String
+                || (typeSymbol.Name is "Math" && typeSymbol.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "System", ContainingNamespace: INamespaceSymbol
+                    {
+                        IsGlobalNamespace: true,
+                    }
+                })
                 || typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
                     Name: "Text" or "IO", ContainingNamespace: INamespaceSymbol
