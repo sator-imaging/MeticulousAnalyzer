@@ -85,25 +85,31 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var parameters = method.Parameters.Select(p =>
             {
                 var name = p.Name;
-                if (SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None)
-                {
-                    name = "@" + name;
-                }
-                return SyntaxFactory.Parameter(SyntaxFactory.Identifier(name));
+                var kind = SyntaxFacts.GetKeywordKind(name);
+                var token = kind == SyntaxKind.None
+                    ? SyntaxFactory.Identifier(name)
+                    : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
+
+                return SyntaxFactory.Parameter(token);
             }).ToArray();
 
             var arguments = method.Parameters.Select(p =>
             {
                 var name = p.Name;
-                if (SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None)
-                {
-                    name = "@" + name;
-                }
-                return SyntaxFactory.Argument(SyntaxFactory.IdentifierName(name));
+                var kind = SyntaxFacts.GetKeywordKind(name);
+                var token = kind == SyntaxKind.None
+                    ? SyntaxFactory.Identifier(name)
+                    : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
+
+                return SyntaxFactory.Argument(SyntaxFactory.IdentifierName(token));
             }).ToArray();
 
             var lambdaParameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
-            var methodAccess = node is ExpressionSyntax expr ? expr : SyntaxFactory.IdentifierName(method.Name);
+
+            var methodAccess = (node is ExpressionSyntax expr ? expr : SyntaxFactory.IdentifierName(method.Name))
+                .WithLeadingTrivia(SyntaxTriviaList.Empty)
+                .WithTrailingTrivia(SyntaxTriviaList.Empty);
+
             var invocation = SyntaxFactory.InvocationExpression(methodAccess, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
 
             var staticLambda = SyntaxFactory.ParenthesizedLambdaExpression(
