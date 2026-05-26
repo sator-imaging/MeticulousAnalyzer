@@ -148,7 +148,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)
         {
             var flow = semanticModel.AnalyzeDataFlow(lambda.Body);
-            return !flow.CapturedInside.Any();
+            return flow != null && !flow.CapturedInside.Any();
         }
 
         private static IOperation UnwrapConversion(IOperation operation)
