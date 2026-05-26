@@ -102,9 +102,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 //       --> ([optional args...]) => { }
                 //           ~~~~~~~~~~~~~~~~~~~~~~~
                 //           ^ lambda start        ^ arrow end
-                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation,
-                    Location.Create(lambda.SyntaxTree, new(lambda.SpanStart, lambda.ArrowToken.Span.End - lambda.SpanStart))));
-            }
+                var start = lambda.SpanStart;
+                var end = lambda.ArrowToken.Span.End;
+                var length = end - start;
+                var location = length > 0
+                    ? Location.Create(lambda.SyntaxTree, new(start, length))
+                    : lambda.GetLocation();
+
+                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaAllocation, location));
         }
 
         private static void AnalyzeImplicitConversion(OperationAnalysisContext context)
