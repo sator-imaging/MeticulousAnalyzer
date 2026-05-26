@@ -82,8 +82,25 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         private async Task<Document> WrapWithStaticLambdaAsync(Document document, SyntaxNode node, IMethodSymbol method, CancellationToken cancellationToken)
         {
-            var parameters = method.Parameters.Select(p => SyntaxFactory.Parameter(SyntaxFactory.Identifier(p.Name))).ToArray();
-            var arguments = method.Parameters.Select(p => SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Name))).ToArray();
+            var parameters = method.Parameters.Select(p =>
+            {
+                var name = p.Name;
+                if (SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None)
+                {
+                    name = "@" + name;
+                }
+                return SyntaxFactory.Parameter(SyntaxFactory.Identifier(name));
+            }).ToArray();
+
+            var arguments = method.Parameters.Select(p =>
+            {
+                var name = p.Name;
+                if (SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None)
+                {
+                    name = "@" + name;
+                }
+                return SyntaxFactory.Argument(SyntaxFactory.IdentifierName(name));
+            }).ToArray();
 
             var lambdaParameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
             var methodAccess = node is ExpressionSyntax expr ? expr : SyntaxFactory.IdentifierName(method.Name);
@@ -95,7 +112,8 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 SyntaxFactory.Token(SyntaxKind.EqualsGreaterThanToken),
                 block: null,
                 invocation
-            );
+            ).WithLeadingTrivia(node.GetLeadingTrivia())
+             .WithTrailingTrivia(node.GetTrailingTrivia());
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             var newRoot = root!.ReplaceNode(node, staticLambda);
@@ -104,25 +122,29 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
         private async Task<Document> AddStaticModifierAsync(Document document, LambdaExpressionSyntax lambda, CancellationToken cancellationToken)
         {
-            SyntaxTokenList newModifiers;
-            if (lambda is SimpleLambdaExpressionSyntax simple)
+            var leadingTrivia = lambda.GetLeadingTrivia();
+            var lambdaWithoutLeading = lambda.WithLeadingTrivia(SyntaxTriviaList.Empty);
+
+            LambdaExpressionSyntax newLambda;
+            if (lambdaWithoutLeading is SimpleLambdaExpressionSyntax simple)
             {
-                newModifiers = simple.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
-                var newLambda = simple.WithModifiers(newModifiers);
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                var newRoot = root!.ReplaceNode(simple, newLambda);
-                return document.WithSyntaxRoot(newRoot);
+                var newModifiers = simple.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
+                newLambda = simple.WithModifiers(newModifiers);
             }
-            else if (lambda is ParenthesizedLambdaExpressionSyntax parenthesized)
+            else if (lambdaWithoutLeading is ParenthesizedLambdaExpressionSyntax parenthesized)
             {
-                newModifiers = parenthesized.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
-                var newLambda = parenthesized.WithModifiers(newModifiers);
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                var newRoot = root!.ReplaceNode(parenthesized, newLambda);
-                return document.WithSyntaxRoot(newRoot);
+                var newModifiers = parenthesized.Modifiers.Insert(0, SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Space));
+                newLambda = parenthesized.WithModifiers(newModifiers);
+            }
+            else
+            {
+                return document;
             }
 
-            return document;
+            newLambda = newLambda.WithLeadingTrivia(leadingTrivia);
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            var newRoot = root!.ReplaceNode(lambda, newLambda);
+            return document.WithSyntaxRoot(newRoot);
         }
     }
 }
