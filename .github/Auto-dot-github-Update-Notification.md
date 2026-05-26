@@ -66,5 +66,5 @@ jobs:
       auto-bump: ${{ inputs.auto-bump || false }}
 
       # See above
-      auto-bump-args: $$$  ### <-- UPDATE HERE #######
+      auto-bump-args: ${{}}  ### <-- UPDATE HERE #######
 ```
