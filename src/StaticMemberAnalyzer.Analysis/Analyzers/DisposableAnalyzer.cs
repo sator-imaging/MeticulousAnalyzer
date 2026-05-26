@@ -511,6 +511,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // NOTE: Unpack conversion operation.
             //       --> Method(new Disposable())
             //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
+            bool isUntrackedCast = false;
             {
                 if (focusedOp is IConversionOperation castOp)
                 {
@@ -521,16 +522,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (focusedOp.Parent is not IBinaryOperation
                                             and not IIsPatternOperation)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_MissingUsing, focusedOp.Syntax.GetLocation(), focusedSymbol.Name));
-
-                            return;
+                            // NOTE: Don't exit here.
+                            //       Need to check parent operation for:
+                            //       - using var ...
+                            //       - foreach (var item in ...
+                            isUntrackedCast = true;
                         }
                     }
                 }
             }
 
-            // Unwrap ternary operator.
+            // Move to ternary operator.
             if (focusedOp.Parent is IConditionalOperation)
             {
                 focusedOp = focusedOp.Parent;
@@ -546,12 +548,40 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // --> using var x = new...
             // --> foreach (var foo in some.MethodOrPropertyReturnsDisposable())
             {
-                if (focusedOp.Parent is IUsingOperation
-                                     or IUsingDeclarationOperation
-                                     or IForEachLoopOperation)
+                // Unwrap only once.
+                var parentOp = focusedOp.Parent;
+                if (parentOp is IConversionOperation castOp)
+                {
+                    parentOp = castOp.Parent;
+                }
+
+                if (parentOp is IUsingOperation
+                             or IUsingDeclarationOperation
+                             or IForEachLoopOperation
+                    // Arrow return
+                    // --> Foo() => disposable;
+                    // --> Foo() => bar.MethodReturnsDisposable();
+                    || (
+                        parentOp is IReturnOperation ret &&
+                        ret.Parent is IBlockOperation block &&
+                        block.Parent is IMethodBodyBaseOperation method &&
+                        method.ExpressionBody == block
+                    )
+                )
                 {
                     goto NO_WARN;
                 }
+            }
+
+
+            // No 'using' and 'foreach' found.
+            // Report untracked cast operation here.
+            if (isUntrackedCast)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_MissingUsing, operation.Syntax.GetLocation(), disposableSymbol.Name));
+
+                return;
             }
 
 

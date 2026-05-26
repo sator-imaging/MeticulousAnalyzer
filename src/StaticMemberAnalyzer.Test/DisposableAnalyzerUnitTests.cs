@@ -796,5 +796,66 @@ namespace Test
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task ForEach_IEnumerable_ReportsNoDiagnostic()
+        {
+            var test = @"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Test
+{
+    class Iterator<T> : IEnumerable<T>, IEnumerator<T>
+    {
+        public IEnumerator<T> GetEnumerator() => (new List<T>()).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public bool MoveNext() => false;
+        public T Current => default!;
+        object IEnumerator.Current => default!;
+        public void Dispose() { }
+        public void Reset() { }
+    }
+
+    class Foo
+    {
+        public Iterator<int> MethodReturningEnumerator() => new Iterator<int>();
+        public Iterator<int> EnumeratorProperty => new Iterator<int>();
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            using var iterator = new Iterator<int>();
+            foreach (var item in iterator)
+            {
+            }
+
+            var foo = new Foo();
+            foreach (var item in foo.MethodReturningEnumerator())
+            {
+            }
+            foreach (var item in foo.EnumeratorProperty)
+            {
+            }
+
+            var listOfFloat = new List<float>();
+            foreach (var item in listOfFloat)
+            {
+            }
+
+            var arrayOfString = new string[0];
+            foreach (var item in arrayOfString)
+            {
+            }
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
