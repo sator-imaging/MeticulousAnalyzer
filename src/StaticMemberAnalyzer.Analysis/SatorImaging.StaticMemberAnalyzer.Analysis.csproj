@@ -1,42 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  	<TargetFramework>netstandard2.0</TargetFramework>
-    <IsRoslynComponent>true</IsRoslynComponent>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Roslyn debugging settings -->
     <VSSDKTargetPlatformRegRootSuffix>Roslyn</VSSDKTargetPlatformRegRootSuffix>
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix $(VSSDKTargetPlatformRegRootSuffix)</StartArguments>
-
-    <IsPackable>false</IsPackable>
-
-    <!-- Avoid ID conflicts with the package project. -->
-    <PackageId>__$(MSBuildProjectFile)__</PackageId>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-    <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
-    <Title>$(GlobalPackageTitle)</Title>
-    <Version>$(GlobalPackageVersion)</Version>
-    <Authors>$(GlobalPackageOwner)</Authors>
-    <Company>$(GlobalPackageCompany)</Company>
-    <Product>$(GlobalPackageProduct)</Product>
-    <Description>$(GlobalPackageDescription)</Description>
-    <Copyright>$(GlobalPackageCopyright)</Copyright>
-    <PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
-    <RepositoryUrl>$(GlobalPackageRepository)</RepositoryUrl>
-    <AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
-    <FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>none</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
-	<!-- unity 2021.2 uses CodeAnalysis.CSharp v3.9, analyzer WON'T work on prior to 2021.2 when built with v3.6 or later. v3.8 is required for GlobalOptions -->
+    <!-- unity 2021.2 uses CodeAnalysis.CSharp v3.9, analyzer WON'T work on prior to 2021.2 when built with v3.6 or later. v3.8 is required for GlobalOptions -->
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
