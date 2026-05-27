@@ -24,9 +24,12 @@ namespace Test_{0}
         string? f;
         void M()
         {{
-            var x = {{|#{1}:f!|}};
-            var y = {{|#{2}:f!|}};
-            var z = {{|#{3}:f!|}};
+            var x = /* Leading trivia */ {{|#{1}:f!|}} // Trailing trivia
+;
+            var y = /* Leading trivia */ {{|#{2}:f!|}} // Trailing trivia
+;
+            var z = /* Leading trivia */ {{|#{3}:f!|}} // Trailing trivia
+;
         }}
     }}
 }}";
@@ -40,9 +43,12 @@ namespace Test_{0}
         string? f;
         void M()
         {{
-            var x = (((f)))!;
-            var y = (((f)))!;
-            var z = (((f)))!;
+            var x = /* Leading trivia */ (((f)))! // Trailing trivia
+;
+            var y = /* Leading trivia */ (((f)))! // Trailing trivia
+;
+            var z = /* Leading trivia */ (((f)))! // Trailing trivia
+;
         }}
     }}
 }}";
