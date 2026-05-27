@@ -7,7 +7,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class ExplicitNumberDeclarationAnalyzerTests
+    public class SMA8001_AnalyzerTests
     {
         [TestMethod]
         public async Task SMA8001_Violate_VarWithPrimitiveNumbers()
