@@ -124,7 +124,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0062_Violate_ActionVariable_ReportsDiagnostic()
+        public async Task SMA0062_Violate_ActionVariable()
         {
             var test = @"
 using System;

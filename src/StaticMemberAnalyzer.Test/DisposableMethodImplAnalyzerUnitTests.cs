@@ -162,7 +162,7 @@ class TestClass : IDisposable
 
 
         [TestMethod]
-        public async Task SMA0043_Conform_ExpressionBodiedProperty_Detected()
+        public async Task SMA0043_Conform_ExpressionBodiedProperty()
         {
             var test = @"
 using System;
@@ -281,7 +281,7 @@ partial class TestClass
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_SuppressionCommentOnField_NoDiagnostic()
+        public async Task SMA0043_Conform_SuppressionCommentOnField()
         {
             var test = @"
 using System;
@@ -297,7 +297,7 @@ class MyDisposable : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Violate_UndisposedField_NoSuppression_ReportsDiagnostic()
+        public async Task SMA0043_Violate_UndisposedField_NoSuppression()
         {
             var test = @"
 using System;

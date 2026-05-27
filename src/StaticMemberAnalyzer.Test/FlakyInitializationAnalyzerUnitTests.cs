@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class FlakyInitializationAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task SMA0001_Violate_SMA0004_ReadingUninitializedValue()
+        public async Task SMA0004_Violate_ReadingUninitializedValue()
         {
             var test = @"
 namespace Test
