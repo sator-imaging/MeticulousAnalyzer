@@ -72,10 +72,6 @@
 		<ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
-	</ItemGroup>
-
 	<Target Name="_AddAnalyzersToOutput">
 		<ItemGroup>
 			<TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />

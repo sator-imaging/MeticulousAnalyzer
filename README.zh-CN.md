@@ -79,13 +79,6 @@
       ```
 
 
-## Visual Studio 2019 或更早版本
-
-该分析器在 Visual Studio 2022 上已测试。
-
-你也可以在更早版本的 Visual Studio 中使用。请按项目中的说明更新 `Vsix` 项目文件后再构建。
-
-
 
 
 

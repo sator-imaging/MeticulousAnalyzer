@@ -7,5 +7,4 @@
   <Project Path="./src/StaticMemberAnalyzer.CodeFixes/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
   <Project Path="./src/StaticMemberAnalyzer.Package/SatorImaging.StaticMemberAnalyzer.Package.csproj" />
   <Project Path="./src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj" />
-  <Project Path="./src/StaticMemberAnalyzer.Vsix/SatorImaging.StaticMemberAnalyzer.Vsix.csproj" />
 </Solution>
