@@ -11,22 +11,18 @@
 Roslyn-based analyzer to provide diagnostics of static fields and properties initialization and more.
 
 - [Flaky Initialization Analysis](#flaky-initialization-analysis) detects flaky initialization
-    - Wrong order of static field and property declaration
-    - Partial type member reference across files
     - [Cross-Referencing Problem](#cross-referencing-problem) of static field across type
-- [Analysis for Code Review](#analysis-for-code-review) (Literal Argument Analysis)
+- [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
-- [`Enum` Type Analysis](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
-- [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement
+- [`Enum` Type Analysis](#enum-type-analysis) and [Code Fix Provider](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
+- [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement and more
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
-- [Coding Assistance](RULES.md#coding-assistance) for better performance and code quality (See [**RULES.md**](RULES.md))
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
-- `TSelf` generic type argument & type constraint analysis
-- File header comment enforcement
-- ~~Annotating and underlining field, property or etc with custom message~~
-
-> [!TIP]
-> Find out all diagnostic rules: [**RULES.md**](RULES.md)
+- [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
+- [File Header Comment Enforcement](RULES.md#file-structure-analysis) (See [**RULES.md**](RULES.md))
+- [Suppression Comment](#suppression-comment) for specific diagnostic rules
+- ~~[Annotating / Underlining](#annotation-for-type-field-and-property-) to take your attention while coding~~
+- [Coding Assistance](RULES.md#coding-assistance) All diagnostic rules, including analysis for better performance and code quality: [**RULES.md**](RULES.md)
 
 
 
