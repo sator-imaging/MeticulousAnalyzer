@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.6.0-rc.13](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v4.6.0-rc.13) (2026-05-27)
+
+### 📚 Other Changes
+* Test Update phase 2.1: Reorganize SMA000* tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#283](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/283)
+* Reorganize SMA001* Analyzer Tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#284](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/284)
+* Reorganize SMA002* Enum Tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#285](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/285)
+* Test Update Phase 2.4: Reorganize SMA003* Tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#286](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/286)
+* Reorganize SMA004* Tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#287](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/287)
+* Reorganize SMA005* tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#288](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/288)
+* Test Update phase 2.7 (SMA006*) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#289](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/289)
+* Refactor FixAllTests by [@sator-imaging](https://github.com/sator-imaging) in [#290](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/290)
+* Reorganize SMA007* tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#292](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/292)
+* Test Reorganization Phase 2.9 (SMA700*) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#293](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/293)
+* Reorganize SMA800* Test Files by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#291](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/291)
+* refactor: reorganize folders by [@sator-imaging](https://github.com/sator-imaging) in [#294](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/294)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v4.6.0-rc.12...v4.6.0-rc.13
+
+
 ## [4.6.0-rc.12](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v4.6.0-rc.12) (2026-05-27)
 
 ### 📚 Other Changes
