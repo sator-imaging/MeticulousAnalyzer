@@ -1,3 +1,6 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/StaticMemberAnalyzer
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
@@ -7,7 +10,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class EnumAnalyzerUnitTests
+    public class SMA0020_AnalyzerTests
     {
         [TestMethod]
         public async Task SMA0020_Violate_CastToEnum()
@@ -31,170 +34,6 @@ namespace Test
             var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
-
-        [TestMethod]
-        public async Task SMA0021_Violate_CastFromEnum()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test()
-        {
-            var x = {|#0:(int)ETest.Value|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0022_Violate_CastToGenericEnum()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    public class CTest
-    {
-        public void Test<T>() where T : Enum
-        {
-            var x = {|#0:(T)(object)1|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0023_Violate_CastFromGenericEnum()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    public class CTest
-    {
-        public void Test<T>(T value) where T : Enum
-        {
-            var x = (int){|#0:(object)value|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0024_Violate_EnumToString()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test()
-        {
-            var x = {|#0:ETest.Value.ToString()|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0025_Violate_EnumMethod()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test()
-        {
-            var x = {|#0:Enum.GetValues(typeof(ETest))|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0026_Violate_EnumObfuscation()
-        {
-            var test = @"
-namespace Test
-{
-    public enum {|#0:ETest|} { Value }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0027_Violate_UnusualEnum()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest : {|#0:byte|} { Value }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-#if STMG_ENABLE_KOTLIN_ENUM
-        [TestMethod]
-        public async Task SMA0028_Violate_EnumLike()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    public sealed class {|#0:ETest|}
-    {
-        public static readonly ETest Value = new ETest();
-        public static ETest[] Entries => new[] { Value };
-        public ETest() {}
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumLike).WithLocation(0).WithArguments("ETest", "constructor is not 'private' or 'protected'");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-#endif
 
         [TestMethod]
         public async Task SMA0020_Conform_CastFromEnum_CompareToSame()
@@ -290,29 +129,6 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0025_Violate_EnumHasFlag()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test(ETest value)
-        {
-            var x = {|#0:value.HasFlag(ETest.Value)|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -541,107 +357,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_IsDefined()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test()
-        {
-            // Allow enum conversion
-            if ({|#0:Enum.IsDefined(typeof(ETest), 0)|}) { }
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0025_Violate_Suppression_GetValues()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test()
-        {
-            // Allow enum conversion
-            foreach (var v in {|#0:Enum.GetValues(typeof(ETest))|}) { }
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0025_Violate_Suppression_NestedInvocation()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test(bool some)
-        {
-            // Allow enum conversion
-            if (some && {|#0:Enum.IsDefined(typeof(ETest), 0)|}) { }
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0025_Violate_Suppression_LinqInvocation()
-        {
-            var test = @"
-using System;
-using System.Linq;
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test(int[] some)
-        {
-            // Allow enum conversion
-            foreach (var v in some.Where(x => {|#0:Enum.IsDefined(typeof(ETest), x)|})) { }
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task SMA0020_Conform_Suppression_DiscardAssignment()
         {
             var test = @"
@@ -688,5 +403,108 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0020_Conform_CastFromEnumVariableSuppressed()
+        {
+            var test = @"
+using System;
+public class C
+{
+    public void M(Enum e)
+    {
+        // Allow enum conversion
+        var foo = (object)e;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Conform_CastFromEnumValueSuppressed()
+        {
+            var test = @"
+using System.Reflection;
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum ETest { Value }
+public class C
+{
+    public void M()
+    {
+        // Allow enum conversion
+        var foo = (object)ETest.Value;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Conform_CastFromEnumValueToIntSuppressed()
+        {
+            var test = @"
+using System.Reflection;
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum ETest { Value }
+public class C
+{
+    public void M()
+    {
+        // Allow enum conversion
+        var num = (int)ETest.Value;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Violate_CastToNullableEnum()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = {|#0:(ETest?)1|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Conform_InterpolatedString_Suppression_IsWorking()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public ETest EnumProp { get; set; }
+        public void Test(CTest foo)
+        {
+            // Allow enum conversion
+            var x = $""{foo?.EnumProp}"";
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }

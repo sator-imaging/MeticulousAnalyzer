@@ -68,34 +68,6 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0026_CodeFix_EnumObfuscationTriviaPreservation_Repro()
-        {
-            var test = @"
-using System;
-public class C
-{
-    /* leading */
-    public enum {|#0:MyEnum|} { A }
-}
-";
-            var fixtest = @"
-using System;
-using System.Reflection;
-
-public class C
-{
-    /* leading */
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum MyEnum { A }
-}
-";
-            var expected = CSharpCodeFixVerifier<EnumAnalyzer, EnumObfuscationCodeFixProvider>
-                .Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0);
-            await CSharpCodeFixVerifier<EnumAnalyzer, EnumObfuscationCodeFixProvider>
-                .VerifyCodeFixAsync(test, expected, fixtest);
-        }
-
-        [TestMethod]
         public async Task SMA8002_CodeFix_NullSuppressionTriviaPreservation_Repro()
         {
             var test = @"
