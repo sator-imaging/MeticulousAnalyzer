@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class TaskDiscardTests
     {
         [TestMethod]
-        public async Task Task_Discarded_ReportsDiagnostic()
+        public async Task SMA0070_Violate_Task_Discarded_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -37,7 +37,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_Variable_Discarded_ReportsDiagnostic()
+        public async Task SMA0070_Violate_Task_Variable_Discarded_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -60,7 +60,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_Discarded_SuppressedByComment_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_Discarded_SuppressedByComment_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;

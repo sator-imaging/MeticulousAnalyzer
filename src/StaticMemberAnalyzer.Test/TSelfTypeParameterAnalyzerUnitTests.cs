@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class TSelfTypeParameterAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task TestTSelfIsNotSelf()
+        public async Task SMA0010_Violate_TSelfIsNotSelf()
         {
             var test = @"
 using System.Reflection;
@@ -26,7 +26,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfIsSelf()
+        public async Task SMA0010_Conform_TSelfIsSelf()
         {
             var test = @"
 using System.Reflection;
@@ -41,7 +41,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfIsNotSelfOrBase()
+        public async Task SMA0011_Violate_TSelfIsNotSelfOrBase()
         {
             var test = @"
 using System.Reflection;
@@ -60,7 +60,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfIsSelfOrBase()
+        public async Task SMA0010_Conform_TSelfIsSelfOrBase()
         {
             var test = @"
 using System.Reflection;
@@ -79,7 +79,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfIsNotSelfOrDerived()
+        public async Task SMA0012_Violate_TSelfIsNotSelfOrDerived()
         {
             var test = @"
 using System.Reflection;
@@ -98,7 +98,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfIsSelfOrDerived()
+        public async Task SMA0010_Conform_TSelfIsSelfOrDerived()
         {
             var test = @"
 using System;
@@ -120,7 +120,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfConstraintIsNotSelf()
+        public async Task SMA0015_Violate_TSelfConstraintIsNotSelf()
         {
             var test = @"
 namespace Test
@@ -134,7 +134,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestTSelfConstraintIsSelf()
+        public async Task SMA0010_Conform_TSelfConstraintIsSelf()
         {
             var test = @"
 namespace Test
@@ -146,7 +146,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestNestedTypeDiagnostic()
+        public async Task SMA0010_Violate_NestedTypeDiagnostic()
         {
             var test = @"
 namespace Test
@@ -164,7 +164,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TSelfIsNotMisreported_SameLengthIdentifier()
+        public async Task SMA0010_Conform_TSelfIsNotMisreported_SameLengthIdentifier()
         {
             var test = @"
 using System.Threading.Tasks;

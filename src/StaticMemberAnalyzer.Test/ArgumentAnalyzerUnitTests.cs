@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task TestMethodLiteralArguments()
+        public async Task SMA8000_Violate_MethodLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -32,7 +32,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestConstructorLiteralArguments()
+        public async Task SMA8000_Violate_ConstructorLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -55,7 +55,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestNamedLiteralArguments()
+        public async Task SMA8000_Conform_NamedLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -75,7 +75,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestConstAndEnumArguments()
+        public async Task SMA8000_Conform_ConstAndEnumArguments()
         {
             var test = @"
 namespace Test
@@ -97,7 +97,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeArguments()
+        public async Task SMA8000_Violate_AttributeArguments()
         {
             var test = @"
 using System;
@@ -120,7 +120,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeNamedArguments()
+        public async Task SMA8000_Conform_AttributeNamedArguments()
         {
             var test = @"
 using System;
@@ -142,7 +142,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestExpressionArguments()
+        public async Task SMA8000_Conform_ExpressionArguments()
         {
             var test = @"
 namespace Test
@@ -162,7 +162,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestIndexerArguments()
+        public async Task SMA8000_Conform_IndexerArguments()
         {
             var test = @"
 using System.Collections.Generic;
@@ -182,7 +182,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAllowedNamespacesOmitNamed()
+        public async Task SMA8000_Conform_AllowedNamespacesOmitNamed()
         {
             var test = @"
 using System.IO;
@@ -204,7 +204,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestSingleArgumentOmitNamed()
+        public async Task SMA8000_Violate_SingleArgumentOmitNamed()
         {
             var test = @"
 namespace Test
@@ -239,7 +239,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestMultipleArgumentsStillReported()
+        public async Task SMA8000_Violate_MultipleArgumentsStillReported()
         {
             var test = @"
 namespace Test
@@ -276,7 +276,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeSingleArgumentOmitNamed()
+        public async Task SMA8000_Conform_AttributeSingleArgumentOmitNamed()
         {
             var test = @"
 using System;
@@ -298,7 +298,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeMultiplePositionalArguments()
+        public async Task SMA8000_Violate_AttributeMultiplePositionalArguments()
         {
             var test = @"
 using System;
@@ -330,7 +330,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestStringConstructorAndFirstArgumentStringChar()
+        public async Task SMA8000_Violate_StringConstructorAndFirstArgumentStringChar()
         {
             var test = @"
 using System;
@@ -362,7 +362,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestNamedArgumentsSuppressError()
+        public async Task SMA8000_Conform_NamedArgumentsSuppressError()
         {
             var test = @"
 using System.IO;
@@ -390,7 +390,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestNullAndDefaultArguments()
+        public async Task SMA8000_Violate_NullAndDefaultArguments()
         {
             var test = @"
 using System;
@@ -495,7 +495,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestImplicitConversion()
+        public async Task SMA8000_Conform_ImplicitConversion()
         {
             var test = @"
 #nullable enable

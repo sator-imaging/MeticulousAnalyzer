@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class FlakyInitializationAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task SMA0001_SMA0004_ReadingUninitializedValue()
+        public async Task SMA0001_Violate_SMA0004_ReadingUninitializedValue()
         {
             var test = @"
 namespace Test
@@ -32,7 +32,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0002_CrossRefAcrossType()
+        public async Task SMA0002_Violate_CrossRefAcrossType()
         {
             var test = @"
 namespace Test
@@ -53,7 +53,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0003_StaticMemberInAnotherFile()
+        public async Task SMA0003_Violate_StaticMemberInAnotherFile()
         {
             var source1 = @"
 namespace Test
@@ -86,7 +86,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NoDiagnosticWhenOrderIsCorrect()
+        public async Task SMA0001_Conform_NoDiagnosticWhenOrderIsCorrect()
         {
             var test = @"
 namespace Test
@@ -102,7 +102,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NoDiagnosticForConst()
+        public async Task SMA0001_Conform_NoDiagnosticForConst()
         {
             var test = @"
 namespace Test
@@ -118,7 +118,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0001_PropertyInitialization()
+        public async Task SMA0001_Violate_PropertyInitialization()
         {
             var test = @"
 namespace Test

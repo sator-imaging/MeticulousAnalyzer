@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class DisposableAnalyzerTernaryTests
     {
         [TestMethod]
-        public async Task TernaryAssignmentToField_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryAssignmentToField_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryInUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryInUsing_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -57,7 +57,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryInReturn_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryInReturn_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -80,7 +80,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryAssignmentToLocal_ReportsDiagnosticOnTernary()
+        public async Task SMA0040_Violate_TernaryAssignmentToLocal_ReportsDiagnosticOnTernary()
         {
             var test = @"
 using System;
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithCastInUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryWithCastInUsing_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -125,7 +125,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithCastInUsing_ReportsDiagnostic()
+        public async Task SMA0040_Violate_TernaryWithCastInUsing_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -148,7 +148,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithFooAndCastInUsing_ReportsDiagnosticOnCast()
+        public async Task SMA0040_Violate_TernaryWithFooAndCastInUsing_ReportsDiagnosticOnCast()
         {
             var test = @"
 using System;
@@ -172,7 +172,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithFooAndCastInUsing_ReportsNoDiagnosticOnCast()
+        public async Task SMA0040_Conform_TernaryWithFooAndCastInUsing_ReportsNoDiagnosticOnCast()
         {
             var test = @"
 using System;
@@ -193,7 +193,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithFooAndCreationInUsing_ReportsDiagnosticOnCreation()
+        public async Task SMA0040_Violate_TernaryWithFooAndCreationInUsing_ReportsDiagnosticOnCreation()
         {
             var test = @"
 using System;
@@ -218,7 +218,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithCastAssignmentToLocal_ReportsDiagnosticOnTernary()
+        public async Task SMA0040_Violate_TernaryWithCastAssignmentToLocal_ReportsDiagnosticOnTernary()
         {
             var test = @"
 using System;
@@ -241,7 +241,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TernaryWithCreationAssignmentToLocal_ReportsDiagnosticOnTernary()
+        public async Task SMA0040_Violate_TernaryWithCreationAssignmentToLocal_ReportsDiagnosticOnTernary()
         {
             var test = @"
 using System;

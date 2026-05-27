@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ReadOnlyVariableAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task SimpleAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_SimpleAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -41,7 +41,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadWritePropertyAccess_ReportsDiagnostic()
+        public async Task SMA0063_Violate_ReadWritePropertyAccess_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -70,7 +70,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -94,7 +94,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IncrementAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_IncrementAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -118,7 +118,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CoalesceAssignment_Local_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CoalesceAssignment_Local_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -142,7 +142,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CoalesceAssignment_Parameter_ReportsDiagnostic()
+        public async Task SMA0061_Violate_CoalesceAssignment_Parameter_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -165,7 +165,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DeconstructionAssignment_ExistingVariables_ReportsDiagnostic()
+        public async Task SMA0060_Violate_DeconstructionAssignment_ExistingVariables_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -193,7 +193,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AutoPropertyAccess_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_AutoPropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -214,7 +214,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullConditionalAutoPropertyAccess_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_NullConditionalAutoPropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -235,7 +235,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DeconstructionAssignment_LeftExistingRightDeclared_ReportsDiagnostic()
+        public async Task SMA0060_Violate_DeconstructionAssignment_LeftExistingRightDeclared_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -266,7 +266,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DeconstructionAssignment_LeftDeclaredRightExisting_ReportsDiagnostic()
+        public async Task SMA0060_Violate_DeconstructionAssignment_LeftDeclaredRightExisting_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -297,7 +297,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DeconstructionDeclaration_IsAllowed()
+        public async Task SMA0060_Conform_DeconstructionDeclaration_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -317,7 +317,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StringPropertyAndMethodAccess_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_StringPropertyAndMethodAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -338,7 +338,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ConstFieldArgument_IsAllowed()
+        public async Task SMA0060_Conform_ConstFieldArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -364,7 +364,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadOnlyStructGetterOnlyPropertyArgument_IsAllowed()
+        public async Task SMA0060_Conform_ReadOnlyStructGetterOnlyPropertyArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -392,7 +392,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SingleLetterLocal_ReportsDiagnostic()
+        public async Task SMA0060_Violate_SingleLetterLocal_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -416,7 +416,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MutPrefixLocal_IsAllowed()
+        public async Task SMA0060_Conform_MutPrefixLocal_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -438,7 +438,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodParameterAssignment_ReportsDiagnostic()
+        public async Task SMA0061_Violate_MethodParameterAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -461,7 +461,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IndexerAndSetterParameterAssignments_ReportDiagnostic()
+        public async Task SMA0061_Violate_IndexerAndSetterParameterAssignments_ReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -507,7 +507,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MemberAccessRootedAtLocal_ReportsDiagnostic()
+        public async Task SMA0060_Violate_MemberAccessRootedAtLocal_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -537,7 +537,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MemberAccessRootedAtParameter_ReportsDiagnostic()
+        public async Task SMA0061_Violate_MemberAccessRootedAtParameter_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -566,7 +566,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MutableMembers_NonStringType_ReportDiagnostics()
+        public async Task SMA0062_Violate_MutableMembers_NonStringType_ReportDiagnostics()
         {
             var test = @"
 namespace Test
@@ -606,7 +606,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Combinations_MutableReturn_ReadOnly_AutoProp_Tests()
+        public async Task SMA0064_Violate_Combinations_MutableReturn_ReadOnly_AutoProp_Tests()
         {
             var test = @"
 namespace Test
@@ -648,7 +648,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MemberAccessRootedAtField_NoDiagnostic()
+        public async Task SMA0060_Conform_MemberAccessRootedAtField_NoDiagnostic()
         {
             var test = @"
 namespace Test
@@ -675,7 +675,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ForStatementHeaderAssignments_AreAllowed()
+        public async Task SMA0060_Conform_ForStatementHeaderAssignments_AreAllowed()
         {
             var test = @"
 namespace Test
@@ -697,7 +697,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ForStatementBodyAssignment_IsStillReported()
+        public async Task SMA0060_Violate_ForStatementBodyAssignment_IsStillReported()
         {
             var test = @"
 namespace Test
@@ -723,7 +723,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task OutVarCall_NotReported_ButSubsequentAssignment_Reported()
+        public async Task SMA0060_Violate_OutVarCall_NotReported_ButSubsequentAssignment_Reported()
         {
             var test = @"
 namespace Test
@@ -747,7 +747,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCall_ReferenceTypeArgument_ReportsDiagnostic()
+        public async Task SMA0062_Violate_MethodCall_ReferenceTypeArgument_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -775,7 +775,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCall_MutPrefixArgument_IsAllowed()
+        public async Task SMA0060_Conform_MethodCall_MutPrefixArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -799,7 +799,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructArgument_InParameter_IsAllowed()
+        public async Task SMA0060_Conform_StructArgument_InParameter_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -823,7 +823,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructArgument_ReadOnlyByValue_IsAllowed()
+        public async Task SMA0060_Conform_StructArgument_ReadOnlyByValue_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -847,7 +847,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructArgument_MutableByValue_ReportsDiagnostic()
+        public async Task SMA0062_Violate_StructArgument_MutableByValue_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -875,7 +875,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IndexerArgument_ReferenceType_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_IndexerArgument_ReferenceType_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -901,7 +901,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCallArgument_IsAllowed()
+        public async Task SMA0060_Conform_MethodCallArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -925,7 +925,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ObjectCreationArgument_IsAllowed()
+        public async Task SMA0060_Conform_ObjectCreationArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -948,7 +948,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task FieldArgument_ReportsDiagnostic()
+        public async Task SMA0062_Violate_FieldArgument_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -977,7 +977,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadOnlyFieldArgument_IsAllowed()
+        public async Task SMA0060_Conform_ReadOnlyFieldArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1002,7 +1002,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task BuiltinPrimitives_NoDiagnostic()
+        public async Task SMA0060_Conform_BuiltinPrimitives_NoDiagnostic()
         {
             var test = @"
 using System;
@@ -1053,7 +1053,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task PropertyAccess_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_PropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1077,7 +1077,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructGetterOnlyPropertyAccess_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_StructGetterOnlyPropertyAccess_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1103,7 +1103,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCallOnRootLocal_ReportsDiagnostic()
+        public async Task SMA0064_Violate_MethodCallOnRootLocal_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1129,7 +1129,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCallOnMutPrefixLocal_IsAllowed()
+        public async Task SMA0060_Conform_MethodCallOnMutPrefixLocal_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1151,7 +1151,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReadOnlyMethodCallOnRootLocal_IsAllowed()
+        public async Task SMA0060_Conform_ReadOnlyMethodCallOnRootLocal_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1173,7 +1173,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCallOnRootParameter_ReportsDiagnostic()
+        public async Task SMA0064_Violate_MethodCallOnRootParameter_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1198,7 +1198,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task StructReadOnlyGetterOnlyPropertyAccess_IsAllowed()
+        public async Task SMA0060_Conform_StructReadOnlyGetterOnlyPropertyAccess_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1226,7 +1226,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task RefAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_RefAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1252,7 +1252,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DecrementAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_DecrementAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1276,7 +1276,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_Subtract_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_Subtract_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1300,7 +1300,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_Multiply_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_Multiply_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1324,7 +1324,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_Divide_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_Divide_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1348,7 +1348,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_Modulo_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_Modulo_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1372,7 +1372,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_And_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_And_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1396,7 +1396,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_Or_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_Or_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1420,7 +1420,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_Xor_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_Xor_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1444,7 +1444,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_LeftShift_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_LeftShift_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1468,7 +1468,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompoundAssignment_RightShift_ReportsDiagnostic()
+        public async Task SMA0060_Violate_CompoundAssignment_RightShift_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1492,7 +1492,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MethodCall_MutPrefixParameterArgument_IsAllowed()
+        public async Task SMA0060_Conform_MethodCall_MutPrefixParameterArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1515,7 +1515,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AnonymousObjectArgument_IsAllowed()
+        public async Task SMA0060_Conform_AnonymousObjectArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1536,7 +1536,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ArrayCreationArgument_IsAllowed()
+        public async Task SMA0060_Conform_ArrayCreationArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1557,7 +1557,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task OutTypedDeclarationCall_NotReported()
+        public async Task SMA0060_Conform_OutTypedDeclarationCall_NotReported()
         {
             var test = @"
 namespace Test
@@ -1576,7 +1576,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task OutParameterAssignment_IsAllowed()
+        public async Task SMA0060_Conform_OutParameterAssignment_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1595,7 +1595,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task LiteralArgument_IsAllowed()
+        public async Task SMA0060_Conform_LiteralArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1618,7 +1618,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DefaultArgument_IsAllowed()
+        public async Task SMA0060_Conform_DefaultArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1641,7 +1641,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullArgument_IsAllowed()
+        public async Task SMA0060_Conform_NullArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1662,7 +1662,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task PropertyAccessors_LocalAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_PropertyAccessors_LocalAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1698,7 +1698,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IndexerAccessors_LocalAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_IndexerAccessors_LocalAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1734,7 +1734,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Lambda_LocalAndParameterAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_Lambda_LocalAndParameterAssignment_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -1765,7 +1765,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Lambda_MutPrefix_IsAllowed()
+        public async Task SMA0060_Conform_Lambda_MutPrefix_IsAllowed()
         {
             var test = @"
 using System;
@@ -1789,7 +1789,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task PropertyAccessors_MutPrefix_IsAllowed()
+        public async Task SMA0060_Conform_PropertyAccessors_MutPrefix_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1818,7 +1818,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IndexerAccessors_MutPrefix_IsAllowed()
+        public async Task SMA0060_Conform_IndexerAccessors_MutPrefix_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -1847,7 +1847,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task RuleSuppressed_NoDiagnostic()
+        public async Task SMA0060_Conform_RuleSuppressed_NoDiagnostic()
         {
             var test = @"
 namespace Test
@@ -1893,7 +1893,7 @@ namespace Test
         }
 
         [TestMethod]
-        public void RulesAreDisabledByDefault()
+        public void SMA0060_Conform_RulesAreDisabledByDefault()
         {
             var analyzer = new ReadOnlyVariableAnalyzer();
             var ids = new[]
@@ -1912,7 +1912,7 @@ namespace Test
         }
 
         [TestMethod]
-        public void MethodCallRuleIsDisabledByDefault()
+        public void SMA0064_Conform_MethodCallRuleIsDisabledByDefault()
         {
             var analyzer = new ReadOnlyVariableAnalyzer();
             var descriptor = analyzer.SupportedDiagnostics.First(d => d.Id == ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall);

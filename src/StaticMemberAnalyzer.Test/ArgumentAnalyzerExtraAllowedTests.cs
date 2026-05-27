@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerExtraAllowedTests
     {
         [TestMethod]
-        public async Task TestSystemMathAllowed()
+        public async Task SMA8000_Conform_SystemMathAllowed()
         {
             var test = @"
 using System;
@@ -31,7 +31,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestMathfAllowed()
+        public async Task SMA8000_Conform_MathfAllowed()
         {
             var test = @"
 namespace Test

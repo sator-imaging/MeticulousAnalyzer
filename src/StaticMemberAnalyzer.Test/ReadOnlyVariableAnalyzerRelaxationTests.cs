@@ -16,7 +16,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ReadOnlyVariableAnalyzerRelaxationTests
     {
         [TestMethod]
-        public async Task IEnumerableArgument_IsAllowed()
+        public async Task SMA0060_Conform_IEnumerableArgument_IsAllowed()
         {
             var test = @"
 using System.Collections;
@@ -49,7 +49,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task EnumArgument_IsAllowed()
+        public async Task SMA0060_Conform_EnumArgument_IsAllowed()
         {
             var test = @"
 namespace Test
@@ -72,7 +72,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task LambdaArgument_IsAllowed_ButViolationInsideReported()
+        public async Task SMA0060_Conform_LambdaArgument_IsAllowed_ButViolationInsideReported()
         {
             var test = @"
 using System;
@@ -98,7 +98,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AnonymousMethodArgument_IsAllowed()
+        public async Task SMA0060_Conform_AnonymousMethodArgument_IsAllowed()
         {
             var test = @"
 using System;
@@ -124,7 +124,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ActionVariable_ReportsDiagnostic()
+        public async Task SMA0062_Violate_ActionVariable_ReportsDiagnostic()
         {
             var test = @"
 using System;

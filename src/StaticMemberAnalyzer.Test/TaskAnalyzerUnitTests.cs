@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class TaskAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task Task_NotAwaited_ReportsDiagnostic()
+        public async Task SMA0070_Violate_Task_NotAwaited_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -37,7 +37,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_Awaited_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_Awaited_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -58,7 +58,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_Returned_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_Returned_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -79,7 +79,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_NotAwaitedOnAllPaths_ReportsDiagnostic()
+        public async Task SMA0071_Violate_Task_NotAwaitedOnAllPaths_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -106,7 +106,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_AwaitedOnAllPaths_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_AwaitedOnAllPaths_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -134,7 +134,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_SuppressedByComment_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_SuppressedByComment_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -155,7 +155,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ValueTask_NotAwaited_ReportsDiagnostic()
+        public async Task SMA0070_Violate_ValueTask_NotAwaited_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -178,7 +178,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task GenericTask_NotAwaited_ReportsDiagnostic()
+        public async Task SMA0070_Violate_GenericTask_NotAwaited_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -201,7 +201,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_InsideBranch_Awaited_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_InsideBranch_Awaited_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -225,7 +225,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompletedTask_NotAwaited_ReportsDiagnostic()
+        public async Task SMA0070_Violate_CompletedTask_NotAwaited_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -248,7 +248,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CompletedTask_Awaited_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_CompletedTask_Awaited_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -269,7 +269,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_AwaitedInBranchAndAfterBranch_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_AwaitedInBranchAndAfterBranch_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -297,7 +297,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_AwaitedInBranchAndReturned_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_AwaitedInBranchAndReturned_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -326,7 +326,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_ReturnedInBranchAndAwaitedAfterBranch_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Task_ReturnedInBranchAndAwaitedAfterBranch_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -354,7 +354,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Suppression_NotFirstComment_ReportsDiagnostic()
+        public async Task SMA0070_Violate_Suppression_NotFirstComment_ReportsDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -379,7 +379,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Suppression_WithNewline_ReportsNoDiagnostic()
+        public async Task SMA0070_Conform_Suppression_WithNewline_ReportsNoDiagnostic()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -401,7 +401,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_NotSuppressedByPrecedingLineEndComment()
+        public async Task SMA0070_Violate_Task_NotSuppressedByPrecedingLineEndComment()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -426,7 +426,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_NotSuppressedByPrecedingLineEndCommentWithBlankLine()
+        public async Task SMA0070_Violate_Task_NotSuppressedByPrecedingLineEndCommentWithBlankLine()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -452,7 +452,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Task_NotSuppressedByMultiLineComment()
+        public async Task SMA0070_Violate_Task_NotSuppressedByMultiLineComment()
         {
             var test = @"
 using System.Threading.Tasks;

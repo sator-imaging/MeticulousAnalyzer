@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class DisposableAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task SimpleDisposable_WithoutUsing_ReportsDiagnostic()
+        public async Task SMA0040_Violate_SimpleDisposable_WithoutUsing_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -43,7 +43,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SimpleDisposable_WithUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_SimpleDisposable_WithUsing_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -69,7 +69,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task GenericDisposable_WithoutUsing_ReportsDiagnostic()
+        public async Task SMA0040_Violate_GenericDisposable_WithoutUsing_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -98,7 +98,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task GenericDisposable_WithUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_GenericDisposable_WithUsing_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -124,7 +124,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NestedDisposable_WithoutUsing_ReportsDiagnostic()
+        public async Task SMA0040_Violate_NestedDisposable_WithoutUsing_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -156,7 +156,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NestedDisposable_WithUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_NestedDisposable_WithUsing_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -185,7 +185,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AsyncDisposable_WithoutUsing_ReportsDiagnostic()
+        public async Task SMA0040_Violate_AsyncDisposable_WithoutUsing_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -216,7 +216,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AsyncDisposable_WithUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_AsyncDisposable_WithUsing_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -244,7 +244,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullAssignment_WithoutDispose_ReportsDiagnostic()
+        public async Task SMA0041_Violate_NullAssignment_WithoutDispose_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -280,7 +280,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullAssignment_WithDispose_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_NullAssignment_WithDispose_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -312,7 +312,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullAssignment_WithConditionalDispose_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_NullAssignment_WithConditionalDispose_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -344,7 +344,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task Disposable_IsNullPattern_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_Disposable_IsNullPattern_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -375,7 +375,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task InterlockedExchange_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_InterlockedExchange_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -404,7 +404,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task InterlockedCompareExchange_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_InterlockedCompareExchange_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -433,7 +433,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task DoubleNullAssignmentAfterDispose_ReportsDiagnosticOnSecondAssignment()
+        public async Task SMA0041_Violate_DoubleNullAssignmentAfterDispose_ReportsDiagnosticOnSecondAssignment()
         {
             var test = @"
 using System;
@@ -473,7 +473,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NullAssignmentAfterDisposeWithInterveningComment_IsNotReported()
+        public async Task SMA0040_Conform_NullAssignmentAfterDisposeWithInterveningComment_IsNotReported()
         {
             var test = @"
 using System;
@@ -507,7 +507,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ThrowsOnSomePaths_ReportsDiagnostic()
+        public async Task SMA0040_Violate_ThrowsOnSomePaths_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -544,7 +544,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task PropertyGetter_ReturnedOnAllPaths_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_PropertyGetter_ReturnedOnAllPaths_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -574,7 +574,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NotAllCodePathsReturn_ReportsDiagnostic()
+        public async Task SMA0042_Violate_NotAllCodePathsReturn_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -618,7 +618,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReturnedOnAllPaths_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_ReturnedOnAllPaths_ReportsNoDiagnostic()
         {
             var test = @"
 using System;
@@ -652,7 +652,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReturnedOnSomePaths_ReportsDiagnostic()
+        public async Task SMA0042_Violate_ReturnedOnSomePaths_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -690,7 +690,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ReturnedOnSomePaths_WithDefault_ReportsDiagnostic()
+        public async Task SMA0042_Violate_ReturnedOnSomePaths_WithDefault_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -729,7 +729,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task NotAllCodePathsReturn_ObjectCreation_ReportsDiagnostic()
+        public async Task SMA0042_Violate_NotAllCodePathsReturn_ObjectCreation_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -765,7 +765,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task IteratorMethod_NotDisposed_ReportsDiagnostic()
+        public async Task SMA0040_Violate_IteratorMethod_NotDisposed_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -798,7 +798,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ForEach_IEnumerable_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_ForEach_IEnumerable_ReportsNoDiagnostic()
         {
             var test = @"
 using System;

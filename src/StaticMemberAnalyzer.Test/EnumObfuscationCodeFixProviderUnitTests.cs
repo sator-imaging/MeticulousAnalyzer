@@ -11,7 +11,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class EnumObfuscationCodeFixProviderUnitTests
     {
         [TestMethod]
-        public async Task TestSimpleEnum()
+        public async Task SMA0026_CodeFix_SimpleEnum()
         {
             var test = @"
 namespace Test
@@ -33,7 +33,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestGenericClassWithNestedEnum()
+        public async Task SMA0026_CodeFix_GenericClassWithNestedEnum()
         {
             var test = @"
 namespace Test
@@ -61,7 +61,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestNestedEnum()
+        public async Task SMA0026_CodeFix_NestedEnum()
         {
             var test = @"
 namespace Test
@@ -122,7 +122,7 @@ namespace Test
         /* =====  namespace  ===== */
 
         [TestMethod]
-        public async Task BasicTest_NoNamespace()
+        public async Task SMA0026_CodeFix_BasicTest_NoNamespace()
         {
             var test = @"
 namespace Test
@@ -136,7 +136,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task BasicTest_WithNamespace()
+        public async Task SMA0026_CodeFix_BasicTest_WithNamespace()
         {
             var test = @"
 using System.Reflection;
@@ -155,7 +155,7 @@ namespace Test
         /* =====  attr exists no args  ===== */
 
         [TestMethod]
-        public async Task BasicTest_AttrExistsNoParentheses()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExistsNoParentheses()
         {
             var test = @"
 using System.Reflection;
@@ -172,7 +172,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task BasicTest_AttrExistsNoArgs()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExistsNoArgs()
         {
             var test = @"
 using System.Reflection;
@@ -192,7 +192,7 @@ namespace Test
         /* =====  arg exists  ===== */
 
         [TestMethod]
-        public async Task BasicTest_AttrExists_ExcludeFalse()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExists_ExcludeFalse()
         {
             var test = @"
 using System.Reflection;
@@ -209,7 +209,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task BasicTest_AttrExists_ApplyToMembersTrue()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExists_ApplyToMembersTrue()
         {
             var test = @"
 using System.Reflection;
@@ -226,7 +226,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task BasicTest_AttrExists_AllRequiredArgsExist_OrderChanged_BooleanExpression()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExists_AllRequiredArgsExist_OrderChanged_BooleanExpression()
         {
             var test = @"
 using System.Reflection;
@@ -246,7 +246,7 @@ namespace Test
         /* =====  other args  ===== */
 
         [TestMethod]
-        public async Task BasicTest_AttrExists_OtherArg()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExists_OtherArg()
         {
             var test = @"
 using System.Reflection;
@@ -266,7 +266,7 @@ namespace Test
         /* =====  other attr  ===== */
 
         [TestMethod]
-        public async Task BasicTest_AttrExists_OtherAttr()
+        public async Task SMA0026_CodeFix_BasicTest_AttrExists_OtherAttr()
         {
             var test = @"
 using System.Reflection;
@@ -288,7 +288,7 @@ namespace Test
         /* =====  attr namings  ===== */
 
         [TestMethod]
-        public async Task BasicTest_AttrNaming_Full()
+        public async Task SMA0026_CodeFix_BasicTest_AttrNaming_Full()
         {
             var test = @"
 using System.Reflection;
@@ -305,7 +305,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task BasicTest_AttrNaming_FullNoSuffix()
+        public async Task SMA0026_CodeFix_BasicTest_AttrNaming_FullNoSuffix()
         {
             var test = @"
 using System.Reflection;
@@ -324,7 +324,7 @@ namespace Test
         // NOTE: partial namespace not work...? (C# lang spec?)
         /*
         [TestMethod]
-        public async Task BasicTest_AttrNaming_PartialNamespace()
+        public async Task SMA0026_CodeFix_BasicTest_AttrNaming_PartialNamespace()
         {
             var test = @"
 using System;

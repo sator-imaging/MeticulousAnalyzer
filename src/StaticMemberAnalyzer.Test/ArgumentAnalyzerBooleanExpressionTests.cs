@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerBooleanExpressionTests
     {
         [TestMethod]
-        public async Task TestBooleanBinaryOperationDiagnostic()
+        public async Task SMA8000_Violate_BooleanBinaryOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -33,7 +33,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanExpressionCodeFix()
+        public async Task SMA8000_CodeFix_BooleanExpressionCodeFix()
         {
             var test = @"
 namespace Test
@@ -65,7 +65,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanExpressionNotFirstArgument()
+        public async Task SMA8000_Violate_BooleanExpressionNotFirstArgument()
         {
             var test = @"
 namespace Test
@@ -85,7 +85,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanUnaryOperationDiagnostic()
+        public async Task SMA8000_Violate_BooleanUnaryOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestOtherBinaryOperationsNotFirstArgumentNotReported()
+        public async Task SMA8000_Conform_OtherBinaryOperationsNotFirstArgumentNotReported()
         {
             var test = @"
 namespace Test
@@ -124,7 +124,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestOtherBinaryOperationsFirstArgumentNotReported()
+        public async Task SMA8000_Conform_OtherBinaryOperationsFirstArgumentNotReported()
         {
             var test = @"
 namespace Test
@@ -143,7 +143,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeBooleanExpression()
+        public async Task SMA8000_Violate_AttributeBooleanExpression()
         {
             var test = @"
 using System;
@@ -165,7 +165,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanOperationCodeFix()
+        public async Task SMA8000_CodeFix_BooleanOperationCodeFix()
         {
             var test = @"
 namespace Test
@@ -197,7 +197,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestBooleanPatternOperationDiagnostic()
+        public async Task SMA8000_Violate_BooleanPatternOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -217,7 +217,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestSimpleBooleanPatternOperationDiagnostic()
+        public async Task SMA8000_Violate_SimpleBooleanPatternOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -237,7 +237,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestComplexBooleanPatternOperationDiagnostic()
+        public async Task SMA8000_Violate_ComplexBooleanPatternOperationDiagnostic()
         {
             var test = @"
 namespace Test

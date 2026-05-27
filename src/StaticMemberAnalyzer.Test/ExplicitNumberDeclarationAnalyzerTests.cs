@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ExplicitNumberDeclarationAnalyzerTests
     {
         [TestMethod]
-        public async Task VarWithPrimitiveNumbers_ReportsDiagnostics()
+        public async Task SMA8001_Violate_VarWithPrimitiveNumbers_ReportsDiagnostics()
         {
             var test = @"
 namespace Test
@@ -54,7 +54,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task ExplicitTypeWithPrimitiveNumbers_DoesNotReportDiagnostic()
+        public async Task SMA8001_Conform_ExplicitTypeWithPrimitiveNumbers_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -84,7 +84,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task VarWithNonNumberTypes_DoesNotReportDiagnostic()
+        public async Task SMA8001_Conform_VarWithNonNumberTypes_DoesNotReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task MultipleVariablesInOneDeclaration_ReportsDiagnosticsForEach()
+        public async Task SMA8001_Conform_MultipleVariablesInOneDeclaration_ReportsDiagnosticsForEach()
         {
             var test = @"
 namespace Test
@@ -126,7 +126,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task VarWithNumberFromMembers_ReportsDiagnostics()
+        public async Task SMA8001_Violate_VarWithNumberFromMembers_ReportsDiagnostics()
         {
             var test = @"
 namespace Test

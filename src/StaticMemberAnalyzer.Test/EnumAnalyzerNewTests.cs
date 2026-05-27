@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class EnumAnalyzerNewTests
     {
         [TestMethod]
-        public async Task Test1()
+        public async Task SMA0021_Violate_Test1()
         {
             var test = @"
 using System;
@@ -30,7 +30,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task Test2()
+        public async Task SMA0020_Conform_Test2()
         {
             var test = @"
 using System;
@@ -47,7 +47,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task Test4()
+        public async Task SMA0021_Violate_Test4()
         {
             var test = @"
 using System.Reflection;
@@ -66,7 +66,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task Test3()
+        public async Task SMA0020_Conform_Test3()
         {
             var test = @"
 using System.Reflection;
@@ -85,7 +85,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task Test5()
+        public async Task SMA0021_Violate_Test5()
         {
             var test = @"
 using System.Reflection;
@@ -104,7 +104,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task Test6()
+        public async Task SMA0020_Conform_Test6()
         {
             var test = @"
 using System.Reflection;
