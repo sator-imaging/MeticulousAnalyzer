@@ -30,8 +30,8 @@ jobs:
 
     steps:
     - uses: actions/download-artifact@v4
-      with:
-        path: src
+
+    - run: ls -alR
 
     ################################
     #  NUGET
@@ -43,8 +43,6 @@ jobs:
 
     - name: NuGet push
       run: |
-        ls -alR
-
         dotnet nuget push "${{ env.push_source  }}"  \
           -k ${{ steps.login.outputs.NUGET_API_KEY }}  \
           -s https://api.nuget.org/v3/index.json \
