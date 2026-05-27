@@ -91,8 +91,10 @@ jobs:
           "./src/StaticMemberAnalyzer.Analysis/Resources.resx" \
           "./${{ env.docsgen_file_name }}"
 
-        git add -f ${{ env.docsgen_file_name }} \
-          ./src  # .resx and .Designer.cs
+        git add -f ${{ env.docsgen_file_name }}
+
+        # .resx and .Designer.cs (no -f)
+        git add ./src
 
         # Trailing slash is required to sync (copy) contents instead of directory
         rsync -avr --existing --checksum \
