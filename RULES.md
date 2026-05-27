@@ -64,23 +64,25 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0063 | Property Access Can Change State           | Avoid accessing properties of immutable variables as it can change their internal state.
 | SMA0064 | Method Call Can Change State               | Avoid calling methods of immutable variables as it can change their internal state.
 
-## Coding Assistance
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA7000 | Lambda should be static                    | Lambda declaration should be 'static' to avoid unnecessary allocations.
-| SMA7001 | Implicit conversion to delegate            | Implicit conversion to Action or Func delegate from instance member causes allocation. Use lambda or static member instead.
 ## Async Context Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned. You can suppress by adding preceding comment "// Don't await".
 | SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths. You can suppress by adding preceding comment "// Don't await".
 
+## Coding Assistance
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA7000 | Lambda can be static                       | Lambda declaration should add 'static' keyword for clarity.
+| SMA7001 | Inefficient delegate declaration           | Older runtime inefficiently handle direct passing of method.
+| SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation".
+
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 | SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
-| SMA8002 | Null suppression operation                 | Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Strongly recommended that safely suppressing it by adding `Debug.Assert({0} is not null);` without introducing runtime overhead in Release build.
+| SMA8002 | Null suppression operation                 | Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Strongly recommended that safely suppressing it by using `Debug.Assert({0} is not null);` instead of `!` operator.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
