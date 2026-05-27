@@ -14,8 +14,21 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class ReadOnlyVariableAnalyzerUnitTests
+    public class SMA0060_AnalyzerTests
     {
+        private const string TestCode = @"
+namespace Test
+{
+    class Program
+    {
+        void M()
+        {
+            int foo = 0;
+            {|#0:foo|} = 1;
+        }
+    }
+}
+";
         [TestMethod]
         public async Task SMA0060_Violate_SimpleAssignment()
         {
@@ -40,34 +53,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
-        [TestMethod]
-        public async Task SMA0063_Violate_ReadWritePropertyAccess()
-        {
-            var test = @"
-namespace Test
-{
-    class C { }
-
-    class Program
-    {
-        C _field;
-        public C ReadWriteProp { get => _field; set => _field = value; }
-
-        void M()
-        {
-            var self = this;
-            _ = {|#0:self.ReadWriteProp|};
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(markupKey: 0)
-                .WithArguments("self.ReadWriteProp", "self");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment()
@@ -93,6 +78,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_IncrementAssignment()
         {
@@ -116,6 +102,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_CoalesceAssignment_Local()
@@ -141,28 +128,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
-        [TestMethod]
-        public async Task SMA0061_Violate_CoalesceAssignment_Parameter()
-        {
-            var test = @"
-namespace Test
-{
-    class Program
-    {
-        void M(int? foo)
-        {
-            {|#0:foo|} ??= 1;
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Violate_DeconstructionAssignment_ExistingVariables()
@@ -192,6 +157,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_AutoPropertyAccess()
         {
@@ -213,6 +179,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_NullConditionalAutoPropertyAccess()
         {
@@ -233,6 +200,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_DeconstructionAssignment_LeftExistingRightDeclared()
@@ -265,6 +233,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expectedCompiler, expected0, expected1);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_DeconstructionAssignment_LeftDeclaredRightExisting()
         {
@@ -296,6 +265,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expectedCompiler, expected0, expected1);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_DeconstructionDeclaration_IsAllowed()
         {
@@ -315,6 +285,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_StringPropertyAndMethodAccess()
@@ -336,6 +307,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_ConstFieldArgument_IsAllowed()
@@ -362,6 +334,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_ReadOnlyStructGetterOnlyPropertyArgument_IsAllowed()
@@ -391,6 +364,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_SingleLetterLocal()
         {
@@ -415,6 +389,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_MutPrefixLocal_IsAllowed()
         {
@@ -437,74 +412,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
-        [TestMethod]
-        public async Task SMA0061_Violate_MethodParameterAssignment()
-        {
-            var test = @"
-namespace Test
-{
-    class Program
-    {
-        void M(int valueParam)
-        {
-            {|#0:valueParam|} = 1;
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithLocation(markupKey: 0)
-                .WithArguments("valueParam");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0061_Violate_IndexerAndSetterParameterAssignments_ReportDiagnostic()
-        {
-            var test = @"
-namespace Test
-{
-    class MyType
-    {
-        int _x;
-
-        public int SetterProp
-        {
-            set
-            {
-                {|#0:value|} = 123;
-                _x = value;
-            }
-        }
-
-        public int this[int index]
-        {
-            get => _x + index;
-            set
-            {
-                {|#1:index|} += 1;
-                {|#2:value|} = index;
-                _x = value;
-            }
-        }
-    }
-}
-";
-
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithLocation(markupKey: 0)
-                .WithArguments("value");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithLocation(markupKey: 2)
-                .WithArguments("value");
-            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithLocation(markupKey: 1)
-                .WithArguments("index");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected2, expected1);
-        }
 
         [TestMethod]
         public async Task SMA0060_Violate_MemberAccessRootedAtLocal()
@@ -536,116 +443,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
-        [TestMethod]
-        public async Task SMA0061_Violate_MemberAccessRootedAtParameter()
-        {
-            var test = @"
-namespace Test
-{
-    class Box
-    {
-        public Box AutoPropNext { get; set; }
-        public int AutoPropValue { get; set; }
-    }
-
-    class Program
-    {
-        void M(Box foo)
-        {
-            {|#0:foo.AutoPropNext.AutoPropValue|} = 310;
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0062_Violate_MutableMembers_NonStringType()
-        {
-            var test = @"
-namespace Test
-{
-    class C { public int Value; }
-    class B
-    {
-        public C Field;
-        public C Prop { get => Field; set => Field = value; }
-        public void Do() { }
-    }
-
-    class Program
-    {
-        static void Use(C c) { }
-        void M()
-        {
-            var foo = new B();
-            Use({|#0:foo.Field|});
-            _ = {|#1:foo.Prop|};
-            {|#2:foo.Do()|};
-        }
-    }
-}
-";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(markupKey: 1)
-                .WithArguments("foo.Prop", "foo");
-            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
-                .WithLocation(markupKey: 2)
-                .WithArguments("foo.Do()", "foo");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2);
-        }
-
-        [TestMethod]
-        public async Task SMA0064_Violate_Combinations_MutableReturn_ReadOnly_AutoProp()
-        {
-            var test = @"
-namespace Test
-{
-    class C { public int Value; }
-    struct S
-    {
-        public readonly C ReadOnlyAutoProp { get; }
-        public readonly C ReadOnlyMethod() => null;
-        public readonly C ReadOnlyBlockMethod() { return null; }
-        public readonly C ReadOnlyBlockProp { get { return null; } }
-        public C MutableMethod() { return null; }
-        public C MutableProp { get => null; set {} }
-    }
-
-    class Program
-    {
-        void M()
-        {
-            var s = new S();
-            _ = s.ReadOnlyAutoProp;
-            _ = s.ReadOnlyMethod();
-            _ = s.ReadOnlyBlockMethod();
-            _ = s.ReadOnlyBlockProp;
-            _ = {|#0:s.MutableMethod()|};
-            _ = {|#1:s.MutableProp|};
-        }
-    }
-}
-";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
-                .WithLocation(markupKey: 0)
-                .WithArguments("s.MutableMethod()", "s");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
-                .WithLocation(markupKey: 1)
-                .WithArguments("s.MutableProp", "s");
-
-            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
-        }
 
         [TestMethod]
         public async Task SMA0060_Conform_MemberAccessRootedAtField()
@@ -674,6 +471,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_ForStatementHeaderAssignments_AreAllowed()
         {
@@ -695,6 +493,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_ForStatementBodyAssignment_IsStillReported()
@@ -722,6 +521,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_OutVarCall_NotReported_ButSubsequentAssignment_Reported()
         {
@@ -746,33 +546,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
-        [TestMethod]
-        public async Task SMA0062_Violate_MethodCall_ReferenceTypeArgument()
-        {
-            var test = @"
-namespace Test
-{
-    class C { }
-
-    class Program
-    {
-        static void Use(C value) { }
-
-        void M()
-        {
-            var foo = new C();
-            Use({|#0:foo|});
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Conform_MethodCall_MutPrefixArgument_IsAllowed()
@@ -798,6 +571,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_StructArgument_InParameter_IsAllowed()
         {
@@ -821,6 +595,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_StructArgument_ReadOnlyByValue_IsAllowed()
@@ -846,33 +621,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
-        [TestMethod]
-        public async Task SMA0062_Violate_StructArgument_MutableByValue()
-        {
-            var test = @"
-namespace Test
-{
-    struct S { public int X; }
-
-    class Program
-    {
-        static void Use(S value) { }
-
-        void M()
-        {
-            var s = new S();
-            Use({|#0:s|});
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument)
-                .WithLocation(markupKey: 0)
-                .WithArguments("s");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Conform_IndexerArgument_ReferenceType()
@@ -900,6 +648,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_MethodCallArgument_IsAllowed()
         {
@@ -924,6 +673,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_ObjectCreationArgument_IsAllowed()
         {
@@ -947,34 +697,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
-        [TestMethod]
-        public async Task SMA0062_Violate_FieldArgument()
-        {
-            var test = @"
-namespace Test
-{
-    class C { }
-
-    class Program
-    {
-        C _field = new C();
-        static void Use(C value) { }
-
-        void M()
-        {
-            var self = this;
-            Use({|#0:self._field|});
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument)
-                .WithLocation(markupKey: 0)
-                .WithArguments("self");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Conform_ReadOnlyFieldArgument_IsAllowed()
@@ -1000,6 +722,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_BuiltinPrimitives()
@@ -1052,6 +775,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_PropertyAccess()
         {
@@ -1075,6 +799,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_StructGetterOnlyPropertyAccess()
@@ -1102,31 +827,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
-        [TestMethod]
-        public async Task SMA0064_Violate_MethodCallOnRootLocal()
-        {
-            var test = @"
-namespace Test
-{
-    class C { public void Do() { } }
-
-    class Program
-    {
-        void M()
-        {
-            var foo = new C();
-            {|#0:foo.Do()|};
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo.Do()", "foo");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Conform_MethodCallOnMutPrefixLocal_IsAllowed()
@@ -1150,6 +850,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_ReadOnlyMethodCallOnRootLocal_IsAllowed()
         {
@@ -1172,30 +873,6 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
-        [TestMethod]
-        public async Task SMA0064_Violate_MethodCallOnRootParameter()
-        {
-            var test = @"
-namespace Test
-{
-    class C { public void Do() { } }
-
-    class Program
-    {
-        void M(C foo)
-        {
-            {|#0:foo.Do()|};
-        }
-    }
-}
-";
-
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
-                .WithLocation(markupKey: 0)
-                .WithArguments("foo.Do()", "foo");
-
-            await VerifyWithRuleEnabledAsync(test, expected);
-        }
 
         [TestMethod]
         public async Task SMA0060_Conform_StructReadOnlyGetterOnlyPropertyAccess_IsAllowed()
@@ -1225,6 +902,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_RefAssignment()
         {
@@ -1251,6 +929,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_DecrementAssignment()
         {
@@ -1274,6 +953,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_Subtract()
@@ -1299,6 +979,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_Multiply()
         {
@@ -1322,6 +1003,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_Divide()
@@ -1347,6 +1029,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_Modulo()
         {
@@ -1370,6 +1053,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_And()
@@ -1395,6 +1079,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_Or()
         {
@@ -1418,6 +1103,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_Xor()
@@ -1443,6 +1129,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_LeftShift()
         {
@@ -1466,6 +1153,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_CompoundAssignment_RightShift()
@@ -1491,6 +1179,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_MethodCall_MutPrefixParameterArgument_IsAllowed()
         {
@@ -1514,6 +1203,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_AnonymousObjectArgument_IsAllowed()
         {
@@ -1534,6 +1224,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_ArrayCreationArgument_IsAllowed()
@@ -1556,6 +1247,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_OutTypedDeclarationCall_NotReported()
         {
@@ -1575,6 +1267,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_OutParameterAssignment_IsAllowed()
         {
@@ -1593,6 +1286,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_LiteralArgument_IsAllowed()
@@ -1617,6 +1311,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_DefaultArgument_IsAllowed()
         {
@@ -1640,6 +1335,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_NullArgument_IsAllowed()
         {
@@ -1660,6 +1356,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Violate_PropertyAccessors_LocalAssignment()
@@ -1697,6 +1394,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_IndexerAccessors_LocalAssignment()
         {
@@ -1733,6 +1431,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Violate_Lambda_LocalAndParameterAssignment()
         {
@@ -1764,6 +1463,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_Lambda_MutPrefix_IsAllowed()
         {
@@ -1787,6 +1487,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_PropertyAccessors_MutPrefix_IsAllowed()
@@ -1817,6 +1518,7 @@ namespace Test
             await VerifyWithRuleEnabledAsync(test);
         }
 
+
         [TestMethod]
         public async Task SMA0060_Conform_IndexerAccessors_MutPrefix_IsAllowed()
         {
@@ -1845,6 +1547,7 @@ namespace Test
 
             await VerifyWithRuleEnabledAsync(test);
         }
+
 
         [TestMethod]
         public async Task SMA0060_Conform_RuleSuppressed()
@@ -1892,6 +1595,7 @@ namespace Test
             await verifier.RunAsync();
         }
 
+
         [TestMethod]
         public void SMA0060_Conform_RulesAreDisabledByDefault()
         {
@@ -1911,14 +1615,500 @@ namespace Test
             }
         }
 
+
         [TestMethod]
-        public void SMA0064_Conform_MethodCallRuleIsDisabledByDefault()
+        public async Task SMA0060_Conform_WhileStatementCondition_SimpleAssignment_IsAllowed()
         {
-            var analyzer = new ReadOnlyVariableAnalyzer();
-            var descriptor = analyzer.SupportedDiagnostics.First(d => d.Id == ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall);
-            Assert.IsFalse(descriptor.IsEnabledByDefault, $"{ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall} should be disabled by default");
+            var test = @"
+using System.IO;
+namespace Test
+{
+    class Program
+    {
+        void M(Stream mut_stream)
+        {
+            int read;
+            while ((read = mut_stream.Read(new byte[0], 0, 0)) > 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
         }
 
+
+        [TestMethod]
+        public async Task SMA0060_Violate_WhileStatementCondition_CompoundAssignment()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void M()
+        {
+            int i = 0;
+            while (({|#0:i|} += 1) < 10)
+            {
+            }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+                .WithLocation(markupKey: 0)
+                .WithArguments("i");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Violate_WhileStatementCondition_Increment()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void M()
+        {
+            int i = 0;
+            while ({|#0:i|}++ < 10)
+            {
+            }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+                .WithLocation(markupKey: 0)
+                .WithArguments("i");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Violate_WhileStatementBody_Assignment()
+        {
+            var test = @"
+using System.IO;
+namespace Test
+{
+    class Program
+    {
+        void M(Stream mut_stream)
+        {
+            int read;
+            while ((read = mut_stream.Read(new byte[0], 0, 0)) > 0)
+            {
+                {|#0:read|} = 0;
+            }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+                .WithLocation(markupKey: 0)
+                .WithArguments("read");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_WithMiddleAutoProp()
+        {
+            var test = @"
+namespace Test
+{
+    struct B
+    {
+        public int AutoProp { get; set; }
+        public readonly int ReadOnlyProp => 1;
+    }
+
+    struct C
+    {
+        public B AutoPropB { get; set; }
+        public readonly B ReadOnlyPropB => new B();
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new C();
+            _ = foo.AutoPropB.ReadOnlyProp;
+            _ = foo.AutoPropB.ReadOnlyProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_AllReadOnly()
+        {
+            var test = @"
+namespace Test
+{
+    struct B
+    {
+        public readonly int ReadOnlyProp => 1;
+    }
+
+    struct C
+    {
+        public readonly B ReadOnlyProp => new B();
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new C();
+            _ = foo.ReadOnlyProp.ReadOnlyProp;
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_WithEndAutoProp()
+        {
+            var test = @"
+namespace Test
+{
+    struct B
+    {
+        public int AutoProp { get; set; }
+    }
+
+    struct C
+    {
+        public readonly B ReadOnlyPropB => new B();
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new C();
+            _ = foo.ReadOnlyPropB.AutoProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_WithField_IgnoresFieldReadOnlyPropButChecksProp()
+        {
+            var test = @"
+namespace Test
+{
+    struct B
+    {
+        public int AutoProp { get; set; }
+    }
+
+    struct C
+    {
+        public B FieldB;
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new C();
+            _ = foo.FieldB.AutoProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_ReadOnlyAutoProperty_WithMutableReturnType()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value { get; set; } }
+    struct B
+    {
+        public readonly C AutoProp { get; }
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new B();
+            _ = foo.AutoProp;
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_WithReadOnlyMethodInChain()
+        {
+            var test = @"
+namespace Test
+{
+    struct B
+    {
+        public readonly int ReadOnlyProp => 1;
+    }
+
+    struct C
+    {
+        public readonly B GetBReadOnly() => new B();
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new C();
+            _ = foo.GetBReadOnly().ReadOnlyProp;
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_ThroughThis_NoDiagnosticIfAllReadOnly()
+        {
+            var test = @"
+namespace Test
+{
+    struct B { public readonly int ReadOnlyProp => 1; }
+    struct Program
+    {
+        public readonly B ReadOnlyPropB => new B();
+        void M()
+        {
+            _ = this.ReadOnlyPropB.ReadOnlyProp;
+            _ = ReadOnlyPropB.ReadOnlyProp;
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_ChainedAccess_StaticMember_NoDiagnosticAtStartOfChain()
+        {
+            var test = @"
+namespace Test
+{
+    struct B { public int AutoProp { get; set; } }
+    class S
+    {
+        public static B ReadOnlyPropStatic => new B();
+    }
+    class Program
+    {
+        void M()
+        {
+            _ = S.ReadOnlyPropStatic.AutoProp;
+        }
+    }
+}
+";
+
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_WhenNoConfig_NoDiagnosticReported()
+        {
+            await VerifyWithSettingsAsync(TestCode, configContent: null);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_WhenConfigMissingSeverity_NoDiagnosticReported()
+        {
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = true");
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_WhenConfigSeverityIsFalse_NoDiagnosticReported()
+        {
+            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = false");
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Violate_WhenConfigSeverityIsTrue_DiagnosticReported()
+        {
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+                .WithLocation(markupKey: 0)
+                .WithArguments("foo");
+
+            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = true", expected);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_IEnumerableArgument_IsAllowed()
+        {
+            var test = @"
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+namespace Test
+{
+    class Program
+    {
+        static void Use(IEnumerable value) { }
+        static void UseGeneric(IEnumerable<int> value) { }
+
+        void M(IEnumerable eParam, IEnumerable<int> egParam)
+        {
+            IEnumerable e = null;
+            IEnumerable<int> eg = null;
+            Use(e);
+            UseGeneric(eg);
+            Use(eParam);
+            UseGeneric(egParam);
+
+            // LINQ methods
+            eg.Any();
+            egParam.Any();
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_EnumArgument_IsAllowed()
+        {
+            var test = @"
+namespace Test
+{
+    enum E { A }
+    class Program
+    {
+        static void Use(E value) { }
+
+        void M(E eParam)
+        {
+            E e = E.A;
+            Use(e);
+            Use(eParam);
+        }
+    }
+}
+";
+            await VerifyWithRuleEnabledAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_LambdaArgument_IsAllowed_ButViolationInsideReported()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    class Program
+    {
+        static void Use(Action action) { }
+
+        void M()
+        {
+            Use(() => {
+                int x = 0;
+                {|#0:x|} = 1;
+            });
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("x");
+
+            await VerifyWithRuleEnabledAsync(test, expected0);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0060_Conform_AnonymousMethodArgument_IsAllowed()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    class Program
+    {
+        static void Use(Action action) { }
+
+        void M()
+        {
+            Use(delegate {
+                int x = 0;
+                {|#0:x|} = 1;
+            });
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("x");
+
+            await VerifyWithRuleEnabledAsync(test, expected0);
+        }
+
+
+
+        private static async Task VerifyWithSettingsAsync(string source, string configContent, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        {
+            var test = new VerifyCS.Test
+            {
+                TestCode = source,
+            };
+
+            if (configContent != null)
+            {
+                test.TestState.AnalyzerConfigFiles.Add(("/.globalconfig", configContent));
+            }
+
+
+            test.ExpectedDiagnostics.AddRange(expected);
+            await test.RunAsync();
+        }
 
         private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
