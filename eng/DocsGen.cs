@@ -147,12 +147,16 @@ foreach (var dt in dataTags.OrderBy(x => x.Attribute(XName.Get("name"))?.Value))
 }
 
 File.WriteAllText(outputPath, sb.ToString(), Encoding.UTF8);
-File.WriteAllText(inputPath,
-    $"""
-    <?xml version="1.0" encoding="utf-8"?>
-    {xdoc}
-    """.ReplaceLineEndings("\n"),
-    Encoding.UTF8);
+var xmlSettings = new System.Xml.XmlWriterSettings
+{
+    Indent = true,
+    NewLineChars = "\n",
+    Encoding = Encoding.UTF8
+};
+using (var writer = System.Xml.XmlWriter.Create(inputPath, xmlSettings))
+{
+    xdoc.Save(writer);
+}
 
 Console.WriteLine(sb.ToString());
 Console.WriteLine(value: "DONE");
