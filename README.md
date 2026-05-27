@@ -437,7 +437,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 >
 > Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
 >
-> (Known test framework methods are exempt from all checks)
+> (Known assertion and math methods are exempt from all checks)
 
 
 ## Explicit Number Declaration

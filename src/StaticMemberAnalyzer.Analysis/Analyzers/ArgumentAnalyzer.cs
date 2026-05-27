@@ -129,7 +129,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // Test framework methods are exempt from all checks.
             var invocationOp = argOp.Parent as IInvocationOperation;
-            if (invocationOp != null && IsKnownAssertionMethod(invocationOp))
+            if (invocationOp != null && IsKnownAssertionOrMathMethod(invocationOp))
             {
                 return;
             }
@@ -247,9 +247,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsKnownAssertionMethod(IInvocationOperation invocation)
+        private static bool IsKnownAssertionOrMathMethod(IInvocationOperation invocation)
         {
-            return invocation.TargetMethod.ContainingType.Name is "Must" or "Assert" or "Debug";
+            return invocation.TargetMethod.ContainingType?.Name
+                is "Must" or "Assert" or "Debug"
+                // NOTE: 'Mathf' and 'math' for Unity engine and Burst compiler
+                or "Math" or "Mathf" or "math";
         }
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
