@@ -12,17 +12,17 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 
 - [Flaky Initialization Analysis](#flaky-initialization-analysis) detects flaky initialization
     - [Cross-Referencing Problem](#cross-referencing-problem) of static field across type
-- [`Enum` Type Analysis](#enum-type-analysis) and [Code Fix Provider](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
-- [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
-- [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement and more
-- [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
+- [`Enum` Type Analysis](#enum-type-analysis) and [Code Fix Provider](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
+- [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement and more
+- [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
+- [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [File Header Comment Enforcement](RULES.md#file-structure-analysis) (See [**RULES.md**](RULES.md))
 - [Annotating / Underlining](#annotation-for-type-field-and-property-) to take your attention while coding
 - [Suppression Comment](#suppression-comment) for specific diagnostic rules
-- [Coding Assistance](RULES.md#coding-assistance) for better performance and code quality. Find out all diagnostic rules: [**RULES.md**](RULES.md)
+- [Coding Assistance](RULES.md#coding-assistance) All diagnostic rules, including analysis for better performance and code quality: [**RULES.md**](RULES.md)
 
 
 
