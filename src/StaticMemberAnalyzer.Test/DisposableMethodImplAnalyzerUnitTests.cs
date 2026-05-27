@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class DisposableMethodImplAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task SMA0043_UndisposedField()
+        public async Task SMA0043_Violate_UndisposedField()
         {
             var test = @"
 using System;
@@ -35,7 +35,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_DisposedField()
+        public async Task SMA0043_Conform_DisposedField()
         {
             var test = @"
 using System;
@@ -54,7 +54,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_UndisposedProperty()
+        public async Task SMA0043_Conform_UndisposedProperty()
         {
             var test = @"
 using System;
@@ -72,7 +72,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0044_MissingDispose()
+        public async Task SMA0044_Violate_MissingDispose()
         {
             var test = @"
 using System;
@@ -93,7 +93,7 @@ class {|#0:TestClass|}
         }
 
         [TestMethod]
-        public async Task SMA0043_FullDisposePattern()
+        public async Task SMA0043_Violate_FullDisposePattern()
         {
             var test = @"
 using System;
@@ -121,7 +121,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_ExplicitInterface()
+        public async Task SMA0043_Violate_ExplicitInterface()
         {
             var test = @"
 using System;
@@ -142,7 +142,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_ExplicitInterface_Disposed()
+        public async Task SMA0043_Conform_ExplicitInterface_Disposed()
         {
             var test = @"
 using System;
@@ -162,7 +162,7 @@ class TestClass : IDisposable
 
 
         [TestMethod]
-        public async Task SMA0043_ExpressionBodiedProperty_Detected()
+        public async Task SMA0043_Conform_ExpressionBodiedProperty_Detected()
         {
             var test = @"
 using System;
@@ -180,7 +180,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_ExpressionBodiedProperty_Disposed()
+        public async Task SMA0043_Conform_ExpressionBodiedProperty_Disposed()
         {
             var test = @"
 using System;
@@ -199,7 +199,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_DisposedField_NullConditional()
+        public async Task SMA0043_Conform_DisposedField_NullConditional()
         {
             var test = @"
 using System;
@@ -218,7 +218,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_MultipleUndisposedMembers()
+        public async Task SMA0043_Violate_MultipleUndisposedMembers()
         {
             var test = @"
 using System;
@@ -243,7 +243,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_PartialType()
+        public async Task SMA0043_Violate_PartialType()
         {
             var test1 = @"
 using System;
@@ -281,7 +281,7 @@ partial class TestClass
         }
 
         [TestMethod]
-        public async Task SMA0043_SuppressionCommentOnField_NoDiagnostic()
+        public async Task SMA0043_Conform_SuppressionCommentOnField_NoDiagnostic()
         {
             var test = @"
 using System;
@@ -297,7 +297,7 @@ class MyDisposable : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_UndisposedField_NoSuppression_ReportsDiagnostic()
+        public async Task SMA0043_Violate_UndisposedField_NoSuppression_ReportsDiagnostic()
         {
             var test = @"
 using System;
@@ -315,7 +315,7 @@ class MyDisposable : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0045_MissingIDisposableInterface()
+        public async Task SMA0045_Violate_MissingIDisposableInterface()
         {
             var test = @"
 using System;

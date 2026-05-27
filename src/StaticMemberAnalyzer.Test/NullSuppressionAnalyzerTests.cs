@@ -28,7 +28,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithoutParentheses_ReportsDiagnosticAndFixes()
+        public async Task SMA8002_CodeFix_NullSuppressionWithoutParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
@@ -54,7 +54,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithThreeParentheses_DoesNotReportDiagnostic()
+        public async Task SMA8002_Conform_NullSuppressionWithThreeParentheses_DoesNotReportDiagnostic()
         {
             var test = @"#nullable enable
 class C
@@ -69,7 +69,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithMoreThanThreeParentheses_DoesNotReportDiagnostic()
+        public async Task SMA8002_Conform_NullSuppressionWithMoreThanThreeParentheses_DoesNotReportDiagnostic()
         {
             var test = @"#nullable enable
 class C
@@ -84,7 +84,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithOneParenthesis_Exact_ReportsDiagnosticAndFixes()
+        public async Task SMA8002_CodeFix_NullSuppressionWithOneParenthesis_Exact_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
@@ -110,7 +110,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithTwoParentheses_ReportsDiagnosticAndFixes()
+        public async Task SMA8002_CodeFix_NullSuppressionWithTwoParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
@@ -136,7 +136,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionInsideParentheses_ReportsDiagnosticAndFixes()
+        public async Task SMA8002_CodeFix_NullSuppressionInsideParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
@@ -162,7 +162,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithExpressionAndOneParenthesis_ReportsDiagnosticAndFixes()
+        public async Task SMA8002_CodeFix_NullSuppressionWithExpressionAndOneParenthesis_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C
@@ -188,7 +188,7 @@ class C
         }
 
         [TestMethod]
-        public async Task NullSuppressionWithExpressionAndTwoParentheses_ReportsDiagnosticAndFixes()
+        public async Task SMA8002_CodeFix_NullSuppressionWithExpressionAndTwoParentheses_ReportsDiagnosticAndFixes()
         {
             var test = @"#nullable enable
 class C

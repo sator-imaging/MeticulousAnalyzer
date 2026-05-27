@@ -30,25 +30,25 @@ namespace Test
 ";
 
         [TestMethod]
-        public async Task WhenNoConfig_NoDiagnosticReported()
+        public async Task SMA0060_Conform_WhenNoConfig_NoDiagnosticReported()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: null);
         }
 
         [TestMethod]
-        public async Task WhenConfigMissingSeverity_NoDiagnosticReported()
+        public async Task SMA0060_Conform_WhenConfigMissingSeverity_NoDiagnosticReported()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = true");
         }
 
         [TestMethod]
-        public async Task WhenConfigSeverityIsFalse_NoDiagnosticReported()
+        public async Task SMA0060_Conform_WhenConfigSeverityIsFalse_NoDiagnosticReported()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = false");
         }
 
         [TestMethod]
-        public async Task WhenConfigSeverityIsTrue_DiagnosticReported()
+        public async Task SMA0060_Violate_WhenConfigSeverityIsTrue_DiagnosticReported()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)

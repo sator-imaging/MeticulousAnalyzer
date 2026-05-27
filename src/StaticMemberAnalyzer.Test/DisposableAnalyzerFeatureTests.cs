@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class DisposableAnalyzerFeatureTests
     {
         [TestMethod]
-        public async Task SMA0040_SuppressedByComment()
+        public async Task SMA0040_Conform_SuppressedByComment()
         {
             var test = @"
 using System;
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0041_IsNotSuppressedByComment()
+        public async Task SMA0041_Violate_IsNotSuppressedByComment()
         {
             var test = @"
 using System;
@@ -69,7 +69,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_NotSuppressedByOtherComment()
+        public async Task SMA0040_Violate_NotSuppressedByOtherComment()
         {
             var test = @"
 using System;
@@ -94,7 +94,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_SuppressedByComment_CaseInsensitive()
+        public async Task SMA0040_Conform_SuppressedByComment_CaseInsensitive()
         {
             var test = @"
 using System;
@@ -116,7 +116,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_SuppressedByCommentTwoLinesAbove()
+        public async Task SMA0040_Conform_SuppressedByCommentTwoLinesAbove()
         {
             var test = @"
 using System;
@@ -139,7 +139,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_NotSuppressedByComment_WhenPassedAsArgument()
+        public async Task SMA0040_Violate_NotSuppressedByComment_WhenPassedAsArgument()
         {
             var test = @"
 using System;
@@ -165,7 +165,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0042_IsSuppressedByComment()
+        public async Task SMA0040_Conform_IsSuppressedByComment()
         {
             var test = @"
 using System;
@@ -190,7 +190,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Assignment_IsNotSuppressedByComment()
+        public async Task SMA0040_Violate_Assignment_IsNotSuppressedByComment()
         {
             var test = @"
 using System;
@@ -217,7 +217,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Assignment_WithBlankLine_IsNotSuppressed()
+        public async Task SMA0040_Violate_Assignment_WithBlankLine_IsNotSuppressed()
         {
             var test = @"
 using System;
@@ -245,7 +245,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Assignment_WithoutBlankLine_IsNotSuppressed()
+        public async Task SMA0040_Violate_Assignment_WithoutBlankLine_IsNotSuppressed()
         {
             var test = @"
 using System;
@@ -272,7 +272,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_SuppressedByComment_WithAdditionalText()
+        public async Task SMA0040_Conform_SuppressedByComment_WithAdditionalText()
         {
             var test = @"
 using System;
@@ -294,7 +294,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_SuppressedByMultipleSingleLineComments()
+        public async Task SMA0040_Conform_SuppressedByMultipleSingleLineComments()
         {
             var test = @"
 using System;
@@ -317,7 +317,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_NotSuppressedByComment_WhenNotFirstLine()
+        public async Task SMA0040_Violate_NotSuppressedByComment_WhenNotFirstLine()
         {
             var test = @"
 using System;
@@ -343,7 +343,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_NotSuppressedByPrecedingLineEndComment()
+        public async Task SMA0040_Violate_NotSuppressedByPrecedingLineEndComment()
         {
             var test = @"
 using System;
@@ -369,7 +369,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_NotSuppressedByComment_WhenBlankLineBetweenComments()
+        public async Task SMA0040_Violate_NotSuppressedByComment_WhenBlankLineBetweenComments()
         {
             var test = @"
 using System;
@@ -396,7 +396,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_VariableNamedUnderscore_IsNotDiscard()
+        public async Task SMA0040_Violate_VariableNamedUnderscore_IsNotDiscard()
         {
             var test = @"
 using System;
@@ -420,7 +420,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_AssignmentToVariableNamedUnderscore_IsNotDiscard()
+        public async Task SMA0040_Violate_AssignmentToVariableNamedUnderscore_IsNotDiscard()
         {
             var test = @"
 using System;
@@ -447,7 +447,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_DiscardWithoutComment_ReportsError()
+        public async Task SMA0040_Violate_DiscardWithoutComment_ReportsError()
         {
             var test = @"
 using System;
@@ -471,7 +471,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_DiscardWithComment_IsSuppressed()
+        public async Task SMA0040_Conform_DiscardWithComment_IsSuppressed()
         {
             var test = @"
 using System;
@@ -493,7 +493,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_CastAs_SuppressedByComment()
+        public async Task SMA0040_Conform_CastAs_SuppressedByComment()
         {
             var test = @"
 using System;
@@ -515,7 +515,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_CastAs_NotSuppressed()
+        public async Task SMA0040_Violate_CastAs_NotSuppressed()
         {
             var test = @"
 using System;

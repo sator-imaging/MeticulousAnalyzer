@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerBeTrueTests
     {
         [TestMethod]
-        public async Task TestAssertClassIgnoresAllArguments()
+        public async Task SMA8000_Conform_AssertClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -33,7 +33,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestMustClassIgnoresAllArguments()
+        public async Task SMA8000_Conform_MustClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -58,7 +58,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestDebugClassIgnoresAllArguments()
+        public async Task SMA8000_Conform_DebugClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -83,7 +83,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestOtherClassesStillReported()
+        public async Task SMA8000_Violate_OtherClassesStillReported()
         {
             var test = @"
 namespace Test
@@ -107,7 +107,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeNotExemptEvenIfNameMatches()
+        public async Task SMA8000_Violate_AttributeNotExemptEvenIfNameMatches()
         {
             var test = @"
 using System;

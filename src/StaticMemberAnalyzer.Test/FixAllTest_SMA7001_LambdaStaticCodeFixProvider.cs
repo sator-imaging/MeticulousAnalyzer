@@ -48,7 +48,7 @@ namespace Test_{0}
 }}";
 
         [TestMethod]
-        public async Task Test_SMA7001_FixAllInSolution()
+        public async Task SMA7001_CodeFix_SMA7001_FixAllInSolution()
         {
             var test = new VerifyCS.Test
             {

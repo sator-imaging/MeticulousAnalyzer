@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class LambdaStaticCodeFixProviderReproTests
     {
         [TestMethod]
-        public async Task TestStaticMethodWithKeywordArgsConversionCodeFix_ReproIssue1()
+        public async Task SMA7001_CodeFix_StaticMethodWithKeywordArgsConversionCodeFix_ReproIssue1()
         {
             var test = @"
 using System;
@@ -44,7 +44,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestWrapWithStaticLambdaPreservesTrivia_ReproIssue2()
+        public async Task SMA7001_CodeFix_WrapWithStaticLambdaPreservesTrivia_ReproIssue2()
         {
             var test = @"
 using System;
@@ -75,7 +75,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestAddStaticModifierPreservesFormatting_ReproIssue3()
+        public async Task SMA7000_CodeFix_AddStaticModifierPreservesFormatting_ReproIssue3()
         {
             var test = @"
 using System;

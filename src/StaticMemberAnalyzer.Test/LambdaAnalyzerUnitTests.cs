@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class LambdaAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task TestNonStaticLambda()
+        public async Task SMA7000_CodeFix_NonStaticLambda()
         {
             var test = @"
 using System;
@@ -40,7 +40,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestNonStaticLambdaInArgument()
+        public async Task SMA7000_CodeFix_NonStaticLambdaInArgument()
         {
             var test = @"
 using System;
@@ -69,7 +69,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestStaticLambda()
+        public async Task SMA7000_Conform_StaticLambda()
         {
             var test = @"
 using System;
@@ -85,7 +85,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaCapturingVariableSuppressedByCommentInArgument()
+        public async Task SMA7000_Conform_LambdaCapturingVariableSuppressedByCommentInArgument()
         {
             var test = @"
 using System;
@@ -106,7 +106,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaCapturingVariableSuppressedByCommentInArgumentWithParams()
+        public async Task SMA7000_Conform_LambdaCapturingVariableSuppressedByCommentInArgumentWithParams()
         {
             var test = @"
 using System;
@@ -127,7 +127,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestImplicitConversionFromInstanceMethod()
+        public async Task SMA7001_Violate_ImplicitConversionFromInstanceMethod()
         {
             var test = @"
 using System;
@@ -153,7 +153,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestImplicitConversionFromInstanceMethodInArgument()
+        public async Task SMA7001_Violate_ImplicitConversionFromInstanceMethodInArgument()
         {
             var test = @"
 using System;
@@ -175,7 +175,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestImplicitConversionWithGenericAction()
+        public async Task SMA7001_Violate_ImplicitConversionWithGenericAction()
         {
             var test = @"
 using System;
@@ -195,7 +195,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestImplicitConversionWithGenericFunc()
+        public async Task SMA7001_Violate_ImplicitConversionWithGenericFunc()
         {
             var test = @"
 using System;
@@ -215,7 +215,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestNonActionFuncDelegateConversionReported()
+        public async Task SMA7001_Violate_NonActionFuncDelegateConversionReported()
         {
             var test = @"
 using System;
@@ -236,7 +236,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestNonActionFuncStaticMethodConversionNotReported()
+        public async Task SMA7000_Conform_NonActionFuncStaticMethodConversionNotReported()
         {
             var test = @"
 using System;
@@ -254,7 +254,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestNonStaticAsyncLambda()
+        public async Task SMA7000_CodeFix_NonStaticAsyncLambda()
         {
             var test = @"
 using System;
@@ -283,7 +283,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestImplicitConversionFromInstanceField()
+        public async Task SMA7001_Violate_ImplicitConversionFromInstanceField()
         {
             var test = @"
 using System;
@@ -304,7 +304,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestStaticMethodConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodConversionCodeFix()
         {
             var test = @"
 using System;
@@ -335,7 +335,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestStaticMethodWithMultipleArgsConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodWithMultipleArgsConversionCodeFix()
         {
             var test = @"
 using System;
@@ -366,7 +366,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestInstanceMethodConversionCodeFixDoesNotApply()
+        public async Task SMA7001_CodeFix_InstanceMethodConversionCodeFixDoesNotApply()
         {
             var test = @"
 using System;
@@ -388,7 +388,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestInstanceMethodWithReceiverConversionCodeFixDoesNotApply()
+        public async Task SMA7001_CodeFix_InstanceMethodWithReceiverConversionCodeFixDoesNotApply()
         {
             var test = @"
 using System;
@@ -408,7 +408,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestStaticMethodInArgumentConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodInArgumentConversionCodeFix()
         {
             var test = @"
 using System;
@@ -441,7 +441,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestStaticMethodWithMultipleArgsInArgumentConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodWithMultipleArgsInArgumentConversionCodeFix()
         {
             var test = @"
 using System;
@@ -474,7 +474,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaCapturingVariableReportsSMA7002()
+        public async Task SMA7002_Violate_LambdaCapturingVariableReportsSMA7002()
         {
             var test = @"
 using System;
@@ -492,7 +492,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaWithParamsCapturingVariableReportsSMA7002()
+        public async Task SMA7002_Violate_LambdaWithParamsCapturingVariableReportsSMA7002()
         {
             var test = @"
 using System;
@@ -512,7 +512,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestLambdaCapturingVariableSuppressedByComment()
+        public async Task SMA7000_Conform_LambdaCapturingVariableSuppressedByComment()
         {
             var test = @"
 using System;

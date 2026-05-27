@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class WhileStatementUnitTests
     {
         [TestMethod]
-        public async Task WhileStatementCondition_SimpleAssignment_IsAllowed()
+        public async Task SMA0060_Conform_WhileStatementCondition_SimpleAssignment_IsAllowed()
         {
             var test = @"
 using System.IO;
@@ -35,7 +35,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task WhileStatementCondition_CompoundAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_WhileStatementCondition_CompoundAssignment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -60,7 +60,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task WhileStatementCondition_Increment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_WhileStatementCondition_Increment_ReportsDiagnostic()
         {
             var test = @"
 namespace Test
@@ -85,7 +85,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task WhileStatementBody_Assignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_WhileStatementBody_Assignment_ReportsDiagnostic()
         {
             var test = @"
 using System.IO;

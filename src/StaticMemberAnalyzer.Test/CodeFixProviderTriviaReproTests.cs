@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class CodeFixProviderTriviaReproTests
     {
         [TestMethod]
-        public async Task TestNamedArgumentKeywordHandling_Repro()
+        public async Task SMA8000_CodeFix_NamedArgumentKeywordHandling_Repro()
         {
             var test = @"
 public class C
@@ -68,7 +68,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestEnumObfuscationTriviaPreservation_Repro()
+        public async Task SMA0026_CodeFix_EnumObfuscationTriviaPreservation_Repro()
         {
             var test = @"
 using System;
@@ -96,7 +96,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task TestNullSuppressionTriviaPreservation_Repro()
+        public async Task SMA8002_CodeFix_NullSuppressionTriviaPreservation_Repro()
         {
             var test = @"
 public class C

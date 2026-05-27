@@ -12,7 +12,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class NamedArgumentCodeFixProviderUnitTests
     {
         [TestMethod]
-        public async Task TestMethodLiteralArguments()
+        public async Task SMA8000_CodeFix_MethodLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -49,7 +49,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestConstructorLiteralArguments()
+        public async Task SMA8000_CodeFix_ConstructorLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -86,7 +86,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestAttributeArguments()
+        public async Task SMA8000_CodeFix_AttributeArguments()
         {
             var test = @"
 using System;
@@ -125,7 +125,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestComplexSyntax()
+        public async Task SMA8000_CodeFix_ComplexSyntax()
         {
             var test = @"
 namespace Test
@@ -168,7 +168,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task TestNestedAndComplexSyntax()
+        public async Task SMA8000_CodeFix_NestedAndComplexSyntax()
         {
             var test = @"
 namespace Test
