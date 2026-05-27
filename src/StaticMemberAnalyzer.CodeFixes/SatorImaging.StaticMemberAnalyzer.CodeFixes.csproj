@@ -3,23 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-    <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
-    <Title>$(GlobalPackageTitle)</Title>
-    <Version>$(GlobalPackageVersion)</Version>
-    <Authors>$(GlobalPackageOwner)</Authors>
-    <Company>$(GlobalPackageCompany)</Company>
-    <Product>$(GlobalPackageProduct)</Product>
-    <Description>$(GlobalPackageDescription)</Description>
-    <Copyright>$(GlobalPackageCopyright)</Copyright>
-    <PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
-    <RepositoryUrl>$(GlobalPackageRepository)</RepositoryUrl>
-    <AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
-    <FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>none</DebugType>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,82 +1,72 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<PackageId>$(GlobalPackageID)</PackageId>
-		<PackageVersion>$(GlobalPackageVersion)</PackageVersion>
-		<Authors>$(GlobalPackageOwner)</Authors>
-		<!--<PackageLicenseUrl>$(GlobalPackageLicenseUrl)</PackageLicenseUrl>-->
-		<PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
-		<PackageIconUrl>$(GlobalPackageIconUrl)</PackageIconUrl>
-		<RepositoryUrl>$(GlobalPackageRepository)</RepositoryUrl>
-		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<Description>$(GlobalPackageDescription)</Description>
-		<PackageReleaseNotes>$(GlobalPackageReleaseNote)</PackageReleaseNotes>
-		<Copyright>$(GlobalPackageCopyright)</Copyright>
-		<PackageTags>$(GlobalPackageTags)</PackageTags>
-		<DevelopmentDependency>true</DevelopmentDependency>
-		<NoPackageAnalysis>true</NoPackageAnalysis>
+  <PropertyGroup>
+    <!-- NuGet Packaging -->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- .nuspec -->
+    <PackageId>$(GlobalPackageID)</PackageId>
+    <PackageVersion>$(GlobalPackageVersion)</PackageVersion>
+    <PackageReleaseNotes>$(GlobalPackageReleaseNote)</PackageReleaseNotes>
+    <PackageTags>$(GlobalPackageTags)</PackageTags>
+    <Copyright>$(GlobalPackageCopyright)</Copyright>
+    <Title>$(GlobalPackageTitle)</Title>
+    <Authors>$(GlobalPackageOwner)</Authors>
+    <Version>$(GlobalPackageVersion)</Version>
+    <Company>$(GlobalPackageCompany)</Company>
+    <Product>$(GlobalPackageProduct)</Product>
+    <Description>$(GlobalPackageDescription)</Description>
+    <!--<PackageLicenseUrl>$(GlobalPackageLicenseUrl)</PackageLicenseUrl>-->
+    <PackageProjectUrl>$(GlobalPackageWebsite)</PackageProjectUrl>
+    <PackageLicenseExpression>$(GlobalPackageLicenseSPDX)</PackageLicenseExpression>
+    <PackageIconUrl>$(GlobalPackageIconUrl)</PackageIconUrl>
+    <RepositoryUrl>$(GlobalPackageRepository)</RepositoryUrl>
+    
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon-128px.png</PackageIcon>
+  </PropertyGroup>
 
-		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  <ItemGroup>
+    <None Include="..\..\assets\icon-128px.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
-		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+  <ItemGroup>
+    <ProjectReference Include="..\StaticMemberAnalyzer.CodeFixes\SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
+    <ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+  </ItemGroup>
 
-		<AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
+  <!-- Generate .pdb on debug build -->
+  <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
 
-		<Title>$(GlobalPackageTitle)</Title>
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
 
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-
-		<Version>$(GlobalPackageVersion)</Version>
-
-		<Company>$(GlobalPackageCompany)</Company>
-
-		<Product>$(GlobalPackageProduct)</Product>
-
-		<PackageLicenseExpression>$(GlobalPackageLicenseSPDX)</PackageLicenseExpression>
-
-		<PackageIcon>icon-128px.png</PackageIcon>
-
-		<AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
-
-		<FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>none</DebugType>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="..\..\assets\icon-128px.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-		<None Include="..\..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\StaticMemberAnalyzer.CodeFixes\SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
-		<ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
-	</ItemGroup>
-
-	<Target Name="_AddAnalyzersToOutput">
-		<ItemGroup>
-			<TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />
-			<TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
-		</ItemGroup>
-	</Target>
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+    </ItemGroup>
+  </Target>
 
 </Project>

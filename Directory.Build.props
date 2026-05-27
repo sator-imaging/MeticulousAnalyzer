@@ -21,7 +21,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
   <PropertyGroup Label="UserMacros">
+    <GlobalPackageVersion>4.6.0-rc.11</GlobalPackageVersion>
     <GlobalPackageID>SatorImaging.StaticMemberAnalyzer</GlobalPackageID>
     <GlobalPackageTitle>Static Member Analyzer</GlobalPackageTitle>
     <GlobalPackageProduct>$(GlobalPackageTitle)</GlobalPackageProduct>
@@ -36,10 +41,11 @@
     <GlobalPackageLicenseUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/blob/main/LICENSE.md</GlobalPackageLicenseUrl>
     <GlobalPackageLicenseSPDX>MIT</GlobalPackageLicenseSPDX>
     <GlobalPackageIconUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/raw/main/assets/icon-128px.png</GlobalPackageIconUrl>
+  </PropertyGroup>
 
-    <!-- don't forget to update the following PackageReference version range -->
-    <GlobalPackageVersion>4.6.0-rc.11</GlobalPackageVersion>
-
+  <PropertyGroup>
+    <FileVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</FileVersion>
+    <AssemblyVersion>$([System.String]::Copy('$(GlobalPackageVersion)').Split('-')[0]).0</AssemblyVersion>
   </PropertyGroup>
 
 </Project>
