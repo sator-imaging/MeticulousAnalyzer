@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.6.0-rc.12](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v4.6.0-rc.12) (2026-05-27)
+
+### 📚 Other Changes
+* Rename test methods to follow standard pattern by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#273](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/273)
+* chore: remove AssemblyInfo.cs by [@sator-imaging](https://github.com/sator-imaging) in [#278](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/278)
+* Update README Table of Contents to align with implementation by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#277](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/277)
+* refactor: massive csproj update by [@sator-imaging](https://github.com/sator-imaging) in [#279](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/279)
+* Test Update Phase 1.5: Renaming and Duplicate Removal by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#275](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/275)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v4.6.0-rc.11...v4.6.0-rc.12
+
+
 ## [4.6.0-rc.11](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v4.6.0-rc.11) (2026-05-27)
 
 ### ✨ Breaking Changes
