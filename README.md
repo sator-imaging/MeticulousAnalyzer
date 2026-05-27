@@ -20,8 +20,8 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [File Header Comment Enforcement](RULES.md#file-structure-analysis) (See [**RULES.md**](RULES.md))
-- [Annotating / Underlining](#annotation-for-type-field-and-property-) to take your attention while coding
 - [Suppression Comment](#suppression-comment) for specific diagnostic rules
+- ~~[Annotating / Underlining](#annotation-for-type-field-and-property-) to take your attention while coding~~
 - [Coding Assistance](RULES.md#coding-assistance) All diagnostic rules, including analysis for better performance and code quality: [**RULES.md**](RULES.md)
 
 
