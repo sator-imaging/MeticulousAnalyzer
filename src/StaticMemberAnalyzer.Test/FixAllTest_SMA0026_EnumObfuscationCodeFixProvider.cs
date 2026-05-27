@@ -19,25 +19,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
 
 namespace Test_{0}
 {{
-    public enum {{|#{1}:E_{0}_0|}} {{ V }}
+    /* Leading trivia */ public enum {{|#{1}:E_{0}_0|}} {{ V }} // Trailing trivia
 
-    public enum {{|#{2}:E_{0}_1|}} {{ V }}
+    /* Leading trivia */ public enum {{|#{2}:E_{0}_1|}} {{ V }} // Trailing trivia
 
-    public enum {{|#{3}:E_{0}_2|}} {{ V }}
+    /* Leading trivia */ public enum {{|#{3}:E_{0}_2|}} {{ V }} // Trailing trivia
 }}";
 
         private const string FixedTemplate = @"using System.Reflection;
 
 namespace Test_{0}
 {{
+    /* Leading trivia */
     [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E_{0}_0 {{ V }}
+    public enum E_{0}_0 {{ V }} // Trailing trivia
 
+    /* Leading trivia */
     [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E_{0}_1 {{ V }}
+    public enum E_{0}_1 {{ V }} // Trailing trivia
 
+    /* Leading trivia */
     [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum E_{0}_2 {{ V }}
+    public enum E_{0}_2 {{ V }} // Trailing trivia
 }}";
 
         [TestMethod]

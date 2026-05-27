@@ -21,7 +21,10 @@ namespace Test_{0}
     public class C_{0}
     {{
         void M(bool a, bool b, bool c) {{}}
-        void Test() {{ M({{|#{1}:true|}}, {{|#{2}:false|}}, {{|#{3}:true|}}); }}
+        void Test() {{ M(/* Leading trivia */ {{|#{1}:true|}} // Trailing trivia
+, /* Leading trivia */ {{|#{2}:false|}} // Trailing trivia
+, /* Leading trivia */ {{|#{3}:true|}} // Trailing trivia
+); }}
     }}
 }}";
 
@@ -31,7 +34,10 @@ namespace Test_{0}
     public class C_{0}
     {{
         void M(bool a, bool b, bool c) {{}}
-        void Test() {{ M(a: true, b: false, c: true); }}
+        void Test() {{ M(/* Leading trivia */ a: true // Trailing trivia
+, /* Leading trivia */ b: false // Trailing trivia
+, /* Leading trivia */ c: true // Trailing trivia
+); }}
     }}
 }}";
 
