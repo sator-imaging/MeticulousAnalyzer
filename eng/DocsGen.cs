@@ -116,7 +116,7 @@ foreach (var data in analyzerInfo.Values.OrderBy(static x => x.diagnosticId).The
     }
     else if (number != lastNumber + 1)  //separator
     {
-        sb.AppendLine(value: "||");
+        sb.AppendLine("| | | |");
     }
 
     sb.AppendLine($"| {data.diagnosticId} | {data.title.PadRight(maxTitleLength)} | {data.description}");
