@@ -1,0 +1,10 @@
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/bin/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.deps.json
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/bin/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.dll
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.csproj.AssemblyReference.cache
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.Resources.resources
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.csproj.GenerateResource.cache
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.AssemblyInfoInputs.cache
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.AssemblyInfo.cs
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.csproj.CoreCompileInputs.cache
+/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Analysis/obj/Release/netstandard2.0/SatorImaging.StaticMemberAnalyzer.Analysis.dll

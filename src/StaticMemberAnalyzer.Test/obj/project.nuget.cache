@@ -1,0 +1,128 @@
+{
+  "version": 2,
+  "dgSpecHash": "U+K88ZxP4MM=",
+  "success": true,
+  "projectFilePath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+  "expectedPackageFiles": [
+    "/home/runner/.nuget/packages/diffplex/1.4.4/diffplex.1.4.4.nupkg.sha512",
+    "/home/runner/.nuget/packages/humanizer.core/2.2.0/humanizer.core.2.2.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.bcl.asyncinterfaces/1.1.1/microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis/3.8.0/microsoft.codeanalysis.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.analyzer.testing/1.1.0/microsoft.codeanalysis.analyzer.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.analyzers/3.0.0/microsoft.codeanalysis.analyzers.3.0.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.codefix.testing/1.1.0/microsoft.codeanalysis.codefix.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.coderefactoring.testing/1.1.0/microsoft.codeanalysis.coderefactoring.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.common/3.8.0/microsoft.codeanalysis.common.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp/3.8.0/microsoft.codeanalysis.csharp.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.analyzer.testing/1.1.0/microsoft.codeanalysis.csharp.analyzer.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.analyzer.testing.mstest/1.1.0/microsoft.codeanalysis.csharp.analyzer.testing.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.codefix.testing/1.1.0/microsoft.codeanalysis.csharp.codefix.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.codefix.testing.mstest/1.1.0/microsoft.codeanalysis.csharp.codefix.testing.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.coderefactoring.testing/1.1.0/microsoft.codeanalysis.csharp.coderefactoring.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.coderefactoring.testing.mstest/1.1.0/microsoft.codeanalysis.csharp.coderefactoring.testing.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.csharp.workspaces/3.8.0/microsoft.codeanalysis.csharp.workspaces.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.testing.verifiers.mstest/1.1.0/microsoft.codeanalysis.testing.verifiers.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic/3.8.0/microsoft.codeanalysis.visualbasic.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.analyzer.testing/1.1.0/microsoft.codeanalysis.visualbasic.analyzer.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.analyzer.testing.mstest/1.1.0/microsoft.codeanalysis.visualbasic.analyzer.testing.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.codefix.testing/1.1.0/microsoft.codeanalysis.visualbasic.codefix.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.codefix.testing.mstest/1.1.0/microsoft.codeanalysis.visualbasic.codefix.testing.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.coderefactoring.testing/1.1.0/microsoft.codeanalysis.visualbasic.coderefactoring.testing.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.coderefactoring.testing.mstest/1.1.0/microsoft.codeanalysis.visualbasic.coderefactoring.testing.mstest.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.visualbasic.workspaces/3.8.0/microsoft.codeanalysis.visualbasic.workspaces.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codeanalysis.workspaces.common/3.8.0/microsoft.codeanalysis.workspaces.common.3.8.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.codecoverage/15.9.0/microsoft.codecoverage.15.9.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.dotnet.platformabstractions/1.0.3/microsoft.dotnet.platformabstractions.1.0.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.extensions.dependencymodel/1.0.3/microsoft.extensions.dependencymodel.1.0.3.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.net.test.sdk/15.9.0/microsoft.net.test.sdk.15.9.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.testplatform.objectmodel/15.9.0/microsoft.testplatform.objectmodel.15.9.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.testplatform.testhost/15.9.0/microsoft.testplatform.testhost.15.9.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.visualstudio.composition/16.1.8/microsoft.visualstudio.composition.16.1.8.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.visualstudio.composition.netfxattributes/16.1.8/microsoft.visualstudio.composition.netfxattributes.16.1.8.nupkg.sha512",
+    "/home/runner/.nuget/packages/microsoft.visualstudio.validation/15.0.82/microsoft.visualstudio.validation.15.0.82.nupkg.sha512",
+    "/home/runner/.nuget/packages/mstest.testadapter/1.3.2/mstest.testadapter.1.3.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/mstest.testframework/1.3.2/mstest.testframework.1.3.2.nupkg.sha512",
+    "/home/runner/.nuget/packages/netstandard.library/1.6.1/netstandard.library.1.6.1.nupkg.sha512",
+    "/home/runner/.nuget/packages/newtonsoft.json/9.0.1/newtonsoft.json.9.0.1.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.common/5.6.0/nuget.common.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.configuration/5.6.0/nuget.configuration.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.frameworks/5.6.0/nuget.frameworks.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.packaging/5.6.0/nuget.packaging.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.protocol/5.6.0/nuget.protocol.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.resolver/5.6.0/nuget.resolver.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/nuget.versioning/5.6.0/nuget.versioning.5.6.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.componentmodel.composition/4.5.0/system.componentmodel.composition.4.5.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.composition/1.0.31/system.composition.1.0.31.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.composition.attributedmodel/1.0.31/system.composition.attributedmodel.1.0.31.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.composition.convention/1.0.31/system.composition.convention.1.0.31.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.composition.hosting/1.0.31/system.composition.hosting.1.0.31.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.composition.runtime/1.0.31/system.composition.runtime.1.0.31.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.composition.typedparts/1.0.31/system.composition.typedparts.1.0.31.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.security.cryptography.protecteddata/4.3.0/system.security.cryptography.protecteddata.4.3.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.security.permissions/4.5.0/system.security.permissions.4.5.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.xml.xpath.xmldocument/4.0.1/system.xml.xpath.xmldocument.4.0.1.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'Newtonsoft.Json' 9.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr",
+      "projectPath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "libraryId": "Newtonsoft.Json",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'NuGet.Common' 5.6.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-6qmf-mmc7-6c2p",
+      "projectPath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "libraryId": "NuGet.Common",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1904",
+      "level": "Warning",
+      "message": "Package 'NuGet.Packaging' 5.6.0 has a known critical severity vulnerability, https://github.com/advisories/GHSA-68w7-72jg-6qpp",
+      "projectPath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "libraryId": "NuGet.Packaging",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'NuGet.Protocol' 5.6.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-6qmf-mmc7-6c2p",
+      "projectPath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "libraryId": "NuGet.Protocol",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'NuGet.Protocol' 5.6.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-g3q9-xf95-8hp5",
+      "projectPath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/runner/work/StaticMemberAnalyzer/StaticMemberAnalyzer/src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj",
+      "libraryId": "NuGet.Protocol",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}

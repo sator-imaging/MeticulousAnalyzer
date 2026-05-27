@@ -1,0 +1,1595 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "SatorImaging.StaticMemberAnalyzer.Test/1.0.0": {
+        "dependencies": {
+          "MSTest.TestFramework": "1.3.2",
+          "Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest": "1.1.0",
+          "Microsoft.NET.Test.Sdk": "15.9.0",
+          "SatorImaging.StaticMemberAnalyzer.CodeFixes": "4.6.0-rc.11",
+          "__SatorImaging.StaticMemberAnalyzer.Analysis.csproj__": "4.6.0-rc.11",
+          "SatorImaging.StaticMemberAnalyzer.Analysis": "4.6.0.0"
+        },
+        "runtime": {
+          "SatorImaging.StaticMemberAnalyzer.Test.dll": {}
+        }
+      },
+      "DiffPlex/1.4.4": {
+        "runtime": {
+          "lib/netstandard1.0/DiffPlex.dll": {
+            "assemblyVersion": "1.4.4.0",
+            "fileVersion": "1.4.4.0"
+          }
+        }
+      },
+      "Humanizer.Core/2.2.0": {
+        "runtime": {
+          "lib/netstandard1.0/Humanizer.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          }
+        }
+      },
+      "Microsoft.Bcl.AsyncInterfaces/1.1.1": {
+        "runtime": {
+          "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "4.700.20.21406"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.Analyzer.Testing/1.1.0": {
+        "dependencies": {
+          "DiffPlex": "1.4.4",
+          "Microsoft.CodeAnalysis.Workspaces.Common": "3.8.0",
+          "Microsoft.VisualStudio.Composition": "16.1.8",
+          "NuGet.Common": "5.6.0",
+          "NuGet.Packaging": "5.6.0",
+          "NuGet.Protocol": "5.6.0",
+          "NuGet.Resolver": "5.6.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.Analyzer.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CodeFix.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Workspaces.Common": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CodeFix.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CodeRefactoring.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Workspaces.Common": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CodeRefactoring.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.Common/3.8.0": {
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.800.20.56202"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/cs/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp3.1/de/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp3.1/es/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp3.1/fr/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/it/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp3.1/ja/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp3.1/ko/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp3.1/pl/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp3.1/pt-BR/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp3.1/ru/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp3.1/zh-Hans/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp3.1/zh-Hant/Microsoft.CodeAnalysis.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp/3.8.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Common": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.800.20.56202"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/cs/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp3.1/de/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp3.1/es/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp3.1/fr/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/it/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp3.1/ja/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp3.1/ko/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp3.1/pl/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp3.1/pt-BR/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp3.1/ru/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp3.1/zh-Hans/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp3.1/zh-Hant/Microsoft.CodeAnalysis.CSharp.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.Analyzer.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0",
+          "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest": "1.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.CodeFix.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0",
+          "Microsoft.CodeAnalysis.CodeFix.Testing": "1.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.CodeFix.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0",
+          "Microsoft.CodeAnalysis.CodeFix.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest": "1.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0",
+          "Microsoft.CodeAnalysis.CodeRefactoring.Testing": "1.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0",
+          "Microsoft.CodeAnalysis.CodeRefactoring.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest": "1.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.CSharp.Workspaces/3.8.0": {
+        "dependencies": {
+          "Humanizer.Core": "2.2.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.8.0",
+          "Microsoft.CodeAnalysis.Common": "3.8.0",
+          "Microsoft.CodeAnalysis.Workspaces.Common": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.CSharp.Workspaces.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.800.20.56202"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/cs/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp3.1/de/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp3.1/es/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp3.1/fr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/it/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp3.1/ja/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp3.1/ko/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp3.1/pl/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp3.1/pt-BR/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp3.1/ru/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp3.1/zh-Hans/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp3.1/zh-Hant/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest/1.1.0": {
+        "dependencies": {
+          "MSTest.TestFramework": "1.3.2",
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.Testing.Verifiers.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic/3.8.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Common": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.800.20.56202"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/cs/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp3.1/de/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp3.1/es/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp3.1/fr/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/it/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp3.1/ja/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp3.1/ko/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp3.1/pl/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp3.1/pt-BR/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp3.1/ru/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp3.1/zh-Hans/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp3.1/zh-Hant/Microsoft.CodeAnalysis.VisualBasic.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.CodeFix.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CodeFix.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.CodeRefactoring.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest/1.1.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Analyzer.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.CodeRefactoring.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing": "1.1.0",
+          "Microsoft.CodeAnalysis.VisualBasic.Workspaces": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.100.21.27701"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.VisualBasic.Workspaces/3.8.0": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Common": "3.8.0",
+          "Microsoft.CodeAnalysis.VisualBasic": "3.8.0",
+          "Microsoft.CodeAnalysis.Workspaces.Common": "3.8.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.VisualBasic.Workspaces.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.800.20.56202"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/cs/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp3.1/de/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp3.1/es/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp3.1/fr/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/it/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp3.1/ja/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp3.1/ko/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp3.1/pl/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp3.1/pt-BR/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp3.1/ru/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp3.1/zh-Hans/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp3.1/zh-Hant/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.CodeAnalysis.Workspaces.Common/3.8.0": {
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
+          "Microsoft.CodeAnalysis.Common": "3.8.0",
+          "System.Composition": "1.0.31"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.CodeAnalysis.Workspaces.dll": {
+            "assemblyVersion": "3.8.0.0",
+            "fileVersion": "3.800.20.56202"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/cs/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp3.1/de/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp3.1/es/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp3.1/fr/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/it/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp3.1/ja/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp3.1/ko/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp3.1/pl/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp3.1/pt-BR/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp3.1/ru/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp3.1/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp3.1/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.CodeCoverage/15.9.0": {
+        "runtime": {
+          "lib/netcoreapp1.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.28123.3000"
+          }
+        }
+      },
+      "Microsoft.DotNet.PlatformAbstractions/1.0.3": {
+        "runtime": {
+          "lib/netstandard1.3/Microsoft.DotNet.PlatformAbstractions.dll": {
+            "assemblyVersion": "1.0.1.0",
+            "fileVersion": "1.0.1.0"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyModel/1.0.3": {
+        "dependencies": {
+          "Microsoft.DotNet.PlatformAbstractions": "1.0.3",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.6/Microsoft.Extensions.DependencyModel.dll": {
+            "assemblyVersion": "1.0.1.0",
+            "fileVersion": "1.0.1.0"
+          }
+        }
+      },
+      "Microsoft.NET.Test.Sdk/15.9.0": {
+        "dependencies": {
+          "Microsoft.CodeCoverage": "15.9.0",
+          "Microsoft.TestPlatform.TestHost": "15.9.0"
+        }
+      },
+      "Microsoft.TestPlatform.ObjectModel/15.9.0": {
+        "dependencies": {
+          "System.Xml.XPath.XmlDocument": "4.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.5/Microsoft.TestPlatform.CoreUtilities.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          },
+          "lib/netstandard1.5/Microsoft.TestPlatform.PlatformAbstractions.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          },
+          "lib/netstandard1.5/Microsoft.VisualStudio.TestPlatform.ObjectModel.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          }
+        },
+        "resources": {
+          "lib/netstandard1.5/cs/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netstandard1.5/cs/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netstandard1.5/de/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netstandard1.5/de/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netstandard1.5/es/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.5/es/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.5/fr/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netstandard1.5/fr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netstandard1.5/it/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netstandard1.5/it/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netstandard1.5/ja/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netstandard1.5/ja/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netstandard1.5/ko/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netstandard1.5/ko/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netstandard1.5/pl/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netstandard1.5/pl/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netstandard1.5/pt-BR/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netstandard1.5/pt-BR/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netstandard1.5/ru/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netstandard1.5/ru/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netstandard1.5/tr/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netstandard1.5/tr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netstandard1.5/zh-Hans/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netstandard1.5/zh-Hans/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netstandard1.5/zh-Hant/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "zh-Hant"
+          },
+          "lib/netstandard1.5/zh-Hant/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.TestPlatform.TestHost/15.9.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyModel": "1.0.3",
+          "Microsoft.TestPlatform.ObjectModel": "15.9.0",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.5/Microsoft.TestPlatform.CommunicationUtilities.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          },
+          "lib/netstandard1.5/Microsoft.TestPlatform.CrossPlatEngine.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          },
+          "lib/netstandard1.5/Microsoft.VisualStudio.TestPlatform.Common.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          },
+          "lib/netstandard1.5/testhost.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.0.0"
+          }
+        },
+        "resources": {
+          "lib/netstandard1.5/cs/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netstandard1.5/cs/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netstandard1.5/cs/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netstandard1.5/de/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netstandard1.5/de/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netstandard1.5/de/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netstandard1.5/es/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.5/es/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.5/es/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.5/fr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netstandard1.5/fr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netstandard1.5/fr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netstandard1.5/it/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netstandard1.5/it/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netstandard1.5/it/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netstandard1.5/ja/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netstandard1.5/ja/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netstandard1.5/ja/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netstandard1.5/ko/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netstandard1.5/ko/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netstandard1.5/ko/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netstandard1.5/pl/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netstandard1.5/pl/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netstandard1.5/pl/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netstandard1.5/pt-BR/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netstandard1.5/pt-BR/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netstandard1.5/pt-BR/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netstandard1.5/ru/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netstandard1.5/ru/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netstandard1.5/ru/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netstandard1.5/tr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netstandard1.5/tr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netstandard1.5/tr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netstandard1.5/zh-Hans/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netstandard1.5/zh-Hans/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netstandard1.5/zh-Hans/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netstandard1.5/zh-Hant/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "zh-Hant"
+          },
+          "lib/netstandard1.5/zh-Hant/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "zh-Hant"
+          },
+          "lib/netstandard1.5/zh-Hant/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.VisualStudio.Composition/16.1.8": {
+        "dependencies": {
+          "Microsoft.VisualStudio.Composition.NetFxAttributes": "16.1.8",
+          "Microsoft.VisualStudio.Validation": "15.0.82",
+          "System.Composition": "1.0.31"
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/Microsoft.VisualStudio.Composition.dll": {
+            "assemblyVersion": "16.1.0.0",
+            "fileVersion": "16.1.8.36187"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp2.0/cs/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netcoreapp2.0/de/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netcoreapp2.0/es/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netcoreapp2.0/fr/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp2.0/it/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netcoreapp2.0/ja/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netcoreapp2.0/ko/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netcoreapp2.0/pl/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netcoreapp2.0/pt-BR/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netcoreapp2.0/ru/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp2.0/tr/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netcoreapp2.0/zh-Hans/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netcoreapp2.0/zh-Hant/Microsoft.VisualStudio.Composition.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "Microsoft.VisualStudio.Composition.NetFxAttributes/16.1.8": {
+        "dependencies": {
+          "System.ComponentModel.Composition": "4.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.VisualStudio.Composition.NetFxAttributes.dll": {
+            "assemblyVersion": "16.1.0.0",
+            "fileVersion": "16.1.8.36187"
+          }
+        }
+      },
+      "Microsoft.VisualStudio.Validation/15.0.82": {
+        "runtime": {
+          "lib/netstandard1.0/Microsoft.VisualStudio.Validation.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.82.50463"
+          }
+        },
+        "resources": {
+          "lib/netstandard1.0/cs/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/netstandard1.0/de/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "de"
+          },
+          "lib/netstandard1.0/es/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "es"
+          },
+          "lib/netstandard1.0/fr/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netstandard1.0/it/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "it"
+          },
+          "lib/netstandard1.0/ja/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/netstandard1.0/ko/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/netstandard1.0/pl/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/netstandard1.0/pt-BR/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/netstandard1.0/ru/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netstandard1.0/tr/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/netstandard1.0/zh-Hans/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/netstandard1.0/zh-Hant/Microsoft.VisualStudio.Validation.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "MSTest.TestFramework/1.3.2": {
+        "runtime": {
+          "lib/netstandard1.0/Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll": {
+            "assemblyVersion": "14.0.0.0",
+            "fileVersion": "14.0.2505.1"
+          },
+          "lib/netstandard1.0/Microsoft.VisualStudio.TestPlatform.TestFramework.dll": {
+            "assemblyVersion": "14.0.0.0",
+            "fileVersion": "14.0.2505.1"
+          }
+        }
+      },
+      "Newtonsoft.Json/9.0.1": {
+        "runtime": {
+          "lib/netstandard1.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1.19813"
+          }
+        }
+      },
+      "NuGet.Common/5.6.0": {
+        "dependencies": {
+          "NuGet.Frameworks": "5.6.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Common.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "NuGet.Configuration/5.6.0": {
+        "dependencies": {
+          "NuGet.Common": "5.6.0",
+          "System.Security.Cryptography.ProtectedData": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Configuration.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "NuGet.Frameworks/5.6.0": {
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Frameworks.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "NuGet.Packaging/5.6.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "9.0.1",
+          "NuGet.Configuration": "5.6.0",
+          "NuGet.Versioning": "5.6.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Packaging.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "NuGet.Protocol/5.6.0": {
+        "dependencies": {
+          "NuGet.Packaging": "5.6.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Protocol.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "NuGet.Resolver/5.6.0": {
+        "dependencies": {
+          "NuGet.Protocol": "5.6.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Resolver.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "NuGet.Versioning/5.6.0": {
+        "runtime": {
+          "lib/netstandard2.0/NuGet.Versioning.dll": {
+            "assemblyVersion": "5.6.0.5",
+            "fileVersion": "5.6.0.6591"
+          }
+        }
+      },
+      "System.ComponentModel.Composition/4.5.0": {
+        "dependencies": {
+          "System.Security.Permissions": "4.5.0"
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/System.ComponentModel.Composition.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.6.26515.6"
+          }
+        }
+      },
+      "System.Composition/1.0.31": {
+        "dependencies": {
+          "System.Composition.AttributedModel": "1.0.31",
+          "System.Composition.Convention": "1.0.31",
+          "System.Composition.Hosting": "1.0.31",
+          "System.Composition.Runtime": "1.0.31",
+          "System.Composition.TypedParts": "1.0.31"
+        }
+      },
+      "System.Composition.AttributedModel/1.0.31": {
+        "runtime": {
+          "lib/netstandard1.0/System.Composition.AttributedModel.dll": {
+            "assemblyVersion": "1.0.31.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Composition.Convention/1.0.31": {
+        "dependencies": {
+          "System.Composition.AttributedModel": "1.0.31"
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Composition.Convention.dll": {
+            "assemblyVersion": "1.0.31.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Composition.Hosting/1.0.31": {
+        "dependencies": {
+          "System.Composition.Runtime": "1.0.31"
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Composition.Hosting.dll": {
+            "assemblyVersion": "1.0.31.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Composition.Runtime/1.0.31": {
+        "runtime": {
+          "lib/netstandard1.0/System.Composition.Runtime.dll": {
+            "assemblyVersion": "1.0.31.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Composition.TypedParts/1.0.31": {
+        "dependencies": {
+          "System.Composition.AttributedModel": "1.0.31",
+          "System.Composition.Hosting": "1.0.31",
+          "System.Composition.Runtime": "1.0.31"
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.Composition.TypedParts.dll": {
+            "assemblyVersion": "1.0.31.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Security.Cryptography.ProtectedData/4.3.0": {
+        "runtimeTargets": {
+          "runtimes/unix/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll": {
+            "rid": "unix",
+            "assetType": "runtime",
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "4.6.24705.1"
+          },
+          "runtimes/win/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Security.Permissions/4.5.0": {
+        "runtime": {
+          "lib/netstandard2.0/System.Security.Permissions.dll": {
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "4.6.26515.6"
+          }
+        }
+      },
+      "System.Xml.XPath.XmlDocument/4.0.1": {
+        "runtime": {
+          "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "1.0.24212.1"
+          }
+        }
+      },
+      "SatorImaging.StaticMemberAnalyzer.CodeFixes/4.6.0-rc.11": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.CSharp.Workspaces": "3.8.0",
+          "__SatorImaging.StaticMemberAnalyzer.Analysis.csproj__": "4.6.0-rc.11"
+        },
+        "runtime": {
+          "SatorImaging.StaticMemberAnalyzer.CodeFixes.dll": {
+            "assemblyVersion": "4.6.0.0",
+            "fileVersion": "4.6.0.0"
+          }
+        }
+      },
+      "__SatorImaging.StaticMemberAnalyzer.Analysis.csproj__/4.6.0-rc.11": {
+        "dependencies": {
+          "Microsoft.CodeAnalysis.CSharp": "3.8.0",
+          "Microsoft.CodeAnalysis.Common": "3.8.0"
+        },
+        "runtime": {
+          "SatorImaging.StaticMemberAnalyzer.Analysis.dll": {
+            "assemblyVersion": "4.6.0.0",
+            "fileVersion": "4.6.0.0"
+          }
+        }
+      },
+      "SatorImaging.StaticMemberAnalyzer.Analysis/4.6.0.0": {
+        "runtime": {
+          "SatorImaging.StaticMemberAnalyzer.Analysis.dll": {
+            "assemblyVersion": "4.6.0.0",
+            "fileVersion": "4.6.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SatorImaging.StaticMemberAnalyzer.Test/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DiffPlex/1.4.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jx430zzWK70gOzHmNFIq7CHjGwzjxCXsUsqGjC+gwi0XPatSSUGTC2qhJmy/aXjwPgbYoUj13bwxtBE2IkEXEg==",
+      "path": "diffplex/1.4.4",
+      "hashPath": "diffplex.1.4.4.nupkg.sha512"
+    },
+    "Humanizer.Core/2.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rsYXB7+iUPP8AHgQ8JP2UZI2xK2KhjcdGr9E6zX3CsZaTLCaw8M35vaAJRo1rfxeaZEVMuXeaquLVCkZ7JcZ5Q==",
+      "path": "humanizer.core/2.2.0",
+      "hashPath": "humanizer.core.2.2.0.nupkg.sha512"
+    },
+    "Microsoft.Bcl.AsyncInterfaces/1.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-yuvf07qFWFqtK3P/MRkEKLhn5r2UbSpVueRziSqj0yJQIKFwG1pq9mOayK3zE5qZCTs0CbrwL9M6R8VwqyGy2w==",
+      "path": "microsoft.bcl.asyncinterfaces/1.1.1",
+      "hashPath": "microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.Analyzer.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Q8aocwyioFsFf8P1eAX87GjJPwiL9relbc3/b1ki8du+9vXvw4N7MoPuVAGlVuHb4CDk/TDJD2cTYxvO3EuGcw==",
+      "path": "microsoft.codeanalysis.analyzer.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.analyzer.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CodeFix.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-dGfc7k9a73dzWP2PaJpVoZwGWcZDY+RHH3ShXDKch8SJZxzVccipYJaU3MJhATAchIr6mnjy//xhMXm9Hwchiw==",
+      "path": "microsoft.codeanalysis.codefix.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.codefix.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CodeRefactoring.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-X97GEyhTgLcbv7Mg8336qK+yJ6tQXBmva6+qO7iKN4Jgbr8In1t0cfKemR23NHrsK/24QrBwoXOJ9a85jhiWVg==",
+      "path": "microsoft.codeanalysis.coderefactoring.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.coderefactoring.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.Common/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8YTZ7GpsbTdC08DITx7/kwV0k4SC6cbBAFqc13cOm5vKJZcEIAh51tNSyGSkWisMgYCr96B2wb5Zri1bsla3+g==",
+      "path": "microsoft.codeanalysis.common/3.8.0",
+      "hashPath": "microsoft.codeanalysis.common.3.8.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hKqFCUSk9TIMBDjiYMF8/ZfK9p9mzpU+slM73CaCHu4ctfkoqJGHLQhyT8wvrYsIg+ufrUWBF8hcJYmyr5rc5Q==",
+      "path": "microsoft.codeanalysis.csharp/3.8.0",
+      "hashPath": "microsoft.codeanalysis.csharp.3.8.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.Analyzer.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-erqonLDXG6l5JF7g1kzEO8FcjKBh6bQZVpFYPjKdzKEMotdijj5JMKwsN8iXUARfHo3x0ATJ0Ejuo2tK3ZxBIQ==",
+      "path": "microsoft.codeanalysis.csharp.analyzer.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.csharp.analyzer.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Co62xjesHHpsQ6c8uQxxc+QZWzfZtZvZ6f1Ju1hve+PbGtwJTSyRu4FmgGg/w8nGQ8RBMrbOxhqwv2LYmZJGOQ==",
+      "path": "microsoft.codeanalysis.csharp.analyzer.testing.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.csharp.analyzer.testing.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.CodeFix.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UkC2sTvGMV4UT83Ccn4XkD5Fra/ltgDIlkinCqKtT5tRm9gvuBVkoHCYoJ10zrPdfDHkk5Dnn37UN7wDHRG7RQ==",
+      "path": "microsoft.codeanalysis.csharp.codefix.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.csharp.codefix.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-q2M2G4K9ikmzGcLv9F7W4lGpCL79g5EeUz4Rep95twkudmlC3fAKiSJd6IMgbtuhCC8L/R4UJCeEhVX+frXBLQ==",
+      "path": "microsoft.codeanalysis.csharp.codefix.testing.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.csharp.codefix.testing.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-DiSq+jyNhR8xjwZY9tZOBmp6spe6hVOtlxg+gDguB68LfGlGrRzq82ytsij5OZ+S7QYNTAxufvlF5inS4UwFKw==",
+      "path": "microsoft.codeanalysis.csharp.coderefactoring.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.csharp.coderefactoring.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-P0lqQyYeDo5xwqXg1F5wJXG4THrXmSMDOb4ct36OYIefqrQus37+AlVTkTmShXKAeXVOWLXF7WDC9UDemyaCqA==",
+      "path": "microsoft.codeanalysis.csharp.coderefactoring.testing.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.csharp.coderefactoring.testing.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.CSharp.Workspaces/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rdEBvPWqe/IIscsnp7OkZ4tQin8khxBcSLyV9tU+sHdw9uW9U0GKL+Dv2rD4voC1bZBaO18Hp+m4Vkyfmaz0OA==",
+      "path": "microsoft.codeanalysis.csharp.workspaces/3.8.0",
+      "hashPath": "microsoft.codeanalysis.csharp.workspaces.3.8.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.Testing.Verifiers.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mLs39AeFMWeHatiuSMJngJxIaQycxrWB0ghsLJbV1z5DA4qpljPViGekP2jlhD46Z5Dt8WFd70m6iNtDyN9wsw==",
+      "path": "microsoft.codeanalysis.testing.verifiers.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.testing.verifiers.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-G3/0o6sb9ZZQjBD+6bHj7GaxyeMZbBJXNtBC6YGmbSodMup9A1QPgCSrSn/ktbxWjKI8AMlJHP6CHCwfBXTmpg==",
+      "path": "microsoft.codeanalysis.visualbasic/3.8.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.3.8.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-d9VY65H7D6L6CGoq1PCe2Wrh/vXHNSjo/eguRBs/Z9zGC7aI5GMkMHp49eYJYuCAQiu6oJqWafSqNeVzMQ6zAg==",
+      "path": "microsoft.codeanalysis.visualbasic.analyzer.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.analyzer.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Ja+5vAH1UXkNkytyI+A6tuRjAMEnnhtYlItdxHGzFgdHXtgPbymEKe6z/VE0pB0Y1HMEtk6dkeox9vahWWoSrQ==",
+      "path": "microsoft.codeanalysis.visualbasic.analyzer.testing.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.analyzer.testing.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UIHao9xIrlsy2BT7SdXyAkCiLFuMAMLITwHUOkVrX+rEEsEcICsn/rDBkGeumMfPayUguVWHARtjhZhuHA4JVg==",
+      "path": "microsoft.codeanalysis.visualbasic.codefix.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.codefix.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-QJIEixLIceRLBy+lrYKn7+e01g+IeC7/hchDV9FqHH89LHhdgTfgaufsfDLqgzhHtHXvZF64sd2DgYDbSMGUFg==",
+      "path": "microsoft.codeanalysis.visualbasic.codefix.testing.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.codefix.testing.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-uxSZ+fflr1BiPhOmP7yd7qivlmOpG3jwoX2zKDYBVMurjSK9zpr2Na4wS6X3WSanybHEsneN0vDvXw4ggyD81g==",
+      "path": "microsoft.codeanalysis.visualbasic.coderefactoring.testing/1.1.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.coderefactoring.testing.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-u4rYOOayxkUXvKeYcF2Yx+GplQaF4FBvVH8HmmEap/JeeoXmfvTuv79ldnrpzXsfzL/4WF3DlSnlFajJ4D6Row==",
+      "path": "microsoft.codeanalysis.visualbasic.coderefactoring.testing.mstest/1.1.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.coderefactoring.testing.mstest.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.VisualBasic.Workspaces/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qBkq9WB7NLdMf65FJ7HkoGlZbr8G7QYI5jtJsqBzHbF5RUclKHRmpQwLq2RgcyLQY8qGpBPDbJX9OMG3+VOlvA==",
+      "path": "microsoft.codeanalysis.visualbasic.workspaces/3.8.0",
+      "hashPath": "microsoft.codeanalysis.visualbasic.workspaces.3.8.0.nupkg.sha512"
+    },
+    "Microsoft.CodeAnalysis.Workspaces.Common/3.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GPYVydsmOmScOWDJA1LFky7/MkoXpx1JI3lZJShxC+bvVUvL9zVKE8WDZMLsYJ5MAbry2xkZftdfeMpZ+kvLDQ==",
+      "path": "microsoft.codeanalysis.workspaces.common/3.8.0",
+      "hashPath": "microsoft.codeanalysis.workspaces.common.3.8.0.nupkg.sha512"
+    },
+    "Microsoft.CodeCoverage/15.9.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-oherNadUtHKqFQbtdRKXgPvZVWyGkOeS83pFWT864587npS7JIFWIJ/LJV0c25cWNkCytn2S9XGSSkKscnNFAQ==",
+      "path": "microsoft.codecoverage/15.9.0",
+      "hashPath": "microsoft.codecoverage.15.9.0.nupkg.sha512"
+    },
+    "Microsoft.DotNet.PlatformAbstractions/1.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rF92Gp5L2asYrFNf0cKNBxzzGLh1krHuj6TRDk9wdjN2qdvJLaNYOn1s9oYkMlptYX436KiEFqxhLB+I5veXvQ==",
+      "path": "microsoft.dotnet.platformabstractions/1.0.3",
+      "hashPath": "microsoft.dotnet.platformabstractions.1.0.3.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyModel/1.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Z3o19EnheuegmvgpCzwoSlnCWxYA6qIUhvKJ7ifKHHvU7U+oYR/gliLiL3LVYOOeGMEEzkpJ5W67sOcXizGtlw==",
+      "path": "microsoft.extensions.dependencymodel/1.0.3",
+      "hashPath": "microsoft.extensions.dependencymodel.1.0.3.nupkg.sha512"
+    },
+    "Microsoft.NET.Test.Sdk/15.9.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-sGDhl1lTcyC4nbMA6vta+nADm50IEGnm9SW9+JNaie1zjtSmUdOPHu02+WK2SJND+3vbr9DWvgfi9qlSPfUAyw==",
+      "path": "microsoft.net.test.sdk/15.9.0",
+      "hashPath": "microsoft.net.test.sdk.15.9.0.nupkg.sha512"
+    },
+    "Microsoft.TestPlatform.ObjectModel/15.9.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-O6J4QhackLTvuCuunhxUfXaySRIY6PjLrO6msAdeRjF46et2PYPtRdg9gV9MLRlb/khwBE2ahmOKILP7NWSDfg==",
+      "path": "microsoft.testplatform.objectmodel/15.9.0",
+      "hashPath": "microsoft.testplatform.objectmodel.15.9.0.nupkg.sha512"
+    },
+    "Microsoft.TestPlatform.TestHost/15.9.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ve8yMTxeK5p8iTn7fCXzrTGiAqlx21thussMEflAOmVEe56OPOi2grkxLEguw7tDOXBKZtRPI7CeH+nXOpEb/g==",
+      "path": "microsoft.testplatform.testhost/15.9.0",
+      "hashPath": "microsoft.testplatform.testhost.15.9.0.nupkg.sha512"
+    },
+    "Microsoft.VisualStudio.Composition/16.1.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-N+thv3dcT7kjn0Xz3U0uBm2CH4uoaMvH8wC6Gy2HWx7HLNdEpqGoMraLyoBdizmypD1owLCJQIa2uKmWe4/o8A==",
+      "path": "microsoft.visualstudio.composition/16.1.8",
+      "hashPath": "microsoft.visualstudio.composition.16.1.8.nupkg.sha512"
+    },
+    "Microsoft.VisualStudio.Composition.NetFxAttributes/16.1.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EbwZWTvdzit68qZSuTI8nd1PZ87pYjhpCwtsis8lrUKJ7XLdbE5rxY6YrY7OFze+YUsguzqZlNjX4Yn5nL9qBw==",
+      "path": "microsoft.visualstudio.composition.netfxattributes/16.1.8",
+      "hashPath": "microsoft.visualstudio.composition.netfxattributes.16.1.8.nupkg.sha512"
+    },
+    "Microsoft.VisualStudio.Validation/15.0.82": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XwZyVCsHuEtnd6nYScJnA8XkXPzy4Ok0DV5/hqqAe5ccgOhJ6yap7Qh/sU/i6QxEzuYyECPYDQ7IOyEQ3yRQgQ==",
+      "path": "microsoft.visualstudio.validation/15.0.82",
+      "hashPath": "microsoft.visualstudio.validation.15.0.82.nupkg.sha512"
+    },
+    "MSTest.TestFramework/1.3.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RC0EruieQM+TNh5TfRtENgqorleO4s4XRyYasFZHDapuIFfeuy0BkPu4Qc5W0HKvLKwJdbb6WoSGxFRqmUA3Lg==",
+      "path": "mstest.testframework/1.3.2",
+      "hashPath": "mstest.testframework.1.3.2.nupkg.sha512"
+    },
+    "Newtonsoft.Json/9.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U82mHQSKaIk+lpSVCbWYKNavmNH1i5xrExDEquU1i6I5pV6UMOqRnJRSlKO3cMPfcpp0RgDY+8jUXHdQ4IfXvw==",
+      "path": "newtonsoft.json/9.0.1",
+      "hashPath": "newtonsoft.json.9.0.1.nupkg.sha512"
+    },
+    "NuGet.Common/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-N6EvbGxGOvDgf92osTE7o9GKeLuzRodLo6iiG/TGcUvW9sBt9oKWzB5C16MaubIKBZ8Z4J4ri8gTGUM3mEwPkg==",
+      "path": "nuget.common/5.6.0",
+      "hashPath": "nuget.common.5.6.0.nupkg.sha512"
+    },
+    "NuGet.Configuration/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-l4ePqw6Tml1SEhxYv8EWg/h0AiNnNi7dOnUU/8ovZ9e0e7z25AJRGt8aBwzIzntgEkRzL0KnwMuXy5oTM+wszg==",
+      "path": "nuget.configuration/5.6.0",
+      "hashPath": "nuget.configuration.5.6.0.nupkg.sha512"
+    },
+    "NuGet.Frameworks/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-QKl4ieKQnDnNybLxk5y7TbIHAiYLVXxapCV7AmIr8gVk2wzPwETerlNwks1jCiknfjRPxtAf6XKNln+Q6G4RPA==",
+      "path": "nuget.frameworks/5.6.0",
+      "hashPath": "nuget.frameworks.5.6.0.nupkg.sha512"
+    },
+    "NuGet.Packaging/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-av0vDlf071JdpP5bdX2wN+sEYFp/TkLGGArpl3mn5w7pHp7eeLYGWYpYRmRIABSkA15gxMB+P1QH1LNch5Kqhg==",
+      "path": "nuget.packaging/5.6.0",
+      "hashPath": "nuget.packaging.5.6.0.nupkg.sha512"
+    },
+    "NuGet.Protocol/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-95ekDA23ypvzf138qhFkSQAkjykTikB1dKpRLBBD8Ugm9Cfib2VEWZQ3QCMwg/xdEDpoVN9/GtF+J3JYV0eBaA==",
+      "path": "nuget.protocol/5.6.0",
+      "hashPath": "nuget.protocol.5.6.0.nupkg.sha512"
+    },
+    "NuGet.Resolver/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-SH7vnLbYr4KlzOSitAqv5AVP0o0mnGBR2fcoKXENhrUvIEQ3awo+IokL3IChsWNTULLFDxdyQmr6Zd4VgnotSA==",
+      "path": "nuget.resolver/5.6.0",
+      "hashPath": "nuget.resolver.5.6.0.nupkg.sha512"
+    },
+    "NuGet.Versioning/5.6.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UIUh1X1XXSOJwc18a7ssTmCAyN7sDXOTfNJN9HfJnWX8NStzQeZq/6RHfSHYMxUjECk6n5alCQjUA51C36R46A==",
+      "path": "nuget.versioning/5.6.0",
+      "hashPath": "nuget.versioning.5.6.0.nupkg.sha512"
+    },
+    "System.ComponentModel.Composition/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+iB9FoZnfdqMEGq6np28X6YNSUrse16CakmIhV3h6PxEWt7jYxUN3Txs1D8MZhhf4QmyvK0F/EcIN0f4gGN0dA==",
+      "path": "system.componentmodel.composition/4.5.0",
+      "hashPath": "system.componentmodel.composition.4.5.0.nupkg.sha512"
+    },
+    "System.Composition/1.0.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-I+D26qpYdoklyAVUdqwUBrEIckMNjAYnuPJy/h9dsQItpQwVREkDFs4b4tkBza0kT2Yk48Lcfsv2QQ9hWsh9Iw==",
+      "path": "system.composition/1.0.31",
+      "hashPath": "system.composition.1.0.31.nupkg.sha512"
+    },
+    "System.Composition.AttributedModel/1.0.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NHWhkM3ZkspmA0XJEsKdtTt1ViDYuojgSND3yHhTzwxepiwqZf+BCWuvCbjUt4fe0NxxQhUDGJ5km6sLjo9qnQ==",
+      "path": "system.composition.attributedmodel/1.0.31",
+      "hashPath": "system.composition.attributedmodel.1.0.31.nupkg.sha512"
+    },
+    "System.Composition.Convention/1.0.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GLjh2Ju71k6C0qxMMtl4efHa68NmWeIUYh4fkUI8xbjQrEBvFmRwMDFcylT8/PR9SQbeeL48IkFxU/+gd0nYEQ==",
+      "path": "system.composition.convention/1.0.31",
+      "hashPath": "system.composition.convention.1.0.31.nupkg.sha512"
+    },
+    "System.Composition.Hosting/1.0.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-fN1bT4RX4vUqjbgoyuJFVUizAl2mYF5VAb+bVIxIYZSSc0BdnX+yGAxcavxJuDDCQ1K+/mdpgyEFc8e9ikjvrg==",
+      "path": "system.composition.hosting/1.0.31",
+      "hashPath": "system.composition.hosting.1.0.31.nupkg.sha512"
+    },
+    "System.Composition.Runtime/1.0.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0LEJN+2NVM89CE4SekDrrk5tHV5LeATltkp+9WNYrR+Huiyt0vaCqHbbHtVAjPyeLWIc8dOz/3kthRBj32wGQg==",
+      "path": "system.composition.runtime/1.0.31",
+      "hashPath": "system.composition.runtime.1.0.31.nupkg.sha512"
+    },
+    "System.Composition.TypedParts/1.0.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0Zae/FtzeFgDBBuILeIbC/T9HMYbW4olAmi8XqqAGosSOWvXfiQLfARZEhiGd0LVXaYgXr0NhxiU1LldRP1fpQ==",
+      "path": "system.composition.typedparts/1.0.31",
+      "hashPath": "system.composition.typedparts.1.0.31.nupkg.sha512"
+    },
+    "System.Security.Cryptography.ProtectedData/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qBUHUk7IqrPHY96THHTa1akCxw0GsNFpsk3XFHbi0A0tMUDBpQprtY1Tbl6yaS1x4c96ilcXU8PocYtmSmkaQQ==",
+      "path": "system.security.cryptography.protecteddata/4.3.0",
+      "hashPath": "system.security.cryptography.protecteddata.4.3.0.nupkg.sha512"
+    },
+    "System.Security.Permissions/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9gdyuARhUR7H+p5CjyUB/zPk7/Xut3wUSP8NJQB6iZr8L3XUXTMdoLeVAg9N4rqF8oIpE7MpdqHdDHQ7XgJe0g==",
+      "path": "system.security.permissions/4.5.0",
+      "hashPath": "system.security.permissions.4.5.0.nupkg.sha512"
+    },
+    "System.Xml.XPath.XmlDocument/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Zm2BdeanuncYs3NhCj4c9e1x3EXFzFBVv2wPEc/Dj4ZbI9R8ecLSR5frAsx4zJCPBtKQreQ7Q/KxJEohJZbfzA==",
+      "path": "system.xml.xpath.xmldocument/4.0.1",
+      "hashPath": "system.xml.xpath.xmldocument.4.0.1.nupkg.sha512"
+    },
+    "SatorImaging.StaticMemberAnalyzer.CodeFixes/4.6.0-rc.11": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "__SatorImaging.StaticMemberAnalyzer.Analysis.csproj__/4.6.0-rc.11": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SatorImaging.StaticMemberAnalyzer.Analysis/4.6.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
