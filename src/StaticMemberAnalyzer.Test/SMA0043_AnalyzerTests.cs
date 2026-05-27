@@ -11,7 +11,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class DisposableMethodImplAnalyzerUnitTests
+    public class SMA0043_AnalyzerTests
     {
         [TestMethod]
         public async Task SMA0043_Violate_UndisposedField()
@@ -69,27 +69,6 @@ class TestClass : IDisposable
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0044_Violate_MissingDispose()
-        {
-            var test = @"
-using System;
-
-class MyDisposable : IDisposable { public void Dispose() {} }
-
-class {|#0:TestClass|}
-{
-    private MyDisposable _field = new MyDisposable();
-}";
-            var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
-                .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
-            var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
-                .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
 
         [TestMethod]
@@ -159,7 +138,6 @@ class TestClass : IDisposable
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
-
 
         [TestMethod]
         public async Task SMA0043_Conform_ExpressionBodiedProperty()
@@ -314,26 +292,5 @@ class MyDisposable : IDisposable
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [TestMethod]
-        public async Task SMA0045_Violate_MissingIDisposableInterface()
-        {
-            var test = @"
-using System;
-
-class MyDisposable : IDisposable { public void Dispose() {} }
-
-class {|#0:TestClass|}
-{
-    private MyDisposable _field = new MyDisposable();
-    public void Dispose()
-    {
-        _field.Dispose();
-    }
-}";
-            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
-                .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
     }
 }
