@@ -3,10 +3,9 @@ name: 'Test and Coverage Report'
 on:
   push:
     branches: [ main ]
-    paths: [ 'src/**/*' ]
+    paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
   pull_request:
-    branches: [ main ]
-    paths: [ 'src/**/*' ]
+    paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
   workflow_dispatch:
 
 env:
