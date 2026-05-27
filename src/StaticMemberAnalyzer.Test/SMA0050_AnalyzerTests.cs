@@ -14,7 +14,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.FileHeaderCommentAnalyzerVerifier;
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class FileHeaderCommentAnalyzerUnitTests
+    public class SMA0050_AnalyzerTests
     {
         [TestMethod]
         public async Task SMA0050_Violate_NoHeaderComment()
