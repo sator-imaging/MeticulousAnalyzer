@@ -35,7 +35,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementCondition_CompoundAssignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_WhileStatementCondition_CompoundAssignment()
         {
             var test = @"
 namespace Test
@@ -60,7 +60,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementCondition_Increment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_WhileStatementCondition_Increment()
         {
             var test = @"
 namespace Test
@@ -85,7 +85,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementBody_Assignment_ReportsDiagnostic()
+        public async Task SMA0060_Violate_WhileStatementBody_Assignment()
         {
             var test = @"
 using System.IO;

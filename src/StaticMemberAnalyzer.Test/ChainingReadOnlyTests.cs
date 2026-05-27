@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ChainingReadOnlyTests
     {
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithMiddleAutoProp_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_ChainedAccess_WithMiddleAutoProp()
         {
             var test = @"
 namespace Test
@@ -50,7 +50,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_AllReadOnly_NoDiagnostic()
+        public async Task SMA0060_Conform_ChainedAccess_AllReadOnly()
         {
             var test = @"
 namespace Test
@@ -79,7 +79,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithEndAutoProp_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_ChainedAccess_WithEndAutoProp()
         {
             var test = @"
 namespace Test
@@ -109,7 +109,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithField_IgnoresFieldReadOnlyPropButChecksProp_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_ChainedAccess_WithField_IgnoresFieldReadOnlyPropButChecksProp()
         {
             var test = @"
 namespace Test
@@ -139,7 +139,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0064_Violate_ChainedAccess_WithMethodInChain_ReportsDiagnostic()
+        public async Task SMA0064_Violate_ChainedAccess_WithMethodInChain()
         {
             var test = @"
 namespace Test
@@ -186,7 +186,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0063_Violate_ChainedAccess_MutablePropertyAndMethod_ReportsDiagnostic()
+        public async Task SMA0063_Violate_ChainedAccess_MutablePropertyAndMethod()
         {
             var test = @"
 namespace Test
@@ -225,7 +225,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0063_Violate_ChainedAccess_BlockBodiedMutable_ReportsDiagnostic()
+        public async Task SMA0063_Violate_ChainedAccess_BlockBodiedMutable()
         {
             var test = @"
 namespace Test
@@ -267,7 +267,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_ReadOnlyAutoProperty_WithMutableReturnType_DoesNotReportDiagnostic()
+        public async Task SMA0060_Conform_ChainedAccess_ReadOnlyAutoProperty_WithMutableReturnType()
         {
             var test = @"
 namespace Test
@@ -292,7 +292,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithReadOnlyMethodInChain_NoDiagnostic()
+        public async Task SMA0060_Conform_ChainedAccess_WithReadOnlyMethodInChain()
         {
             var test = @"
 namespace Test

@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class DisposableAnalyzerTernaryTests
     {
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryAssignmentToField_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryAssignmentToField()
         {
             var test = @"
 using System;
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryInUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryInUsing()
         {
             var test = @"
 using System;
@@ -57,7 +57,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryInReturn_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryInReturn()
         {
             var test = @"
 using System;
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryWithCastInUsing_ReportsNoDiagnostic()
+        public async Task SMA0040_Conform_TernaryWithCastInUsing()
         {
             var test = @"
 using System;
@@ -125,7 +125,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryWithCastInUsing_ReportsDiagnostic()
+        public async Task SMA0040_Violate_TernaryWithCastInUsing()
         {
             var test = @"
 using System;

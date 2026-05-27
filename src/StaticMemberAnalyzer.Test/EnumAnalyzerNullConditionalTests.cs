@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class EnumAnalyzerNullConditionalTests
     {
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_Enum_IsReported()
+        public async Task SMA0024_Violate_InterpolatedString_Enum()
         {
             var test = @"
 using System.Reflection;
@@ -33,7 +33,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_NullConditionalEnum_IsReported()
+        public async Task SMA0024_Violate_InterpolatedString_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;
@@ -57,7 +57,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_GenericEnum_IsReported()
+        public async Task SMA0024_Violate_InterpolatedString_GenericEnum()
         {
             var test = @"
 using System;
@@ -79,7 +79,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_NullConditionalEnum_WithText_IsReported()
+        public async Task SMA0024_Violate_InterpolatedString_NullConditionalEnum_WithText()
         {
             var test = @"
 using System.Reflection;
@@ -103,7 +103,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_StringConcatenation_NullConditionalEnum_IsReported()
+        public async Task SMA0024_Violate_StringConcatenation_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;
@@ -127,7 +127,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0021_Violate_ExplicitCast_NullConditionalEnum_IsReported()
+        public async Task SMA0021_Violate_ExplicitCast_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;
@@ -151,7 +151,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_CastToNullableEnum_IsReported()
+        public async Task SMA0020_Violate_CastToNullableEnum()
         {
             var test = @"
 using System.Reflection;
@@ -174,7 +174,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_EnumToString_NullConditional_IsReported()
+        public async Task SMA0024_Violate_EnumToString_NullConditional()
         {
             var test = @"
 using System.Reflection;
@@ -198,7 +198,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_EnumHasFlag_NullConditional_IsReported()
+        public async Task SMA0025_Violate_EnumHasFlag_NullConditional()
         {
             var test = @"
 using System.Reflection;
@@ -246,7 +246,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0023_Violate_CastFromGenericEnum_NullConditional_IsReported()
+        public async Task SMA0023_Violate_CastFromGenericEnum_NullConditional()
         {
             var test = @"
 using System;

@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class StructAnalyzerUnitTests
     {
         [TestMethod]
-        public async Task SMA0030_Violate_InvalidStructConstructor_ReportsDiagnostic()
+        public async Task SMA0030_Violate_InvalidStructConstructor()
         {
             var test = @"
 namespace Test
@@ -41,7 +41,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ValidStructConstructor_ReportsNoDiagnostic()
+        public async Task SMA0030_Conform_ValidStructConstructor()
         {
             var test = @"
 namespace Test
@@ -64,7 +64,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_MutableStructField_ReportsDiagnostic()
+        public async Task SMA0031_Violate_MutableStructField()
         {
             var test = @"
 namespace Test
@@ -88,7 +88,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ReadonlyStructField_ReportsNoDiagnostic()
+        public async Task SMA0030_Conform_ReadonlyStructField()
         {
             var test = @"
 namespace Test
@@ -108,7 +108,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Violate_GenericStruct_InvalidConstructor_ReportsDiagnostic()
+        public async Task SMA0030_Violate_GenericStruct_InvalidConstructor()
         {
             var test = @"
 namespace Test
@@ -135,7 +135,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Violate_NestedStruct_InvalidConstructor_ReportsDiagnostic()
+        public async Task SMA0030_Violate_NestedStruct_InvalidConstructor()
         {
             var test = @"
 namespace Test
@@ -165,7 +165,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_GenericStruct_MutableField_ReportsDiagnostic()
+        public async Task SMA0031_Violate_GenericStruct_MutableField()
         {
             var test = @"
 namespace Test
@@ -189,7 +189,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_NestedStruct_MutableField_ReportsDiagnostic()
+        public async Task SMA0031_Violate_NestedStruct_MutableField()
         {
             var test = @"
 namespace Test
@@ -216,7 +216,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_EnumField_ReportsNoDiagnostic()
+        public async Task SMA0030_Conform_EnumField()
         {
             var test = @"
     namespace Test
@@ -233,7 +233,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_BuiltinPrimitives_NoDiagnostic()
+        public async Task SMA0030_Conform_BuiltinPrimitives()
         {
             var test = @"
 namespace Test
@@ -261,7 +261,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ReadOnlyNullableInt_ShouldNotReportDiagnostic()
+        public async Task SMA0030_Conform_ReadOnlyNullableInt()
         {
             var test = @"
 namespace Test
@@ -276,7 +276,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ReadOnlyNullableReadOnlyStruct_ShouldNotReportDiagnostic()
+        public async Task SMA0030_Conform_ReadOnlyNullableReadOnlyStruct()
         {
             var test = @"
 namespace Test
@@ -293,7 +293,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_ReadOnlyNullableMutableStruct_ShouldReportDiagnostic()
+        public async Task SMA0031_Violate_ReadOnlyNullableMutableStruct()
         {
             var test = @"
 namespace Test
@@ -314,7 +314,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_AssignmentToObject_ReportsDiagnostic()
+        public async Task SMA0032_Violate_ImplicitBoxing_AssignmentToObject()
         {
             var test = @"
 namespace Test
@@ -335,7 +335,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_MethodArgument_ReportsDiagnostic()
+        public async Task SMA0032_Violate_ImplicitBoxing_MethodArgument()
         {
             var test = @"
 namespace Test
@@ -357,7 +357,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_InterfaceArgument_ReportsDiagnostic()
+        public async Task SMA0032_Violate_ImplicitBoxing_InterfaceArgument()
         {
             var test = @"
 using System;
@@ -386,7 +386,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_NullableIntToObject_ReportsDiagnostic()
+        public async Task SMA0032_Violate_ImplicitBoxing_NullableIntToObject()
         {
             var test = @"
 namespace Test
@@ -408,7 +408,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ExplicitBoxing_NoDiagnostic()
+        public async Task SMA0030_Conform_ExplicitBoxing()
         {
             var test = @"
 namespace Test
@@ -426,7 +426,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ImplicitBoxing_SuppressedByComment_NoDiagnostic()
+        public async Task SMA0030_Conform_ImplicitBoxing_SuppressedByComment()
         {
             var test = @"
 namespace Test

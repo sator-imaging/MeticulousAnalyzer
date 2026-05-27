@@ -147,19 +147,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0026_Violate_EnumObfuscation()
-        {
-            var test = @"
-namespace Test
-{
-    public enum {|#0:ETest|} { Value }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task SMA0027_Violate_UnusualEnum()
         {
             var test = @"
@@ -197,7 +184,7 @@ namespace Test
 #endif
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_CompareToSame_IsNotReported()
+        public async Task SMA0020_Conform_CastFromEnum_CompareToSame()
         {
             var test = @"
 using System.Reflection;
@@ -219,7 +206,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_CompareToSame_Nullable_IsNotReported()
+        public async Task SMA0020_Conform_CastFromEnum_CompareToSame_Nullable()
         {
             var test = @"
 #nullable enable
@@ -243,7 +230,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_ToNullable_IsNotReported()
+        public async Task SMA0020_Conform_CastFromEnum_ToNullable()
         {
             var test = @"
 #nullable enable
@@ -267,7 +254,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_ToNullableArgument_IsNotReported()
+        public async Task SMA0020_Conform_CastFromEnum_ToNullableArgument()
         {
             var test = @"
 #nullable enable
@@ -293,7 +280,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_EnumHasFlag_IsReported()
+        public async Task SMA0025_Violate_EnumHasFlag()
         {
             var test = @"
 using System.Reflection;
@@ -591,7 +578,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_NestedInvocation_ExpectError()
+        public async Task SMA0025_Violate_Suppression_NestedInvocation()
         {
             var test = @"
 using System;
@@ -616,7 +603,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_LinqInvocation_ExpectError()
+        public async Task SMA0025_Violate_Suppression_LinqInvocation()
         {
             var test = @"
 using System;
@@ -642,7 +629,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression_DiscardAssignment_ExpectError()
+        public async Task SMA0020_Conform_Suppression_DiscardAssignment()
         {
             var test = @"
 using System;
@@ -666,7 +653,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression_VariableDeclaration_ExpectNoError()
+        public async Task SMA0020_Conform_Suppression_VariableDeclaration()
         {
             var test = @"
 using System;

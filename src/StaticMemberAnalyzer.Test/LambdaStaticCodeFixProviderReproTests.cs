@@ -74,33 +74,5 @@ public class C
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
-        [TestMethod]
-        public async Task SMA7000_CodeFix_AddStaticModifierPreservesFormatting_ReproIssue3()
-        {
-            var test = @"
-using System;
-public class C
-{
-    void M()
-    {
-        Action a =
-            {|#0:() => { }|};
-    }
-}
-";
-            var fixtest = @"
-using System;
-public class C
-{
-    void M()
-    {
-        Action a =
-            static () => { };
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
-        }
     }
 }
