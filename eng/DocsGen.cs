@@ -1,6 +1,8 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
+#:property LangVersion=latest
+
 using System;
 using System.Collections.Generic;
 using System.IO;
