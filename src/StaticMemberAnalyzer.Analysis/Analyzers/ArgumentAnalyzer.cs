@@ -250,7 +250,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsKnownAssertionMethod(IInvocationOperation invocation)
         {
             return invocation.TargetMethod.ContainingType.Name is "Must" or "Assert" or "Debug"
-                || invocation.TargetMethod.ContainingType.Name is "Mathf"; // Mathf: wierd but for Unity engine.
+                                                               or "Mathf"; // Mathf: Weird but for Unity engine.
         }
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
