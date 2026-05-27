@@ -147,6 +147,19 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0026_Violate_EnumObfuscation()
+        {
+            var test = @"
+namespace Test
+{
+    public enum {|#0:ETest|} { Value }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0027_Violate_UnusualEnum()
         {
             var test = @"

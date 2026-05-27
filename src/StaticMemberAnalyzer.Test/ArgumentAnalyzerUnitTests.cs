@@ -10,6 +10,51 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ArgumentAnalyzerUnitTests
     {
         [TestMethod]
+        public async Task SMA8000_Violate_MethodLiteralArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int index, bool strict, string message) {}
+
+        public void Test()
+        {
+            Foo(1, {|#1:true|}, {|#2:""message""|});
+        }
+    }
+}
+";
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("strict");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("message");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_ConstructorLiteralArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public CTest(int index, bool strict, string message) {}
+
+        public void Test()
+        {
+            var x = new CTest({|#0:1|}, {|#1:true|}, {|#2:""message""|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("index");
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("strict");
+            var expected2 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 2).WithArguments("message");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
         public async Task SMA8000_Conform_NamedLiteralArguments()
         {
             var test = @"
@@ -49,6 +94,29 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_AttributeArguments()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(int index) {}
+        public string Name { get; set; }
+    }
+
+    [My({|#0:1|}, Name = ""test"")]
+    public class CTest
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("index");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
