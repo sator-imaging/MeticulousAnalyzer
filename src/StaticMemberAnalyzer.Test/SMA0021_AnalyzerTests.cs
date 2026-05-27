@@ -10,8 +10,31 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class EnumAnalyzerNewTests
+    public class SMA0021_AnalyzerTests
     {
+        [TestMethod]
+        public async Task SMA0021_Violate_CastFromEnum()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = {|#0:(int)ETest.Value|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
         [TestMethod]
         public async Task SMA0021_Violate_CastFromEnumVariable()
         {
@@ -27,23 +50,6 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("Enum");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnumVariableSuppressed()
-        {
-            var test = @"
-using System;
-public class C
-{
-    public void M(Enum e)
-    {
-        // Allow enum conversion
-        var foo = (object)e;
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -66,25 +72,6 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnumValueSuppressed()
-        {
-            var test = @"
-using System.Reflection;
-[Obfuscation(Exclude = true, ApplyToMembers = true)]
-public enum ETest { Value }
-public class C
-{
-    public void M()
-    {
-        // Allow enum conversion
-        var foo = (object)ETest.Value;
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
         public async Task SMA0021_Violate_CastFromEnumValueToInt()
         {
             var test = @"
@@ -104,22 +91,28 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnumValueToIntSuppressed()
+        public async Task SMA0021_Violate_ExplicitCast_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;
-[Obfuscation(Exclude = true, ApplyToMembers = true)]
-public enum ETest { Value }
-public class C
+
+namespace Test
 {
-    public void M()
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
     {
-        // Allow enum conversion
-        var num = (int)ETest.Value;
+        public ETest EnumProp { get; set; }
+        public void Test(CTest foo)
+        {
+            var x = {|#0:(int?)foo?.EnumProp|};
+        }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
     }
 }

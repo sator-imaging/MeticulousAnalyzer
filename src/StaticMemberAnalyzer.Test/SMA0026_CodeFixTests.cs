@@ -1,5 +1,9 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/StaticMemberAnalyzer
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.EnumAnalyzer,
@@ -8,7 +12,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class EnumObfuscationCodeFixProviderUnitTests
+    public class SMA0026_CodeFixTests
     {
         [TestMethod]
         public async Task SMA0026_CodeFix_SimpleEnum()
@@ -340,5 +344,31 @@ namespace Test
                 GetExpectedResult("[Reflection.ObfuscationAttribute(Exclude = true, ApplyToMembers = true)]", "using System;"));
         }
         */
+
+        [TestMethod]
+        public async Task SMA0026_CodeFix_EnumObfuscationTriviaPreservation_Repro()
+        {
+            var test = @"
+using System;
+public class C
+{
+    /* leading */
+    public enum {|#0:MyEnum|} { A }
+}
+";
+            var fixtest = @"
+using System;
+using System.Reflection;
+
+public class C
+{
+    /* leading */
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum MyEnum { A }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
     }
 }
