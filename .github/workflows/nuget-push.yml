@@ -4,24 +4,13 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      confirmed:
-        type: boolean
-        default: false
-        required: false
-        description: |
-          1) Should run 'resource update' action BEFORE running this action.
-          2) After PR merged, create GitHub release BEFORE publishing.
 
 env:
   push_source: 'StaticMemberAnalyzer.Package/bin/Release/*.nupkg'
 
 jobs:
 
-  # 'workflow_call' action must not have steps!
   build:
-    if: github.event_name == 'release' || inputs.confirmed
-
     permissions:
       contents: write
       pull-requests: write
