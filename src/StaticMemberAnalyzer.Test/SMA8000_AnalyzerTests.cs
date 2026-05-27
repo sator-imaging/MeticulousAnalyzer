@@ -7,7 +7,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class ArgumentAnalyzerUnitTests
+    public class SMA8000_AnalyzerTests
     {
         [TestMethod]
         public async Task SMA8000_Violate_MethodLiteralArguments()
@@ -534,6 +534,349 @@ namespace Test
             MyClass x4 = new(new(other.Instance));
             MyClass x5 = new(new MyClass(this.Instance));
             MyClass x6 = new(new MyClass(other.Instance));
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_AssertClassIgnoresAllArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public static class Assert
+    {
+        public static void AreEqual(int expected, int actual) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            Assert.AreEqual(1, 2);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_MustClassIgnoresAllArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public static class Must
+    {
+        public static void BeTrue(bool b) {}
+        public static void Anything(int x, string s) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            Must.BeTrue(true);
+            Must.Anything(1, ""msg"");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_DebugClassIgnoresAllArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public static class Debug
+    {
+        public static void Assert(bool condition) {}
+        public static void Log(string msg, int level) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            Debug.Assert(true);
+            Debug.Log(""msg"", 1);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_OtherClassesStillReported()
+        {
+            var test = @"
+namespace Test
+{
+    public static class Other
+    {
+        public static void BeTrue(bool b) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            Other.BeTrue({|#0:true|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_AttributeNotExemptEvenIfNameMatches()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MustAttribute : Attribute
+    {
+        public MustAttribute(bool b) {}
+    }
+
+    [Must({|#0:true|})]
+    public class CTest
+    {
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_BooleanBinaryOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int x, int y)
+        {
+            Foo({|#0:x == y|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_BooleanExpressionNotFirstArgument()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int i, bool b) {}
+        public void Test(int x, int y)
+        {
+            Foo(1, {|#0:x == y|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_BooleanUnaryOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(bool b)
+        {
+            Foo({|#0:!b|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_OtherBinaryOperationsNotFirstArgumentNotReported()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int a, int i) {}
+        public void Test(int x, int y)
+        {
+            Foo(1, x + y);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_OtherBinaryOperationsFirstArgumentNotReported()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int i) {}
+        public void Test(int x, int y)
+        {
+            Foo(x + y);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_AttributeBooleanExpression()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyAttribute : Attribute
+    {
+        public MyAttribute(bool b) {}
+    }
+
+    [My({|#0:1 == 1|})]
+    public class CTest
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_BooleanPatternOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int x)
+        {
+            Foo({|#0:x is not 0 and not 1|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_SimpleBooleanPatternOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int x)
+        {
+            Foo({|#0:x is 0|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violate_ComplexBooleanPatternOperationDiagnostic()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(bool b) {}
+        public void Test(int? x)
+        {
+            Foo({|#0:x is > 42 and < 310 or null|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("b");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_SystemMathAllowed()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = Math.Min(1, 2);
+            var y = Math.Abs(-1);
+            var z = Math.Max(1.0, 2.0);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Conform_MathfAllowed()
+        {
+            var test = @"
+namespace Test
+{
+    public class Mathf
+    {
+        public static float Clamp(float value, float min, float max) => 0;
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = Mathf.Clamp(0.5f, 0, 1);
         }
     }
 }
