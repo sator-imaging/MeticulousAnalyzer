@@ -37,7 +37,7 @@ if (args.Length < 2
 var analyzerInfo = new Dictionary<string, (string diagnosticId, string title, string description)>();
 
 var xdoc = XDocument.Load(inputPath);
-var root = xdoc.Root ?? throw new NullReferenceException();
+var root = xdoc.Root ?? throw new InvalidOperationException("The XML document is missing a root element.");
 
 foreach (var node in root.Elements())
 {
