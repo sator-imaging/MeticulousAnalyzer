@@ -436,7 +436,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 >
 > 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
 >
-> (已知 assertion 和 math 方法免于所有检查)
+> (已知断言和数学方法免于所有检查)
 
 
 ## 数值类型的显式声明
