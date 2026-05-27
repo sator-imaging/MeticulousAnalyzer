@@ -135,17 +135,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Check if target type is Action or Func
-            if (!IsActionOrFunc(op.Type))
+            // Check if target type is Action or Func, or any other delegate.
+            bool isActionOrFunc = IsActionOrFunc(op.Type);
+            if (!isActionOrFunc && op.Type?.TypeKind != TypeKind.Delegate)
             {
                 return;
             }
 
             // Don't show warning if the "value" side is static field, method, property or other static member.
-            // EXCEPT for static methods, which we want to fix by wrapping with static lambda to avoid allocation.
-            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped))
+            // EXCEPT for static methods of Action/Func, which we want to fix by wrapping with static lambda to avoid allocation.
+            if (IsStaticMember(unwrapped))
             {
-                return;
+                if (!isActionOrFunc || !IsStaticMethodReference(unwrapped))
+                {
+                    return;
+                }
             }
 
             context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
