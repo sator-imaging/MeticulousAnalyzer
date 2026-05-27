@@ -44,6 +44,9 @@ jobs:
     - name: NuGet push
       run: |
         cd src
+
+        ls -al
+
         dotnet nuget push "${{ env.push_source  }}"  \
           -k ${{ steps.login.outputs.NUGET_API_KEY }}  \
           -s https://api.nuget.org/v3/index.json \
