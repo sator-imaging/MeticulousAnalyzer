@@ -20,10 +20,9 @@ on:
   workflow_dispatch:
     inputs:
       auto-bump:
-        type: boolean
-        default: false
+        type: string
         description: |
-          Auto Bump & CHANGELOG: Create draft release before proceeding
+          Auto Bump & CHANGELOG: 'v'-starting semver or leave empty to Sync
       auto-bump-args:
         type: string
         # DEBUG
@@ -32,8 +31,7 @@ on:
   workflow_call:   # Auto bump
     inputs:
       auto-bump:
-        type: boolean
-        default: false
+        type: string
       auto-bump-args:
         type: string
         description: |
@@ -50,7 +48,7 @@ on:
             --> NOTE: This is a naive string replacement (not XML-aware, not schema-aware).
                 Carefully review PR.
 
-      # Backward compatibility
+      # Backward compatibility (May 2026)
       auto-bump-version:
         type: string
 
@@ -63,7 +61,7 @@ jobs:
       contents: write  # Sync .github | Auto bump
       issues: write    # PR labeler
     with:
-      auto-bump: ${{ inputs.auto-bump || false }}
+      auto-bump: ${{ inputs.auto-bump }}
 
       # See above
       auto-bump-args: ${{}}  ### <-- UPDATE HERE #######
