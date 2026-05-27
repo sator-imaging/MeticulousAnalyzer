@@ -109,7 +109,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
 
             if (attr == null)
             {
-                var attributes = typeDecl.AttributeLists.Add(
+                var leadingTrivia = typeDecl.GetLeadingTrivia();
+                var typeDeclWithoutLeading = typeDecl.WithLeadingTrivia(SyntaxTriviaList.Empty);
+
+                var attributes = typeDeclWithoutLeading.AttributeLists.Add(
                     SyntaxFactory.AttributeList(
                         SyntaxFactory.SingletonSeparatedList(
                             SyntaxFactory.Attribute(
@@ -135,10 +138,11 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                                 )
                             )
                         )
-                    )
+                    ).WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
                 );
 
-                root = root.ReplaceNode(typeDecl, typeDecl.WithAttributeLists(attributes));
+                var newTypeDecl = typeDeclWithoutLeading.WithAttributeLists(attributes).WithLeadingTrivia(leadingTrivia);
+                root = root.ReplaceNode(typeDecl, newTypeDecl);
             }
             // update existing
             else
