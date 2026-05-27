@@ -1,7 +1,4 @@
 <Solution>
-  <Folder Name="/Solution Items/">
-    <File Path="./src/AssemblyInfo.cs" />
-  </Folder>
   <Project Path="./eng/DocsGen/DocsGen.csproj" />
   <Project Path="./src/StaticMemberAnalyzer.Analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
   <Project Path="./src/StaticMemberAnalyzer.CodeFixes/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />

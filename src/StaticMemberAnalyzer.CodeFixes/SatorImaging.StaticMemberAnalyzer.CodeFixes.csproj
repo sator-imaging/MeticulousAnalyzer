@@ -23,10 +23,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\AssemblyInfo.cs" Link="AssemblyInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0" />
   </ItemGroup>
 
