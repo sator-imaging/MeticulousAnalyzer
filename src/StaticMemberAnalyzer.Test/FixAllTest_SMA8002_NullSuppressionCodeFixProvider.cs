@@ -56,27 +56,27 @@ namespace Test_{0}
                 {
                     Sources =
                     {
-                        ("Test0.cs", string.Format(SourceTemplate, 0, 0, 1, 2)),
-                        ("Test1.cs", string.Format(SourceTemplate, 1, 3, 4, 5)),
-                        ("Test2.cs", string.Format(SourceTemplate, 2, 6, 7, 8)),
+                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2)),
+                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 3, 4, 5)),
+                        ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 6, 7, 8)),
                     },
                 },
                 FixedState =
                 {
                     Sources =
                     {
-                        ("Test0.cs", string.Format(FixedTemplate, 0)),
-                        ("Test1.cs", string.Format(FixedTemplate, 1)),
-                        ("Test2.cs", string.Format(FixedTemplate, 2)),
+                        ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
+                        ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
+                        ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
                     },
                 },
                 BatchFixedState =
                 {
                     Sources =
                     {
-                        ("Test0.cs", string.Format(FixedTemplate, 0)),
-                        ("Test1.cs", string.Format(FixedTemplate, 1)),
-                        ("Test2.cs", string.Format(FixedTemplate, 2)),
+                        ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
+                        ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
+                        ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
                     },
                 },
                 NumberOfIncrementalIterations = 9,
