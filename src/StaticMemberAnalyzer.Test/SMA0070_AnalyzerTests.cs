@@ -11,7 +11,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class TaskAnalyzerUnitTests
+    public class SMA0070_AnalyzerTests
     {
         [TestMethod]
         public async Task SMA0070_Violate_Task_NotAwaited()
@@ -76,33 +76,6 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0071_Violate_Task_NotAwaitedOnAllPaths()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-namespace Test
-{
-    class Program
-    {
-        async Task Method(bool condition)
-        {
-            var {|#0:t|} = Task.Run(() => {});
-            if (condition)
-            {
-                await t;
-            }
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
-                .WithLocation(markupKey: 0)
-                .WithArguments("t");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -474,5 +447,73 @@ namespace Test
                 .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0070_Violate_Task_Discarded()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            _ = {|#0:Task.Run(() => {})|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0070_Violate_Task_Variable_Discarded()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            var {|#0:_|} = Task.Run(() => {});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0070_Conform_Task_Discarded_SuppressedByComment()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            // Don't await
+            _ = Task.Run(() => {});
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
