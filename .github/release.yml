@@ -1,4 +1,7 @@
 changelog:
+  exclude:
+    labels:
+      - bot
   categories:
     - title: ✨ Breaking Changes
       labels:
