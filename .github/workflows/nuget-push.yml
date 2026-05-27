@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  push_source: 'StaticMemberAnalyzer.Package/bin/Release/*.nupkg'
+  push_source: '**/StaticMemberAnalyzer.Package/bin/Release/*.nupkg'
 
 jobs:
 
@@ -43,9 +43,7 @@ jobs:
 
     - name: NuGet push
       run: |
-        cd src
-
-        ls -al
+        ls -alR
 
         dotnet nuget push "${{ env.push_source  }}"  \
           -k ${{ steps.login.outputs.NUGET_API_KEY }}  \
