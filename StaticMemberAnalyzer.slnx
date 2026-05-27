@@ -2,6 +2,5 @@
   <Project Path="./src/analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
   <Project Path="./src/codefix/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
   <Project Path="./src/packaging/SatorImaging.StaticMemberAnalyzer.Package.csproj" />
-  <Project Path="./eng/DocsGen/DocsGen.csproj" />
   <Project Path="./test/SatorImaging.StaticMemberAnalyzer.Test.csproj" />
 </Solution>
