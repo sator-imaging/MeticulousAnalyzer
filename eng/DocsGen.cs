@@ -171,7 +171,7 @@ static string GetDiagnosticId(string value)
 {
     var split = value.Split(separator: '_', StringSplitOptions.RemoveEmptyEntries);
     if (split.Length < 2)
-        throw new ArgumentException(message: "diagnostic id not found", nameof(value));
+        throw new ArgumentException($"Resource key '{value}' does not match the expected 'ID_Suffix' format.", nameof(value));
 
     return split[0];
 }
