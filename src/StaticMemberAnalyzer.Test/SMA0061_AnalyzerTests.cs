@@ -1,8 +1,12 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/StaticMemberAnalyzer
+
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Testing;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using System.Linq;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
@@ -10,108 +14,135 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class WhileStatementUnitTests
+    public class SMA0061_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0060_Conform_WhileStatementCondition_SimpleAssignment_IsAllowed()
+        public async Task SMA0061_Violate_CoalesceAssignment_Parameter()
         {
             var test = @"
-using System.IO;
 namespace Test
 {
     class Program
     {
-        void M(Stream mut_stream)
+        void M(int? foo)
         {
-            int read;
-            while ((read = mut_stream.Read(new byte[0], 0, 0)) > 0)
-            {
-            }
+            {|#0:foo|} ??= 1;
         }
     }
 }
 ";
-            await VerifyWithRuleEnabledAsync(test);
-        }
 
-        [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementCondition_CompoundAssignment()
-        {
-            var test = @"
-namespace Test
-{
-    class Program
-    {
-        void M()
-        {
-            int i = 0;
-            while (({|#0:i|} += 1) < 10)
-            {
-            }
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("i");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementCondition_Increment()
+        public async Task SMA0061_Violate_MethodParameterAssignment()
         {
             var test = @"
 namespace Test
 {
     class Program
     {
-        void M()
+        void M(int valueParam)
         {
-            int i = 0;
-            while ({|#0:i|}++ < 10)
-            {
-            }
+            {|#0:valueParam|} = 1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("i");
+                .WithArguments("valueParam");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
+
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementBody_Assignment()
+        public async Task SMA0061_Violate_IndexerAndSetterParameterAssignments_ReportDiagnostic()
         {
             var test = @"
-using System.IO;
 namespace Test
 {
-    class Program
+    class MyType
     {
-        void M(Stream mut_stream)
+        int _x;
+
+        public int SetterProp
         {
-            int read;
-            while ((read = mut_stream.Read(new byte[0], 0, 0)) > 0)
+            set
             {
-                {|#0:read|} = 0;
+                {|#0:value|} = 123;
+                _x = value;
+            }
+        }
+
+        public int this[int index]
+        {
+            get => _x + index;
+            set
+            {
+                {|#1:index|} += 1;
+                {|#2:value|} = index;
+                _x = value;
             }
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
+
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("read");
+                .WithArguments("value");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
+                .WithLocation(markupKey: 2)
+                .WithArguments("value");
+            var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
+                .WithLocation(markupKey: 1)
+                .WithArguments("index");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected2, expected1);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0061_Violate_MemberAccessRootedAtParameter()
+        {
+            var test = @"
+namespace Test
+{
+    class Box
+    {
+        public Box AutoPropNext { get; set; }
+        public int AutoPropValue { get; set; }
+    }
+
+    class Program
+    {
+        void M(Box foo)
+        {
+            {|#0:foo.AutoPropNext.AutoPropValue|} = 310;
+        }
+    }
+}
+";
+
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
+                .WithLocation(markupKey: 0)
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
 
-        private static async Task VerifyWithRuleEnabledAsync(string source, params DiagnosticResult[] expected)
+
+
+        private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
             var test = new VerifyCS.Test
             {
@@ -139,6 +170,9 @@ namespace Test
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReportDiagnostic.Error);
+                specificOptions = specificOptions.SetItem(
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,
                     ReportDiagnostic.Error);
 
                 compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);

@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using System.Linq;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
@@ -13,141 +14,121 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class ReadOnlyVariableAnalyzerRelaxationTests
+    public class SMA0063_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0060_Conform_IEnumerableArgument_IsAllowed()
-        {
-            var test = @"
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-namespace Test
-{
-    class Program
-    {
-        static void Use(IEnumerable value) { }
-        static void UseGeneric(IEnumerable<int> value) { }
-
-        void M(IEnumerable eParam, IEnumerable<int> egParam)
-        {
-            IEnumerable e = null;
-            IEnumerable<int> eg = null;
-            Use(e);
-            UseGeneric(eg);
-            Use(eParam);
-            UseGeneric(egParam);
-
-            // LINQ methods
-            eg.Any();
-            egParam.Any();
-        }
-    }
-}
-";
-            await VerifyWithRuleEnabledAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0060_Conform_EnumArgument_IsAllowed()
+        public async Task SMA0063_Violate_ReadWritePropertyAccess()
         {
             var test = @"
 namespace Test
 {
-    enum E { A }
+    class C { }
+
     class Program
     {
-        static void Use(E value) { }
-
-        void M(E eParam)
-        {
-            E e = E.A;
-            Use(e);
-            Use(eParam);
-        }
-    }
-}
-";
-            await VerifyWithRuleEnabledAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0060_Conform_LambdaArgument_IsAllowed_ButViolationInsideReported()
-        {
-            var test = @"
-using System;
-namespace Test
-{
-    class Program
-    {
-        static void Use(Action action) { }
+        C _field;
+        public C ReadWriteProp { get => _field; set => _field = value; }
 
         void M()
         {
-            Use(() => {
-                int x = 0;
-                {|#0:x|} = 1;
-            });
+            var self = this;
+            _ = {|#0:self.ReadWriteProp|};
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("x");
 
-            await VerifyWithRuleEnabledAsync(test, expected0);
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(markupKey: 0)
+                .WithArguments("self.ReadWriteProp", "self");
+
+            await VerifyWithRuleEnabledAsync(test, expected);
         }
 
+
         [TestMethod]
-        public async Task SMA0060_Conform_AnonymousMethodArgument_IsAllowed()
+        public async Task SMA0063_Violate_ChainedAccess_MutablePropertyAndMethod()
         {
             var test = @"
-using System;
 namespace Test
 {
+    class C
+    {
+        public int Value { get; set; }
+    }
+
+    struct B
+    {
+        private C _c;
+        public C Prop { get => _c; set => _c = value; }
+        public C GetC() => _c;
+    }
+
     class Program
     {
-        static void Use(Action action) { }
-
         void M()
         {
-            Use(delegate {
-                int x = 0;
-                {|#0:x|} = 1;
-            });
+            var foo = new B();
+            _ = {|#0:foo.Prop|};
+            _ = {|#1:foo.GetC()|};
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("x");
-
-            await VerifyWithRuleEnabledAsync(test, expected0);
-        }
-
-        [TestMethod]
-        public async Task SMA0062_Violate_ActionVariable()
-        {
-            var test = @"
-using System;
-namespace Test
-{
-    class Program
-    {
-        static void Use(Action action) { }
-
-        void M(Action aParam)
-        {
-            Action a = () => { };
-            Use({|#0:a|});
-            Use({|#1:aParam|});
-        }
-    }
-}
-";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument).WithLocation(markupKey: 0).WithArguments("a");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument).WithLocation(markupKey: 1).WithArguments("aParam");
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(markupKey: 0)
+                .WithArguments("foo.Prop", "foo");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(markupKey: 1)
+                .WithArguments("foo.GetC()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
+
+
+        [TestMethod]
+        public async Task SMA0063_Violate_ChainedAccess_BlockBodiedMutable()
+        {
+            var test = @"
+namespace Test
+{
+    class C { public int Value { get; set; } }
+    struct B
+    {
+        private C _c;
+        public C Prop
+        {
+            get { return _c; }
+            set { _c = value; }
+        }
+        public C GetC()
+        {
+            return _c;
+        }
+    }
+
+    class Program
+    {
+        void M()
+        {
+            var foo = new B();
+            _ = {|#0:foo.Prop|};
+            _ = {|#1:foo.GetC()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+                .WithLocation(markupKey: 0)
+                .WithArguments("foo.Prop", "foo");
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
+                .WithLocation(markupKey: 1)
+                .WithArguments("foo.GetC()", "foo");
+
+            await VerifyWithRuleEnabledAsync(test, expected0, expected1);
+        }
+
+
 
         private static async Task VerifyWithRuleEnabledAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
@@ -174,6 +155,12 @@ namespace Test
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
+                    ReportDiagnostic.Error);
+                specificOptions = specificOptions.SetItem(
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReportDiagnostic.Error);
+                specificOptions = specificOptions.SetItem(
+                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,
                     ReportDiagnostic.Error);
 
                 compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(specificOptions);
