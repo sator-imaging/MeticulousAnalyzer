@@ -249,7 +249,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsKnownAssertionOrMathMethod(IInvocationOperation invocation)
         {
-            return invocation.TargetMethod.ContainingType.Name
+            return invocation.TargetMethod.ContainingType?.Name
                 is "Must" or "Assert" or "Debug"
                 // NOTE: 'Mathf' and 'math' for Unity engine and Burst compiler
                 or "Math" or "Mathf" or "math";
