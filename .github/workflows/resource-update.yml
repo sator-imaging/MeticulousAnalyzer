@@ -89,7 +89,7 @@ jobs:
         echo "================================"
 
         dotnet run -c Release --project ./eng/DocsGen \
-          "./src/StaticMemberAnalyzer.Analysis/Resources.resx" \
+          "./src/analysis/Resources.resx" \
           "./${{ env.docsgen_file_name }}"
 
         git add -f ${{ env.docsgen_file_name }}
@@ -99,7 +99,7 @@ jobs:
 
         # Trailing slash is required to sync (copy) contents instead of directory
         rsync -avr --existing --checksum \
-          ./src/StaticMemberAnalyzer.Package/bin/Release/*/ \
+          ./src/packaging/bin/Release/*/ \
           ${{ env.unity_folder }}
 
         git add -f --update --ignore-removal ${{ env.unity_folder }}

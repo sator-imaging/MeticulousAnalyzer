@@ -8,6 +8,7 @@ obj
 !debug
 !eng
 !src
+!test
 !Unity
 
 !.editorconfig

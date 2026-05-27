@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  TEST_PROJECT: src/StaticMemberAnalyzer.Test
+  TEST_PROJECT: ./test
   TEST_OUTPUT: TestResults
   REPORT_OUTPUT: CoverageReport
 
