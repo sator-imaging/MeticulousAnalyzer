@@ -97,8 +97,13 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var firstToken = argumentNode.GetFirstToken();
             var leadingTrivia = firstToken.LeadingTrivia;
 
+            var kind = SyntaxFacts.GetKeywordKind(paramName);
+            var identifierToken = kind == SyntaxKind.None
+                ? SyntaxFactory.Identifier(paramName)
+                : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + paramName, paramName, SyntaxFactory.TriviaList());
+
             var nameColon = SyntaxFactory.NameColon(
-                SyntaxFactory.IdentifierName(paramName),
+                SyntaxFactory.IdentifierName(identifierToken),
                 SyntaxFactory.Token(SyntaxKind.ColonToken).WithTrailingTrivia(SyntaxFactory.Space)
             ).WithLeadingTrivia(leadingTrivia);
 

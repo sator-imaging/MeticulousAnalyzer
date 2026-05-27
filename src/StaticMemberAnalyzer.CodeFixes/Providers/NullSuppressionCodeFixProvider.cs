@@ -71,9 +71,10 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             // Add 3 parentheses: (((variable)))!
             var newOperand = SyntaxFactory.ParenthesizedExpression(
                 SyntaxFactory.ParenthesizedExpression(
-                    SyntaxFactory.ParenthesizedExpression(operand.WithoutTrivia())
+                    SyntaxFactory.ParenthesizedExpression(operand.WithLeadingTrivia(SyntaxTriviaList.Empty).WithTrailingTrivia(SyntaxTriviaList.Empty))
                 )
-            ).WithTriviaFrom(suppression.Operand);
+            ).WithLeadingTrivia(suppression.Operand.GetLeadingTrivia())
+             .WithTrailingTrivia(suppression.Operand.GetTrailingTrivia());
 
             var newNode = suppression.WithOperand(newOperand);
 
