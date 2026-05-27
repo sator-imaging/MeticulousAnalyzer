@@ -1,7 +1,7 @@
 <Solution>
+  <Project Path="./src/analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+  <Project Path="./src/codefix/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
+  <Project Path="./src/packaging/SatorImaging.StaticMemberAnalyzer.Package.csproj" />
   <Project Path="./eng/DocsGen/DocsGen.csproj" />
-  <Project Path="./src/StaticMemberAnalyzer.Analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
-  <Project Path="./src/StaticMemberAnalyzer.CodeFixes/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
-  <Project Path="./src/StaticMemberAnalyzer.Package/SatorImaging.StaticMemberAnalyzer.Package.csproj" />
-  <Project Path="./src/StaticMemberAnalyzer.Test/SatorImaging.StaticMemberAnalyzer.Test.csproj" />
+  <Project Path="./test/SatorImaging.StaticMemberAnalyzer.Test.csproj" />
 </Solution>

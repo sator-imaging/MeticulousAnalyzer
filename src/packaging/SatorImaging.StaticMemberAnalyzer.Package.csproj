@@ -37,19 +37,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\assets\icon-128px.png">
+    <None Include="../../assets/icon-128px.png">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
-    <None Include="..\..\README.md">
+    <None Include="../../README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StaticMemberAnalyzer.CodeFixes\SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
-    <ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+    <ProjectReference Include="../codefix/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
+    <ProjectReference Include="../analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
   </ItemGroup>
 
   <!-- Generate .pdb on debug build -->
@@ -63,8 +63,8 @@
 
   <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />
-      <TfmSpecificPackageFile Include="$(OutputPath)\SatorImaging.StaticMemberAnalyzer.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)/SatorImaging.StaticMemberAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)/SatorImaging.StaticMemberAnalyzer.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>
 

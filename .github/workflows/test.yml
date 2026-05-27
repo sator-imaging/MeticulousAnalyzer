@@ -26,7 +26,7 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test ./src/StaticMemberAnalyzer.Test \
+          dotnet test ./test \
             -c ${{ matrix.configuration }} \
             --verbosity minimal \
             -p:DontReferenceItself=true

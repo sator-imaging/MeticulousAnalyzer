@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StaticMemberAnalyzer.Analysis\SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+    <ProjectReference Include="../analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
   </ItemGroup>
 
   <ItemGroup>

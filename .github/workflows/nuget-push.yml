@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  push_source: '**/StaticMemberAnalyzer.Package/bin/Release/*.nupkg'
+  push_source: '**/packaging/bin/Release/*.nupkg'
 
 jobs:
 
