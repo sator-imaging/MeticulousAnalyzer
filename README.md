@@ -79,13 +79,6 @@ See [the following section](#annotating--underlining) for details.
       ```
 
 
-## Visual Studio 2019 or Earlier
-
-Analyzer is tested on Visual Studio 2022.
-
-You could use this analyzer on older versions of Visual Studio. To do so, update `Vsix` project file by following instructions written in memo and build project.
-
-
 
 
 

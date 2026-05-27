@@ -1,8 +1,0 @@
-	<!-- replace installation tag contents with the following -->
-	<Installation>
-		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0,)" />
-		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[15.0,)" />
-		<InstallationTarget Id="Microsoft.VisualStudio.Premium" Version="[15.0,)" />
-		<InstallationTarget Id="Microsoft.VisualStudio.Ultimate" Version="[15.0,)" />
-	</Installation>
-	<!-- downgrading `Microsoft.VSSDK.BuildTools` version from v17 to v16 is required, maybe -->
