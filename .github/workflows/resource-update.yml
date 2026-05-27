@@ -6,43 +6,7 @@ on:
   #pull_request:
   #  branches: [ "main" ]
   workflow_dispatch:
-    #
-    # keep consistent with workflow_call
-    #
-    inputs:
-      artifact_name:
-        required: false
-        type: string
-        default: 'nupkg'
-      release_ver:
-        description: |
-          Leave empty to skip creating PR for updated DLL files and RULES.md.
-          NOTE: 'release' prefix is automatically added.
-        required: false
-        type: string
-        default: 'v0.0.0'
   workflow_call:
-    #
-    # keep consistent with workflow_dispatch
-    #
-    inputs:
-      artifact_name:
-        required: false
-        type: string
-        default: 'nupkg'
-      release_ver:
-        description: |
-          Leave empty to skip creating PR for updated DLL files and RULES.md.
-          NOTE: 'release' prefix is automatically added.
-        required: false
-        type: string
-        default: 'v0.0.0'
-
-    outputs:
-      artifact_name:
-        value: ${{ inputs.artifact_name }}
-      release_ver:
-        value: ${{ inputs.release_ver }}
 
 env:
   unity_folder: 'Unity'  # no spaces!
@@ -54,9 +18,9 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
-  build:
+  resource-update:
     needs: test
-    if: ${{ !failure() }}
+    if: success()
 
     runs-on: ubuntu-latest
     strategy:
@@ -69,72 +33,80 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET ${{ matrix.dotnet-version }}
-      uses: actions/setup-dotnet@v4
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
-        ##cache: true
-    - name: Restore dependencies
+
+    - name: Restore
       run: |
         ##cd src
         dotnet restore  -p:DontReferenceItself=true  # required to avoid cyclic ref error
+
     - name: Build
       run: |
         ##cd src
 
-        # required to enable deterministic build --> -p:ContinuousIntegrationBuild=true
-        # it seems that hash is calculated based on the whole git directory contents
-        # ex: including github actions yaml files
-        dotnet build -c Release --no-restore  -p:ContinuousIntegrationBuild=true  -p:DontReferenceItself=true
-    
-    - name: Upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.artifact_name }}
-        path: |
-          src/**/Release/*.nupkg
-          src/**/*.Designer.cs
-          src/**/*.resx
+        # Required to enable deterministic build --> -p:ContinuousIntegrationBuild=true
+        # * It seems that hash is calculated based on the whole git repository contents.
+        #   i.e., Including github actions yaml files.
+        dotnet build -c Release --no-restore \
+          -p:ContinuousIntegrationBuild=true \
+          -p:DontReferenceItself=true
 
-    - name: git setup
+    #- uses: actions/upload-artifact@v4
+    #  with:
+    #    name: ${{ github.job }}-attempt${{ github.run_attempt }}
+    #    path: |
+    #      src/**/Release/*.nupkg
+    #      src/**/*.Designer.cs
+    #      src/**/*.resx
+
+    - name: Create PR
       run: |
+        ls -al
+
+        echo "================================"
+        echo " Git setup"
+        echo "================================"
+
         git config --global user.name  "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        # to omit `--set-upstream origin` for git push
+
+        # To omit `--set-upstream origin` for git push
         git config --global --add --bool push.autoSetupRemote true
         git fetch --all
 
-    # actions/cache can be used to share data across jobs
-    - name: Commit DLL and RULES.md
-      if: ${{ inputs.release_ver != '' && inputs.release_ver != 'v0.0.0' }}
-      continue-on-error: false
-      run: |
-        ls -al
-        
-        ### no way! no create-remote-if-not-exists option!!
-        git switch release/${{ inputs.release_ver }} || git switch -c release/${{ inputs.release_ver }}
+        BRANCH="bot/${{ github.job }}"
+
+        ### No "create-remote-if-not-exists" option!!
+        git switch "$BRANCH" || git switch -c "$BRANCH"
         git pull || true
         git branch -vv
 
-        ##################
-        # commit RULES.md
-        #
+        echo "================================"
+        echo " Run DocsGen"
+        echo "================================"
+
         dotnet run -c Release --project ./eng/DocsGen \
           "./src/StaticMemberAnalyzer.Analysis/Resources.resx" \
           "./${{ env.docsgen_file_name }}"
-        git add ${{ env.docsgen_file_name }}
-        git commit -m "[bot] ${{ env.docsgen_file_name }}" || true
 
-        ###########################
-        # upload compiled assembly
-        #
-        # trailing slash is required to sync (copy) contents instead of directory
-        rsync -avr --existing --checksum src/StaticMemberAnalyzer.Package/bin/Release/*/  ${{ env.unity_folder }}
-        git add --update --ignore-removal \
-          ${{ env.unity_folder }} \
+        git add -f ${{ env.docsgen_file_name }} \
           ./src  # .resx and .Designer.cs
-        git commit -m "[bot] Precompiled Assembly for Unity ${{ inputs.release_ver }}" || true
 
-        ### try push and create PR if any changes otherwise exit successfully
+        # Trailing slash is required to sync (copy) contents instead of directory
+        rsync -avr --existing --checksum \
+          ./src/StaticMemberAnalyzer.Package/bin/Release/*/ \
+          ${{ env.unity_folder }}
+
+        git add -f --update --ignore-removal ${{ env.unity_folder }}
+
+        echo "================================"
+        echo " Create PR"
+        echo "================================"
+
+        TS=$(date -u +"%Y%m%d-%H%M%S")
+
+        git commit -m "[bot] Resource Update ($TS)" || true
         git push || true
-        gh pr create -B main -t 'bot: release/${{ inputs.release_ver }}' -b '' || true
+        gh pr create -B main --fill || true
