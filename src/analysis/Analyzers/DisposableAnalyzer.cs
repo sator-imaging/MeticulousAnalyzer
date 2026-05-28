@@ -578,8 +578,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // Report untracked cast operation here.
             if (isUntrackedCast)
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_MissingUsing, operation.Syntax.GetLocation(), disposableSymbol.Name));
+                if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_MissingUsing, operation.Syntax.GetLocation(), disposableSymbol.Name));
+                }
 
                 return;
             }
