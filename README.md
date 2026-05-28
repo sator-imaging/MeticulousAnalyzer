@@ -308,7 +308,7 @@ d = (new object()) as IDisposable;
 ```
 
 > [!TIP]
-> You can enable "duck typing" recognition for `IDisposable` by `sator_imaging.duck_typing_recognition = true`. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
+> You can enable "duck typing" recognition for `IDisposable`. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
 
 
 Analyzer won't show warning in the following condition:
@@ -485,7 +485,7 @@ var x = (((foo)))!;
 This analyzer helps keep local values and parameters immutable by flagging write operations.  
 
 > [!IMPORTANT]
-> This analysis is disabled by default. Set `sator_imaging.immutable_variable = true` to enable it. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
+> This analysis is disabled by default. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
 
 <details>
 
@@ -777,4 +777,4 @@ sator_imaging.immutable_variable = true
 sator_imaging.duck_typing_recognition = true
 ```
 
-See details for format: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
+See details for `.globalconfig` file: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format

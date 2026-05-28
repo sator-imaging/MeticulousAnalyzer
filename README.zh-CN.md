@@ -308,7 +308,7 @@ d = (new object()) as IDisposable;
 ```
 
 > [!TIP]
-> 你可以通过设置 `sator_imaging.duck_typing_recognition = true` 来启用 `IDisposable` 的 "鸭子类型" (duck typing) 识别。详见 [如何配置分析器](#如何配置分析器)。
+> 你可以启用 `IDisposable` 的 "鸭子类型" (duck typing) 识别。详见 [如何配置分析器](#如何配置分析器)。
 
 
 以下情况不会报警：
@@ -485,7 +485,7 @@ var x = (((foo)))!;
 该分析器通过标记写操作，帮助保持局部变量和参数的不可变性。
 
 > [!IMPORTANT]
-> 该分析默认情况下处于禁用状态。设置 `sator_imaging.immutable_variable = true` 以启用它。详见 [如何配置分析器](#如何配置分析器)。
+> 该分析默认情况下处于禁用状态。详见 [如何配置分析器](#如何配置分析器)。
 
 <details>
 
@@ -777,5 +777,5 @@ sator_imaging.immutable_variable = true
 sator_imaging.duck_typing_recognition = true
 ```
 
-有关格式详情，请参阅：
+有关 `.globalconfig` 文件的格式详情，请参阅：
 https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format

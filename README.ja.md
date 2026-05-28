@@ -308,7 +308,7 @@ d = (new object()) as IDisposable;
 ```
 
 > [!TIP]
-> `sator_imaging.duck_typing_recognition = true` を設定することで、`IDisposable` の "ダックタイピング" 認識を有効にできます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
+> `IDisposable` の "ダックタイピング" 認識を有効にできます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
 
 
 次の条件では警告を出しません:
@@ -485,7 +485,7 @@ var x = (((foo)))!;
 このアナライザーは、書き込み操作を検出してローカル値/引数の不変性維持を支援します。
 
 > [!IMPORTANT]
-> この解析はデフォルトで無効になっています。`sator_imaging.immutable_variable = true` を設定することで有効化できます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
+> この解析はデフォルトで無効になっています。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
 
 <details>
 
@@ -765,7 +765,7 @@ var x = new MyDisposable();
 
 # アナライザーの設定方法
 
-設定は `.editorconfig` ではなく `.globalconfig` ファイルで行います。
+設定は `.globalconfig` ファイルで行います。(`.editorconfig` ではありません)
 
 ```ini
 is_global = true
@@ -777,5 +777,5 @@ sator_imaging.immutable_variable = true
 sator_imaging.duck_typing_recognition = true
 ```
 
-フォーマットの詳細については、以下を参照してください。
+`.globalconfig` ファイルのフォーマット詳細については、以下を参照してください。
 https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
