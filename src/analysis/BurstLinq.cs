@@ -21,7 +21,7 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
         public static T? ElementAtOrDefault<T>(this IEnumerable<T> source, int index)
         {
             if (source is IReadOnlyCollection<T> roc &&
-                index >= roc.Count)
+                unchecked((uint)index >= (uint)roc.Count))
             {
                 return default;
             }
