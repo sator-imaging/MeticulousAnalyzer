@@ -3,14 +3,14 @@ changelog:
     labels:
       - bot
   categories:
-    - title: ✨ Breaking Changes
+    - title: 📣 Breaking Changes
       labels:
         - breaking-change
     - title: 🚀 Features
       labels:
         - enhancement
         - feature
-    - title: 🧹 Bug Fixes
+    - title: ✨ Bug Fixes
       labels:
         - bug
         - fix
