@@ -345,8 +345,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 };
         }
 
-        private static bool IsDisposable(OperationAnalysisContext context, ITypeSymbol disposableSymbol)
+        private static bool IsDisposable(OperationAnalysisContext context, ITypeSymbol? disposableSymbol)
         {
+            if (disposableSymbol is null)
+            {
+                return false;
+            }
+
 #if STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE
             if (IsTypeIgnoredByAssemblyAttribute(context, disposableSymbol))
             {
@@ -424,7 +429,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         }
 
 
-        private static bool IsTypeIgnoredByAssemblyAttribute(OperationAnalysisContext context, INamedTypeSymbol disposableSymbol)
+        private static bool IsTypeIgnoredByAssemblyAttribute(OperationAnalysisContext context, ITypeSymbol disposableSymbol)
         {
             const string ATTR_NAME = "DisposableAnalyzerSuppressor";
 
