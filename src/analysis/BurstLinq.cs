@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 
-#pragma warning disable IDE0130  // NOTE: To use in both Analyzer and Codefix
-namespace SatorImaging.StaticMemberAnalyzer//.Analysis
+#pragma warning disable IDE0130  // NOTE: No '.Analysis' namespace to use this in both Analyzer and Codefix
+namespace SatorImaging.StaticMemberAnalyzer
 #pragma warning restore IDE0130
 {
     public static class BurstLinq
