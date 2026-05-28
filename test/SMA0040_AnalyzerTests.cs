@@ -767,6 +767,30 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0040_Violate_SuppressedByComment_ComplexUntrackedCast()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(object value)
+        {
+            // Don't dispose
+            var d = (object){|#0:(IDisposable)value|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0040_Conform_IsSuppressedByComment()
         {
             var test = @"
