@@ -744,6 +744,53 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0040_Violate_NotSuppressedByComment_UntrackedCast()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(IDisposable value)
+        {
+            var d = {|#0:value as object|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violate_SuppressedByComment_ComplexUntrackedCast()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(object value)
+        {
+            // Don't dispose
+            var d = (object){|#0:(IDisposable)value|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("IDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0040_Conform_IsSuppressedByComment()
         {
             var test = @"
@@ -865,6 +912,27 @@ namespace Test
         {
             // Don't dispose: Additional comment.
             var d = new MyDisposable();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Conform_SuppressedByComment_UntrackedCast()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class Program
+    {
+        void Method(IDisposable value)
+        {
+            // Don't dispose
+            var d = value as object;
         }
     }
 }
@@ -1247,7 +1315,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Object");
+                .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -1271,7 +1339,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Object");
+                .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
