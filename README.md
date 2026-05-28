@@ -307,6 +307,9 @@ d = (new object()) as IDisposable;
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ cast from/to disposable
 ```
 
+> [!TIP]
+> You can enable "duck typing" recognition for `IDisposable`. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
+
 
 Analyzer won't show warning in the following condition:
 - instance is created on `return` statement
@@ -482,15 +485,7 @@ var x = (((foo)))!;
 This analyzer helps keep local values and parameters immutable by flagging write operations.  
 
 > [!IMPORTANT]
-> This analysis is disabled by default. To enable it, add the following to your `.editorconfig` file.
->
-> ```
-> [*.cs]
-> dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
-> ```
-
-> [!NOTE]
-> Restarting the IDE may be required for `.editorconfig` changes to take effect.
+> This analysis is disabled by default. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
 
 <details>
 
@@ -764,3 +759,22 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+&nbsp;
+
+# How to Configure Analyzer
+
+Configuration can be set in `.globalconfig` file (NOT `.editorconfig`).
+
+```ini
+is_global = true
+
+# Immutable/Read-Only Variable Analysis
+sator_imaging.immutable_variable = true
+
+# Disposable Analysis
+sator_imaging.duck_typing_recognition = true
+```
+
+See details for `.globalconfig` file: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format

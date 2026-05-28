@@ -307,6 +307,9 @@ d = (new object()) as IDisposable;
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Disposable 型への/からのキャスト
 ```
 
+> [!TIP]
+> `IDisposable` の "ダックタイピング" 認識を有効にできます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
+
 
 次の条件では警告を出しません:
 - `return` 文でインスタンスを生成
@@ -482,15 +485,7 @@ var x = (((foo)))!;
 このアナライザーは、書き込み操作を検出してローカル値/引数の不変性維持を支援します。
 
 > [!IMPORTANT]
-> この解析はデフォルトで無効になっています。有効にするには、`.editorconfig` ファイルに以下を追加します。
->
-> ```
-> [*.cs]
-> dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
-> ```
-
-> [!NOTE]
-> `.editorconfig` の変更を反映させるには IDE の再起動が必要な場合があります。
+> この解析はデフォルトで無効になっています。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
 
 <details>
 
@@ -764,3 +759,23 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+&nbsp;
+
+# アナライザーの設定方法
+
+設定は `.globalconfig` ファイルで行います。(`.editorconfig` ではありません)
+
+```ini
+is_global = true
+
+# 読み取り専用変数解析
+sator_imaging.immutable_variable = true
+
+# Disposable 解析
+sator_imaging.duck_typing_recognition = true
+```
+
+`.globalconfig` ファイルのフォーマット詳細については、以下を参照してください。
+https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format

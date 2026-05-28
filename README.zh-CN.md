@@ -307,6 +307,9 @@ d = (new object()) as IDisposable;
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 在可释放类型之间转换
 ```
 
+> [!TIP]
+> 你可以启用 `IDisposable` 的 "鸭子类型" (duck typing) 识别。详见 [如何配置分析器](#如何配置分析器)。
+
 
 以下情况不会报警：
 - 在 `return` 语句中创建实例
@@ -482,15 +485,7 @@ var x = (((foo)))!;
 该分析器通过标记写操作，帮助保持局部变量和参数的不可变性。
 
 > [!IMPORTANT]
-> 该分析默认情况下处于禁用状态。若要启用它，请将以下内容添加到 `.editorconfig` 文件。
->
-> ```
-> [*.cs]
-> dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
-> ```
-
-> [!NOTE]
-> 可能需要重启 IDE 才能使 `.editorconfig` 的修改生效。
+> 该分析默认情况下处于禁用状态。详见 [如何配置分析器](#如何配置分析器)。
 
 <details>
 
@@ -764,3 +759,23 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+&nbsp;
+
+# 如何配置分析器
+
+配置可以在 `.globalconfig` 文件中设置（注意不是 `.editorconfig`）。
+
+```ini
+is_global = true
+
+# 只读变量分析
+sator_imaging.immutable_variable = true
+
+# Disposable 分析
+sator_imaging.duck_typing_recognition = true
+```
+
+有关 `.globalconfig` 文件的格式详情，请参阅：
+https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
