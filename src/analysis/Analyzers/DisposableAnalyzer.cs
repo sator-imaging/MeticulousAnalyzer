@@ -110,8 +110,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            bool isResultDisposable = op.Type is INamedTypeSymbol resultSymbol && IsDisposable(context, resultSymbol);
-            bool isSourceDisposable = op.Operand.Type is INamedTypeSymbol sourceSymbol && IsDisposable(context, sourceSymbol);
+            bool isResultDisposable = IsDisposable(context, op.Type);
+            bool isSourceDisposable = IsDisposable(context, op.Operand.Type);
 
             // both are disposable OR both are not disposable
             if (isResultDisposable == isSourceDisposable)
@@ -137,7 +137,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var returnSymbol = op.TargetMethod.ReturnType;
-            if (returnSymbol is not INamedTypeSymbol named || !IsDisposable(context, named))
+            if (!IsDisposable(context, returnSymbol))
             {
                 return;
             }
@@ -153,7 +153,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            if (!IsDisposable(context, op.Type))
             {
                 return;
             }
@@ -168,7 +168,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            if (!IsDisposable(context, op.Type))
             {
                 return;
             }
@@ -184,7 +184,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            if (!IsDisposable(context, op.Type))
             {
                 return;
             }
@@ -217,7 +217,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (op.Type is not INamedTypeSymbol named || !IsDisposable(context, named))
+            if (!IsDisposable(context, op.Type))
             {
                 return;
             }
@@ -254,7 +254,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (assignmentOp.Value.ConstantValue.HasValue && assignmentOp.Value.ConstantValue.Value == null)
             {
                 // Check if the target is a disposable type
-                if (assignmentOp.Target.Type is INamedTypeSymbol targetTypeSymbol && IsDisposable(context, targetTypeSymbol))
+                if (IsDisposable(context, assignmentOp.Target.Type))
                 {
                     var semanticModel = assignmentOp.SemanticModel ?? context.Compilation.GetSemanticModel(assignmentOp.Syntax.SyntaxTree);
                     var targetSymbolInfo = semanticModel.GetSymbolInfo(assignmentOp.Target.Syntax);
@@ -314,7 +314,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
 
                     // If we get here, no preceding dispose call was found. Report the diagnostic.
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignment, assignmentOp.Syntax.GetLocation(), targetTypeSymbol.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignment, assignmentOp.Syntax.GetLocation(), assignmentOp.Target.Type.Name));
                 }
             }
         }
@@ -327,7 +327,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         readonly static Func<INamedTypeSymbol, bool> cache_HasDisposableImplemented = static x => HasDisposableImplemented(x);
 #pragma warning restore RS1008
 
-        private static bool HasDisposableImplemented(INamedTypeSymbol typeSymbol)
+        private static bool HasDisposableImplemented(ITypeSymbol typeSymbol)
         {
             if (typeSymbol.SpecialType is SpecialType.System_IDisposable)
             {
@@ -345,7 +345,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 };
         }
 
-        private static bool IsDisposable(OperationAnalysisContext context, INamedTypeSymbol disposableSymbol)
+        private static bool IsDisposable(OperationAnalysisContext context, ITypeSymbol disposableSymbol)
         {
 #if STMG_ENABLE_DISPOSABLE_ANALYZER_ATTRIBUTE
             if (IsTypeIgnoredByAssemblyAttribute(context, disposableSymbol))
@@ -387,7 +387,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             return detect_duck_typing(disposableSymbol);
-            static bool detect_duck_typing(INamedTypeSymbol disposableSymbol)
+            static bool detect_duck_typing(ITypeSymbol disposableSymbol)
             {
                 var candidateMethods = disposableSymbol.GetMembers()
                     .OfType_Where<IMethodSymbol>(static x => x.Parameters.Length == 0
@@ -472,8 +472,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var safeRootOp = castOp;
             do
             {
-                if (castOp.Type is not INamedTypeSymbol named ||
-                    !IsDisposable(ctx, named))
+                if (!IsDisposable(ctx, castOp.Type))
                 {
                     safeCastOnly = false;
                     break;
@@ -511,7 +510,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // NOTE: Unpack conversion operation.
             //       --> Method(new Disposable())
             //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
-            bool isUntrackedCast = false;
+            ITypeSymbol? untrackedCastOperandType = null;
             {
                 if (focusedOp is IConversionOperation castOp)
                 {
@@ -526,7 +525,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             //       Need to check parent operation for:
                             //       - using var ...
                             //       - foreach (var item in ...
-                            isUntrackedCast = true;
+                            untrackedCastOperandType = castOp.Operand.Type;
                         }
                     }
                 }
@@ -576,12 +575,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // No 'using' and 'foreach' found.
             // Report untracked cast operation here.
-            if (isUntrackedCast)
+            if (untrackedCastOperandType is not null)
             {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
+                    var reportType = IsDisposable(context, disposableSymbol)
+                        ? disposableSymbol
+                        : untrackedCastOperandType;
+
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_MissingUsing, operation.Syntax.GetLocation(), disposableSymbol.Name));
+                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.Name));
                 }
 
                 return;
@@ -651,8 +654,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     // --> disposable?.Return();
                     if (focusedOp is IMemberReferenceOperation memberRefOp)
                     {
-                        if (memberRefOp.Type is INamedTypeSymbol memberType &&
-                            !IsDisposable(context, memberType))
+                        if (!IsDisposable(context, memberRefOp.Type))
                         {
                             return true;
                         }
@@ -670,8 +672,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                 //                   ^^^^^^^^^^
                                 if (parentOp is IInvocationOperation invokeOp)
                                 {
-                                    if (invokeOp.TargetMethod.ReturnType is INamedTypeSymbol methodReturn &&
-                                        !IsDisposable(context, methodReturn))
+                                    if (!IsDisposable(context, invokeOp.TargetMethod.ReturnType))
                                     {
                                         return true;
                                     }
