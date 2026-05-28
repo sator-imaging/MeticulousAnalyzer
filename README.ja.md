@@ -92,6 +92,23 @@ Visual Studio でのコーディング時に注意を引く追加機能です。
 
 &nbsp;
 
+# アナライザーの設定方法
+
+設定は `.editorconfig` ではなく `.globalconfig` ファイルで行います。
+
+- `sator_imaging.immutable_variable = true`
+- `sator_imaging.duck_typing_recognition = true`
+- 注意: 詳細については実装を確認してください。
+
+フォーマットの詳細については、以下を参照してください。
+https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
+
+
+
+
+
+&nbsp;
+
 # 相互参照問題
 
 これは設計上の問題で、複雑さを増やすだけでなく特定条件下でのみ初期化エラーを引き起こします。
@@ -307,6 +324,9 @@ d = (new object()) as IDisposable;
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Disposable 型への/からのキャスト
 ```
 
+> [!TIP]
+> `IDisposable` の "ダックタイピング" 認識を有効にできます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
+
 
 次の条件では警告を出しません:
 - `return` 文でインスタンスを生成
@@ -482,15 +502,7 @@ var x = (((foo)))!;
 このアナライザーは、書き込み操作を検出してローカル値/引数の不変性維持を支援します。
 
 > [!IMPORTANT]
-> この解析はデフォルトで無効になっています。有効にするには、`.editorconfig` ファイルに以下を追加します。
->
-> ```
-> [*.cs]
-> dotnet_analyzer_diagnostic.category-ImmutableVariable.severity = warning
-> ```
-
-> [!NOTE]
-> `.editorconfig` の変更を反映させるには IDE の再起動が必要な場合があります。
+> この解析はデフォルトで無効になっています。有効にするには [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
 
 <details>
 
