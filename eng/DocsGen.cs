@@ -26,8 +26,8 @@ string? inputPath;
 string? outputPath;
 
 if (args.Length < 2
-|| string.IsNullOrWhiteSpace(inputPath = args[0])
-|| string.IsNullOrWhiteSpace(outputPath = args[1])
+|| string.IsNullOrWhiteSpace((((inputPath = args[0]))))
+|| string.IsNullOrWhiteSpace((((outputPath = args[1]))))
 || !inputPath.EndsWith(value: ".resx", StringComparison.OrdinalIgnoreCase)
 || !outputPath.EndsWith(value: ".md", StringComparison.OrdinalIgnoreCase)
 )
