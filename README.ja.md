@@ -767,7 +767,15 @@ var x = new MyDisposable();
 
 設定は `.editorconfig` ではなく `.globalconfig` ファイルで行います。
 
+```ini
+is_global = true
+
+# 読み取り専用変数解析
+sator_imaging.immutable_variable = true
+
+# Disposable 解析
+sator_imaging.duck_typing_recognition = true
+```
+
 フォーマットの詳細については、以下を参照してください。
 https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
-
-- 注意: 詳細については実装を確認してください。

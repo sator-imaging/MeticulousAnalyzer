@@ -767,6 +767,14 @@ var x = new MyDisposable();
 
 Configuration can be set in `.globalconfig` file (NOT `.editorconfig`).
 
-See details for format: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
+```ini
+is_global = true
 
-- Note: See implementation for detail.
+# Immutable/Read-Only Variable Analysis
+sator_imaging.immutable_variable = true
+
+# Disposable Analysis
+sator_imaging.duck_typing_recognition = true
+```
+
+See details for format: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
