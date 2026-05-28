@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.0.0-rc.1](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.1) (2026-05-28)
+
+### 📣 Breaking Changes
+* feat!: AI created icon is refined by AI by [@sator-imaging](https://github.com/sator-imaging) in [#302](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/302)
+### ✨ Bug Fixes
+* fix: suppression comment for untracked cast by [@sator-imaging](https://github.com/sator-imaging) in [#301](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/301)
+### 📚 Other Changes
+* refactor: DocsGen is now file-based app by [@sator-imaging](https://github.com/sator-imaging) in [#298](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/298)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v4.6.0-rc.13...v5.0.0-rc.1
+
+
 ## [4.6.0-rc.13](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v4.6.0-rc.13) (2026-05-27)
 
 ### 📚 Other Changes
