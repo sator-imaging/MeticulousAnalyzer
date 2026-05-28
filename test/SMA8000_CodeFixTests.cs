@@ -12,7 +12,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA8000_CodeFixTests
     {
         [TestMethod]
-        public async Task SMA8000_CodeFix_BooleanExpressionCodeFix()
+        public async Task SMA8000_CodeFix_BooleanExpression()
         {
             var test = @"
 namespace Test
@@ -44,7 +44,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_CodeFix_BooleanOperationCodeFix()
+        public async Task SMA8000_CodeFix_BooleanOperation()
         {
             var test = @"
 namespace Test

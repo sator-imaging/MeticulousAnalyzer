@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0042_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0042_Violate_NotAllCodePathsReturn()
+        public async Task SMA0042_Violation_AllCodePathsReturn()
         {
             var test = @"
 using System;
@@ -58,7 +58,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0042_Violate_ReturnedOnSomePaths()
+        public async Task SMA0042_Violation_ReturnedOnSomePaths()
         {
             var test = @"
 using System;
@@ -96,7 +96,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0042_Violate_ReturnedOnSomePaths_WithDefault()
+        public async Task SMA0042_Violation_ReturnedOnSomePaths_WithDefault()
         {
             var test = @"
 using System;
@@ -135,7 +135,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0042_Violate_NotAllCodePathsReturn_ObjectCreation()
+        public async Task SMA0042_Violation_AllCodePathsReturn_ObjectCreation()
         {
             var test = @"
 using System;

@@ -12,7 +12,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA8002_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA8002_Conform_NullSuppressionWithThreeParentheses()
+        public async Task SMA8002_Compliant_NullSuppressionWithThreeParentheses()
         {
             var test = @"#nullable enable
 class C
@@ -27,7 +27,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8002_Conform_NullSuppressionWithMoreThanThreeParentheses()
+        public async Task SMA8002_Compliant_NullSuppressionWithMoreThanThreeParentheses()
         {
             var test = @"#nullable enable
 class C

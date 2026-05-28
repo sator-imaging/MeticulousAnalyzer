@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA7001_CodeFixTests
     {
         [TestMethod]
-        public async Task SMA7001_CodeFix_StaticMethodConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodConversion()
         {
             var test = @"
 using System;
@@ -45,7 +45,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_CodeFix_StaticMethodWithMultipleArgsConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodWithMultipleArgsConversion()
         {
             var test = @"
 using System;
@@ -76,7 +76,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_CodeFix_InstanceMethodConversionCodeFixDoesNotApply()
+        public async Task SMA7001_CodeFix_InstanceMethodConversion()
         {
             var test = @"
 using System;
@@ -98,7 +98,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_CodeFix_InstanceMethodWithReceiverConversionCodeFixDoesNotApply()
+        public async Task SMA7001_CodeFix_InstanceMethodWithReceiverConversion()
         {
             var test = @"
 using System;
@@ -118,7 +118,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_CodeFix_StaticMethodInArgumentConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodInArgumentConversion()
         {
             var test = @"
 using System;
@@ -151,7 +151,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_CodeFix_StaticMethodWithMultipleArgsInArgumentConversionCodeFix()
+        public async Task SMA7001_CodeFix_StaticMethodWithMultipleArgsInArgumentConversion()
         {
             var test = @"
 using System;
@@ -184,7 +184,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_CodeFix_StaticMethodWithKeywordArgsConversionCodeFix_ReproIssue1()
+        public async Task SMA7001_CodeFix_StaticMethodWithKeywordArgsConversion_ReproIssue1()
         {
             var test = @"
 using System;

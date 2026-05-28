@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0045_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0045_Violate_MissingIDisposableInterface()
+        public async Task SMA0045_Violation_MissingIDisposableInterface()
         {
             var test = @"
 using System;

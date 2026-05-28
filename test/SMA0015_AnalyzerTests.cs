@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0015_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0015_Violate_TSelfConstraintIsNotSelf()
+        public async Task SMA0015_Violation_TSelfConstraintIsNotSelf()
         {
             var test = @"
 namespace Test
@@ -24,7 +24,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0010_Conform_TSelfConstraintIsSelf()
+        public async Task SMA0015_Compliant_TSelfConstraintIsSelf()
         {
             var test = @"
 namespace Test
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0010_Conform_TSelfIsNotMisreported_SameLengthIdentifier()
+        public async Task SMA0015_Compliant_TSelfIsNotMis_SameLengthIdentifier()
         {
             var test = @"
 using System.Threading.Tasks;

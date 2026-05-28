@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA7000_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA7000_Conform_StaticLambda()
+        public async Task SMA7000_Compliant_StaticLambda()
         {
             var test = @"
 using System;
@@ -29,7 +29,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7000_Conform_LambdaCapturingVariableSuppressedByCommentInArgument()
+        public async Task SMA7000_Compliant_LambdaCapturingVariableCommentInArgument()
         {
             var test = @"
 using System;
@@ -50,7 +50,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7000_Conform_LambdaCapturingVariableSuppressedByCommentInArgumentWithParams()
+        public async Task SMA7000_Compliant_LambdaCapturingVariableCommentInArgumentWithParams()
         {
             var test = @"
 using System;
@@ -71,7 +71,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7000_Conform_NonActionFuncStaticMethodConversionNotReported()
+        public async Task SMA7000_Compliant_NonActionFuncStaticMethodConversionNot()
         {
             var test = @"
 using System;
@@ -89,7 +89,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7000_Conform_LambdaCapturingVariableSuppressedByComment()
+        public async Task SMA7000_Compliant_LambdaCapturingVariableComment()
         {
             var test = @"
 using System;

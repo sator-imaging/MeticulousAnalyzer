@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA7002_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA7002_Violate_LambdaCapturingVariableReportsSMA7002()
+        public async Task SMA7002_Violation_LambdaCapturingVariable()
         {
             var test = @"
 using System;
@@ -31,7 +31,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7002_Violate_LambdaWithParamsCapturingVariableReportsSMA7002()
+        public async Task SMA7002_Violation_LambdaWithParamsCapturingVariable()
         {
             var test = @"
 using System;

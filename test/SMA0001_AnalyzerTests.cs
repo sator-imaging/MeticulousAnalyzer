@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0001_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0001_Conform_NoDiagnosticWhenOrderIsCorrect()
+        public async Task SMA0001_Compliant_OrderIsCorrect()
         {
             var test = @"
 namespace Test
@@ -29,7 +29,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0001_Conform_NoDiagnosticForConst()
+        public async Task SMA0001_Compliant_Const()
         {
             var test = @"
 namespace Test
@@ -45,7 +45,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0001_Violate_PropertyInitialization()
+        public async Task SMA0001_Violation_PropertyInitialization()
         {
             var test = @"
 namespace Test

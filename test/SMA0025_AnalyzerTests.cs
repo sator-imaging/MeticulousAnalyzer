@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0025_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0025_Violate_EnumMethod()
+        public async Task SMA0025_Violation_EnumMethod()
         {
             var test = @"
 using System;
@@ -37,7 +37,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_EnumHasFlag()
+        public async Task SMA0025_Violation_EnumHasFlag()
         {
             var test = @"
 using System.Reflection;
@@ -60,7 +60,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_IsDefined()
+        public async Task SMA0025_Violation_Suppression_Defined()
         {
             var test = @"
 using System;
@@ -85,7 +85,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_GetValues()
+        public async Task SMA0025_Violation_Suppression_GetValues()
         {
             var test = @"
 using System;
@@ -110,7 +110,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_NestedInvocation()
+        public async Task SMA0025_Violation_Suppression_NestedInvocation()
         {
             var test = @"
 using System;
@@ -135,7 +135,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_Suppression_LinqInvocation()
+        public async Task SMA0025_Violation_Suppression_LinqInvocation()
         {
             var test = @"
 using System;
@@ -161,7 +161,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violate_EnumHasFlag_NullConditional()
+        public async Task SMA0025_Violation_EnumHasFlag_NullConditional()
         {
             var test = @"
 using System.Reflection;

@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0041_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0041_Violate_NullAssignment_WithoutDispose()
+        public async Task SMA0041_Violation_NullAssignment_Dispose()
         {
             var test = @"
 using System;
@@ -50,7 +50,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0041_Violate_DoubleNullAssignmentAfterDispose_ReportsDiagnosticOnSecondAssignment()
+        public async Task SMA0041_Violation_DoubleNullAssignmentAfterDispose_SecondAssignment()
         {
             var test = @"
 using System;
@@ -90,7 +90,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0041_Violate_IsNotSuppressedByComment()
+        public async Task SMA0041_Violation_Comment()
         {
             var test = @"
 using System;

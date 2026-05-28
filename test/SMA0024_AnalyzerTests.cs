@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0024_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0024_Violate_EnumToString()
+        public async Task SMA0024_Violation_EnumToString()
         {
             var test = @"
 using System.Reflection;
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_Enum()
+        public async Task SMA0024_Violation_InterpolatedString_Enum()
         {
             var test = @"
 using System.Reflection;
@@ -59,7 +59,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_NullConditionalEnum()
+        public async Task SMA0024_Violation_InterpolatedString_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;
@@ -83,7 +83,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_GenericEnum()
+        public async Task SMA0024_Violation_InterpolatedString_GenericEnum()
         {
             var test = @"
 using System;
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_InterpolatedString_NullConditionalEnum_WithText()
+        public async Task SMA0024_Violation_InterpolatedString_NullConditionalEnum_WithText()
         {
             var test = @"
 using System.Reflection;
@@ -129,7 +129,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_StringConcatenation_NullConditionalEnum()
+        public async Task SMA0024_Violation_StringConcatenation_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;
@@ -153,7 +153,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0024_Violate_EnumToString_NullConditional()
+        public async Task SMA0024_Violation_EnumToString_NullConditional()
         {
             var test = @"
 using System.Reflection;

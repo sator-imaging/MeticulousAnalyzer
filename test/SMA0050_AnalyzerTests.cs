@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0050_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0050_Violate_NoHeaderComment()
+        public async Task SMA0050_Violation_NoHeaderComment()
         {
             var test = @"{|#0:using System;|}
 
@@ -31,7 +31,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Violate_WithNestedAndGenericTypes()
+        public async Task SMA0050_Violation_WithNestedAndGenericTypes()
         {
             var test = @"{|#0:using System;|}
 
@@ -48,7 +48,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Conform_WithSingleLineComment()
+        public async Task SMA0050_Compliant_WithSingleLineComment()
         {
             var test = @"// this is a comment
 using System;
@@ -62,7 +62,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Conform_WithMultiLineComment()
+        public async Task SMA0050_Compliant_WithMultiLineComment()
         {
             var test = @"/* this is a multi-line comment */
 using System;
@@ -76,7 +76,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Violate_StartsWithBlankLine()
+        public async Task SMA0050_Violation_StartsWithBlankLine()
         {
             var test = @"
 {|#0:using|} System;
@@ -91,7 +91,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Violate_WithPragmaWarningDisable()
+        public async Task SMA0050_Violation_WithPragmaWarningDisable()
         {
             var test = @"{|#0:#pragma warning disable CS8618|}
 
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Conform_WithMultiLineDocumentationComment()
+        public async Task SMA0050_Compliant_WithMultiLineDocumentationComment()
         {
             var test = @"/** this is a multi-line comment */
 using System;
@@ -119,7 +119,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Conform_WithSingleLineDocumentationComment()
+        public async Task SMA0050_Compliant_WithSingleLineDocumentationComment()
         {
             var test = @"/// this is a single-line documentation comment
 using System;
@@ -133,7 +133,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0050_Violate_FileNameContainsTest()
+        public async Task SMA0050_Violation_FileNameContainsTest()
         {
             var test = @"{|#0:using System;|}
 

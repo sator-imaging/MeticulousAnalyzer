@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0021_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0021_Violate_CastFromEnum()
+        public async Task SMA0021_Violation_CastFromEnum()
         {
             var test = @"
 using System.Reflection;
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0021_Violate_CastFromEnumVariable()
+        public async Task SMA0021_Violation_CastFromEnumVariable()
         {
             var test = @"
 using System;
@@ -53,7 +53,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0021_Violate_CastFromEnumValue()
+        public async Task SMA0021_Violation_CastFromEnumValue()
         {
             var test = @"
 using System.Reflection;
@@ -72,7 +72,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0021_Violate_CastFromEnumValueToInt()
+        public async Task SMA0021_Violation_CastFromEnumValueToInt()
         {
             var test = @"
 using System.Reflection;
@@ -91,7 +91,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0021_Violate_ExplicitCast_NullConditionalEnum()
+        public async Task SMA0021_Violation_ExplicitCast_NullConditionalEnum()
         {
             var test = @"
 using System.Reflection;

@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0031_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0031_Violate_MutableStructField()
+        public async Task SMA0031_Violation_MutableStructField()
         {
             var test = @"
 namespace Test
@@ -38,7 +38,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_GenericStruct_MutableField()
+        public async Task SMA0031_Violation_GenericStruct_MutableField()
         {
             var test = @"
 namespace Test
@@ -62,7 +62,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_NestedStruct_MutableField()
+        public async Task SMA0031_Violation_NestedStruct_MutableField()
         {
             var test = @"
 namespace Test
@@ -89,7 +89,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0031_Violate_ReadOnlyNullableMutableStruct()
+        public async Task SMA0031_Violation_ReadOnlyNullableMutableStruct()
         {
             var test = @"
 namespace Test

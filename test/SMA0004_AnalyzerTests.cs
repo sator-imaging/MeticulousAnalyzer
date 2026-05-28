@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0004_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0004_Violate_ReadingUninitializedValue()
+        public async Task SMA0004_Violation_ReadingUninitializedValue()
         {
             var test = @"
 namespace Test

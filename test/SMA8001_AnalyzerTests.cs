@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA8001_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA8001_Violate_VarWithPrimitiveNumbers()
+        public async Task SMA8001_Violation_VarWithPrimitiveNumbers()
         {
             var test = @"
 namespace Test
@@ -54,7 +54,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Conform_ExplicitTypeWithPrimitiveNumbers()
+        public async Task SMA8001_Compliant_ExplicitTypeWithPrimitiveNumbers()
         {
             var test = @"
 namespace Test
@@ -84,7 +84,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Conform_VarWithNonNumberTypes()
+        public async Task SMA8001_Compliant_VarWithNonNumberTypes()
         {
             var test = @"
 namespace Test
@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Conform_MultipleVariablesInOneDeclaration()
+        public async Task SMA8001_Compliant_MultipleVariablesInOneDeclaration()
         {
             var test = @"
 namespace Test
@@ -126,7 +126,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Violate_VarWithNumberFromMembers()
+        public async Task SMA8001_Violation_VarWithNumberFromMembers()
         {
             var test = @"
 namespace Test

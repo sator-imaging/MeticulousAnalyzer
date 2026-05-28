@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0044_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0044_Violate_MissingDispose()
+        public async Task SMA0044_Violation_MissingDispose()
         {
             var test = @"
 using System;

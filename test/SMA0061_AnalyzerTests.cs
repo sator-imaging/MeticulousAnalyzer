@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0061_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0061_Violate_CoalesceAssignment_Parameter()
+        public async Task SMA0061_Violation_CoalesceAssignment_Parameter()
         {
             var test = @"
 namespace Test
@@ -41,7 +41,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0061_Violate_MethodParameterAssignment()
+        public async Task SMA0061_Violation_MethodParameterAssignment()
         {
             var test = @"
 namespace Test
@@ -65,7 +65,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0061_Violate_IndexerAndSetterParameterAssignments_ReportDiagnostic()
+        public async Task SMA0061_Violation_IndexerAndSetterParameterAssignments_ReportDiagnostic()
         {
             var test = @"
 namespace Test
@@ -112,7 +112,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0061_Violate_MemberAccessRootedAtParameter()
+        public async Task SMA0061_Violation_MemberAccessRootedAtParameter()
         {
             var test = @"
 namespace Test

@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0020_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0020_Violate_CastToEnum()
+        public async Task SMA0020_Violation_CastToEnum()
         {
             var test = @"
 using System.Reflection;
@@ -36,7 +36,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_CompareToSame()
+        public async Task SMA0020_Compliant_CastFromEnum_CompareToSame()
         {
             var test = @"
 using System.Reflection;
@@ -58,7 +58,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_CompareToSame_Nullable()
+        public async Task SMA0020_Compliant_CastFromEnum_CompareToSame_Nullable()
         {
             var test = @"
 #nullable enable
@@ -82,7 +82,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_ToNullable()
+        public async Task SMA0020_Compliant_CastFromEnum_ToNullable()
         {
             var test = @"
 #nullable enable
@@ -106,7 +106,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnum_ToNullableArgument()
+        public async Task SMA0020_Compliant_CastFromEnum_ToNullableArgument()
         {
             var test = @"
 #nullable enable
@@ -132,7 +132,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression()
+        public async Task SMA0020_Compliant_Suppression()
         {
             var test = @"
 using System.Reflection;
@@ -158,7 +158,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_Suppression_NotWorkingOnAssignment()
+        public async Task SMA0020_Violation_Suppression_WorkingOnAssignment()
         {
             var test = @"
 using System.Reflection;
@@ -184,7 +184,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression_NotWorkingOnDiscardAssignment()
+        public async Task SMA0020_Compliant_Suppression_WorkingOnDiscardAssignment()
         {
             var test = @"
 using System.Reflection;
@@ -207,7 +207,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_Suppression_WhitespaceSensitive()
+        public async Task SMA0020_Violation_Suppression_WhitespaceSensitive()
         {
             var test = @"
 using System.Reflection;
@@ -231,7 +231,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_Suppression_FirstCommentOnly()
+        public async Task SMA0020_Violation_Suppression_FirstCommentOnly()
         {
             var test = @"
 using System.Reflection;
@@ -256,7 +256,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_Suppression_PrecedingLineEndComment()
+        public async Task SMA0020_Violation_Suppression_PrecedingLineEndComment()
         {
             var test = @"
 using System.Reflection;
@@ -281,7 +281,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_Suppression_PrecedingLineEndComment_WithBlankLine()
+        public async Task SMA0020_Violation_Suppression_PrecedingLineEndComment_WithBlankLine()
         {
             var test = @"
 using System.Reflection;
@@ -307,7 +307,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_Suppression_MultiComments_WithBlankLineBetween()
+        public async Task SMA0020_Violation_Suppression_MultiComments_WithBlankLineBetween()
         {
             var test = @"
 using System.Reflection;
@@ -333,7 +333,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression_TryParse()
+        public async Task SMA0020_Compliant_Suppression_TryParse()
         {
             var test = @"
 using System;
@@ -357,7 +357,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression_DiscardAssignment()
+        public async Task SMA0020_Compliant_Suppression_DiscardAssignment()
         {
             var test = @"
 using System;
@@ -381,7 +381,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_Suppression_VariableDeclaration()
+        public async Task SMA0020_Compliant_Suppression_VariableDeclaration()
         {
             var test = @"
 using System;
@@ -405,7 +405,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnumVariableSuppressed()
+        public async Task SMA0020_Compliant_CastFromEnumVariable()
         {
             var test = @"
 using System;
@@ -422,7 +422,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnumValueSuppressed()
+        public async Task SMA0020_Compliant_CastFromEnumValue()
         {
             var test = @"
 using System.Reflection;
@@ -441,7 +441,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_CastFromEnumValueToIntSuppressed()
+        public async Task SMA0020_Compliant_CastFromEnumValueToInt()
         {
             var test = @"
 using System.Reflection;
@@ -460,7 +460,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA0020_Violate_CastToNullableEnum()
+        public async Task SMA0020_Violation_CastToNullableEnum()
         {
             var test = @"
 using System.Reflection;
@@ -483,7 +483,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Conform_InterpolatedString_Suppression_IsWorking()
+        public async Task SMA0020_Compliant_InterpolatedString_Suppression_Working()
         {
             var test = @"
 using System.Reflection;

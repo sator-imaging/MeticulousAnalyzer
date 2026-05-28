@@ -30,7 +30,7 @@ namespace Test
 }
 ";
         [TestMethod]
-        public async Task SMA0060_Violate_SimpleAssignment()
+        public async Task SMA0060_Violation_SimpleAssignment()
         {
             var test = @"
 namespace Test
@@ -55,7 +55,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment()
+        public async Task SMA0060_Violation_CompoundAssignment()
         {
             var test = @"
 namespace Test
@@ -80,7 +80,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_IncrementAssignment()
+        public async Task SMA0060_Violation_IncrementAssignment()
         {
             var test = @"
 namespace Test
@@ -105,7 +105,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CoalesceAssignment_Local()
+        public async Task SMA0060_Violation_CoalesceAssignment_Local()
         {
             var test = @"
 namespace Test
@@ -130,7 +130,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_DeconstructionAssignment_ExistingVariables()
+        public async Task SMA0060_Violation_DeconstructionAssignment_ExistingVariables()
         {
             var test = @"
 namespace Test
@@ -159,7 +159,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_AutoPropertyAccess()
+        public async Task SMA0060_Compliant_AutoPropertyAccess()
         {
             var test = @"
 namespace Test
@@ -181,7 +181,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_NullConditionalAutoPropertyAccess()
+        public async Task SMA0060_Compliant_NullConditionalAutoPropertyAccess()
         {
             var test = @"
 namespace Test
@@ -203,7 +203,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_DeconstructionAssignment_LeftExistingRightDeclared()
+        public async Task SMA0060_Violation_DeconstructionAssignment_LeftExistingRightDeclared()
         {
             var test = @"
 namespace Test
@@ -235,7 +235,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_DeconstructionAssignment_LeftDeclaredRightExisting()
+        public async Task SMA0060_Violation_DeconstructionAssignment_LeftDeclaredRightExisting()
         {
             var test = @"
 namespace Test
@@ -267,7 +267,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_DeconstructionDeclaration_IsAllowed()
+        public async Task SMA0060_Compliant_DeconstructionDeclaration()
         {
             var test = @"
 namespace Test
@@ -288,7 +288,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_StringPropertyAndMethodAccess()
+        public async Task SMA0060_Compliant_StringPropertyAndMethodAccess()
         {
             var test = @"
 namespace Test
@@ -310,7 +310,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ConstFieldArgument_IsAllowed()
+        public async Task SMA0060_Compliant_ConstFieldArgument()
         {
             var test = @"
 namespace Test
@@ -337,7 +337,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ReadOnlyStructGetterOnlyPropertyArgument_IsAllowed()
+        public async Task SMA0060_Compliant_ReadOnlyStructGetterOnlyPropertyArgument()
         {
             var test = @"
 namespace Test
@@ -366,7 +366,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_SingleLetterLocal()
+        public async Task SMA0060_Violation_SingleLetterLocal()
         {
             var test = @"
 namespace Test
@@ -391,7 +391,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_MutPrefixLocal_IsAllowed()
+        public async Task SMA0060_Compliant_MutPrefixLocal()
         {
             var test = @"
 namespace Test
@@ -414,7 +414,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_MemberAccessRootedAtLocal()
+        public async Task SMA0060_Violation_MemberAccessRootedAtLocal()
         {
             var test = @"
 namespace Test
@@ -445,7 +445,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_MemberAccessRootedAtField()
+        public async Task SMA0060_Compliant_MemberAccessRootedAtField()
         {
             var test = @"
 namespace Test
@@ -473,7 +473,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ForStatementHeaderAssignments_AreAllowed()
+        public async Task SMA0060_Compliant_ForStatementHeaderAssignments()
         {
             var test = @"
 namespace Test
@@ -496,7 +496,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_ForStatementBodyAssignment_IsStillReported()
+        public async Task SMA0060_Violation_ForStatementBodyAssignment()
         {
             var test = @"
 namespace Test
@@ -523,7 +523,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_OutVarCall_NotReported_ButSubsequentAssignment_Reported()
+        public async Task SMA0060_Violation_OutVarCall_ButSubsequentAssignment()
         {
             var test = @"
 namespace Test
@@ -548,7 +548,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_MethodCall_MutPrefixArgument_IsAllowed()
+        public async Task SMA0060_Compliant_MethodCall_MutPrefixArgument()
         {
             var test = @"
 namespace Test
@@ -573,7 +573,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_StructArgument_InParameter_IsAllowed()
+        public async Task SMA0060_Compliant_StructArgument_InParameter()
         {
             var test = @"
 namespace Test
@@ -598,7 +598,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_StructArgument_ReadOnlyByValue_IsAllowed()
+        public async Task SMA0060_Compliant_StructArgument_ReadOnlyByValue()
         {
             var test = @"
 namespace Test
@@ -623,7 +623,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_IndexerArgument_ReferenceType()
+        public async Task SMA0060_Compliant_IndexerArgument_ReferenceType()
         {
             var test = @"
 namespace Test
@@ -650,7 +650,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_MethodCallArgument_IsAllowed()
+        public async Task SMA0060_Compliant_MethodCallArgument()
         {
             var test = @"
 namespace Test
@@ -675,7 +675,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ObjectCreationArgument_IsAllowed()
+        public async Task SMA0060_Compliant_ObjectCreationArgument()
         {
             var test = @"
 namespace Test
@@ -699,7 +699,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ReadOnlyFieldArgument_IsAllowed()
+        public async Task SMA0060_Compliant_ReadOnlyFieldArgument()
         {
             var test = @"
 namespace Test
@@ -725,7 +725,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_BuiltinPrimitives()
+        public async Task SMA0060_Compliant_BuiltinPrimitives()
         {
             var test = @"
 using System;
@@ -777,7 +777,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_PropertyAccess()
+        public async Task SMA0060_Compliant_PropertyAccess()
         {
             var test = @"
 namespace Test
@@ -802,7 +802,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_StructGetterOnlyPropertyAccess()
+        public async Task SMA0060_Compliant_StructGetterOnlyPropertyAccess()
         {
             var test = @"
 namespace Test
@@ -829,7 +829,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_MethodCallOnMutPrefixLocal_IsAllowed()
+        public async Task SMA0060_Compliant_MethodCallOnMutPrefixLocal()
         {
             var test = @"
 namespace Test
@@ -852,7 +852,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ReadOnlyMethodCallOnRootLocal_IsAllowed()
+        public async Task SMA0060_Compliant_ReadOnlyMethodCallOnRootLocal()
         {
             var test = @"
 namespace Test
@@ -875,7 +875,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_StructReadOnlyGetterOnlyPropertyAccess_IsAllowed()
+        public async Task SMA0060_Compliant_StructReadOnlyGetterOnlyPropertyAccess()
         {
             var test = @"
 namespace Test
@@ -904,7 +904,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_RefAssignment()
+        public async Task SMA0060_Violation_RefAssignment()
         {
             var test = @"
 namespace Test
@@ -931,7 +931,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_DecrementAssignment()
+        public async Task SMA0060_Violation_DecrementAssignment()
         {
             var test = @"
 namespace Test
@@ -956,7 +956,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_Subtract()
+        public async Task SMA0060_Violation_CompoundAssignment_Subtract()
         {
             var test = @"
 namespace Test
@@ -981,7 +981,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_Multiply()
+        public async Task SMA0060_Violation_CompoundAssignment_Multiply()
         {
             var test = @"
 namespace Test
@@ -1006,7 +1006,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_Divide()
+        public async Task SMA0060_Violation_CompoundAssignment_Divide()
         {
             var test = @"
 namespace Test
@@ -1031,7 +1031,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_Modulo()
+        public async Task SMA0060_Violation_CompoundAssignment_Modulo()
         {
             var test = @"
 namespace Test
@@ -1056,7 +1056,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_And()
+        public async Task SMA0060_Violation_CompoundAssignment_And()
         {
             var test = @"
 namespace Test
@@ -1081,7 +1081,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_Or()
+        public async Task SMA0060_Violation_CompoundAssignment_Or()
         {
             var test = @"
 namespace Test
@@ -1106,7 +1106,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_Xor()
+        public async Task SMA0060_Violation_CompoundAssignment_Xor()
         {
             var test = @"
 namespace Test
@@ -1131,7 +1131,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_LeftShift()
+        public async Task SMA0060_Violation_CompoundAssignment_LeftShift()
         {
             var test = @"
 namespace Test
@@ -1156,7 +1156,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_CompoundAssignment_RightShift()
+        public async Task SMA0060_Violation_CompoundAssignment_RightShift()
         {
             var test = @"
 namespace Test
@@ -1181,7 +1181,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_MethodCall_MutPrefixParameterArgument_IsAllowed()
+        public async Task SMA0060_Compliant_MethodCall_MutPrefixParameterArgument()
         {
             var test = @"
 namespace Test
@@ -1205,7 +1205,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_AnonymousObjectArgument_IsAllowed()
+        public async Task SMA0060_Compliant_AnonymousObjectArgument()
         {
             var test = @"
 namespace Test
@@ -1227,7 +1227,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ArrayCreationArgument_IsAllowed()
+        public async Task SMA0060_Compliant_ArrayCreationArgument()
         {
             var test = @"
 namespace Test
@@ -1249,7 +1249,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_OutTypedDeclarationCall_NotReported()
+        public async Task SMA0060_Compliant_OutTypedDeclarationCall()
         {
             var test = @"
 namespace Test
@@ -1269,7 +1269,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_OutParameterAssignment_IsAllowed()
+        public async Task SMA0060_Compliant_OutParameterAssignment()
         {
             var test = @"
 namespace Test
@@ -1289,7 +1289,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_LiteralArgument_IsAllowed()
+        public async Task SMA0060_Compliant_LiteralArgument()
         {
             var test = @"
 namespace Test
@@ -1313,7 +1313,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_DefaultArgument_IsAllowed()
+        public async Task SMA0060_Compliant_DefaultArgument()
         {
             var test = @"
 namespace Test
@@ -1337,7 +1337,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_NullArgument_IsAllowed()
+        public async Task SMA0060_Compliant_NullArgument()
         {
             var test = @"
 namespace Test
@@ -1359,7 +1359,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_PropertyAccessors_LocalAssignment()
+        public async Task SMA0060_Violation_PropertyAccessors_LocalAssignment()
         {
             var test = @"
 namespace Test
@@ -1396,7 +1396,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_IndexerAccessors_LocalAssignment()
+        public async Task SMA0060_Violation_IndexerAccessors_LocalAssignment()
         {
             var test = @"
 namespace Test
@@ -1433,7 +1433,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_Lambda_LocalAndParameterAssignment()
+        public async Task SMA0060_Violation_Lambda_LocalAndParameterAssignment()
         {
             var test = @"
 using System;
@@ -1465,7 +1465,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_Lambda_MutPrefix_IsAllowed()
+        public async Task SMA0060_Compliant_Lambda_MutPrefix()
         {
             var test = @"
 using System;
@@ -1490,7 +1490,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_PropertyAccessors_MutPrefix_IsAllowed()
+        public async Task SMA0060_Compliant_PropertyAccessors_MutPrefix()
         {
             var test = @"
 namespace Test
@@ -1520,7 +1520,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_IndexerAccessors_MutPrefix_IsAllowed()
+        public async Task SMA0060_Compliant_IndexerAccessors_MutPrefix()
         {
             var test = @"
 namespace Test
@@ -1550,7 +1550,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_RuleSuppressed()
+        public async Task SMA0060_Compliant_Rule()
         {
             var test = @"
 namespace Test
@@ -1617,7 +1617,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_WhileStatementCondition_SimpleAssignment_IsAllowed()
+        public async Task SMA0060_Compliant_WhileStatementCondition_SimpleAssignment()
         {
             var test = @"
 using System.IO;
@@ -1640,7 +1640,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementCondition_CompoundAssignment()
+        public async Task SMA0060_Violation_WhileStatementCondition_CompoundAssignment()
         {
             var test = @"
 namespace Test
@@ -1666,7 +1666,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementCondition_Increment()
+        public async Task SMA0060_Violation_WhileStatementCondition_Increment()
         {
             var test = @"
 namespace Test
@@ -1692,7 +1692,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhileStatementBody_Assignment()
+        public async Task SMA0060_Violation_WhileStatementBody_Assignment()
         {
             var test = @"
 using System.IO;
@@ -1720,7 +1720,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithMiddleAutoProp()
+        public async Task SMA0060_Compliant_ChainedAccess_WithMiddleAutoProp()
         {
             var test = @"
 namespace Test
@@ -1754,7 +1754,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_AllReadOnly()
+        public async Task SMA0060_Compliant_ChainedAccess_AllReadOnly()
         {
             var test = @"
 namespace Test
@@ -1784,7 +1784,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithEndAutoProp()
+        public async Task SMA0060_Compliant_ChainedAccess_WithEndAutoProp()
         {
             var test = @"
 namespace Test
@@ -1815,7 +1815,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithField_IgnoresFieldReadOnlyPropButChecksProp()
+        public async Task SMA0060_Compliant_ChainedAccess_WithField_IgnoresFieldReadOnlyPropButChecksProp()
         {
             var test = @"
 namespace Test
@@ -1846,7 +1846,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_ReadOnlyAutoProperty_WithMutableReturnType()
+        public async Task SMA0060_Compliant_ChainedAccess_ReadOnlyAutoProperty_WithMutableReturnType()
         {
             var test = @"
 namespace Test
@@ -1872,7 +1872,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_WithReadOnlyMethodInChain()
+        public async Task SMA0060_Compliant_ChainedAccess_WithReadOnlyMethodInChain()
         {
             var test = @"
 namespace Test
@@ -1902,7 +1902,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_ThroughThis_NoDiagnosticIfAllReadOnly()
+        public async Task SMA0060_Compliant_ChainedAccess_ThroughThis_IfAllReadOnly()
         {
             var test = @"
 namespace Test
@@ -1924,7 +1924,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_ChainedAccess_StaticMember_NoDiagnosticAtStartOfChain()
+        public async Task SMA0060_Compliant_ChainedAccess_StaticMember_AtStartOfChain()
         {
             var test = @"
 namespace Test
@@ -1949,28 +1949,28 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_WhenNoConfig_NoDiagnosticReported()
+        public async Task SMA0060_Compliant_NoConfig()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: null);
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_WhenConfigMissingSeverity_NoDiagnosticReported()
+        public async Task SMA0060_Compliant_ConfigMissingSeverity()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = true");
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_WhenConfigSeverityIsFalse_NoDiagnosticReported()
+        public async Task SMA0060_Compliant_ConfigSeverityIsFalse()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = false");
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Violate_WhenConfigSeverityIsTrue_DiagnosticReported()
+        public async Task SMA0060_Violation_ConfigSeverityIsTrue_Diagnostic()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
@@ -1981,7 +1981,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_IEnumerableArgument_IsAllowed()
+        public async Task SMA0060_Compliant_IEnumerableArgument()
         {
             var test = @"
 using System.Collections;
@@ -2015,7 +2015,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_EnumArgument_IsAllowed()
+        public async Task SMA0060_Compliant_EnumArgument()
         {
             var test = @"
 namespace Test
@@ -2039,7 +2039,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_LambdaArgument_IsAllowed_ButViolationInsideReported()
+        public async Task SMA0060_Compliant_LambdaArgument_ButViolationInside()
         {
             var test = @"
 using System;
@@ -2066,7 +2066,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Conform_AnonymousMethodArgument_IsAllowed()
+        public async Task SMA0060_Compliant_AnonymousMethodArgument()
         {
             var test = @"
 using System;
