@@ -92,23 +92,6 @@ Visual Studio でのコーディング時に注意を引く追加機能です。
 
 &nbsp;
 
-# アナライザーの設定方法
-
-設定は `.editorconfig` ではなく `.globalconfig` ファイルで行います。
-
-- `sator_imaging.immutable_variable = true`
-- `sator_imaging.duck_typing_recognition = true`
-- 注意: 詳細については実装を確認してください。
-
-フォーマットの詳細については、以下を参照してください。
-https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
-
-
-
-
-
-&nbsp;
-
 # 相互参照問題
 
 これは設計上の問題で、複雑さを増やすだけでなく特定条件下でのみ初期化エラーを引き起こします。
@@ -325,7 +308,7 @@ d = (new object()) as IDisposable;
 ```
 
 > [!TIP]
-> `IDisposable` の "ダックタイピング" 認識を有効にできます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
+> `sator_imaging.duck_typing_recognition = true` を設定することで、`IDisposable` の "ダックタイピング" 認識を有効にできます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
 
 
 次の条件では警告を出しません:
@@ -502,7 +485,7 @@ var x = (((foo)))!;
 このアナライザーは、書き込み操作を検出してローカル値/引数の不変性維持を支援します。
 
 > [!IMPORTANT]
-> この解析はデフォルトで無効になっています。有効にするには [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
+> この解析はデフォルトで無効になっています。`sator_imaging.immutable_variable = true` を設定することで有効化できます。詳細は [アナライザーの設定方法](#アナライザーの設定方法) を参照してください。
 
 <details>
 
@@ -776,3 +759,15 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+&nbsp;
+
+# アナライザーの設定方法
+
+設定は `.editorconfig` ではなく `.globalconfig` ファイルで行います。
+
+フォーマットの詳細については、以下を参照してください。
+https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
+
+- 注意: 詳細については実装を確認してください。

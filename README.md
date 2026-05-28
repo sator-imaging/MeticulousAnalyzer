@@ -92,22 +92,6 @@ This analyzer can be used with Unity 2020.2 or above. See the following page for
 
 &nbsp;
 
-# How to Configure Analyzer
-
-Configuration can be set in `.globalconfig` file (NOT `.editorconfig`).
-
-- `sator_imaging.immutable_variable = true`
-- `sator_imaging.duck_typing_recognition = true`
-- Note: See implementation for detail.
-
-See details for format: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
-
-
-
-
-
-&nbsp;
-
 # Cross-Referencing Problem
 
 It is a design bug makes all things complex. Not only that but also it causes initialization error only when meet a specific condition.
@@ -324,7 +308,7 @@ d = (new object()) as IDisposable;
 ```
 
 > [!TIP]
-> You can enable "duck typing" recognition for `IDisposable`. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
+> You can enable "duck typing" recognition for `IDisposable` by `sator_imaging.duck_typing_recognition = true`. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
 
 
 Analyzer won't show warning in the following condition:
@@ -501,7 +485,7 @@ var x = (((foo)))!;
 This analyzer helps keep local values and parameters immutable by flagging write operations.  
 
 > [!IMPORTANT]
-> This analysis is disabled by default. See [How to Configure Analyzer](#how-to-configure-analyzer) to enable it.
+> This analysis is disabled by default. Set `sator_imaging.immutable_variable = true` to enable it. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
 
 <details>
 
@@ -775,3 +759,14 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+&nbsp;
+
+# How to Configure Analyzer
+
+Configuration can be set in `.globalconfig` file (NOT `.editorconfig`).
+
+See details for format: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
+
+- Note: See implementation for detail.
