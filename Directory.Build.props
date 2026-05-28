@@ -40,7 +40,7 @@
     <GlobalPackageReleaseNote>https://github.com/sator-imaging/StaticMemberAnalyzer</GlobalPackageReleaseNote>
     <GlobalPackageLicenseUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/blob/main/LICENSE.md</GlobalPackageLicenseUrl>
     <GlobalPackageLicenseSPDX>MIT</GlobalPackageLicenseSPDX>
-    <GlobalPackageIconUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/raw/main/assets/icon-128px.png</GlobalPackageIconUrl>
+    <GlobalPackageIconUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/raw/main/icon-128px.png</GlobalPackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup>

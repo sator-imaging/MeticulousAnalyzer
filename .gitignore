@@ -15,6 +15,7 @@ obj
 !.gitignore
 !*.props
 !*.slnx
+!icon-*.png
 
 *.md
 !CHANGELOG.md
