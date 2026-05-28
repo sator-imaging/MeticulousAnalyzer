@@ -58,6 +58,31 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0042_Compliant_SwitchExpression_ReturnedOnAllPaths()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        MyDisposable Method(int value)
+        {
+            return value switch
+            {
+                1 => new MyDisposable(),
+                _ => throw new Exception(),
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA0042_Violation_ReturnedOnSomePaths()
         {
             var test = @"

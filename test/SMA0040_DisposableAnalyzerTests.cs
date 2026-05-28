@@ -1436,5 +1436,362 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+
+        [TestMethod]
+        public async Task SMA0040_Violation_MethodChaining_ReturnsDisposable()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+        public MyDisposable GetSelf() => this;
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            using var d = new MyDisposable();
+            _ = {|#0:d.GetSelf()|}.ToString();
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_PropertyChaining_ReturnsDisposable()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+        public MyDisposable Self => this;
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            using var d = new MyDisposable();
+            _ = d.Self.ToString();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_LocalArrayAssignment_NewInstance()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            IDisposable[] arr = new IDisposable[1];
+            arr[0] = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithSpan(startLine: 12, startColumn: 13, endLine: 12, endColumn: 19)
+                    .WithArguments("IDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithLocation(markupKey: 0)
+                    .WithArguments("MyDisposable")
+            };
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_LocalListAdd_NewInstance()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            List<IDisposable> list = new List<IDisposable>();
+            list.Add({|#0:new MyDisposable()|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_SwitchExpression_AssignmentToLocal()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method(int value)
+        {
+            var d = {|#0:value switch
+            {
+                1 => new MyDisposable(),
+                _ => null,
+            }|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_IfCondition_NewInstance()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            if ({|#0:new MyDisposable()|} != null)
+            {
+            }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_WhileCondition_NewInstance()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            while ({|#0:new MyDisposable()|} != null)
+            {
+                break;
+            }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_DoWhileCondition_NewInstance()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            do { } while ({|#0:new MyDisposable()|} != null);
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_GenericFactory_NotUsing()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        static T Create<T>() where T : new() => new T();
+        void Method()
+        {
+            var d = {|#0:Create<MyDisposable>()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_AssignmentToNonDisposableField_NewInstance()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        object field;
+        void Method()
+        {
+            field = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_ImplicitConversion_ToNonDisposable()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+        public static implicit operator string(MyDisposable d) => """";
+    }
+    class Program
+    {
+        void Method()
+        {
+            string s = {|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithLocation(markupKey: 0)
+                    .WithArguments("MyDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithLocation(markupKey: 0)
+                    .WithArguments("MyDisposable")
+            };
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_UntrackedCast_ToObject()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            _ = (object){|#0:new MyDisposable()|};
+        }
+    }
+}
+";
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithSpan(startLine: 11, startColumn: 17, endLine: 11, endColumn: 43)
+                    .WithArguments("MyDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithLocation(markupKey: 0)
+                    .WithArguments("MyDisposable")
+            };
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_UntrackedCast_FromObject()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method(object o)
+        {
+            _ = {|#0:(MyDisposable)o|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
