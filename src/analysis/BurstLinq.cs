@@ -20,32 +20,31 @@ namespace SatorImaging.StaticMemberAnalyzer//.Analysis
 
         public static T? ElementAtOrDefault<T>(this IEnumerable<T> source, int index)
         {
-            if (source is not IReadOnlyCollection<T> roc ||
-                roc.Count > index)
+            if (source is IReadOnlyCollection<T> roc &&
+                index >= roc.Count)
             {
-                if (source is IReadOnlyList<T> rolist)
+                return default;
+            }
+
+            if (source is IReadOnlyList<T> rolist)
+            {
+                return rolist[index];
+            }
+
+            return slow(source, index);
+            static T? slow(IEnumerable<T> source, int index)
+            {
+                int current = -1;
+                foreach (var item in source)
                 {
-                    return rolist[index];
-                }
-                else
-                {
-                    return slow(source, index);
-                    static T? slow(IEnumerable<T> source, int index)
+                    current++;
+                    if (current == index)
                     {
-                        int current = -1;
-                        foreach (var item in source)
-                        {
-                            current++;
-                            if (current == index)
-                            {
-                                return item;
-                            }
-                        }
-                        return default;
+                        return item;
                     }
                 }
+                return default;
             }
-            return default;
         }
 
 
