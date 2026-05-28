@@ -176,5 +176,215 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+        [TestMethod]
+        public async Task SMA0024_Violation_EnumToString_Variable()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(ETest value)
+        {
+            var x = {|#0:value.ToString()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Violation_StringConcatenation_Enum()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(ETest value)
+        {
+            var x = {|#0:""value: "" + value|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Violation_VerbatimInterpolatedString_Enum()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(ETest value)
+        {
+            var x = $@""value: {|#0:{value}|}"";
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Violation_EnumToString_GenericEnum()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    public class CTest
+    {
+        public void Test<T>(T value) where T : Enum
+        {
+            var x = {|#0:value.ToString()|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Violation_StringConcatenation_GenericEnum()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    public class CTest
+    {
+        public void Test<T>(T value) where T : Enum
+        {
+            var x = {|#0:""value: "" + value|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Violation_InterpolatedString_GenericEnum_MultipleExpressions()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    public class CTest
+    {
+        public void Test<T>(T value) where T : Enum
+        {
+            var x = $""value: {|#0:{value}|} {|#1:{"""" + value + 0}|} {|#2:{value.ToString()}|} {|#3:{(((value)))}|}"";
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 2).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 3).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Compliant_NonEnumGenericToString()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    public class CTest
+    {
+        public void Test<T>(T value) where T : struct
+        {
+            var x = value.ToString();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Violation_EnumToString_InSwitchArm()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public string Test(ETest value)
+        {
+            return value switch
+            {
+                ETest.Value => {|#0:value.ToString()|},
+                _ => """",
+            };
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0024_Compliant_CustomExtensionMethod()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(ETest value)
+        {
+            var x = value.ToStringNoWarn();
+        }
+    }
+    static class Ext { public static string ToStringNoWarn<T>(this T value) where T : Enum => """"; }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
