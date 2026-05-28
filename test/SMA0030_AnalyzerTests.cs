@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0030_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0030_Violate_InvalidStructConstructor()
+        public async Task SMA0030_Violation_InvalidStructConstructor()
         {
             var test = @"
 namespace Test
@@ -41,7 +41,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ValidStructConstructor()
+        public async Task SMA0030_Compliant_ValidStructConstructor()
         {
             var test = @"
 namespace Test
@@ -64,7 +64,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ReadonlyStructField()
+        public async Task SMA0030_Compliant_ReadonlyStructField()
         {
             var test = @"
 namespace Test
@@ -84,7 +84,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Violate_GenericStruct_InvalidConstructor()
+        public async Task SMA0030_Violation_GenericStruct_InvalidConstructor()
         {
             var test = @"
 namespace Test
@@ -111,7 +111,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Violate_NestedStruct_InvalidConstructor()
+        public async Task SMA0030_Violation_NestedStruct_InvalidConstructor()
         {
             var test = @"
 namespace Test
@@ -141,7 +141,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_EnumField()
+        public async Task SMA0030_Compliant_EnumField()
         {
             var test = @"
     namespace Test
@@ -158,7 +158,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_BuiltinPrimitives()
+        public async Task SMA0030_Compliant_BuiltinPrimitives()
         {
             var test = @"
 namespace Test
@@ -186,7 +186,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ReadOnlyNullableInt()
+        public async Task SMA0030_Compliant_ReadOnlyNullableInt()
         {
             var test = @"
 namespace Test
@@ -201,7 +201,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ReadOnlyNullableReadOnlyStruct()
+        public async Task SMA0030_Compliant_ReadOnlyNullableReadOnlyStruct()
         {
             var test = @"
 namespace Test
@@ -218,7 +218,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ExplicitBoxing()
+        public async Task SMA0030_Compliant_ExplicitBoxing()
         {
             var test = @"
 namespace Test
@@ -236,7 +236,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0030_Conform_ImplicitBoxing_SuppressedByComment()
+        public async Task SMA0030_Compliant_ImplicitBoxing_Comment()
         {
             var test = @"
 namespace Test

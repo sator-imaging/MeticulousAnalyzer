@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0022_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0022_Violate_CastToGenericEnum()
+        public async Task SMA0022_Violation_CastToGenericEnum()
         {
             var test = @"
 using System;

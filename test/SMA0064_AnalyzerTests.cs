@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0064_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0064_Violate_Combinations_MutableReturn_ReadOnly_AutoProp()
+        public async Task SMA0064_Violation_Combinations_MutableReturn_ReadOnly_AutoProp()
         {
             var test = @"
 namespace Test
@@ -60,7 +60,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0064_Violate_MethodCallOnRootLocal()
+        public async Task SMA0064_Violation_MethodCallOnRootLocal()
         {
             var test = @"
 namespace Test
@@ -87,7 +87,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0064_Violate_MethodCallOnRootParameter()
+        public async Task SMA0064_Violation_MethodCallOnRootParameter()
         {
             var test = @"
 namespace Test
@@ -122,7 +122,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0064_Violate_ChainedAccess_WithMethodInChain()
+        public async Task SMA0064_Violation_ChainedAccess_WithMethodInChain()
         {
             var test = @"
 namespace Test

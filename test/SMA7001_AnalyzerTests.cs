@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA7001_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA7001_Violate_ImplicitConversionFromInstanceMethod()
+        public async Task SMA7001_Violation_ImplicitConversionFromInstanceMethod()
         {
             var test = @"
 using System;
@@ -39,7 +39,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violate_ImplicitConversionFromInstanceMethodInArgument()
+        public async Task SMA7001_Violation_ImplicitConversionFromInstanceMethodInArgument()
         {
             var test = @"
 using System;
@@ -61,7 +61,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violate_ImplicitConversionWithGenericAction()
+        public async Task SMA7001_Violation_ImplicitConversionWithGenericAction()
         {
             var test = @"
 using System;
@@ -81,7 +81,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violate_ImplicitConversionWithGenericFunc()
+        public async Task SMA7001_Violation_ImplicitConversionWithGenericFunc()
         {
             var test = @"
 using System;
@@ -101,7 +101,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violate_NonActionFuncDelegateConversionReported()
+        public async Task SMA7001_Violation_NonActionFuncDelegateConversion()
         {
             var test = @"
 using System;
@@ -122,7 +122,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violate_ImplicitConversionFromInstanceField()
+        public async Task SMA7001_Violation_ImplicitConversionFromInstanceField()
         {
             var test = @"
 using System;

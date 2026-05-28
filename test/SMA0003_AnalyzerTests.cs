@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0003_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0003_Violate_StaticMemberInAnotherFile()
+        public async Task SMA0003_Violation_StaticMemberInAnotherFile()
         {
             var source1 = @"
 namespace Test

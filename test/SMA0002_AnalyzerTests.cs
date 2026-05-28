@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0002_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0002_Violate_CrossRefAcrossType()
+        public async Task SMA0002_Violation_CrossRefAcrossType()
         {
             var test = @"
 namespace Test

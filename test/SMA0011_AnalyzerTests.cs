@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0011_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0011_Violate_TSelfIsNotSelfOrBase()
+        public async Task SMA0011_Violation_TSelfIsNotSelfOrBase()
         {
             var test = @"
 using System.Reflection;
@@ -29,7 +29,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0010_Conform_TSelfIsSelfOrBase()
+        public async Task SMA0011_Compliant_TSelfIsSelfOrBase()
         {
             var test = @"
 using System.Reflection;

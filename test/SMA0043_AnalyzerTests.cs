@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0043_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0043_Violate_UndisposedField()
+        public async Task SMA0043_Violation_UndisposedField()
         {
             var test = @"
 using System;
@@ -35,7 +35,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_DisposedField()
+        public async Task SMA0043_Compliant_DisposedField()
         {
             var test = @"
 using System;
@@ -54,7 +54,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_UndisposedProperty()
+        public async Task SMA0043_Compliant_UndisposedProperty()
         {
             var test = @"
 using System;
@@ -72,7 +72,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Violate_FullDisposePattern()
+        public async Task SMA0043_Violation_FullDisposePattern()
         {
             var test = @"
 using System;
@@ -100,7 +100,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Violate_ExplicitInterface()
+        public async Task SMA0043_Violation_ExplicitInterface()
         {
             var test = @"
 using System;
@@ -121,7 +121,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_ExplicitInterface_Disposed()
+        public async Task SMA0043_Compliant_ExplicitInterface_Disposed()
         {
             var test = @"
 using System;
@@ -140,7 +140,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_ExpressionBodiedProperty()
+        public async Task SMA0043_Compliant_ExpressionBodiedProperty()
         {
             var test = @"
 using System;
@@ -158,7 +158,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_ExpressionBodiedProperty_Disposed()
+        public async Task SMA0043_Compliant_ExpressionBodiedProperty_Disposed()
         {
             var test = @"
 using System;
@@ -177,7 +177,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_DisposedField_NullConditional()
+        public async Task SMA0043_Compliant_DisposedField_NullConditional()
         {
             var test = @"
 using System;
@@ -196,7 +196,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Violate_MultipleUndisposedMembers()
+        public async Task SMA0043_Violation_MultipleUndisposedMembers()
         {
             var test = @"
 using System;
@@ -221,7 +221,7 @@ class TestClass : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Violate_PartialType()
+        public async Task SMA0043_Violation_PartialType()
         {
             var test1 = @"
 using System;
@@ -259,7 +259,7 @@ partial class TestClass
         }
 
         [TestMethod]
-        public async Task SMA0043_Conform_SuppressionCommentOnField()
+        public async Task SMA0043_Compliant_SuppressionCommentOnField()
         {
             var test = @"
 using System;
@@ -275,7 +275,7 @@ class MyDisposable : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_Violate_UndisposedField_NoSuppression()
+        public async Task SMA0043_Violation_UndisposedField_NoSuppression()
         {
             var test = @"
 using System;

@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0063_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0063_Violate_ReadWritePropertyAccess()
+        public async Task SMA0063_Violation_ReadWritePropertyAccess()
         {
             var test = @"
 namespace Test
@@ -47,7 +47,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0063_Violate_ChainedAccess_MutablePropertyAndMethod()
+        public async Task SMA0063_Violation_ChainedAccess_MutablePropertyAndMethod()
         {
             var test = @"
 namespace Test
@@ -87,7 +87,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0063_Violate_ChainedAccess_BlockBodiedMutable()
+        public async Task SMA0063_Violation_ChainedAccess_BlockBodiedMutable()
         {
             var test = @"
 namespace Test

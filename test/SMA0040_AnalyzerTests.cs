@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0040_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0040_Violate_SimpleDisposable_WithoutUsing()
+        public async Task SMA0040_Violation_SimpleDisposable_Using()
         {
             var test = @"
 using System;
@@ -43,7 +43,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SimpleDisposable_WithUsing()
+        public async Task SMA0040_Compliant_SimpleDisposable_WithUsing()
         {
             var test = @"
 using System;
@@ -69,7 +69,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_GenericDisposable_WithoutUsing()
+        public async Task SMA0040_Violation_GenericDisposable_Using()
         {
             var test = @"
 using System;
@@ -98,7 +98,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_GenericDisposable_WithUsing()
+        public async Task SMA0040_Compliant_GenericDisposable_WithUsing()
         {
             var test = @"
 using System;
@@ -124,7 +124,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NestedDisposable_WithoutUsing()
+        public async Task SMA0040_Violation_NestedDisposable_Using()
         {
             var test = @"
 using System;
@@ -156,7 +156,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_NestedDisposable_WithUsing()
+        public async Task SMA0040_Compliant_NestedDisposable_WithUsing()
         {
             var test = @"
 using System;
@@ -185,7 +185,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_AsyncDisposable_WithoutUsing()
+        public async Task SMA0040_Violation_AsyncDisposable_Using()
         {
             var test = @"
 using System;
@@ -216,7 +216,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_AsyncDisposable_WithUsing()
+        public async Task SMA0040_Compliant_AsyncDisposable_WithUsing()
         {
             var test = @"
 using System;
@@ -244,7 +244,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_NullAssignment_WithDispose()
+        public async Task SMA0040_Compliant_NullAssignment_WithDispose()
         {
             var test = @"
 using System;
@@ -276,7 +276,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_NullAssignment_WithConditionalDispose()
+        public async Task SMA0040_Compliant_NullAssignment_WithConditionalDispose()
         {
             var test = @"
 using System;
@@ -308,7 +308,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_Disposable_IsNullPattern()
+        public async Task SMA0040_Compliant_Disposable_NullPattern()
         {
             var test = @"
 using System;
@@ -339,7 +339,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_InterlockedExchange()
+        public async Task SMA0040_Compliant_InterlockedExchange()
         {
             var test = @"
 using System;
@@ -368,7 +368,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_InterlockedCompareExchange()
+        public async Task SMA0040_Compliant_InterlockedCompareExchange()
         {
             var test = @"
 using System;
@@ -397,7 +397,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_NullAssignmentAfterDisposeWithInterveningComment()
+        public async Task SMA0040_Compliant_NullAssignmentAfterDisposeWithInterveningComment()
         {
             var test = @"
 using System;
@@ -431,7 +431,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_ThrowsOnSomePaths()
+        public async Task SMA0040_Violation_ThrowsOnSomePaths()
         {
             var test = @"
 using System;
@@ -468,7 +468,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_PropertyGetter_ReturnedOnAllPaths()
+        public async Task SMA0040_Compliant_PropertyGetter_ReturnedOnAllPaths()
         {
             var test = @"
 using System;
@@ -498,7 +498,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_ReturnedOnAllPaths()
+        public async Task SMA0040_Compliant_ReturnedOnAllPaths()
         {
             var test = @"
 using System;
@@ -532,7 +532,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_IteratorMethod_NotDisposed()
+        public async Task SMA0040_Violation_IteratorMethod_Disposed()
         {
             var test = @"
 using System;
@@ -565,7 +565,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_ForEach_IEnumerable()
+        public async Task SMA0040_Compliant_ForEach_IEnumerable()
         {
             var test = @"
 using System;
@@ -626,7 +626,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SuppressedByComment()
+        public async Task SMA0040_Compliant_Comment()
         {
             var test = @"
 using System;
@@ -648,7 +648,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NotSuppressedByOtherComment()
+        public async Task SMA0040_Violation_OtherComment()
         {
             var test = @"
 using System;
@@ -673,7 +673,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SuppressedByComment_CaseInsensitive()
+        public async Task SMA0040_Compliant_Comment_CaseInsensitive()
         {
             var test = @"
 using System;
@@ -695,7 +695,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SuppressedByCommentTwoLinesAbove()
+        public async Task SMA0040_Compliant_CommentTwoLinesAbove()
         {
             var test = @"
 using System;
@@ -718,7 +718,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NotSuppressedByComment_WhenPassedAsArgument()
+        public async Task SMA0040_Violation_Comment_PassedAsArgument()
         {
             var test = @"
 using System;
@@ -744,7 +744,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NotSuppressedByComment_UntrackedCast()
+        public async Task SMA0040_Violation_Comment_UntrackedCast()
         {
             var test = @"
 using System;
@@ -767,7 +767,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_SuppressedByComment_ComplexUntrackedCast()
+        public async Task SMA0040_Violation_Comment_ComplexUntrackedCast()
         {
             var test = @"
 using System;
@@ -791,7 +791,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_IsSuppressedByComment()
+        public async Task SMA0040_Compliant_Comment_1()
         {
             var test = @"
 using System;
@@ -816,7 +816,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_Assignment_IsNotSuppressedByComment()
+        public async Task SMA0040_Violation_Assignment_Comment()
         {
             var test = @"
 using System;
@@ -843,7 +843,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_Assignment_WithBlankLine_IsNotSuppressed()
+        public async Task SMA0040_Violation_Assignment_WithBlankLine()
         {
             var test = @"
 using System;
@@ -871,7 +871,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_Assignment_WithoutBlankLine_IsNotSuppressed()
+        public async Task SMA0040_Violation_Assignment_BlankLine()
         {
             var test = @"
 using System;
@@ -898,7 +898,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SuppressedByComment_WithAdditionalText()
+        public async Task SMA0040_Compliant_Comment_WithAdditionalText()
         {
             var test = @"
 using System;
@@ -920,7 +920,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SuppressedByComment_UntrackedCast()
+        public async Task SMA0040_Compliant_Comment_UntrackedCast()
         {
             var test = @"
 using System;
@@ -941,7 +941,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_SuppressedByMultipleSingleLineComments()
+        public async Task SMA0040_Compliant_MultipleSingleLineComments()
         {
             var test = @"
 using System;
@@ -964,7 +964,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NotSuppressedByComment_WhenNotFirstLine()
+        public async Task SMA0040_Violation_Comment_FirstLine()
         {
             var test = @"
 using System;
@@ -990,7 +990,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NotSuppressedByPrecedingLineEndComment()
+        public async Task SMA0040_Violation_PrecedingLineEndComment()
         {
             var test = @"
 using System;
@@ -1016,7 +1016,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_NotSuppressedByComment_WhenBlankLineBetweenComments()
+        public async Task SMA0040_Violation_Comment_BlankLineBetweenComments()
         {
             var test = @"
 using System;
@@ -1043,7 +1043,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_VariableNamedUnderscore_IsNotDiscard()
+        public async Task SMA0040_Violation_VariableNamedUnderscore()
         {
             var test = @"
 using System;
@@ -1067,7 +1067,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_AssignmentToVariableNamedUnderscore_IsNotDiscard()
+        public async Task SMA0040_Violation_AssignmentToVariableNamedUnderscore()
         {
             var test = @"
 using System;
@@ -1094,7 +1094,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_DiscardWithoutComment_ReportsError()
+        public async Task SMA0040_Violation_DiscardWithoutComment()
         {
             var test = @"
 using System;
@@ -1118,7 +1118,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_DiscardWithComment_IsSuppressed()
+        public async Task SMA0040_Compliant_DiscardWithComment()
         {
             var test = @"
 using System;
@@ -1140,7 +1140,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_CastAs_SuppressedByComment()
+        public async Task SMA0040_Compliant_CastAs_Comment()
         {
             var test = @"
 using System;
@@ -1162,7 +1162,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_CastAs_NotSuppressed()
+        public async Task SMA0040_Violation_CastAs()
         {
             var test = @"
 using System;
@@ -1186,7 +1186,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryAssignmentToField()
+        public async Task SMA0040_Compliant_TernaryAssignmentToField()
         {
             var test = @"
 using System;
@@ -1208,7 +1208,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryInUsing()
+        public async Task SMA0040_Compliant_TernaryInUsing()
         {
             var test = @"
 using System;
@@ -1229,7 +1229,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryInReturn()
+        public async Task SMA0040_Compliant_TernaryInReturn()
         {
             var test = @"
 using System;
@@ -1252,7 +1252,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryAssignmentToLocal_ReportsDiagnosticOnTernary()
+        public async Task SMA0040_Violation_TernaryAssignmentToLocal_Ternary()
         {
             var test = @"
 using System;
@@ -1277,7 +1277,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryWithCastInUsing()
+        public async Task SMA0040_Compliant_TernaryWithCastInUsing()
         {
             var test = @"
 using System;
@@ -1297,7 +1297,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryWithCastInUsing()
+        public async Task SMA0040_Violation_TernaryWithCastInUsing()
         {
             var test = @"
 using System;
@@ -1320,7 +1320,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryWithFooAndCastInUsing_ReportsDiagnosticOnCast()
+        public async Task SMA0040_Violation_TernaryWithFooAndCastInUsing_Cast()
         {
             var test = @"
 using System;
@@ -1344,7 +1344,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Conform_TernaryWithFooAndCastInUsing_ReportsNoDiagnosticOnCast()
+        public async Task SMA0040_Compliant_TernaryWithFooAndCastInUsing_ReportsOnCast()
         {
             var test = @"
 using System;
@@ -1365,7 +1365,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryWithFooAndCreationInUsing_ReportsDiagnosticOnCreation()
+        public async Task SMA0040_Violation_TernaryWithFooAndCreationInUsing_Creation()
         {
             var test = @"
 using System;
@@ -1390,7 +1390,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryWithCastAssignmentToLocal_ReportsDiagnosticOnTernary()
+        public async Task SMA0040_Violation_TernaryWithCastAssignmentToLocal_Ternary()
         {
             var test = @"
 using System;
@@ -1413,7 +1413,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violate_TernaryWithCreationAssignmentToLocal_ReportsDiagnosticOnTernary()
+        public async Task SMA0040_Violation_TernaryWithCreationAssignmentToLocal_Ternary()
         {
             var test = @"
 using System;

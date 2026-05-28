@@ -10,7 +10,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA8000_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA8000_Violate_MethodLiteralArguments()
+        public async Task SMA8000_Violation_MethodLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -32,7 +32,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_ConstructorLiteralArguments()
+        public async Task SMA8000_Violation_ConstructorLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -55,7 +55,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_NamedLiteralArguments()
+        public async Task SMA8000_Compliant_NamedLiteralArguments()
         {
             var test = @"
 namespace Test
@@ -75,7 +75,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_ConstAndEnumArguments()
+        public async Task SMA8000_Compliant_ConstAndEnumArguments()
         {
             var test = @"
 namespace Test
@@ -97,7 +97,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_AttributeArguments()
+        public async Task SMA8000_Violation_AttributeArguments()
         {
             var test = @"
 using System;
@@ -120,7 +120,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_AttributeNamedArguments()
+        public async Task SMA8000_Compliant_AttributeNamedArguments()
         {
             var test = @"
 using System;
@@ -142,7 +142,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_ExpressionArguments()
+        public async Task SMA8000_Compliant_ExpressionArguments()
         {
             var test = @"
 namespace Test
@@ -162,7 +162,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_IndexerArguments()
+        public async Task SMA8000_Compliant_IndexerArguments()
         {
             var test = @"
 using System.Collections.Generic;
@@ -182,7 +182,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_AllowedNamespacesOmitNamed()
+        public async Task SMA8000_Compliant_AllowedNamespacesOmitNamed()
         {
             var test = @"
 using System.IO;
@@ -204,7 +204,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_SingleArgumentOmitNamed()
+        public async Task SMA8000_Violation_SingleArgumentOmitNamed()
         {
             var test = @"
 namespace Test
@@ -239,7 +239,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_MultipleArgumentsStillReported()
+        public async Task SMA8000_Violation_MultipleArgumentsStill()
         {
             var test = @"
 namespace Test
@@ -276,7 +276,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_AttributeSingleArgumentOmitNamed()
+        public async Task SMA8000_Compliant_AttributeSingleArgumentOmitNamed()
         {
             var test = @"
 using System;
@@ -298,7 +298,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_AttributeMultiplePositionalArguments()
+        public async Task SMA8000_Violation_AttributeMultiplePositionalArguments()
         {
             var test = @"
 using System;
@@ -330,7 +330,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_StringConstructorAndFirstArgumentStringChar()
+        public async Task SMA8000_Violation_StringConstructorAndFirstArgumentStringChar()
         {
             var test = @"
 using System;
@@ -362,7 +362,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_NamedArgumentsSuppressError()
+        public async Task SMA8000_Compliant_NamedArgumentsSuppressError()
         {
             var test = @"
 using System.IO;
@@ -390,7 +390,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_NullAndDefaultArguments()
+        public async Task SMA8000_Violation_NullAndDefaultArguments()
         {
             var test = @"
 using System;
@@ -495,7 +495,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_ImplicitConversion()
+        public async Task SMA8000_Compliant_ImplicitConversion()
         {
             var test = @"
 #nullable enable
@@ -542,7 +542,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_AssertClassIgnoresAllArguments()
+        public async Task SMA8000_Compliant_AssertClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -565,7 +565,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_MustClassIgnoresAllArguments()
+        public async Task SMA8000_Compliant_MustClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -590,7 +590,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_DebugClassIgnoresAllArguments()
+        public async Task SMA8000_Compliant_DebugClassIgnoresAllArguments()
         {
             var test = @"
 namespace Test
@@ -615,7 +615,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_OtherClassesStillReported()
+        public async Task SMA8000_Violation_OtherClassesStill()
         {
             var test = @"
 namespace Test
@@ -639,7 +639,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_AttributeNotExemptEvenIfNameMatches()
+        public async Task SMA8000_Violation_AttributeNotExemptEvenIfNameMatches()
         {
             var test = @"
 using System;
@@ -661,7 +661,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_BooleanBinaryOperationDiagnostic()
+        public async Task SMA8000_Violation_BooleanBinaryOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -681,7 +681,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_BooleanExpressionNotFirstArgument()
+        public async Task SMA8000_Violation_BooleanExpressionNotFirstArgument()
         {
             var test = @"
 namespace Test
@@ -701,7 +701,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_BooleanUnaryOperationDiagnostic()
+        public async Task SMA8000_Violation_BooleanUnaryOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -721,7 +721,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_OtherBinaryOperationsNotFirstArgumentNotReported()
+        public async Task SMA8000_Compliant_OtherBinaryOperationsNotFirstArgumentNot()
         {
             var test = @"
 namespace Test
@@ -740,7 +740,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_OtherBinaryOperationsFirstArgumentNotReported()
+        public async Task SMA8000_Compliant_OtherBinaryOperationsFirstArgumentNot()
         {
             var test = @"
 namespace Test
@@ -759,7 +759,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_AttributeBooleanExpression()
+        public async Task SMA8000_Violation_AttributeBooleanExpression()
         {
             var test = @"
 using System;
@@ -781,7 +781,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_BooleanPatternOperationDiagnostic()
+        public async Task SMA8000_Violation_BooleanPatternOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -801,7 +801,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_SimpleBooleanPatternOperationDiagnostic()
+        public async Task SMA8000_Violation_SimpleBooleanPatternOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -821,7 +821,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Violate_ComplexBooleanPatternOperationDiagnostic()
+        public async Task SMA8000_Violation_ComplexBooleanPatternOperationDiagnostic()
         {
             var test = @"
 namespace Test
@@ -841,7 +841,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_SystemMathAllowed()
+        public async Task SMA8000_Compliant_SystemMathAllowed()
         {
             var test = @"
 using System;
@@ -862,7 +862,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Conform_MathfAllowed()
+        public async Task SMA8000_Compliant_MathfAllowed()
         {
             var test = @"
 namespace Test

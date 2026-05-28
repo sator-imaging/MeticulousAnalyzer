@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0071_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0071_Violate_Task_NotAwaitedOnAllPaths()
+        public async Task SMA0071_Violation_Task_AwaitedOnAllPaths()
         {
             var test = @"
 using System.Threading.Tasks;

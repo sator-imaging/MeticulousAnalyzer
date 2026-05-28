@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0026_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0026_Violate_EnumObfuscation()
+        public async Task SMA0026_Violation_EnumObfuscation()
         {
             var test = @"
 namespace Test

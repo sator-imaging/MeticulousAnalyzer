@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0070_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0070_Violate_Task_NotAwaited()
+        public async Task SMA0070_Violation_Task_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -37,7 +37,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_Awaited()
+        public async Task SMA0070_Compliant_Task_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -58,7 +58,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_Returned()
+        public async Task SMA0070_Compliant_Task_Returned()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -79,7 +79,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_AwaitedOnAllPaths()
+        public async Task SMA0070_Compliant_Task_AwaitedOnAllPaths()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -107,7 +107,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_SuppressedByComment()
+        public async Task SMA0070_Compliant_Task_Comment()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -128,7 +128,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_ValueTask_NotAwaited()
+        public async Task SMA0070_Violation_ValueTask_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -151,7 +151,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_GenericTask_NotAwaited()
+        public async Task SMA0070_Violation_GenericTask_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -174,7 +174,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_InsideBranch_Awaited()
+        public async Task SMA0070_Compliant_Task_InsideBranch_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -198,7 +198,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_CompletedTask_NotAwaited()
+        public async Task SMA0070_Violation_CompletedTask_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -221,7 +221,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_CompletedTask_Awaited()
+        public async Task SMA0070_Compliant_CompletedTask_Awaited()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -242,7 +242,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_AwaitedInBranchAndAfterBranch()
+        public async Task SMA0070_Compliant_Task_AwaitedInBranchAndAfterBranch()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -270,7 +270,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_AwaitedInBranchAndReturned()
+        public async Task SMA0070_Compliant_Task_AwaitedInBranchAndReturned()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -299,7 +299,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_ReturnedInBranchAndAwaitedAfterBranch()
+        public async Task SMA0070_Compliant_Task_ReturnedInBranchAndAwaitedAfterBranch()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -327,7 +327,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_Suppression_NotFirstComment()
+        public async Task SMA0070_Violation_Suppression_FirstComment()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -352,7 +352,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Suppression_WithNewline()
+        public async Task SMA0070_Compliant_Suppression_WithNewline()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -374,7 +374,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_Task_NotSuppressedByPrecedingLineEndComment()
+        public async Task SMA0070_Violation_Task_PrecedingLineEndComment()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -399,7 +399,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_Task_NotSuppressedByPrecedingLineEndCommentWithBlankLine()
+        public async Task SMA0070_Violation_Task_PrecedingLineEndCommentWithBlankLine()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -425,7 +425,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_Task_NotSuppressedByMultiLineComment()
+        public async Task SMA0070_Violation_Task_MultiLineComment()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -449,7 +449,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_Task_Discarded()
+        public async Task SMA0070_Violation_Task_Discarded()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -472,7 +472,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violate_Task_Variable_Discarded()
+        public async Task SMA0070_Violation_Task_Variable_Discarded()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -495,7 +495,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Conform_Task_Discarded_SuppressedByComment()
+        public async Task SMA0070_Compliant_Task_Discarded_Comment()
         {
             var test = @"
 using System.Threading.Tasks;

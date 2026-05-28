@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0032_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_AssignmentToObject()
+        public async Task SMA0032_Violation_ImplicitBoxing_AssignmentToObject()
         {
             var test = @"
 namespace Test
@@ -35,7 +35,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_MethodArgument()
+        public async Task SMA0032_Violation_ImplicitBoxing_MethodArgument()
         {
             var test = @"
 namespace Test
@@ -57,7 +57,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_InterfaceArgument()
+        public async Task SMA0032_Violation_ImplicitBoxing_InterfaceArgument()
         {
             var test = @"
 using System;
@@ -86,7 +86,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0032_Violate_ImplicitBoxing_NullableIntToObject()
+        public async Task SMA0032_Violation_ImplicitBoxing_NullableIntToObject()
         {
             var test = @"
 namespace Test

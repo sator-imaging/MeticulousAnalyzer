@@ -14,7 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     {
 #if STMG_ENABLE_KOTLIN_ENUM
         [TestMethod]
-        public async Task SMA0028_Violate_EnumLike()
+        public async Task SMA0028_Violation_EnumLike()
         {
             var test = @"
 using System.Reflection;

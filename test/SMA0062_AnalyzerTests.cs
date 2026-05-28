@@ -17,7 +17,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0062_AnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0062_Violate_MutableMembers_NonStringType()
+        public async Task SMA0062_Violation_MutableMembers_NonStringType()
         {
             var test = @"
 namespace Test
@@ -58,7 +58,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0062_Violate_MethodCall_ReferenceTypeArgument()
+        public async Task SMA0062_Violation_MethodCall_ReferenceTypeArgument()
         {
             var test = @"
 namespace Test
@@ -87,7 +87,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0062_Violate_StructArgument_MutableByValue()
+        public async Task SMA0062_Violation_StructArgument_MutableByValue()
         {
             var test = @"
 namespace Test
@@ -116,7 +116,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0062_Violate_FieldArgument()
+        public async Task SMA0062_Violation_FieldArgument()
         {
             var test = @"
 namespace Test
@@ -146,7 +146,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0062_Violate_ActionVariable()
+        public async Task SMA0062_Violation_ActionVariable()
         {
             var test = @"
 using System;
