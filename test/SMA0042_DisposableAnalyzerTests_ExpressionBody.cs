@@ -14,9 +14,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class SMA0042_DisposableAnalyzerTests_ExpressionBody
     {
         [TestMethod]
-        public async Task SMA0042_Compliant_ExpressionBodiedMethod_ReturnsLocal()
+        public async Task SMA0042_Compliant_MethodBody_SingleReturn_ReturnsLocal()
         {
-            // Expression-bodied method returning a local variable - tests the expressionBody path
+            // Block-bodied method returning a local variable - tests the single-return matching path
             var test = @"
 using System;
 

@@ -292,5 +292,36 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0041_Compliant_NullAssignment_NonBlockParent_BracelessIf()
+        {
+            // Null assignment inside a braceless if body - the ExpressionStatement's parent
+            // is an IfStatementSyntax, not a BlockSyntax, exercising the early-exit branch
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        MyDisposable _field;
+
+        void Method(bool condition)
+        {
+            if (condition)
+                _field = null;
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

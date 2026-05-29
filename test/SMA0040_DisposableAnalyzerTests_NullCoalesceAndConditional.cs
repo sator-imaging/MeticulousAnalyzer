@@ -77,7 +77,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Compliant_NullCoalescing_WithUsing()
+        public async Task SMA0040_Violation_NullCoalescing_WithUsing()
         {
             // Null-coalescing with using keyword
             // The new MyDisposable() in the right operand still triggers SMA0040
