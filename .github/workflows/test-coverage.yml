@@ -78,7 +78,7 @@ jobs:
             {
               sed \
                 -e 's/<details open>/<details>/g' \
-                -e 's/- ([0-9.]\+%)<\/summary>/- <b>\1<\/b><\/summary>/g' \
+                -e 's/- \([0-9.]\+\)%<\/summary>/- <b>\1%</b><\/summary>/g' \
                 -e "s/^# Summary$/# 📊 $title/" \
                 "$out_dir/SummaryGithub.md"
 
