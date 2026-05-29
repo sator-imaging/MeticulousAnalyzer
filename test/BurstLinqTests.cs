@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
@@ -31,6 +32,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             var classDecl = (ClassDeclarationSyntax)root.Members[0];
             var method = (MethodDeclarationSyntax)classDecl.Members[0];
             return method.ParameterList.Parameters;
+        }
+
+        private static ImmutableArray<ISymbol> GetSymbolsFromCompilation(string code)
+        {
+            var tree = CSharpSyntaxTree.ParseText(code);
+            var compilation = CSharpCompilation.Create("TestAssembly",
+                new[] { tree },
+                new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var model = compilation.GetSemanticModel(tree);
+            var root = tree.GetCompilationUnitRoot();
+            var builder = ImmutableArray.CreateBuilder<ISymbol>();
+            foreach (var member in root.DescendantNodes())
+            {
+                var symbol = model.GetDeclaredSymbol(member);
+                if (symbol != null)
+                {
+                    builder.Add(symbol);
+                }
+            }
+            return builder.ToImmutableArray();
         }
 
         private static IEnumerable<T> AsEnumerableOnly<T>(IEnumerable<T> source)
@@ -353,12 +375,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         #region Where_Any (Linq_OfType_Where)
 
         [TestMethod]
-        public void WhereAny_LinqOfTypeWhere_ReturnsTrue_MatchExists()
+        public void WhereAny_LinqOfTypeWhere_ReturnsFalse_EmptySource()
         {
             var symbols = ImmutableArray.Create<ISymbol>();
-            // With empty array, Where_Any should return false
             var query = symbols.OfType_Where<ISymbol>(s => true);
             Assert.IsFalse(query.Where_Any(s => true));
+        }
+
+        [TestMethod]
+        public void WhereAny_LinqOfTypeWhere_ReturnsTrue_MatchExists()
+        {
+            var symbols = GetSymbolsFromCompilation("class Foo { int field1; void Method1() {} } class Bar { }");
+            var query = symbols.OfType_Where<INamedTypeSymbol>(s => true);
+            Assert.IsTrue(query.Where_Any(s => s.Name == "Foo"));
+        }
+
+        [TestMethod]
+        public void WhereAny_LinqOfTypeWhere_ReturnsFalse_PredicateNeverTrue()
+        {
+            var symbols = GetSymbolsFromCompilation("class Foo { int field1; void Method1() {} } class Bar { }");
+            var query = symbols.OfType_Where<INamedTypeSymbol>(s => true);
+            Assert.IsFalse(query.Where_Any(s => s.Name == "NonExistent"));
         }
 
         #endregion
@@ -500,6 +537,31 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         #endregion
 
         #region OfType_Where
+
+        [TestMethod]
+        public void OfTypeWhere_ReturnsMatches_TypeAndPredicateMatch()
+        {
+            var symbols = GetSymbolsFromCompilation("class Foo { int field1; void Method1() {} } class Bar { }");
+            var results = new List<INamedTypeSymbol>();
+            foreach (var item in symbols.OfType_Where<INamedTypeSymbol>(s => s.Name == "Foo"))
+            {
+                results.Add(item);
+            }
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual("Foo", results[0].Name);
+        }
+
+        [TestMethod]
+        public void OfTypeWhere_ReturnsEmpty_PredicateNeverTrue()
+        {
+            var symbols = GetSymbolsFromCompilation("class Foo { int field1; void Method1() {} } class Bar { }");
+            var results = new List<INamedTypeSymbol>();
+            foreach (var item in symbols.OfType_Where<INamedTypeSymbol>(s => s.Name == "NonExistent"))
+            {
+                results.Add(item);
+            }
+            Assert.AreEqual(0, results.Count);
+        }
 
         [TestMethod]
         public void OfTypeWhere_ReturnsEmpty_EmptySource()
