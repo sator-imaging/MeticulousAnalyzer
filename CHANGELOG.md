@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.0.0-rc.2](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.2) (2026-05-29)
+
+### 🚀 Features
+* feat: relax SMA8000 by [@sator-imaging](https://github.com/sator-imaging) in [#310](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/310)
+* feat: remove VisualBasic things by [@sator-imaging](https://github.com/sator-imaging) in [#311](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/311)
+### ✨ Bug Fixes
+* fix: lol by [@sator-imaging](https://github.com/sator-imaging) in [#309](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/309)
+### 📚 Other Changes
+* Update test method naming convention by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#306](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/306)
+* Refactor test naming convention to {RuleId}_{Name}Tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#307](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/307)
+* Update analyzer configuration documentation in READMEs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#308](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/308)
+* Implement missing SMA004* tests and fix test suite structure by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#312](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/312)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.1...v5.0.0-rc.2
+
+
 ## [5.0.0-rc.1](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.1) (2026-05-28)
 
 ### 📣 Breaking Changes
