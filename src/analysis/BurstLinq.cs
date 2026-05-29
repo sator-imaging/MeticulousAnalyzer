@@ -473,6 +473,10 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T First<T>(this ImmutableArray<T> source)
         {
+            if (source.IsDefault)
+                ThrowHelper.ThrowInvalidOperationException_DefaultImmutableArray();
+            if (source.Length == 0)
+                ThrowHelper.ThrowIndexOutOfRangeException();
             return source[0];
         }
 
@@ -497,4 +501,27 @@ namespace SatorImaging.StaticMemberAnalyzer
             return default;
         }
     }
+
+    internal static class ThrowHelper
+    {
+        [System.Diagnostics.CodeAnalysis.DoesNotReturn]
+        internal static void ThrowInvalidOperationException_DefaultImmutableArray()
+        {
+            throw new InvalidOperationException("This operation cannot be performed on a default instance of ImmutableArray<T>.");
+        }
+
+        [System.Diagnostics.CodeAnalysis.DoesNotReturn]
+        internal static void ThrowIndexOutOfRangeException()
+        {
+            throw new IndexOutOfRangeException();
+        }
+    }
 }
+
+#if !NET5_0_OR_GREATER
+namespace System.Diagnostics.CodeAnalysis
+{
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+    internal sealed class DoesNotReturnAttribute : Attribute { }
+}
+#endif
