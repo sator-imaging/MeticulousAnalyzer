@@ -107,4 +107,4 @@ jobs:
             } >> $GITHUB_STEP_SUMMARY
           fi
 
-          generate_report TOTAL_COV_BRANCH "$REPORT_OUTPUT/full" "Total Coverage" ""
+          generate_report "$TOTAL_COV_BRANCH" "$REPORT_OUTPUT/full" "Total Coverage" ""
