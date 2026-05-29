@@ -10,7 +10,6 @@ using Microsoft.CodeAnalysis.Operations;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -91,7 +90,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
 
                 return SyntaxFactory.Parameter(token);
-            }).ToArray();
+            });
 
             var arguments = method.Parameters.Select(p =>
             {
@@ -102,7 +101,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                     : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
 
                 return SyntaxFactory.Argument(SyntaxFactory.IdentifierName(token));
-            }).ToArray();
+            });
 
             var lambdaParameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
 
