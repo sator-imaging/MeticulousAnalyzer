@@ -323,16 +323,15 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /*  Select  ================================================================ */
 
-        public static TResult[] Select<TSource, TResult>(this IReadOnlyList<TSource> source, Func<TSource, TResult> static_lambda_select)
+        public static TResult[] Select<TSource, TResult>(this ImmutableArray<TSource> source, Func<TSource, TResult> static_lambda_select)
         {
-            int count = source.Count;
-            if (count == 0)
+            if (source.IsDefaultOrEmpty)
             {
                 return Array.Empty<TResult>();
             }
 
-            var result = new TResult[count];
-            for (int i = 0; i < count; i++)
+            var result = new TResult[source.Length];
+            for (int i = 0; i < source.Length; i++)
             {
                 result[i] = static_lambda_select.Invoke(source[i]);
             }
