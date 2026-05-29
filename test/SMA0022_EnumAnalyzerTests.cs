@@ -165,7 +165,7 @@ namespace Test
 }
 ";
             var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithSpan(11, 24, 11, 37).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
