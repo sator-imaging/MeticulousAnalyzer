@@ -151,8 +151,9 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("Enum");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -333,8 +334,9 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -353,12 +355,15 @@ public class C
 {
     public void M()
     {
-        var x = {|#0:(ETest3)(ETest2)(ETest.Value)|};
+        var x = {|#0:(ETest3){|#1:(ETest2)(ETest.Value)|}|};
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest3");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest2");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -376,12 +381,15 @@ public class C
 {
     public void M()
     {
-        var x = (ETest2){|#0:(System.Enum)(ETest.Value)|};
+        var x = {|#0:(ETest2){|#1:(System.Enum)(ETest.Value)|}|};
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("Enum");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("Enum");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -398,12 +406,13 @@ public class C
 {
     public void M()
     {
-        var x = (ETest2){|#0:(object)(ETest.Value)|};
+        var x = {|#0:(ETest2){|#1:(object)(ETest.Value)|}|};
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -421,11 +430,11 @@ public class C
 {
     public void M(ETest value)
     {
-        object x = value switch
+        object x = {|#0:value switch
         {
-            ETest.Value => {|#0:ETest2.Value|},
+            ETest.Value => ETest2.Value,
             _ => throw new Exception(),
-        };
+        }|};
     }
 }
 ";
@@ -449,11 +458,11 @@ public class C
     object ObjectField;
     public void M(ETest value)
     {
-        ObjectField = value switch
+        ObjectField = {|#0:value switch
         {
-            ETest.Value => {|#0:ETest2.Value|},
+            ETest.Value => ETest2.Value,
             _ => throw new Exception(),
-        };
+        }|};
     }
 }
 ";

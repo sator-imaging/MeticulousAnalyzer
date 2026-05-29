@@ -52,7 +52,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -74,7 +74,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -96,8 +96,10 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
@@ -118,7 +120,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -162,8 +164,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -181,8 +184,10 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
@@ -196,9 +201,7 @@ namespace Test
 {
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum, new() => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#1:default|}) where T : Enum, new() => value;
 
         public void Test<T>() where T : Enum, new()
         {
@@ -207,8 +210,11 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -222,9 +228,7 @@ namespace Test
 {
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#1:default|}) where T : Enum => value;
 
         public void Test<T>() where T : Enum
         {
@@ -233,8 +237,11 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -248,9 +255,7 @@ namespace Test
 {
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#1:default|}) where T : Enum => value;
 
         public void Test<T>() where T : Enum
         {
@@ -259,8 +264,11 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -276,9 +284,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum, new() => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#1:default|}) where T : Enum, new() => value;
 
         public void Test()
         {
@@ -287,8 +293,11 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -304,9 +313,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#1:default|}) where T : Enum => value;
 
         public void Test()
         {
@@ -315,8 +322,11 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -332,9 +342,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#1:default|}) where T : Enum => value;
 
         public void Test()
         {
@@ -343,8 +351,11 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -358,9 +369,7 @@ namespace Test
 {
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#0:default|}) where T : Enum => value;
 
         public void Test<T>() where T : Enum
         {
@@ -369,7 +378,10 @@ namespace Test
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
@@ -385,9 +397,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020, SMA0022, SMA0023
-        static T GetEnum<T>(string s, T value = default) where T : Enum => value;
-#pragma warning restore SMA0020, SMA0022, SMA0023
+        static T GetEnum<T>(string s, T value = {|#0:default|}) where T : Enum => value;
 
         public void Test()
         {
@@ -396,7 +406,10 @@ namespace Test
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
     }

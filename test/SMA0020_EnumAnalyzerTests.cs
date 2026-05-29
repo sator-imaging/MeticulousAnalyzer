@@ -527,8 +527,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -701,9 +702,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020
-        static ETest M(string s, ETest value = default) => value;
-#pragma warning restore SMA0020
+        static ETest M(string s, ETest value = {|#1:default|}) => value;
 
         public void Test()
         {
@@ -712,8 +711,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -728,9 +728,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020
-        static ETest M(string s, ETest value = default) => value;
-#pragma warning restore SMA0020
+        static ETest M(string s, ETest value = {|#1:default|}) => value;
 
         public void Test()
         {
@@ -739,8 +737,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -755,9 +754,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020
-        static ETest M(string s, ETest value = default) => value;
-#pragma warning restore SMA0020
+        static ETest M(string s, ETest value = {|#1:default|}) => value;
 
         public void Test()
         {
@@ -766,8 +763,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -782,9 +780,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020
-        static ETest M(string s, ETest value = default) => value;
-#pragma warning restore SMA0020
+        static ETest M(string s, ETest value = {|#0:default|}) => value;
 
         public void Test()
         {
@@ -793,7 +789,8 @@ namespace Test
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
@@ -808,9 +805,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020
-        static ETest M(string s, ETest value = default) => value;
-#pragma warning restore SMA0020
+        static ETest M(string s, ETest value = {|#0:default|}) => value;
 
         public void Test()
         {
@@ -819,7 +814,8 @@ namespace Test
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
@@ -834,9 +830,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-#pragma warning disable SMA0020
-        static ETest M(string s, ETest value = default) => value;
-#pragma warning restore SMA0020
+        static ETest M(string s, ETest value = {|#0:default|}) => value;
 
         public void Test()
         {
@@ -845,7 +839,8 @@ namespace Test
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
@@ -863,16 +858,15 @@ namespace Test
     [AttributeUsage(AttributeTargets.All)]
     public class AttrTestAttribute : Attribute
     {
-#pragma warning disable SMA0020
-        public AttrTestAttribute(ETest value = default) { }
-#pragma warning restore SMA0020
+        public AttrTestAttribute(ETest value = {|#0:default|}) { }
     }
 
     [AttrTest]
     public class CTest { }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
