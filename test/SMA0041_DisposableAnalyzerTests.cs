@@ -123,7 +123,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0041_Compliant_NullAssignment_PrecedingDispose()
+        public async Task SMA0041_Suppressed_NullAssignment_PrecedingDispose()
         {
             var test = @"
 using System;
@@ -154,7 +154,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0041_Compliant_NullAssignment_PrecedingConditionalDispose()
+        public async Task SMA0041_Suppressed_NullAssignment_PrecedingConditionalDispose()
         {
             var test = @"
 using System;

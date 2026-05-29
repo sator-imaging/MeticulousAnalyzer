@@ -196,5 +196,62 @@ namespace Test
 
             await VerifyWithDuckTypingAsync(source);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_DuckTyping_DisposeAsyncWithParameter()
+        {
+            var source = @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class DuckAsyncWithParam
+    {
+        public ValueTask DisposeAsync(CancellationToken ct) => default;
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            var d = new DuckAsyncWithParam();
+        }
+    }
+}
+";
+
+            // DisposeAsync with parameter (Parameters.Length != 0) should NOT be detected
+            await VerifyWithDuckTypingAsync(source);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_DuckTyping_DisposeAsyncWrongReturnType()
+        {
+            var source = @"
+using System;
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class DuckAsyncWrongReturn
+    {
+        public Task DisposeAsync() => Task.CompletedTask;
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            var d = new DuckAsyncWrongReturn();
+        }
+    }
+}
+";
+
+            // DisposeAsync returning Task (not ValueTask) should NOT be detected
+            await VerifyWithDuckTypingAsync(source);
+        }
     }
 }
