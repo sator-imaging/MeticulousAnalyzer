@@ -21,16 +21,15 @@ jobs:
       - name: Checkout current (PR or event target branch)
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Required for worktree
           path: current
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: Checkout baseline (main branch)
+        uses: actions/checkout@v6
+        with:
+          path: baseline
+          ref: main
         if: github.event_name == 'pull_request'
-        run: |
-          cd current
-          git fetch origin main --prune
-          git worktree add ../baseline origin/main
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -55,10 +54,42 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          dotnet tool install -g dotnet-reportgenerator-globaltool
+          generate_report () {
+            local target_dir="$1"
+            local out_dir="$2"
+            local title="$3"
+            local history_dir="$4"
 
-          reportDir="$TEST_OUTPUT/**/coverage.cobertura.xml"
-          reportTypes="Html;MarkdownSummary;MarkdownSummaryGithub"
+            local -a report_opts=()
+
+            if [ -n "$history_dir" ]; then
+              report_opts+=("-historydir:$history_dir")
+            fi
+
+            reportgenerator \
+              -reporttypes:"Html;MarkdownSummary;MarkdownSummaryGithub" \
+              -reports:"$target_dir/$TEST_OUTPUT/**/coverage.cobertura.xml" \
+              "${report_opts[@]}" \
+              -targetdir:"$out_dir"
+
+            FILE_COUNT=$(find "$target_dir" -type f | wc -l | tr -d ' ' | numfmt --grouping)
+            LINE_COUNT=$(find "$target_dir" -type f -exec cat {} + | wc -l | tr -d ' ' | numfmt --grouping)
+
+            {
+              sed \
+                -e 's/<details open>/<details>/g' \
+                -e 's/- ([0-9.]\+%)<\/summary>/- <b>\1<\/b><\/summary>/g' \
+                -e "s/^# Summary$/# 📊 $title/" \
+                "$out_dir/SummaryGithub.md"
+
+              echo
+              echo "Total file count: $FILE_COUNT  "
+              echo "Total line count: $LINE_COUNT"
+              echo
+            } >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          dotnet tool install -g dotnet-reportgenerator-globaltool
 
           if [ ! -d "baseline/$TEST_OUTPUT" ]; then
             {
@@ -66,27 +97,8 @@ jobs:
               echo
             } >> $GITHUB_STEP_SUMMARY
           else
-            reportgenerator \
-              -reporttypes:"$reportTypes" \
-              -reports:"current/$reportDir" \
-              -historydir:"baseline/$reportDir" \
-              -targetdir:"$REPORT_OUTPUT/diff"
-            {
-              cat "$REPORT_OUTPUT/diff/SummaryGithub.md" \
-                | sed 's/<details open>/<details>/g' \
-                | sed -E 's/- ([0-9.]+%)<\/summary>/- <b>\1<\/b><\/summary>/g' \
-                | sed 's/^# Summary$/# 📊 PR Changes/'
-              echo
-            } >> $GITHUB_STEP_SUMMARY
+            generate_report baseline "$REPORT_OUTPUT/diff" "PR Changes" \
+              "current/$TEST_OUTPUT/**/coverage.cobertura.xml"
           fi
 
-          # Ignore test failure on main brunch, but PR branch
-          reportgenerator \
-            -reporttypes:"$reportTypes" \
-            -reports:"current/$reportDir" \
-            -targetdir:"$REPORT_OUTPUT/full"
-          cat "$REPORT_OUTPUT/full/SummaryGithub.md" \
-            | sed 's/<details open>/<details>/g' \
-            | sed -E 's/- ([0-9.]+%)<\/summary>/- <b>\1<\/b><\/summary>/g' \
-            | sed 's/^# Summary$/# 📊 Total Coverage/' \
-            >> $GITHUB_STEP_SUMMARY
+          generate_report current "$REPORT_OUTPUT/full" "Total Coverage" ""
