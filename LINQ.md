@@ -22,11 +22,10 @@ These locations are exempt from migration:
 
 ## Concrete Over Interface
 
-BurstLinq overloads prefer concrete collection types over interfaces:
+BurstLinq overloads prefer concrete collection types over interfaces. Add overloads for specific struct/concrete collection types as they arise:
 
-- `ImmutableArray<T>`
-- `SyntaxList<T>`
-- `SeparatedSyntaxList<T>`
+- `ImmutableArray<T>`, `SyntaxList<T>`, `SeparatedSyntaxList<T>`, etc.
+- Other struct collections may exist in Roslyn or the codebase - don't limit to the above
 
 This lets the compiler resolve the most specific overload and avoids boxing/indirection. Fall back to `IReadOnlyList<T>` or `IEnumerable<T>` only as a catch-all when no concrete overload applies.
 
@@ -60,11 +59,3 @@ public static IEnumerable<T> Where<T>(this IEnumerable<T> source, ...)  // fallb
 | `Contains` | `IEnumerable<T>` | |
 | `SelectMany_FirstOrDefault` | `SyntaxList<T>` | Fused SelectMany+FirstOrDefault |
 
-
-## Migrated Files
-
-- `src/analysis/Analyzers/LambdaAnalyzer.cs`
-- `src/codefix/Providers/EnumObfuscationCodeFixProvider.cs`
-- `src/codefix/Providers/NullSuppressionCodeFixProvider.cs`
-- `src/codefix/Providers/NamedArgumentCodeFixProvider.cs`
-- `src/codefix/Providers/LambdaStaticCodeFixProvider.cs`
