@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.0.0-rc.3](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.3) (2026-05-29)
+
+### 🚀 Features
+* Test coverage phase 3: NullSuppressionAnalyzer tests by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#316](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/316)
+### 📚 Other Changes
+* test: add missing enum analyzer tests (phase 3.2) by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#313](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/313)
+* test: increase LambdaAnalyzer coverage (SMA7000/7001/7002) by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#314](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/314)
+* test: increase TaskAnalyzer coverage (phase 2) by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#315](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/315)
+* Add comprehensive BurstLinq unit tests by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#317](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/317)
+
+* [@kiro-agent](https://github.com/kiro-agent)[bot] made their first contribution in [#313](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/313)
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.2...v5.0.0-rc.3
+
+
 ## [5.0.0-rc.2](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.2) (2026-05-29)
 
 ### 🚀 Features
