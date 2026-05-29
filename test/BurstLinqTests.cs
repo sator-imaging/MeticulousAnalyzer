@@ -63,6 +63,31 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             }
         }
 
+        private class DisposalTrackingEnumerable : IEnumerable<object>
+        {
+            private readonly object[] items;
+            public bool WasDisposed { get; private set; }
+
+            public DisposalTrackingEnumerable(params object[] items)
+            {
+                this.items = items;
+            }
+
+            public IEnumerator<object> GetEnumerator() => new TrackingEnumerator(this);
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+
+            private class TrackingEnumerator : IEnumerator<object>
+            {
+                private readonly DisposalTrackingEnumerable parent;
+                private int index = -1;
+                public TrackingEnumerator(DisposalTrackingEnumerable parent) { this.parent = parent; }
+                public object Current => parent.items[index];
+                public bool MoveNext() { index++; return index < parent.items.Length; }
+                public void Reset() { index = -1; }
+                public void Dispose() { parent.WasDisposed = true; }
+            }
+        }
+
         #endregion
 
         #region ElementAtOrDefault
@@ -534,6 +559,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             Assert.AreEqual(3, results.Count);
         }
 
+        [TestMethod]
+        public void LinqOfType_Iterator_DisposesEnumerator_AfterIteration()
+        {
+            var source = new DisposalTrackingEnumerable("a", 1, "b", 2);
+            Assert.IsFalse(source.WasDisposed);
+            var results = new List<string>();
+            foreach (var item in source.OfType<string>())
+            {
+                results.Add(item);
+            }
+            Assert.IsTrue(source.WasDisposed);
+            Assert.AreEqual(2, results.Count);
+        }
+
         #endregion
 
         #region OfType_Where
@@ -590,6 +629,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
                 results.Add(item);
             }
             Assert.AreEqual(0, results.Count);
+        }
+
+        [TestMethod]
+        public void LinqOfTypeWhere_Iterator_IteratesCorrectly_MultipleForeach()
+        {
+            var symbols = GetSymbolsFromCompilation("class Foo { } class Bar { } class Baz { }");
+            var query = symbols.OfType_Where<INamedTypeSymbol>(s => s.Name != "Baz");
+
+            var first = new List<string>();
+            foreach (var item in query)
+            {
+                first.Add(item.Name);
+            }
+
+            var second = new List<string>();
+            foreach (var item in query)
+            {
+                second.Add(item.Name);
+            }
+
+            Assert.AreEqual(first.Count, second.Count);
+            Assert.IsTrue(first.Count > 0);
+            for (int i = 0; i < first.Count; i++)
+            {
+                Assert.AreEqual(first[i], second[i]);
+            }
         }
 
         #endregion
@@ -870,6 +935,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         {
             var source = ImmutableArray.Create(42, 99, 7);
             Assert.AreEqual(42, source.First());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IndexOutOfRangeException))]
+        public void First_ImmutableArray_Throws_EmptyArray()
+        {
+            var source = ImmutableArray<int>.Empty;
+            source.First();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NullReferenceException))]
+        public void First_ImmutableArray_Throws_DefaultArray()
+        {
+            var source = default(ImmutableArray<int>);
+            source.First();
         }
 
         #endregion
