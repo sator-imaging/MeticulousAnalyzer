@@ -54,6 +54,9 @@ jobs:
 
       - name: Generate coverage report
         run: |
+          sudo apt update
+          sudo apt install ripgrep
+
           generate_report () {
             local target_dir="$1"
             local out_dir="$2"
@@ -72,10 +75,12 @@ jobs:
               "${report_opts[@]}" \
               -targetdir:"$out_dir"
 
-            FILE_COUNT=$(find "$target_dir" -type f | wc -l | tr -d ' ')
-            FILE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$FILE_COUNT")
+            FILE_COUNT=$(rg --files "$target_dir" -g '*.cs' | wc -l | tr -d ' ')
+            LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
+                | xargs wc -l \
+                | awk '{sum += $1} END {print sum}')
 
-            LINE_COUNT=$(find "$target_dir" -type f -exec wc -l {} + | awk '{sum += $1} END {print sum}')
+            FILE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$FILE_COUNT")
             LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$LINE_COUNT")
 
             {
@@ -98,7 +103,7 @@ jobs:
 
           if [ -d "MAIN_BRANCH/$TEST_OUTPUT" ]; then
             generate_report ACTION_BRANCH "$REPORT_OUTPUT/diff" "PR Changes" \
-              "MAIN_BRANCH/$TEST_OUTPUT/**/coverage.cobertura.xml"
+              "MAIN_BRANCH/$TEST_OUTPUT"
           else
             TOTAL_COV_BRANCH=ACTION_BRANCH
             {
