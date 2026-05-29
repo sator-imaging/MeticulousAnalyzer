@@ -72,11 +72,11 @@ jobs:
               "${report_opts[@]}" \
               -targetdir:"$out_dir"
 
-              FILE_COUNT=$(find "$target_dir" -type f | wc -l | xargs)
-              FILE_COUNT=$(printf "%'d" "$FILE_COUNT")
+            FILE_COUNT=$(find "$target_dir" -type f | wc -l | tr -d ' ')
+            FILE_COUNT=$(numfmt --grouping "$FILE_COUNT")
 
-              LINE_COUNT=$(find "$target_dir" -type f -exec wc -l {} + | awk '{sum += $1} END {print sum}')
-              LINE_COUNT=$(printf "%'d" "$LINE_COUNT")
+            LINE_COUNT=$(find "$target_dir" -type f -exec wc -l {} + | awk '{sum += $1} END {print sum}')
+            LINE_COUNT=$(numfmt --grouping "$LINE_COUNT")
 
             {
             sed \
