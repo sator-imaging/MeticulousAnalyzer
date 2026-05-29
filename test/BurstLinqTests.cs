@@ -938,7 +938,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IndexOutOfRangeException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void First_ImmutableArray_Throws_EmptyArray()
         {
             var source = ImmutableArray<int>.Empty;
@@ -946,7 +946,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NullReferenceException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void First_ImmutableArray_Throws_DefaultArray()
         {
             var source = default(ImmutableArray<int>);

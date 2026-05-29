@@ -473,6 +473,8 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T First<T>(this ImmutableArray<T> source)
         {
+            if (source.IsDefaultOrEmpty)
+                throw new InvalidOperationException("Sequence contains no elements");
             return source[0];
         }
 
