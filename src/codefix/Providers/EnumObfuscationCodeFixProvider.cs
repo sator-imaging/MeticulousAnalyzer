@@ -10,7 +10,6 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;

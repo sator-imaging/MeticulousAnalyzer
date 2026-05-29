@@ -414,6 +414,22 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /*  Any  ================================================================ */
 
+        public static bool Any<T>(this ImmutableArray<T> source)
+        {
+            return !source.IsDefaultOrEmpty;
+        }
+
+        public static bool Any<T>(this IEnumerable<T> source)
+        {
+            if (source is IReadOnlyCollection<T> roc)
+            {
+                return roc.Count > 0;
+            }
+
+            using var e = source.GetEnumerator();
+            return e.MoveNext();
+        }
+
         public static bool Any<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_any) where T : SyntaxNode
         {
             foreach (var item in source)
