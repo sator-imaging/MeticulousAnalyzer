@@ -18,15 +18,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout current (PR or event target branch)
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Required for worktree
           path: current
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
-      - if: github.ref != 'refs/heads/main'
+      - name: Checkout baseline (main branch)
+        if: github.event_name == 'pull_request'
         run: |
           cd current
-          git fetch origin main
+          git fetch origin main --prune
           git worktree add ../baseline origin/main
 
       - uses: actions/setup-dotnet@v5
