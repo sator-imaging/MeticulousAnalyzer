@@ -18,16 +18,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout current (PR or event target branch)
+      - name: Checkout ACTION_BRANCH (PR or event target branch)
         uses: actions/checkout@v6
         with:
-          path: current
+          path: ACTION_BRANCH
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
-      - name: Checkout baseline (main branch)
+      - name: Checkout MAIN_BRANCH (main branch)
         uses: actions/checkout@v6
         with:
-          path: baseline
+          path: MAIN_BRANCH
           ref: main
         if: github.event_name == 'pull_request'
 
@@ -39,8 +39,8 @@ jobs:
         run: |
           set -e
 
-          # Create baseline report first
-          for dir in baseline current; do
+          # Create MAIN_BRANCH report first
+          for dir in MAIN_BRANCH ACTION_BRANCH; do
             if [ -d "$dir" ]; then
               dotnet restore "$dir/$TEST_PROJECT"
               dotnet add "$dir/$TEST_PROJECT" package coverlet.collector
@@ -48,7 +48,7 @@ jobs:
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
                 --results-directory "$dir/$TEST_OUTPUT" \
-                || [ "$dir" == "baseline" ]  # Ignore error on main branch
+                || [ "$dir" == "MAIN_BRANCH" ]  # Ignore error on main branch
             fi
           done
 
@@ -94,14 +94,17 @@ jobs:
 
           dotnet tool install -g dotnet-reportgenerator-globaltool
 
-          if [ ! -d "baseline/$TEST_OUTPUT" ]; then
+          TOTAL_COV_BRANCH=MAIN_BRANCH
+
+          if [ -d "MAIN_BRANCH/$TEST_OUTPUT" ]; then
+            generate_report ACTION_BRANCH "$REPORT_OUTPUT/diff" "PR Changes" \
+              "MAIN_BRANCH/$TEST_OUTPUT/**/coverage.cobertura.xml"
+          else
+            TOTAL_COV_BRANCH=ACTION_BRANCH
             {
               echo "⚠ Baseline test for coverage diff generation was failed or skipped."
               echo
             } >> $GITHUB_STEP_SUMMARY
-          else
-            generate_report baseline "$REPORT_OUTPUT/diff" "PR Changes" \
-              "current/$TEST_OUTPUT/**/coverage.cobertura.xml"
           fi
 
-          generate_report current "$REPORT_OUTPUT/full" "Total Coverage" ""
+          generate_report TOTAL_COV_BRANCH "$REPORT_OUTPUT/full" "Total Coverage" ""
