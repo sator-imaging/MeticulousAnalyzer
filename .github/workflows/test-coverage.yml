@@ -72,11 +72,8 @@ jobs:
               "${report_opts[@]}" \
               -targetdir:"$out_dir"
 
-            FILE_COUNT=$(find "$target_dir" -type f | wc -l | tr -d ' ')
-            FILE_COUNT=$(numfmt --grouping "$FILE_COUNT")
-
-            LINE_COUNT=$(find "$target_dir" -type f -exec wc -l {} + | awk '{sum += $1} END {print sum}')
-            LINE_COUNT=$(numfmt --grouping "$LINE_COUNT")
+            FILE_COUNT=$(LC_ALL=C find "$target_dir" -type f | wc -l | tr -d ' ')
+            LINE_COUNT=$(LC_ALL=C find "$target_dir" -type f -exec wc -l {} + | awk '{sum += $1} END {print sum}')
 
             {
             sed \
