@@ -701,8 +701,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         static ETest M(string s, ETest value = default) => value;
+#pragma warning restore SMA0020
 
         public void Test()
         {
@@ -727,8 +728,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         static ETest M(string s, ETest value = default) => value;
+#pragma warning restore SMA0020
 
         public void Test()
         {
@@ -753,8 +755,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         static ETest M(string s, ETest value = default) => value;
+#pragma warning restore SMA0020
 
         public void Test()
         {
@@ -779,8 +782,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         static ETest M(string s, ETest value = default) => value;
+#pragma warning restore SMA0020
 
         public void Test()
         {
@@ -804,8 +808,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         static ETest M(string s, ETest value = default) => value;
+#pragma warning restore SMA0020
 
         public void Test()
         {
@@ -829,8 +834,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         static ETest M(string s, ETest value = default) => value;
+#pragma warning restore SMA0020
 
         public void Test()
         {
@@ -857,8 +863,9 @@ namespace Test
     [AttributeUsage(AttributeTargets.All)]
     public class AttrTestAttribute : Attribute
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020
         public AttrTestAttribute(ETest value = default) { }
+#pragma warning restore SMA0020
     }
 
     [AttrTest]

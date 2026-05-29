@@ -133,7 +133,7 @@ using System.Reflection;
 namespace Test
 {
     [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest : int { Value = {|#0:0|}, Other = {|#1:1|} }
+    public enum ETest : int { Value {|#0:= 0|}, Other {|#1:= 1|} }
 }
 ";
             var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 0);

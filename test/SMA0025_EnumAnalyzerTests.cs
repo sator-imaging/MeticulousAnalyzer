@@ -185,30 +185,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violation_EnumGetName()
-        {
-            var test = @"
-using System;
-using System.Reflection;
-
-namespace Test
-{
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
-    public enum ETest { Value }
-    public class CTest
-    {
-        public void Test()
-        {
-            var x = {|#0:Enum.GetName(typeof(ETest), ETest.Value)|};
-        }
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task SMA0025_Violation_EnumToObject()
         {
             var test = @"

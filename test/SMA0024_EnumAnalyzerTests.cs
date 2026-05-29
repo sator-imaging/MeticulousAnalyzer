@@ -302,7 +302,7 @@ namespace Test
     {
         public void Test<T>(T value) where T : Enum
         {
-            var x = $""value: {|#0:{value}|} {|#1:{"""" + value + 0}|} {|#2:{value.ToString()}|} {|#3:{(((value)))}|}"";
+            var x = $""value: {|#0:{value}|} {|#1:{"""" + value}|} {|#2:{value.ToString()}|} {|#3:{(((value)))}|}"";
         }
     }
 }

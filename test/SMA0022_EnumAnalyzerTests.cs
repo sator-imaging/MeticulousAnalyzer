@@ -196,8 +196,9 @@ namespace Test
 {
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum, new() => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test<T>() where T : Enum, new()
         {
@@ -221,8 +222,9 @@ namespace Test
 {
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test<T>() where T : Enum
         {
@@ -246,8 +248,9 @@ namespace Test
 {
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test<T>() where T : Enum
         {
@@ -273,8 +276,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum, new() => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test()
         {
@@ -300,8 +304,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test()
         {
@@ -327,8 +332,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test()
         {
@@ -352,8 +358,9 @@ namespace Test
 {
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test<T>() where T : Enum
         {
@@ -378,8 +385,9 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        // Allow enum conversion
+#pragma warning disable SMA0020, SMA0022, SMA0023
         static T GetEnum<T>(string s, T value = default) where T : Enum => value;
+#pragma warning restore SMA0020, SMA0022, SMA0023
 
         public void Test()
         {
