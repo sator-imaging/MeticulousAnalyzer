@@ -184,5 +184,75 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+        [TestMethod]
+        public async Task SMA0025_Violation_EnumToObject()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = {|#0:Enum.ToObject(typeof(ETest), 0)|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0025_Violation_EnumTryParse()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = {|#0:Enum.TryParse<ETest>("""", out _)|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0025_Violation_EnumEquals_GenericEnum()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    public class CTest
+    {
+        public void Test<T>(T value) where T : Enum
+        {
+            var x = {|#0:value.Equals(null)|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
     }
 }
