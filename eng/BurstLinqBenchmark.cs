@@ -183,7 +183,7 @@ public class BurstLinqBenchmarks
     [Benchmark(Baseline = true)]
     public ImmutableArray<double> WhereToImmutableArray_SystemLinq()
     {
-        return System.Linq.ImmutableArrayExtensions.ToImmutableArray(
+        return System.Collections.Immutable.ImmutableArray.ToImmutableArray(
             System.Linq.Enumerable.Where(_immArray, static x => x > 50.0));
     }
 
