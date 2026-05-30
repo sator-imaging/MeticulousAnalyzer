@@ -12,11 +12,11 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.InProcess.Emit;
+using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 
 
 var config = ManualConfig.Create(DefaultConfig.Instance)
-    .AddJob(Job.ShortRun.WithToolchain(InProcessEmitToolchain.Instance));
+    .AddJob(Job.ShortRun.WithToolchain(InProcessNoEmitToolchain.Instance));
 
 BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
 
