@@ -1597,7 +1597,7 @@ namespace Test
 
 
         [TestMethod]
-        public void SMA0060_Compliant_RulesAreDisabledByDefault()
+        public void SMA0060_Config_RulesAreDisabledByDefault()
         {
             var analyzer = new ReadOnlyVariableAnalyzer();
             var ids = new[]

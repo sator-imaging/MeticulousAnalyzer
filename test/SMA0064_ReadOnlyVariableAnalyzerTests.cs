@@ -113,7 +113,7 @@ namespace Test
 
 
         [TestMethod]
-        public void SMA0064_Compliant_MethodCallRuleIsDisabledByDefault()
+        public void SMA0064_Config_MethodCallRuleIsDisabledByDefault()
         {
             var analyzer = new ReadOnlyVariableAnalyzer();
             var descriptor = analyzer.SupportedDiagnostics.First(d => d.Id == ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall);
