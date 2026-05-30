@@ -1,24 +1,20 @@
 # Test Conventions
 
-This document defines the naming conventions, file structure, and patterns for tests in the StaticMemberAnalyzer project.
+This document is the authoritative guide for developers contributing tests to the StaticMemberAnalyzer project. Follow these conventions to maintain consistency across the test suite.
 
 ## Test Setup
 
-| Item | Value |
-|------|-------|
-| Framework | MSTest (`Microsoft.VisualStudio.TestTools.UnitTesting`) |
-| Project | `SatorImaging.StaticMemberAnalyzer.Test.csproj` |
-| CI Configuration | [`.github/workflows/test.yml`](../.github/workflows/test.yml) |
-| SDK | .NET 10.x.x |
-| Configurations | `Debug`, `Release` (matrix) |
+- **Framework:** MSTest (`Microsoft.VisualStudio.TestTools.UnitTesting`)
+- **Project:** `SatorImaging.StaticMemberAnalyzer.Test.csproj`
+- **CI Configuration:** [`.github/workflows/test.yml`](../.github/workflows/test.yml)
+- **Test Command:**
+  ```bash
+  dotnet test ./test -c <Configuration> --verbosity minimal -p:DontReferenceItself=true
+  ```
+- **Configurations:** Tests are run in both `Debug` and `Release` configurations via the CI matrix
+- **SDK:** .NET 10.x.x
 
-### Test Command
-
-```bash
-dotnet test ./test -c <Configuration> --verbosity minimal -p:DontReferenceItself=true
-```
-
-## Test File and Class Naming
+## Test File and Class Naming Convention
 
 ### Format
 
@@ -26,32 +22,27 @@ dotnet test ./test -c <Configuration> --verbosity minimal -p:DontReferenceItself
 {RuleId}_{AnalyzerOrCodeFixProviderName}Tests.cs
 ```
 
-### Format (with feature suffix)
+Optionally, if the test file becomes large, a `{TestSubjectOrFeature}` suffix can be added:
 
 ```
 {RuleId}_{AnalyzerOrCodeFixProviderName}Tests_{TestSubjectOrFeature}.cs
 ```
 
-This format is used when a test file becomes large and needs to be split by feature.
-
 ### Examples
 
-| File | Description |
-|------|-------------|
-| `SMA0020_EnumAnalyzerTests.cs` | Standard single-file test |
-| `SMA0026_EnumObfuscationCodeFixProviderTests.cs` | CodeFix provider test |
-| `SMA0040_DisposableAnalyzerTests.cs` | Base test file |
-| `SMA0040_DisposableAnalyzerTests_Suppression.cs` | Split by feature: suppression |
-| `SMA0040_DisposableAnalyzerTests_Boxing.cs` | Split by feature: boxing |
-| `SMA0040_DisposableAnalyzerTests_SwitchExpression.cs` | Split by feature: switch expression |
-| `SMA7000_LambdaAnalyzerTests_EdgeCases.cs` | Split by feature: edge cases |
+- `SMA0020_EnumAnalyzerTests.cs`
+- `SMA0026_EnumObfuscationCodeFixProviderTests.cs`
+- `SMA0040_DisposableAnalyzerTests.cs`
+- `SMA0040_DisposableAnalyzerTests_Suppression.cs`
+- `SMA0040_DisposableAnalyzerTests_Boxing.cs`
+- `SMA0040_DisposableAnalyzerTests_SwitchExpression.cs`
+- `SMA7000_LambdaAnalyzerTests_EdgeCases.cs`
 
-### Suffix Requirements
+### Important
 
-1. The `{TestSubjectOrFeature}` suffix **MUST** be a persistent, descriptive identifier of the feature or subject under test.
-2. The following suffix names are **prohibited**: "NewTest", "Updated", or any other meaningless, context-related, or user-instruction-derived names.
+The `{TestSubjectOrFeature}` suffix **MUST NOT** be "NewTest", "Updated", or other meaningless, context-related, or user-instruction-related names. The suffix must be a persistent, descriptive identifier that clearly represents the feature or subject being tested.
 
-## Test Method Naming
+## Test Method Naming Convention
 
 ### Format
 
@@ -59,76 +50,63 @@ This format is used when a test file becomes large and needs to be split by feat
 {RuleId}_{Expectation}_{TestSubjectOrFeature}_{DescriptionOrCondition}
 ```
 
-### Expectation Values
+Where `{Expectation}` is one of:
 
-| Expectation | Meaning |
-|-------------|---------|
+| Expectation | Usage |
+|-------------|-------|
 | `Violation` | Analyzer reports a diagnostic |
 | `Compliant` | Analyzer does not report a diagnostic |
-| `CodeFix` | Code fix is applied (covers both violation detection and fix) |
-| `Config` | Analyzer configuration/options behavior |
+| `CodeFix`   | Code fix is applied (covers both violation detection and fix) |
+| `Config`    | Analyzer configuration/options test |
 
 ### Examples
 
-| Method Name | Category |
-|-------------|----------|
-| `SMA0020_Violation_CastToEnum` | Violation detection |
-| `SMA0020_Compliant_CastFromEnum_CompareToSame` | Compliant case |
-| `SMA0020_Compliant_CastFromEnum_CompareToSame_Nullable` | Compliant with condition |
-| `SMA0026_CodeFix_SimpleEnum` | Code fix application |
-| `SMA0026_CodeFix_GenericClassWithNestedEnum` | Code fix with context |
-| `SMA0040_Violation_AssemblyAttribute_UnsuppressedType` | Violation with condition |
-| `SMA0060_Config_RuleSuppression` | Configuration test |
+- `SMA0020_Violation_CastToEnum`
+- `SMA0020_Compliant_CastFromEnum_CompareToSame`
+- `SMA0020_Compliant_CastFromEnum_CompareToSame_Nullable`
+- `SMA0026_CodeFix_SimpleEnum`
+- `SMA0026_CodeFix_GenericClassWithNestedEnum`
+- `SMA0040_Violation_AssemblyAttribute_UnsuppressedType`
+- `SMA0060_Config_RuleSuppression`
 
-### Rules
+### Notes
 
-1. A CodeFix test covers both violation detection and fix application. Use `CodeFix` as the expectation, not `Violation`.
-2. Analyzer configuration tests use `Config` as the expectation.
-3. Each test method tests exactly one scenario. Do not combine multiple assertions for different scenarios into a single method.
-4. The `Compliant`/`Violation` expectation inherently expresses the positive/negative condition. Do not add redundant prefixes (e.g., "Not") to the subject.
-
-### Prohibited Naming Pattern
-
-| Prohibited | Correct | Reason |
-|------------|---------|--------|
-| `SMA0000_Compliant_SuppressedByComment_Desc` | `SMA0000_Compliant_SuppressionComment_Desc` | `Compliant` already implies "suppressed" |
-| `SMA0000_Violation_NotSuppressedByComment_Desc` | `SMA0000_Violation_SuppressionComment_Desc` | `Violation` already implies "not suppressed" |
+- **CodeFix** test covers both violation detection and codefix functionality. Use `CodeFix` rather than `Violation` as the expectation in those tests.
+- Analyzer configuration tests use `Config` as the expectation.
+- **DO NOT** combine multiple tests into one test method.
+- **BAD** naming examples (e.g., tests for suppression comment):
+  - `SMA0000_Compliant_SuppressedByComment_SomeDescription`
+  - `SMA0000_Violation_NotSuppressedByComment_SomeDescription`
+  - Reason: Both test the same subject but introduce a redundant "Not" prefix. The `Compliant`/`Violation` expectation already conveys that distinction.
 
 ## FixAllTest
 
 ### File Naming
 
 ```
-FixAllTest_{RuleId}_{CodeFixProviderName}.cs
+FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 ```
 
-### Reference Files
+### Reference
 
-| File | Description |
-|------|-------------|
-| `FixAllTest_SMA0026_EnumObfuscationCodeFixProvider.cs` | Enum obfuscation code fix |
-| `FixAllTest_SMA7000_LambdaStaticCodeFixProvider.cs` | Lambda static code fix |
-| `FixAllTest_SMA7001_LambdaStaticCodeFixProvider.cs` | Lambda static code fix (variant) |
-| `FixAllTest_SMA8000_NamedArgumentCodeFixProvider.cs` | Named argument code fix |
-| `FixAllTest_SMA8002_NullSuppressionCodeFixProvider.cs` | Null suppression code fix |
+- `FixAllTest_SMA0026_EnumObfuscationCodeFixProvider.cs`
+- `FixAllTest_SMA7000_LambdaStaticCodeFixProvider.cs`
+- `FixAllTest_SMA7001_LambdaStaticCodeFixProvider.cs`
+- `FixAllTest_SMA8000_NamedArgumentCodeFixProvider.cs`
+- `FixAllTest_SMA8002_NullSuppressionCodeFixProvider.cs`
 
-These files serve as the reference implementation. Refer to them for code structure when creating new FixAllTest files.
+### Code Structure
 
-### Structure Requirements
-
-| Requirement | Detail |
-|-------------|--------|
-| Template fields | `SourceTemplate` and `FixedTemplate` as `const string` with format placeholders |
-| Cross-platform | Templates use `.ReplaceLineEndings()` |
-| Trivia | Leading/trailing trivia **MUST** be included (e.g., `/* Leading trivia */` and `// Trailing trivia`) |
-| Method name | `{RuleId}_CodeFix_FixAllInSolution` |
-| Source files | 3 files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each |
-| Iterations | `NumberOfIncrementalIterations = 9` |
-| States | `TestState`, `FixedState`, and `BatchFixedState` |
-
-### Required TODO Comment
-
-Every FixAllTest method **MUST** include the following source code comment to notify developers of the current limitation:
+- Refer to the reference files above for the code structure
+- Uses `SourceTemplate` and `FixedTemplate` as `const string` fields with format placeholders
+- Templates use `.ReplaceLineEndings()` for cross-platform support (line-ending aware tests)
+- Leading/trailing trivia **MUST** be included in FixAllTest templates (e.g., `/* Leading trivia */` and `// Trailing trivia`)
+- Test method name is: `{RuleId}_CodeFix_FixAllInSolution`
+- Tests use 3 source files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each (9 total)
+- Sets `NumberOfIncrementalIterations = 9`
+- Includes `TestState`, `FixedState`, and `BatchFixedState`
+- Source code comment **MUST** be copied to notify developers of the TODO
+- **MUST** include the following TODO comment in the test method:
 
 ```csharp
 // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
@@ -141,42 +119,30 @@ Every FixAllTest method **MUST** include the following source code comment to no
 
 ### ConfigTest
 
-| Item | Value |
-|------|-------|
-| File naming | `ConfigTest_{AnalyzerName}.cs` |
-| Purpose | Tests analyzer behavior with different configuration/options |
-| Examples | `ConfigTest_DisposableAnalyzer.cs`, `ConfigTest_ReadOnlyVariableAnalyzer.cs` |
+- **File naming:** `ConfigTest_{AnalyzerName}.cs`
+- **Examples:** `ConfigTest_DisposableAnalyzer.cs`, `ConfigTest_ReadOnlyVariableAnalyzer.cs`
+- Tests analyzer behavior with different configuration/options
 
 ### CoreTest
 
-| Item | Value |
-|------|-------|
-| File | `CoreTest.cs` |
-| Purpose | Unit tests for the `Core` utility class (helper methods used by analyzers) |
-| Covered methods | `IsKnownImmutableType`, `GetMemberNamePrefix`, `SpanConcat`, `IsSuppressedByComment`, `UnwrapAllNullCoalesceOperation` |
+- **File:** `CoreTest.cs`
+- Unit tests for the `Core` utility class (helper methods used by analyzers)
+- Tests methods like `IsKnownImmutableType`, `GetMemberNamePrefix`, `SpanConcat`, `IsSuppressedByComment`, `UnwrapAllNullCoalesceOperation`
 
 ### BurstLinqTests
 
-| Item | Value |
-|------|-------|
-| File | `BurstLinqTests.cs` |
-| Purpose | Tests for custom LINQ-like extension methods (performance-optimized alternatives) |
-| Covered methods | `ElementAtOrDefault`, `Where`, `OfType`, `Any`, `Contains`, `FirstOrDefault`, `ToArray` |
+- **File:** `BurstLinqTests.cs`
+- Tests for custom LINQ-like extension methods used in the project (performance-optimized alternatives)
+- Covers: `ElementAtOrDefault`, `Where`, `OfType`, `Any`, `Contains`, `FirstOrDefault`, `ToArray`, etc.
 
 ### ResourceStringTest
 
-| Item | Value |
-|------|-------|
-| File | `ResourceStringTest.cs` |
-| Purpose | Validates all resource string properties are non-null (coverage for machine-generated properties) |
+- **File:** `ResourceStringTest.cs`
+- Validates all resource string properties are non-null (for test coverage of machine-generated properties)
 
 ## Verifiers
 
-### Location
-
-`test/Verifiers/`
-
-### Available Verifiers
+**Location:** `test/Verifiers/`
 
 | Verifier | Purpose |
 |----------|---------|
@@ -187,7 +153,7 @@ Every FixAllTest method **MUST** include the following source code comment to no
 
 ### Usage Pattern
 
-Type alias declaration at the top of the test file:
+Type alias is declared at the top of the test file:
 
 ```csharp
 // Analyzer-only test:
