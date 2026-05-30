@@ -505,10 +505,11 @@ namespace SatorImaging.StaticMemberAnalyzer
         /*  Contains  ================================================================ */
 
         public static bool Contains<T>(this IEnumerable<T> source, T value)
+            where T : IEquatable<T>
         {
             foreach (var item in source)
             {
-                if (EqualityComparer<T>.Default.Equals(item, value))
+                if (item.Equals(value))
                 {
                     return true;
                 }

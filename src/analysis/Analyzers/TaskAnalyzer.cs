@@ -188,7 +188,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 foreach (var op in operations)
                 {
-                    if (declarationBlock == -1 && op.Syntax.AncestorsAndSelf().Contains(variableDeclarator))
+                    if (declarationBlock == -1 && System.Linq.Enumerable.Contains(op.Syntax.AncestorsAndSelf(), variableDeclarator))
                     {
                         declarationBlock = i;
                     }
