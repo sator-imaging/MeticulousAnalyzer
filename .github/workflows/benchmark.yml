@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        - dotnet-version: [ '5', '10' ]
+        dotnet-version: [ '5', '10' ]
 
     runs-on: ubuntu-latest
     steps:
