@@ -83,6 +83,10 @@ jobs:
               report_opts+=("-historydir:$history_dir")
             fi
 
+            echo "================================"
+            cat "$target_dir/$TEST_OUTPUT/**/coverage.cobertura.xml"
+            echo "================================"
+
             reportgenerator \
               -reporttypes:"Html;MarkdownSummary;MarkdownSummaryGithub" \
               -reports:"$target_dir/$TEST_OUTPUT/**/coverage.cobertura.xml" \
