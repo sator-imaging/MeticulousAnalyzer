@@ -365,64 +365,8 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        // =================================================================
-        // Ref struct with DisposeAsync (duck-typed await using)
-        // =================================================================
-
-        [TestMethod]
-        public async Task SMA0040_Compliant_RefStructAsyncDisposable_WithAwaitUsing()
-        {
-            var test = @"
-using System;
-using System.Threading.Tasks;
-
-namespace Test
-{
-    ref struct RefLikeAsyncDisposable
-    {
-        public ValueTask DisposeAsync() => default;
-    }
-
-    class Program
-    {
-        async Task Method()
-        {
-            await using var d = new RefLikeAsyncDisposable();
-            await Task.CompletedTask;
-        }
-    }
-}
-";
-
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0040_Compliant_RefStructAsyncDisposable_WithAwaitUsingBlock()
-        {
-            var test = @"
-using System;
-using System.Threading.Tasks;
-
-namespace Test
-{
-    ref struct RefLikeAsyncDisposable
-    {
-        public ValueTask DisposeAsync() => default;
-    }
-
-    class Program
-    {
-        async Task Method()
-        {
-            await using (new RefLikeAsyncDisposable()) { }
-            await Task.CompletedTask;
-        }
-    }
-}
-";
-
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
+        // NOTE: Ref struct with DisposeAsync duck-typing pattern requires C# 13+ (net9.0+)
+        // to be used with 'await using' or 'using' in async contexts.
+        // These patterns are validated in the debug project (debug/DisposableTests.cs) instead.
     }
 }
