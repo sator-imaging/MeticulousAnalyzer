@@ -30,6 +30,7 @@ BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
 
 
 [MemoryDiagnoser]
+[HideColumns("Gen0", "Gen1")]
 public class BurstLinqBenchmarks
 {
     [Params(100, 1000)]
