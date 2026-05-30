@@ -255,7 +255,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Violation_EnumGetName()
+        public async Task SMA0024_Violation_EnumGetName()
         {
             var test = @"
 using System;
@@ -269,12 +269,12 @@ namespace Test
     {
         public void Test()
         {
-            var x = {|#0:Enum.GetName(ETest.Value)|};
+            var x = {|#0:Enum.GetName(typeof(ETest), ETest.Value)|};
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("Enum");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

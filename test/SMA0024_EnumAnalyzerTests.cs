@@ -400,7 +400,7 @@ namespace Test
     {
         public void Test(ETest value)
         {
-            var x = $""value: {|#0:{value}|} {{|#1:"""" + value + 0|}} {{|#2:value.ToString()|}}\"";
+            var x = $""value: {|#0:{value}|} {{|#1:value.ToString()|}} {|#2:{(((value)))}|}"";
         }
     }
 }

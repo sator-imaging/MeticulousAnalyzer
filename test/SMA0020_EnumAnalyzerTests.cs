@@ -989,7 +989,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        static ETest M(string s, StringComparison comp = default, ETest value = {|#2:default|}) => value;
+        static ETest M(string s, StringComparison comp = {|#3:default|}, ETest value = {|#2:default|}) => value;
 
         public void Test()
         {
@@ -1001,7 +1001,8 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("StringComparison");
             var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
             var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 2).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 3).WithArguments("StringComparison");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -1017,7 +1018,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        static ETest M(string s, StringComparison comp = default, ETest value = {|#2:default|}) => value;
+        static ETest M(string s, StringComparison comp = {|#3:default|}, ETest value = {|#2:default|}) => value;
 
         public void Test()
         {
@@ -1029,7 +1030,8 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("StringComparison");
             var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
             var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 2).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 3).WithArguments("StringComparison");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
@@ -1045,7 +1047,7 @@ namespace Test
     public enum ETest { Value }
     public class CTest
     {
-        static ETest M(string s, StringComparison comp = default, ETest value = {|#2:default|}) => value;
+        static ETest M(string s, StringComparison comp = {|#3:default|}, ETest value = {|#2:default|}) => value;
 
         public void Test()
         {
@@ -1057,7 +1059,8 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("StringComparison");
             var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
             var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 2).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 3).WithArguments("StringComparison");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
     }
