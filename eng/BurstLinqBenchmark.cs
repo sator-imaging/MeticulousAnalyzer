@@ -12,44 +12,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.CsProj;
-using BenchmarkDotNet.Toolchains.DotNetCli;
-using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using SatorImaging.StaticMemberAnalyzer;
 
 
-// File-based apps store .csproj in runfile dir. Point BDN there for out-of-process builds.
-var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-var runfileDir = Path.Combine(localAppData, "dotnet", "runfile");
-if (!Directory.Exists(runfileDir))
-    runfileDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-        ".local", "share", "dotnet", "runfile");
-
-if (Directory.Exists(runfileDir))
-{
-    foreach (var dir in Directory.GetDirectories(runfileDir, "BurstLinqBenchmark-*"))
-    {
-        Environment.CurrentDirectory = dir;
-        break;
-    }
-}
-
-var config = ManualConfig.Create(DefaultConfig.Instance)
-    .AddJob(Job.ShortRun
-        .WithToolchain(InProcessNoEmitToolchain.Instance)
-        .WithId($"net{RuntimeInformation.FrameworkDescription.Split(' ').LastOrDefault() ?? Environment.Version.ToString()}"))
-    .AddJob(Job.ShortRun
-        .WithToolchain(CsProjCoreToolchain.From(
-            new NetCoreAppSettings("netcoreapp3.1", null, "netcoreapp3.1")))
-        .WithId("netcoreapp3.1"));
-
-BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
+BenchmarkRunner.Run<BurstLinqBenchmarks>(args: args);
 
 
 [MemoryDiagnoser]
