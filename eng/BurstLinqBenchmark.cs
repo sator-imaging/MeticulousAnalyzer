@@ -9,14 +9,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Toolchains.InProcess.Emit;
 
 
-BenchmarkRunner.Run<BurstLinqBenchmarks>(args: args);
+var config = ManualConfig.Create(DefaultConfig.Instance)
+    .AddJob(Job.ShortRun.WithToolchain(InProcessEmitToolchain.Instance));
+
+BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
 
 
 [MemoryDiagnoser]
-[ShortRunJob]
 public class BurstLinqBenchmarks
 {
     [Params(100, 1000)]
