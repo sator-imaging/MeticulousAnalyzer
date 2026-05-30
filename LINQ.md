@@ -62,7 +62,7 @@ public static IEnumerable<T> Where<T>(this IEnumerable<T> source, ...)  // fallb
 
 ## Benchmark
 
-`eng/BurstLinqBenchmark.cs` is a BenchmarkDotNet-based benchmark comparing BurstLinq-style manual iteration (for loops, direct array access, no allocations) against `System.Linq` equivalents.
+`eng/BurstLinqBenchmark.cs` is a BenchmarkDotNet-based benchmark comparing BurstLinq extension methods against `System.Linq.Enumerable` equivalents.
 
 ### How to Run
 
@@ -72,15 +72,31 @@ Requires .NET 10 SDK (for file-based app support).
 dotnet run eng/BurstLinqBenchmark.cs -c Release
 ```
 
+### GitHub Actions
+
+```yaml
+- run: dotnet run eng/BurstLinqBenchmark.cs -c Release -- --exporters github
+- run: cat BenchmarkDotNet.Artifacts/results/*-report-github.md >> $GITHUB_STEP_SUMMARY
+```
+
 ### Scenarios
 
-| Benchmark | Description |
-|-----------|-------------|
-| `Any_BurstLinq` / `Any_SystemLinq` | `Any` with predicate on array |
-| `FirstOrDefault_BurstLinq` / `FirstOrDefault_SystemLinq` | `FirstOrDefault` with predicate on array |
-| `WhereCount_BurstLinq` / `WhereCount_SystemLinq` | `Where` + `Count` showing allocation difference |
-| `Contains_BurstLinq` / `Contains_SystemLinq` | `Contains` on array |
-| `SelectToArray_BurstLinq` / `SelectToArray_SystemLinq` | `Select` + `ToArray` on array |
+| Category | Description |
+|----------|-------------|
+| `Any` | `Any()` no predicate |
+| `AnyPredicate` | `Any(predicate)` |
+| `FirstOrDefault` | `FirstOrDefault()` no predicate |
+| `FirstOrDefaultPredicate` | `FirstOrDefault(predicate)` |
+| `WhereCount` | `Where` struct iterator + count |
+| `WhereAny` | Fused `Where_Any` vs chained `Where().Any()` |
+| `WhereFirstOrDefault` | `Where` struct iterator + first match |
+| `Contains` | `Contains(value)` |
+| `SelectToArray` | `Select` + `ToArray` on `ImmutableArray` |
+| `ElementAtOrDefault` | `ElementAtOrDefault(index)` |
+| `ToArray` | `ToArray()` |
+| `OfType` | `OfType` struct iterator |
+| `OfType_FirstOrDefault` | Fused `OfType_FirstOrDefault` |
+| `OfType_Any` | Fused `OfType_Any` |
 
-Collection sizes: 100, 1000 (via `[Params]`).
+Collection sizes: 0, 10, 100 (via `[Params]`). Each category shows a Ratio column (BurstLinq vs SystemLinq baseline).
 
