@@ -506,6 +506,11 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static bool Contains<T>(this IEnumerable<T> source, T value)
         {
+            if (source is ICollection<T> col)
+            {
+                return col.Contains(value);
+            }
+
             foreach (var item in source)
             {
                 if (EqualityComparer<T>.Default.Equals(item, value))
