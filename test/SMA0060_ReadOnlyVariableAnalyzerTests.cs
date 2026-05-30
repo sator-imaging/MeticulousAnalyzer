@@ -1550,7 +1550,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Compliant_Rule()
+        public async Task SMA0060_Config_RuleSuppression()
         {
             var test = @"
 namespace Test
@@ -1597,7 +1597,7 @@ namespace Test
 
 
         [TestMethod]
-        public void SMA0060_Compliant_RulesAreDisabledByDefault()
+        public void SMA0060_Config_RulesAreDisabledByDefault()
         {
             var analyzer = new ReadOnlyVariableAnalyzer();
             var ids = new[]
@@ -1949,28 +1949,28 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Compliant_NoConfig()
+        public async Task SMA0060_Config_NoConfigPresent()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: null);
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Compliant_ConfigMissingSeverity()
+        public async Task SMA0060_Config_MissingSeveritySetting()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = true");
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Compliant_ConfigSeverityIsFalse()
+        public async Task SMA0060_Config_SeverityIsFalse()
         {
             await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = false");
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Violation_ConfigSeverityIsTrue_Diagnostic()
+        public async Task SMA0060_Config_SeverityIsTrue_Diagnostic()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
