@@ -384,6 +384,137 @@ class C {
             Assert.IsFalse(Core.IsSuppressedByComment(method, "// suppress"));
         }
 
+        [TestMethod]
+        public void IsSuppressedByComment_BlankLineBetweenCommentAndStatement_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // suppress
+
+        var x = 1;
+    }
+}");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.IsSuppressedByComment(local, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_SuppressionIsSecondComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // other comment
+        // suppress
+        var x = 1;
+    }
+}");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsFalse(Core.IsSuppressedByComment(local, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_LineEndCommentOnPrecedingLine_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        int y = 0; // suppress
+        var x = 1;
+    }
+}");
+            var root = tree.GetRoot();
+            var locals = new List<LocalDeclarationStatementSyntax>();
+            foreach (var node in root.DescendantNodes())
+            {
+                if (node is LocalDeclarationStatementSyntax l)
+                    locals.Add(l);
+            }
+            // second local declaration is "var x = 1;"
+            var target = locals[1];
+            Assert.IsFalse(Core.IsSuppressedByComment(target, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_LineEndCommentOnPrecedingLine_WithBlankLine_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        int y = 0; // suppress
+
+        var x = 1;
+    }
+}");
+            var root = tree.GetRoot();
+            var locals = new List<LocalDeclarationStatementSyntax>();
+            foreach (var node in root.DescendantNodes())
+            {
+                if (node is LocalDeclarationStatementSyntax l)
+                    locals.Add(l);
+            }
+            // second local declaration is "var x = 1;"
+            var target = locals[1];
+            Assert.IsFalse(Core.IsSuppressedByComment(target, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_MultipleCommentsWithBlankLineBetween_FirstMatches_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // suppress
+
+        // other comment
+        var x = 1;
+    }
+}");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.IsSuppressedByComment(local, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_CaseInsensitive_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // SUPPRESS this
+        var x = 1;
+    }
+}");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.IsSuppressedByComment(local, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_FieldWithBlankLineAfterComment_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    // suppress
+
+    int x = 1;
+}");
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.IsSuppressedByComment(field, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_FieldWithNonMatchingFirstComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    // other
+    // suppress
+    int x = 1;
+}");
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            Assert.IsFalse(Core.IsSuppressedByComment(field, "// suppress"));
+        }
+
         // ===== UnwrapAllNullCoalesceOperation =====
 
         [TestMethod]
