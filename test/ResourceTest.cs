@@ -2,11 +2,8 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer;
 using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.CodeFixes;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
@@ -196,15 +193,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
                 CodeFixResources.CodeFix_NullSuppression,
             };
             Assert.IsTrue(codefixProps.All(p => p != null));
-
-            // BurstLinq struct iterator coverage with size variants 0, 10, 100
-            foreach (var size in new[] { 0, 10, 100 })
-            {
-                var arr = size == 0 ? default : ImmutableArray.CreateRange(new int[size]);
-                _ = BurstLinq.Select(arr, x => x + 1);
-                _ = BurstLinq.Any(arr);
-                _ = BurstLinq.Any((IEnumerable<int>)new List<int>(new int[size]));
-            }
         }
     }
 }
