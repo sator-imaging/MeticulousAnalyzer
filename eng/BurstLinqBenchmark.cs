@@ -14,20 +14,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using SatorImaging.StaticMemberAnalyzer;
 
 
-var config = ManualConfig.Create(DefaultConfig.Instance)
-    .AddJob(Job.ShortRun.WithToolchain(InProcessNoEmitToolchain.Instance));
-
-BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
+BenchmarkRunner.Run<BurstLinqBenchmarks>(args: args);
 
 
 [MemoryDiagnoser]
+[ShortRunJob(RuntimeMoniker.Net10_0)]
+[ShortRunJob(RuntimeMoniker.NetCoreApp31)]
 public class BurstLinqBenchmarks
 {
     [Params(100, 1000)]
