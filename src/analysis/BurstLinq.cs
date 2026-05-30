@@ -331,7 +331,7 @@ namespace SatorImaging.StaticMemberAnalyzer
             }
 
             var result = new TResult[source.Length];
-            for (int i = 0; i < source.Length; i++)
+            for (int i = 0; i < result.Length; i++)
             {
                 result[i] = static_lambda_select.Invoke(source[i]);
             }
