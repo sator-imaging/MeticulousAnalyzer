@@ -59,3 +59,22 @@ public static IEnumerable<T> Where<T>(this IEnumerable<T> source, ...)  // fallb
 | `Contains` | `IEnumerable<T>` | |
 | `SelectMany_FirstOrDefault` | `SyntaxList<T>` | Fused SelectMany+FirstOrDefault |
 
+
+## Benchmark
+
+`eng/BurstLinqBenchmark.cs` is a BenchmarkDotNet-based benchmark comparing BurstLinq extension methods against `System.Linq.Enumerable` equivalents.
+
+### How to Run
+
+Requires .NET 10 SDK (for file-based app support).
+
+```
+dotnet run eng/BurstLinqBenchmark.cs -c Release
+```
+
+### GitHub Actions
+
+```yaml
+- run: dotnet run eng/BurstLinqBenchmark.cs -c Release -- --exporters github
+- run: cat BenchmarkDotNet.Artifacts/results/*-report-github.md >> $GITHUB_STEP_SUMMARY
+```
