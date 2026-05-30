@@ -59,3 +59,28 @@ public static IEnumerable<T> Where<T>(this IEnumerable<T> source, ...)  // fallb
 | `Contains` | `IEnumerable<T>` | |
 | `SelectMany_FirstOrDefault` | `SyntaxList<T>` | Fused SelectMany+FirstOrDefault |
 
+
+## Benchmark
+
+`eng/BurstLinqBenchmark.cs` is a BenchmarkDotNet-based benchmark comparing BurstLinq-style manual iteration (for loops, direct array access, no allocations) against `System.Linq` equivalents.
+
+### How to Run
+
+Requires .NET 10 SDK (for file-based app support).
+
+```
+dotnet run eng/BurstLinqBenchmark.cs -c Release
+```
+
+### Scenarios
+
+| Benchmark | Description |
+|-----------|-------------|
+| `Any_BurstLinq` / `Any_SystemLinq` | `Any` with predicate on array |
+| `FirstOrDefault_BurstLinq` / `FirstOrDefault_SystemLinq` | `FirstOrDefault` with predicate on array |
+| `WhereCount_BurstLinq` / `WhereCount_SystemLinq` | `Where` + `Count` showing allocation difference |
+| `Contains_BurstLinq` / `Contains_SystemLinq` | `Contains` on array |
+| `SelectToArray_BurstLinq` / `SelectToArray_SystemLinq` | `Select` + `ToArray` on array |
+
+Collection sizes: 100, 1000 (via `[Params]`).
+
