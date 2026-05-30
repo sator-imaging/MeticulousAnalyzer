@@ -5,6 +5,7 @@
 #:property LangVersion=latest
 #:property PublishAot=false
 #:property ImplicitUsings=false
+#:property TargetFrameworks=net10.0;netcoreapp3.1
 
 #:package FUnit.Directives@*
 #warning funit include ../src/analysis/BurstLinq.cs
