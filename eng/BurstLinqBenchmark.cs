@@ -40,24 +40,24 @@ public class BurstLinqBenchmarks
     [Params(0, 10, 100)]
     public int Size;
 
-    ImmutableArray<int> _immArray;
-    IReadOnlyList<int> _roList = null!;
-    IEnumerable<int> _enumerable = null!;
+    ImmutableArray<double> _immArray;
+    IReadOnlyList<double> _roList = null!;
+    IEnumerable<double> _enumerable = null!;
     IEnumerable<object> _objEnumerable = null!;
 
     [GlobalSetup]
     public void Setup()
     {
-        var builder = ImmutableArray.CreateBuilder<int>(Size);
+        var builder = ImmutableArray.CreateBuilder<double>(Size);
         for (int i = 0; i < Size; i++)
-            builder.Add(i);
+            builder.Add((double)i);
         _immArray = builder.ToImmutable();
-        _roList = (IReadOnlyList<int>)_immArray;
-        _enumerable = (IEnumerable<int>)_immArray;
+        _roList = (IReadOnlyList<double>)_immArray;
+        _enumerable = (IEnumerable<double>)_immArray;
 
         var objBuilder = ImmutableArray.CreateBuilder<object>(Size);
         for (int i = 0; i < Size; i++)
-            objBuilder.Add(i);
+            objBuilder.Add((double)i);
         _objEnumerable = (IEnumerable<object>)objBuilder.ToImmutable();
     }
 
@@ -85,14 +85,14 @@ public class BurstLinqBenchmarks
     [Benchmark]
     public bool AnyPredicate_BurstLinq()
     {
-        return _immArray.Any(static x => x > 50);
+        return _immArray.Any(static x => x > 50.0);
     }
 
     [BenchmarkCategory("AnyPredicate")]
     [Benchmark(Baseline = true)]
     public bool AnyPredicate_SystemLinq()
     {
-        return System.Linq.Enumerable.Any(_immArray, static x => x > 50);
+        return System.Linq.Enumerable.Any(_immArray, static x => x > 50.0);
     }
 
 
@@ -100,14 +100,14 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("FirstOrDefault")]
     [Benchmark]
-    public int FirstOrDefault_BurstLinq()
+    public double FirstOrDefault_BurstLinq()
     {
         return _immArray.FirstOrDefault();
     }
 
     [BenchmarkCategory("FirstOrDefault")]
     [Benchmark(Baseline = true)]
-    public int FirstOrDefault_SystemLinq()
+    public double FirstOrDefault_SystemLinq()
     {
         return System.Linq.Enumerable.FirstOrDefault(_immArray);
     }
@@ -117,16 +117,16 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("FirstOrDefaultPredicate")]
     [Benchmark]
-    public int FirstOrDefaultPredicate_BurstLinq()
+    public double FirstOrDefaultPredicate_BurstLinq()
     {
-        return _immArray.FirstOrDefault(static x => x > 50);
+        return _immArray.FirstOrDefault(static x => x > 50.0);
     }
 
     [BenchmarkCategory("FirstOrDefaultPredicate")]
     [Benchmark(Baseline = true)]
-    public int FirstOrDefaultPredicate_SystemLinq()
+    public double FirstOrDefaultPredicate_SystemLinq()
     {
-        return System.Linq.Enumerable.FirstOrDefault(_immArray, static x => x > 50);
+        return System.Linq.Enumerable.FirstOrDefault(_immArray, static x => x > 50.0);
     }
 
 
@@ -137,7 +137,7 @@ public class BurstLinqBenchmarks
     public int WhereCount_BurstLinq()
     {
         int count = 0;
-        foreach (var _ in _roList.Where(static x => x % 2 == 0))
+        foreach (var _ in _roList.Where(static x => x % 2.0 == 0.0))
             count++;
         return count;
     }
@@ -147,7 +147,7 @@ public class BurstLinqBenchmarks
     public int WhereCount_SystemLinq()
     {
         return System.Linq.Enumerable.Count(
-            System.Linq.Enumerable.Where(_roList, static x => x % 2 == 0));
+            System.Linq.Enumerable.Where(_roList, static x => x % 2.0 == 0.0));
     }
 
 
@@ -157,7 +157,7 @@ public class BurstLinqBenchmarks
     [Benchmark]
     public bool WhereAny_BurstLinq()
     {
-        return _immArray.Where_Any(static x => x > 50);
+        return _immArray.Where_Any(static x => x > 50.0);
     }
 
     [BenchmarkCategory("WhereAny")]
@@ -165,7 +165,7 @@ public class BurstLinqBenchmarks
     public bool WhereAny_SystemLinq()
     {
         return System.Linq.Enumerable.Any(
-            System.Linq.Enumerable.Where(_immArray, static x => x > 50));
+            System.Linq.Enumerable.Where(_immArray, static x => x > 50.0));
     }
 
 
@@ -175,14 +175,14 @@ public class BurstLinqBenchmarks
     [Benchmark]
     public bool Contains_BurstLinq()
     {
-        return _enumerable.Contains(Size - 1);
+        return _enumerable.Contains((double)(Size - 1));
     }
 
     [BenchmarkCategory("Contains")]
     [Benchmark(Baseline = true)]
     public bool Contains_SystemLinq()
     {
-        return System.Linq.Enumerable.Contains(_enumerable, Size - 1);
+        return System.Linq.Enumerable.Contains(_enumerable, (double)(Size - 1));
     }
 
 
@@ -190,17 +190,17 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("SelectToArray")]
     [Benchmark]
-    public int[] SelectToArray_BurstLinq()
+    public double[] SelectToArray_BurstLinq()
     {
-        return _immArray.Select(static x => x * 2);
+        return _immArray.Select(static x => x * 2.0);
     }
 
     [BenchmarkCategory("SelectToArray")]
     [Benchmark(Baseline = true)]
-    public int[] SelectToArray_SystemLinq()
+    public double[] SelectToArray_SystemLinq()
     {
         return System.Linq.Enumerable.ToArray(
-            System.Linq.Enumerable.Select(_immArray, static x => x * 2));
+            System.Linq.Enumerable.Select(_immArray, static x => x * 2.0));
     }
 
 
@@ -208,14 +208,14 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("ElementAtOrDefault")]
     [Benchmark]
-    public int ElementAtOrDefault_BurstLinq()
+    public double ElementAtOrDefault_BurstLinq()
     {
         return _enumerable.ElementAtOrDefault(Size / 2);
     }
 
     [BenchmarkCategory("ElementAtOrDefault")]
     [Benchmark(Baseline = true)]
-    public int ElementAtOrDefault_SystemLinq()
+    public double ElementAtOrDefault_SystemLinq()
     {
         return System.Linq.Enumerable.ElementAtOrDefault(_enumerable, Size / 2);
     }
@@ -225,14 +225,14 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("ToArray")]
     [Benchmark]
-    public int[] ToArray_BurstLinq()
+    public double[] ToArray_BurstLinq()
     {
         return _enumerable.ToArray();
     }
 
     [BenchmarkCategory("ToArray")]
     [Benchmark(Baseline = true)]
-    public int[] ToArray_SystemLinq()
+    public double[] ToArray_SystemLinq()
     {
         return System.Linq.Enumerable.ToArray(_enumerable);
     }
@@ -245,7 +245,7 @@ public class BurstLinqBenchmarks
     public int OfType_BurstLinq()
     {
         int count = 0;
-        foreach (var _ in _objEnumerable.OfType<int>())
+        foreach (var _ in _objEnumerable.OfType<double>())
             count++;
         return count;
     }
@@ -254,7 +254,7 @@ public class BurstLinqBenchmarks
     [Benchmark(Baseline = true)]
     public int OfType_SystemLinq()
     {
-        return System.Linq.Enumerable.Count(System.Linq.Enumerable.OfType<int>(_objEnumerable));
+        return System.Linq.Enumerable.Count(System.Linq.Enumerable.OfType<double>(_objEnumerable));
     }
 
 
@@ -262,16 +262,16 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("OfType_FirstOrDefault")]
     [Benchmark]
-    public int OfType_FirstOrDefault_BurstLinq()
+    public double OfType_FirstOrDefault_BurstLinq()
     {
-        return _objEnumerable.OfType_FirstOrDefault<int>();
+        return _objEnumerable.OfType_FirstOrDefault<double>();
     }
 
     [BenchmarkCategory("OfType_FirstOrDefault")]
     [Benchmark(Baseline = true)]
-    public int OfType_FirstOrDefault_SystemLinq()
+    public double OfType_FirstOrDefault_SystemLinq()
     {
-        return System.Linq.Enumerable.FirstOrDefault(System.Linq.Enumerable.OfType<int>(_objEnumerable));
+        return System.Linq.Enumerable.FirstOrDefault(System.Linq.Enumerable.OfType<double>(_objEnumerable));
     }
 
 
@@ -281,14 +281,14 @@ public class BurstLinqBenchmarks
     [Benchmark]
     public bool OfType_Any_BurstLinq()
     {
-        return _objEnumerable.OfType_Any<int>();
+        return _objEnumerable.OfType_Any<double>();
     }
 
     [BenchmarkCategory("OfType_Any")]
     [Benchmark(Baseline = true)]
     public bool OfType_Any_SystemLinq()
     {
-        return System.Linq.Enumerable.Any(System.Linq.Enumerable.OfType<int>(_objEnumerable));
+        return System.Linq.Enumerable.Any(System.Linq.Enumerable.OfType<double>(_objEnumerable));
     }
 
 
@@ -296,18 +296,18 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("WhereFirstOrDefault")]
     [Benchmark]
-    public int WhereFirstOrDefault_BurstLinq()
+    public double WhereFirstOrDefault_BurstLinq()
     {
-        foreach (var item in _roList.Where(static x => x > 50))
+        foreach (var item in _roList.Where(static x => x > 50.0))
             return item;
         return default;
     }
 
     [BenchmarkCategory("WhereFirstOrDefault")]
     [Benchmark(Baseline = true)]
-    public int WhereFirstOrDefault_SystemLinq()
+    public double WhereFirstOrDefault_SystemLinq()
     {
         return System.Linq.Enumerable.FirstOrDefault(
-            System.Linq.Enumerable.Where(_roList, static x => x > 50));
+            System.Linq.Enumerable.Where(_roList, static x => x > 50.0));
     }
 }
