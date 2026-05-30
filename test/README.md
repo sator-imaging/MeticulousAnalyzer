@@ -11,7 +11,7 @@ This document is the authoritative guide for developers contributing tests to th
   ```bash
   dotnet test ./test -c <Configuration> --verbosity minimal -p:DontReferenceItself=true
   ```
-- **Configurations:** Tests are run in both `Debug` and `Release` configurations via the CI matrix
+- **Configurations:** `Debug` and `Release` (CI matrix)
 - **SDK:** .NET 10.x.x
 
 ## Test File and Class Naming Convention
@@ -71,13 +71,13 @@ Where `{Expectation}` is one of:
 
 ### Notes
 
-- **CodeFix** test covers both violation detection and codefix functionality. Use `CodeFix` rather than `Violation` as the expectation in those tests.
-- Analyzer configuration tests use `Config` as the expectation.
-- **DO NOT** combine multiple tests into one test method.
-- **BAD** naming examples (e.g., tests for suppression comment):
+- **CodeFix:** Covers both violation detection and codefix functionality. Use `CodeFix` rather than `Violation` as the expectation in those tests.
+- **Config:** Analyzer configuration tests use `Config` as the expectation.
+- **One scenario per method:** DO NOT combine multiple tests into one test method.
+- **BAD naming** (e.g., tests for suppression comment):
   - `SMA0000_Compliant_SuppressedByComment_SomeDescription`
   - `SMA0000_Violation_NotSuppressedByComment_SomeDescription`
-  - Reason: Both test the same subject but introduce a redundant "Not" prefix. The `Compliant`/`Violation` expectation already conveys that distinction.
+  - **Reason:** Both test the same subject but introduce a redundant "Not" prefix. The `Compliant`/`Violation` expectation already conveys that distinction.
 
 ## FixAllTest
 
@@ -97,15 +97,15 @@ FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 
 ### Code Structure
 
-- Refer to the reference files above for the code structure
-- Uses `SourceTemplate` and `FixedTemplate` as `const string` fields with format placeholders
-- Templates use `.ReplaceLineEndings()` for cross-platform support (line-ending aware tests)
-- Leading/trailing trivia **MUST** be included in FixAllTest templates (e.g., `/* Leading trivia */` and `// Trailing trivia`)
-- Test method name is: `{RuleId}_CodeFix_FixAllInSolution`
-- Tests use 3 source files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each (9 total)
-- Sets `NumberOfIncrementalIterations = 9`
-- Includes `TestState`, `FixedState`, and `BatchFixedState`
-- Source code comment **MUST** be copied to notify developers of the TODO
+- **Reference:** Refer to the reference files above for the code structure
+- **Template fields:** `SourceTemplate` and `FixedTemplate` as `const string` with format placeholders
+- **Cross-platform:** Templates use `.ReplaceLineEndings()` for line-ending aware tests
+- **Trivia:** Leading/trailing trivia **MUST** be included (e.g., `/* Leading trivia */` and `// Trailing trivia`)
+- **Method name:** `{RuleId}_CodeFix_FixAllInSolution`
+- **Source files:** 3 files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each (9 total)
+- **Iterations:** `NumberOfIncrementalIterations = 9`
+- **States:** `TestState`, `FixedState`, and `BatchFixedState`
+- **TODO comment:** Source code comment **MUST** be copied to notify developers of the limitation
 - **MUST** include the following TODO comment in the test method:
 
 ```csharp
@@ -121,24 +121,24 @@ FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 
 - **File naming:** `ConfigTest_{AnalyzerName}.cs`
 - **Examples:** `ConfigTest_DisposableAnalyzer.cs`, `ConfigTest_ReadOnlyVariableAnalyzer.cs`
-- Tests analyzer behavior with different configuration/options
+- **Purpose:** Tests analyzer behavior with different configuration/options
 
 ### CoreTest
 
 - **File:** `CoreTest.cs`
-- Unit tests for the `Core` utility class (helper methods used by analyzers)
-- Tests methods like `IsKnownImmutableType`, `GetMemberNamePrefix`, `SpanConcat`, `IsSuppressedByComment`, `UnwrapAllNullCoalesceOperation`
+- **Purpose:** Unit tests for the `Core` utility class (helper methods used by analyzers)
+- **Covered methods:** `IsKnownImmutableType`, `GetMemberNamePrefix`, `SpanConcat`, `IsSuppressedByComment`, `UnwrapAllNullCoalesceOperation`
 
 ### BurstLinqTests
 
 - **File:** `BurstLinqTests.cs`
-- Tests for custom LINQ-like extension methods used in the project (performance-optimized alternatives)
-- Covers: `ElementAtOrDefault`, `Where`, `OfType`, `Any`, `Contains`, `FirstOrDefault`, `ToArray`, etc.
+- **Purpose:** Tests for custom LINQ-like extension methods used in the project (performance-optimized alternatives)
+- **Covered methods:** `ElementAtOrDefault`, `Where`, `OfType`, `Any`, `Contains`, `FirstOrDefault`, `ToArray`, etc.
 
 ### ResourceStringTest
 
 - **File:** `ResourceStringTest.cs`
-- Validates all resource string properties are non-null (for test coverage of machine-generated properties)
+- **Purpose:** Validates all resource string properties are non-null (for test coverage of machine-generated properties)
 
 ## Verifiers
 
