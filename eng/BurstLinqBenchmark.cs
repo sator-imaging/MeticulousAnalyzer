@@ -21,7 +21,7 @@ using SatorImaging.StaticMemberAnalyzer;
 
 
 var config = ManualConfig.Create(DefaultConfig.Instance)
-    .AddJob(Job.Default.WithToolchain(InProcessNoEmitToolchain.Instance));
+    .AddJob(Job.ShortRun.WithToolchain(InProcessNoEmitToolchain.Instance));
 
 BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
 
