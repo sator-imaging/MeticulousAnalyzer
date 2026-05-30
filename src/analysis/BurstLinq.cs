@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE0130  // NOTE: No '.Analysis' namespace to use this in both Analyzer and Codefix
@@ -88,20 +89,25 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /* =====  Enumerator  ===== */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Linq_Where<T, ImmutableArray<T>> Where<T>(this ImmutableArray<T> source, Func<T, bool> static_lambda_where)
             => new(source, static_lambda_where);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Linq_Where<T, SyntaxList<T>> Where<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_where)
             where T : SyntaxNode
             => new(source, static_lambda_where);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Linq_Where<T, SeparatedSyntaxList<T>> Where<T>(this SeparatedSyntaxList<T> source, Func<T, bool> static_lambda_where)
             where T : SyntaxNode
             => new(source, static_lambda_where);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Linq_Where<T, IReadOnlyList<T>> Where<T>(this IReadOnlyList<T> source, Func<T, bool> static_lambda_where)
             => new(source, static_lambda_where);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> Where<T>(this IEnumerable<T> source, Func<T, bool> static_lambda_where)
             => System.Linq.Enumerable.Where(source, static_lambda_where);
 
@@ -210,6 +216,7 @@ namespace SatorImaging.StaticMemberAnalyzer
         /* =====  Enumerator  ===== */
 
         //public static IEnumerable<T> OfType<T>(this IEnumerable<object> source) => System.Linq.Enumerable.OfType<T>(source);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Linq_OfType<T> OfType<T>(this IEnumerable<object> source) => new(source);
 
         [StructLayout(LayoutKind.Auto)]
@@ -260,6 +267,7 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /* =====  Enumerator (+ Where)  ===== */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Linq_OfType_Where<ISymbol, ImmutableArray<ISymbol>, T> OfType_Where<T>(
             this ImmutableArray<ISymbol> source,
             Func<T, bool> static_lambda_where
@@ -349,6 +357,7 @@ namespace SatorImaging.StaticMemberAnalyzer
                 return Array.Empty<T>();
             }
 
+            /* NOTE: Custom impl is soooooo slow!!
             using var e = source.GetEnumerator();
 
             if (count < 0)
@@ -374,6 +383,9 @@ namespace SatorImaging.StaticMemberAnalyzer
                 result[i] = e.Current;
             }
             return result;
+            */
+
+            return System.Linq.Enumerable.ToArray(source);
         }
 
 
@@ -388,6 +400,7 @@ namespace SatorImaging.StaticMemberAnalyzer
             return default;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ImmutableArray<T> source)
         {
             return source.IsDefaultOrEmpty ? default : source[0];
@@ -432,6 +445,7 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /*  Any  ================================================================ */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<T>(this ImmutableArray<T> source)
         {
             return !source.IsDefaultOrEmpty;
