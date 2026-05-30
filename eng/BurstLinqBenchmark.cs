@@ -32,7 +32,7 @@ BenchmarkRunner.Run(typeof(BurstLinqBenchmarks).Assembly, config, args);
 
 
 [MemoryDiagnoser]
-[HideColumns(Column.Gen0, Column.Gen1)]
+[HideColumns(Column.Gen0, Column.Gen1, Column.Median, Column.Error)]
 [GroupBenchmarksBy(BenchmarkDotNet.Configs.BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
 public class BurstLinqBenchmarks
