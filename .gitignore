@@ -19,7 +19,6 @@ obj
 
 *.md
 !CHANGELOG.md
-!LINQ.md
 !README*.md
 !LICENSE.md
 !RULES.md
