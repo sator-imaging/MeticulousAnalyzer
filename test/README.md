@@ -22,7 +22,7 @@ This document is the authoritative guide for developers contributing tests to th
 {RuleId}_{AnalyzerOrCodeFixProviderName}Tests.cs
 ```
 
-Optionally, if the test file becomes large, a `{TestSubjectOrFeature}` suffix can be added:
+If the test file becomes large, add a `{TestSubjectOrFeature}` suffix:
 
 ```
 {RuleId}_{AnalyzerOrCodeFixProviderName}Tests_{TestSubjectOrFeature}.cs
@@ -40,7 +40,7 @@ Optionally, if the test file becomes large, a `{TestSubjectOrFeature}` suffix ca
 
 ### Important
 
-The `{TestSubjectOrFeature}` suffix **MUST NOT** be "NewTest", "Updated", or other meaningless, context-related, or user-instruction-related names. The suffix must be a persistent, descriptive identifier that clearly represents the feature or subject being tested.
+The `{TestSubjectOrFeature}` suffix **MUST NOT** be "NewTest", "Updated", or other meaningless, context-related, or user-instruction-related names. Use a persistent, descriptive identifier that clearly represents the feature or subject being tested.
 
 ## Test Method Naming Convention
 
@@ -71,13 +71,13 @@ Where `{Expectation}` is one of:
 
 ### Notes
 
-- **CodeFix:** Covers both violation detection and codefix functionality. Use `CodeFix` rather than `Violation` as the expectation in those tests.
-- **Config:** Analyzer configuration tests use `Config` as the expectation.
+- **CodeFix:** Covers both violation detection and codefix functionality. Use `CodeFix` rather than `Violation` as the expectation.
+- **Config:** Use `Config` as the expectation for analyzer configuration tests.
 - **One scenario per method:** DO NOT combine multiple tests into one test method.
 - **BAD naming** (e.g., tests for suppression comment):
   - `SMA0000_Compliant_SuppressedByComment_SomeDescription`
   - `SMA0000_Violation_NotSuppressedByComment_SomeDescription`
-  - **Reason:** Both test the same subject but introduce a redundant "Not" prefix. The `Compliant`/`Violation` expectation already conveys that distinction.
+  - **Reason:** The `Compliant`/`Violation` expectation already conveys the distinction. Do not add redundant prefixes like "Not" to the subject.
 
 ## FixAllTest
 
@@ -97,15 +97,15 @@ FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 
 ### Code Structure
 
-- **Reference:** Refer to the reference files above for the code structure
-- **Template fields:** `SourceTemplate` and `FixedTemplate` as `const string` with format placeholders
-- **Cross-platform:** Templates use `.ReplaceLineEndings()` for line-ending aware tests
-- **Trivia:** Leading/trailing trivia **MUST** be included (e.g., `/* Leading trivia */` and `// Trailing trivia`)
-- **Method name:** `{RuleId}_CodeFix_FixAllInSolution`
-- **Source files:** 3 files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each (9 total)
-- **Iterations:** `NumberOfIncrementalIterations = 9`
-- **States:** `TestState`, `FixedState`, and `BatchFixedState`
-- **TODO comment:** Source code comment **MUST** be copied to notify developers of the limitation
+- **Reference:** Refer to the reference files above for the code structure.
+- **Template fields:** Use `SourceTemplate` and `FixedTemplate` as `const string` fields with format placeholders.
+- **Cross-platform:** Use `.ReplaceLineEndings()` on templates for line-ending aware tests.
+- **Trivia:** Include leading/trailing trivia in templates (e.g., `/* Leading trivia */` and `// Trailing trivia`).
+- **Method name:** Use `{RuleId}_CodeFix_FixAllInSolution`.
+- **Source files:** Use 3 files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each (9 total).
+- **Iterations:** Set `NumberOfIncrementalIterations = 9`.
+- **States:** Include `TestState`, `FixedState`, and `BatchFixedState`.
+- **TODO comment:** Copy the source code comment below to notify developers of the limitation.
 - **MUST** include the following TODO comment in the test method:
 
 ```csharp
@@ -153,7 +153,7 @@ FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 
 ### Usage Pattern
 
-Type alias is declared at the top of the test file:
+Declare a type alias at the top of the test file:
 
 ```csharp
 // Analyzer-only test:
