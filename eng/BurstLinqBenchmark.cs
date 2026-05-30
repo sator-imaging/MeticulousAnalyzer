@@ -170,6 +170,24 @@ public class BurstLinqBenchmarks
     }
 
 
+    /*  Where.ToImmutableArray (ImmutableArray)  ================================================================ */
+
+    [BenchmarkCategory("WhereToImmutableArray")]
+    [Benchmark]
+    public ImmutableArray<double> WhereToImmutableArray_BurstLinq()
+    {
+        return _immArray.Where(static x => x > 50.0).ToImmutableArray();
+    }
+
+    [BenchmarkCategory("WhereToImmutableArray")]
+    [Benchmark(Baseline = true)]
+    public ImmutableArray<double> WhereToImmutableArray_SystemLinq()
+    {
+        return System.Linq.ImmutableArrayExtensions.ToImmutableArray(
+            System.Linq.Enumerable.Where(_immArray, static x => x > 50.0));
+    }
+
+
     /*  Contains  ================================================================ */
 
     [BenchmarkCategory("Contains")]
