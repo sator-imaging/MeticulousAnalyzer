@@ -119,5 +119,23 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA0026_Violation_EnumObfuscation_FlagsWithIncompleteObfuscation()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Flags]
+    [Obfuscation(Exclude = true)]
+    public enum {|#0:ETest|} { Value = 0, Other = 1 }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumObfuscation).WithLocation(markupKey: 0).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
     }
 }

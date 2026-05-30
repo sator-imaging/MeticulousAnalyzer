@@ -520,5 +520,56 @@ public class C
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA0021_Compliant_SwitchExpression_ArrayElementAssignment()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum ETest { Value, Other }
+public class C
+{
+    ETest[] EnumArray = new ETest[] { ETest.Value };
+    public void M(ETest value)
+    {
+        EnumArray[0] = value switch
+        {
+            ETest.Value => ETest.Value,
+            _ => throw new Exception(),
+        };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0021_Compliant_SwitchExpression_ListIndexerAssignment()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+[Obfuscation(Exclude = true, ApplyToMembers = true)]
+public enum ETest { Value, Other }
+public class C
+{
+    List<ETest> EnumList = new List<ETest> { ETest.Value };
+    public void M(ETest value)
+    {
+        EnumList[0] = value switch
+        {
+            ETest.Value => ETest.Value,
+            _ => throw new Exception(),
+        };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
