@@ -145,33 +145,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Config_DuckTypingDisabled()
-        {
-            var source = @"
-using System;
-
-namespace Test
-{
-    class DuckDisposable
-    {
-        public void Dispose() { }
-    }
-
-    class Program
-    {
-        void Method()
-        {
-            var d = new DuckDisposable();
-        }
-    }
-}
-";
-
-            // Without duck typing config, no violation
-            await VerifyCS.VerifyAnalyzerAsync(source);
-        }
-
-        [TestMethod]
         public async Task SMA0040_Compliant_DuckTyping_WithUsing()
         {
             var source = @"

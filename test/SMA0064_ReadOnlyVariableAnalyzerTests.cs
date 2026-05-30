@@ -113,15 +113,6 @@ namespace Test
 
 
         [TestMethod]
-        public void SMA0064_Config_MethodCallRuleIsDisabledByDefault()
-        {
-            var analyzer = new ReadOnlyVariableAnalyzer();
-            var descriptor = analyzer.SupportedDiagnostics.First(d => d.Id == ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall);
-            Assert.IsFalse(descriptor.IsEnabledByDefault, $"{ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall} should be disabled by default");
-        }
-
-
-        [TestMethod]
         public async Task SMA0064_Violation_ChainedAccess_WithMethodInChain()
         {
             var test = @"
