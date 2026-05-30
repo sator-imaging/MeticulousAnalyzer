@@ -60,6 +60,7 @@ jobs:
 
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
+                --logger "trx" \
                 --results-directory "$dir/$TEST_OUTPUT" \
                 || [ "$dir" == "BASE_BRANCH" ]  # Ignore error on main branch
             fi
@@ -93,7 +94,10 @@ jobs:
             LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
               | xargs -r wc -l \
               | awk '{sum += $1} END {print sum+0}')
-            TEST_COUNT=$(find . -name "coverage.cobertura.xml" -type f -exec grep -hoE '<method([[:space:]>])' {} + | wc -l)
+            TEST_COUNT=$(find "$target_dir" -name "*.trx" -exec grep -hoE 'total="[0-9]+"' {} + \
+              | sed -E 's/total="([0-9]+)"/\1/' \
+              | awk '{s+=$1} END {print s}'
+            )
 
             FILE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$FILE_COUNT")
             LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$LINE_COUNT")
