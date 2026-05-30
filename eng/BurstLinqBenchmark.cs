@@ -13,11 +13,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using SatorImaging.StaticMemberAnalyzer;
 
 
-BenchmarkRunner.Run<BurstLinqBenchmarks>(args: args);
+var config = ManualConfig.Create(DefaultConfig.Instance)
+    .AddJob(Job.Default.WithToolchain(InProcessNoEmitToolchain.Instance));
+
+BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
 
 
 [MemoryDiagnoser]
