@@ -173,5 +173,64 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA0027_Violation_UnusualEnum_ExplicitLargeValue_WithoutFlags()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest : {|#0:ulong|} { Value {|#1:= 10|}, Other {|#2:= 20|} }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 0);
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 1);
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA0027_Violation_UnusualEnum_TypeAlias()
+        {
+            var test = @"
+using System.Reflection;
+using ShortAlias = System.Int16;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest : {|#0:ShortAlias|} { Value }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0027_Violation_UnusualEnum_EnumMemberAttribute_ExplicitValue()
+        {
+            var test = @"
+using System.Reflection;
+using System.Runtime.Serialization;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest : int
+    {
+        Value {|#0:= 0|},
+
+        [EnumMember(Value = ""Name"")]
+        Other {|#1:= 1|},
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 0);
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_UnusualEnum).WithLocation(markupKey: 1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
     }
 }

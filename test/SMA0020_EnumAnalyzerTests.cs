@@ -919,5 +919,149 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA0020_Violation_CastToEnum_MethodArgCastFromAnotherEnum()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest2 { Value }
+    public class CTest
+    {
+        static ETest M(ETest value) => value;
+
+        public void Test()
+        {
+            var x = M({|#0:(ETest)ETest2.Value|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Violation_CastToEnum_NamedArgCastFromAnotherEnum()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest2 { Value }
+    public class CTest
+    {
+        static ETest M(string s, ETest value = {|#1:default|}) => value;
+
+        public void Test()
+        {
+            var x = M("""", value: {|#0:(ETest)ETest2.Value|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromEnum).WithLocation(markupKey: 0).WithArguments("ETest2");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Violation_CastToEnum_MultiParamMethodArgNew()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        static ETest M(string s, StringComparison comp = {|#3:default|}, ETest value = {|#2:default|}) => value;
+
+        public void Test()
+        {
+            var x = M("""", {|#0:new()|}, {|#1:new()|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("StringComparison");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 2).WithArguments("ETest");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 3).WithArguments("StringComparison");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Violation_CastToEnum_MultiParamMethodArgDefault()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        static ETest M(string s, StringComparison comp = {|#3:default|}, ETest value = {|#2:default|}) => value;
+
+        public void Test()
+        {
+            var x = M("""", {|#0:default|}, {|#1:default|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("StringComparison");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 2).WithArguments("ETest");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 3).WithArguments("StringComparison");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0020_Violation_CastToEnum_MultiParamMethodArgDefaultExpression()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        static ETest M(string s, StringComparison comp = {|#3:default|}, ETest value = {|#2:default|}) => value;
+
+        public void Test()
+        {
+            var x = M("""", {|#0:default(StringComparison)|}, {|#1:default(ETest)|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("StringComparison");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 1).WithArguments("ETest");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 2).WithArguments("ETest");
+            var expected3 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 3).WithArguments("StringComparison");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
     }
 }

@@ -385,5 +385,31 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA0024_Violation_InterpolatedString_ConcreteEnum_MultipleExpressions()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test(ETest value)
+        {
+            var x = $""value: {|#0:{value}|} {{|#1:value.ToString()|}} {|#2:{(((value)))}|}"";
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("ETest");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 1).WithArguments("ETest");
+            var expected2 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 2).WithArguments("ETest");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
     }
 }

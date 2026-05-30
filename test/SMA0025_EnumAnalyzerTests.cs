@@ -254,5 +254,29 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+        [TestMethod]
+        public async Task SMA0024_Violation_EnumGetName()
+        {
+            var test = @"
+using System;
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            var x = {|#0:Enum.GetName(typeof(ETest), ETest.Value)|};
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumToString).WithLocation(markupKey: 0).WithArguments("Enum");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
     }
 }
