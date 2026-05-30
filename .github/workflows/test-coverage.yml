@@ -21,15 +21,28 @@ jobs:
       - name: Checkout ACTION_BRANCH (PR or event target branch)
         uses: actions/checkout@v6
         with:
+          fetch-depth: 0  # Required for worktree
           path: ACTION_BRANCH
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
-      - name: Checkout MAIN_BRANCH (main branch)
-        uses: actions/checkout@v6
-        with:
-          path: MAIN_BRANCH
-          ref: main
+      - name: Create merge-base worktree
         if: github.event_name == 'pull_request'
+        working-directory: ACTION_BRANCH
+        run: |
+          set -euo pipefail
+
+          BASE_REF=${{ github.event.pull_request.base.ref }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          git fetch origin "$BASE_REF"
+
+          MERGE_BASE=$(git merge-base \
+            "origin/$BASE_REF" \
+            "$HEAD_SHA")
+
+          echo "MERGE_BASE=$MERGE_BASE"
+
+          git worktree add ../BASE_BRANCH $MERGE_BASE
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -39,8 +52,8 @@ jobs:
         run: |
           set -e
 
-          # Create MAIN_BRANCH report first
-          for dir in MAIN_BRANCH ACTION_BRANCH; do
+          # Create BASE_BRANCH report first
+          for dir in BASE_BRANCH ACTION_BRANCH; do
             if [ -d "$dir" ]; then
               dotnet restore "$dir/$TEST_PROJECT"
               dotnet add "$dir/$TEST_PROJECT" package coverlet.collector
@@ -48,7 +61,7 @@ jobs:
               dotnet test "$dir/$TEST_PROJECT" \
                 --collect:"XPlat Code Coverage" \
                 --results-directory "$dir/$TEST_OUTPUT" \
-                || [ "$dir" == "MAIN_BRANCH" ]  # Ignore error on main branch
+                || [ "$dir" == "BASE_BRANCH" ]  # Ignore error on main branch
             fi
           done
 
@@ -56,6 +69,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install ripgrep
+          dotnet tool install -g dotnet-reportgenerator-globaltool
 
           generate_report () {
             local target_dir="$1"
@@ -77,18 +91,18 @@ jobs:
 
             FILE_COUNT=$(rg --files "$target_dir" -g '*.cs' | wc -l | tr -d ' ')
             LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
-                | xargs wc -l \
-                | awk '{sum += $1} END {print sum}')
+              | xargs -r wc -l \
+              | awk '{sum += $1} END {print sum+0}')
 
             FILE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$FILE_COUNT")
             LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$LINE_COUNT")
 
             {
-            sed \
-              -e 's/<details open>/<details>/g' \
-              -e 's|- \([0-9.]+%\)</summary>|- <b>\1</b></summary>|g' \
-              -e "s/^# Summary$/# 📊 $title/" \
-              "$out_dir/SummaryGithub.md"
+              sed \
+                -e 's/<details open>/<details>/g' \
+                -e 's|- \([0-9.]+%\)</summary>|- <b>\1</b></summary>|g' \
+                -e "s/^# Summary$/# 📊 $title/" \
+                "$out_dir/SummaryGithub.md"
 
               echo
               echo "Total file count: $FILE_COUNT  "
@@ -97,19 +111,19 @@ jobs:
             } >> "$GITHUB_STEP_SUMMARY"
           }
 
-          dotnet tool install -g dotnet-reportgenerator-globaltool
+          COV_BRANCH=BASE_BRANCH
+          COV_TITLE="Base Coverage"
 
-          TOTAL_COV_BRANCH=MAIN_BRANCH
-
-          if [ -d "MAIN_BRANCH/$TEST_OUTPUT" ]; then
-            generate_report ACTION_BRANCH "$REPORT_OUTPUT/diff" "PR Changes" \
-              "MAIN_BRANCH/$TEST_OUTPUT"
+          if [ -d "BASE_BRANCH/$TEST_OUTPUT" ]; then
+            generate_report ACTION_BRANCH "$REPORT_OUTPUT/diff" "PR Coverage" \
+              "BASE_BRANCH/$TEST_OUTPUT"
           else
-            TOTAL_COV_BRANCH=ACTION_BRANCH
+            COV_BRANCH=ACTION_BRANCH
+            COV_TITLE="Total Coverage"
             {
               echo "⚠ Baseline test for coverage diff generation was failed or skipped."
               echo
             } >> $GITHUB_STEP_SUMMARY
           fi
 
-          generate_report "$TOTAL_COV_BRANCH" "$REPORT_OUTPUT/full" "Total Coverage" ""
+          generate_report "$COV_BRANCH" "$REPORT_OUTPUT/full" "$COV_TITLE" ""
