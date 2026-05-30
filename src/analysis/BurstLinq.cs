@@ -321,6 +321,24 @@ namespace SatorImaging.StaticMemberAnalyzer
         }
 
 
+        /*  Select  ================================================================ */
+
+        public static TResult[] Select<TSource, TResult>(this ImmutableArray<TSource> source, Func<TSource, TResult> static_lambda_select)
+        {
+            if (source.IsDefaultOrEmpty)
+            {
+                return Array.Empty<TResult>();
+            }
+
+            var result = new TResult[source.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = static_lambda_select.Invoke(source[i]);
+            }
+            return result;
+        }
+
+
         /*  ToArray  ================================================================ */
 
         public static T[] ToArray<T>(this IEnumerable<T> source)
@@ -413,6 +431,22 @@ namespace SatorImaging.StaticMemberAnalyzer
 
 
         /*  Any  ================================================================ */
+
+        public static bool Any<T>(this ImmutableArray<T> source)
+        {
+            return !source.IsDefaultOrEmpty;
+        }
+
+        public static bool Any<T>(this IEnumerable<T> source)
+        {
+            if (source is IReadOnlyCollection<T> roc)
+            {
+                return roc.Count > 0;
+            }
+
+            using var e = source.GetEnumerator();
+            return e.MoveNext();
+        }
 
         public static bool Any<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_any) where T : SyntaxNode
         {
