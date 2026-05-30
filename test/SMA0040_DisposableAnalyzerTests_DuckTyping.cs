@@ -145,7 +145,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Compliant_DuckTyping_Disabled()
+        public async Task SMA0040_Config_DuckTypingDisabled()
         {
             var source = @"
 using System;
