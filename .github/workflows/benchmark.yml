@@ -21,8 +21,8 @@ jobs:
             10.x.x
             5.x.x
 
-      - run: dotnet run eng/BurstLinqBenchmark.cs -c Release -f net10.0 -- --exporters github
+      - run: dotnet run eng/BurstLinqBenchmark.cs -c Release -f net5.0 -- --exporters github
       - run: cat BenchmarkDotNet.Artifacts/results/*-report-github.md >> $GITHUB_STEP_SUMMARY
 
-      - run: find BenchmarkDotNet.Artifacts/results -name "*-report-github.md" -type f | sort | xargs cat >> $GITHUB_STEP_SUMMARY
+      - run: dotnet run eng/BurstLinqBenchmark.cs -c Release -f net10.0 -- --exporters github
       - run: cat BenchmarkDotNet.Artifacts/results/*-report-github.md >> $GITHUB_STEP_SUMMARY
