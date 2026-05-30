@@ -111,9 +111,9 @@ jobs:
                 "$out_dir/SummaryGithub.md"
 
               echo
-              echo "- Total test count: $TEST_COUNT"
-              echo "- Total file count: $FILE_COUNT"
-              echo "- Total line count: $LINE_COUNT"
+              echo "🧪 Total test count: $TEST_COUNT  "
+              echo "🗃️ Total file count: $FILE_COUNT  "
+              echo "📑 Total line count: $LINE_COUNT  "
               echo
             } >> "$GITHUB_STEP_SUMMARY"
           }
