@@ -129,5 +129,5 @@ jobs:
           generate_report "$COV_BRANCH" "$REPORT_OUTPUT/full" "$COV_TITLE" ""
 
           echo "================================"
-          cat **/coverage.cobertura.xml
+          find . -name "coverage.cobertura.xml" -type f -exec cat {} +
           echo "================================"
