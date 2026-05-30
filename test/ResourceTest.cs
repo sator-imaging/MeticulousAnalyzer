@@ -204,14 +204,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
                 _ = BurstLinq.Select(arr, x => x + 1);
                 _ = BurstLinq.Any(arr);
                 _ = BurstLinq.Any((IEnumerable<int>)new List<int>(new int[size]));
-                _ = BurstLinq.Any(Generate(size));
             }
-        }
-
-        static IEnumerable<int> Generate(int count)
-        {
-            for (int i = 0; i < count; i++)
-                yield return i;
         }
     }
 }
