@@ -84,7 +84,7 @@ jobs:
             fi
 
             echo "================================"
-            cat "$target_dir/$TEST_OUTPUT/**/coverage.cobertura.xml"
+            cat "$target_dir/$TEST_OUTPUT"/**/coverage.cobertura.xml
             echo "================================"
 
             reportgenerator \
