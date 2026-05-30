@@ -11,13 +11,24 @@ on:
 
 jobs:
 
-  test:
+  benchmark:
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        dotnet-version: [ '5', '10' ]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5      # v4.3.1
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
         with:
-          dotnet-version: 10.x.x
+          dotnet-version: ${{ matrix.dotnet-version }}.x.x
 
-      - run: dotnet run eng/BurstLinqBenchmark.cs -c Release -- --exporters github
-      - run: cat BenchmarkDotNet.Artifacts/results/*-report-github.md >> $GITHUB_STEP_SUMMARY
+      - run: |
+          dotnet run eng/BurstLinqBenchmark.cs \
+            -c Release \
+            -f net${{ matrix.dotnet-version }}.0 -- \
+            --exporters github
+
+          cat BenchmarkDotNet.Artifacts/results/*-report-github.md >> $GITHUB_STEP_SUMMARY
