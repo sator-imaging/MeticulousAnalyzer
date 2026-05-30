@@ -119,7 +119,7 @@ jobs:
           }
 
           COV_BRANCH=BASE_BRANCH
-          COV_TITLE="Base Coverage"
+          COV_TITLE="Base Commit Coverage"
 
           if [ -d "BASE_BRANCH/$TEST_OUTPUT" ]; then
             generate_report ACTION_BRANCH "$REPORT_OUTPUT/diff" "PR Coverage" \
