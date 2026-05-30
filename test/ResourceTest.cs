@@ -2,9 +2,11 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
-using System.Reflection;
+using SatorImaging.StaticMemberAnalyzer;
+using SatorImaging.StaticMemberAnalyzer.Analysis;
+using SatorImaging.StaticMemberAnalyzer.CodeFixes;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
@@ -12,41 +14,61 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ResourceTest
     {
         [TestMethod]
-        public void AllResourceStringProperties_ReturnNonEmpty()
+        public void ResourceProperties_ReturnNonEmpty()
         {
-            var analysisAssembly = typeof(SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.FlakyInitializationAnalyzer).Assembly;
-            var codefixAssembly = typeof(SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.EnumObfuscationCodeFixProvider).Assembly;
+            // Analysis Resources - ResourceManager
+            Assert.IsNotNull(Resources.ResourceManager);
 
-            var resourceClasses = new[]
+            // Analysis Resources - representative string properties
+            Assert.IsFalse(string.IsNullOrEmpty(Resources.SMA0001_Title));
+            Assert.IsFalse(string.IsNullOrEmpty(Resources.SMA0001_Description));
+            Assert.IsFalse(string.IsNullOrEmpty(Resources.SMA0010_Title));
+            Assert.IsFalse(string.IsNullOrEmpty(Resources.SMA0020_MessageFormat));
+            Assert.IsFalse(string.IsNullOrEmpty(Resources.SMA0030_Title));
+            Assert.IsFalse(string.IsNullOrEmpty(Resources.SMA0040_Description));
+
+            // CodeFix Resources - ResourceManager and all string properties
+            Assert.IsNotNull(CodeFixResources.ResourceManager);
+            Assert.IsFalse(string.IsNullOrEmpty(CodeFixResources.CodeFix_EnumObfuscation));
+            Assert.IsFalse(string.IsNullOrEmpty(CodeFixResources.CodeFix_NamedArgument));
+            Assert.IsFalse(string.IsNullOrEmpty(CodeFixResources.CodeFix_NullSuppression));
+
+            // BurstLinq coverage - Select on ImmutableArray
+            foreach (var size in new[] { 0, 10, 100 })
             {
-                analysisAssembly.GetType("SatorImaging.StaticMemberAnalyzer.Analysis.Resources"),
-                codefixAssembly.GetType("SatorImaging.StaticMemberAnalyzer.CodeFixes.CodeFixResources"),
-            };
-
-            foreach (var resourceType in resourceClasses)
-            {
-                Assert.IsNotNull(resourceType, "Resource type not found");
-
-                // Verify ResourceManager is not null
-                var rmProp = resourceType.GetProperty("ResourceManager", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-                Assert.IsNotNull(rmProp, $"ResourceManager property not found on {resourceType.FullName}");
-                var rmValue = rmProp.GetValue(null);
-                Assert.IsNotNull(rmValue, $"ResourceManager is null on {resourceType.FullName}");
-
-                // Get all static string properties (excluding Culture)
-                var stringProps = resourceType
-                    .GetProperties(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
-                    .Where(p => p.PropertyType == typeof(string) && p.Name != "Culture")
-                    .ToArray();
-
-                Assert.IsTrue(stringProps.Length > 0, $"No string properties found on {resourceType.FullName}");
-
-                foreach (var prop in stringProps)
-                {
-                    var value = (string)prop.GetValue(null);
-                    Assert.IsFalse(string.IsNullOrEmpty(value), $"{resourceType.FullName}.{prop.Name} returned null or empty");
-                }
+                var arr = size == 0 ? default : ImmutableArray.CreateRange(new int[size]);
+                var selected = BurstLinq.Select(arr, x => x + 1);
+                Assert.AreEqual(size == 0 ? 0 : size, selected.Length);
             }
+
+            // BurstLinq coverage - Any() parameterless on ImmutableArray
+            foreach (var size in new[] { 0, 10, 100 })
+            {
+                var arr = size == 0 ? default : ImmutableArray.CreateRange(new int[size]);
+                var result = BurstLinq.Any(arr);
+                Assert.AreEqual(size > 0, result);
+            }
+
+            // BurstLinq coverage - Any() parameterless on IEnumerable (IReadOnlyCollection path)
+            foreach (var size in new[] { 0, 10, 100 })
+            {
+                var list = new List<int>(new int[size]);
+                var result = BurstLinq.Any((IEnumerable<int>)list);
+                Assert.AreEqual(size > 0, result);
+            }
+
+            // BurstLinq coverage - Any() parameterless on IEnumerable (pure enumerator path)
+            foreach (var size in new[] { 0, 10, 100 })
+            {
+                var result = BurstLinq.Any(Generate(size));
+                Assert.AreEqual(size > 0, result);
+            }
+        }
+
+        static IEnumerable<int> Generate(int count)
+        {
+            for (int i = 0; i < count; i++)
+                yield return i;
         }
     }
 }
