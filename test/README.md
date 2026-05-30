@@ -8,7 +8,7 @@ This document defines the naming conventions, file structure, and patterns for t
 |------|-------|
 | Framework | MSTest (`Microsoft.VisualStudio.TestTools.UnitTesting`) |
 | Project | `SatorImaging.StaticMemberAnalyzer.Test.csproj` |
-| CI Configuration | `.github/workflows/test.yml` |
+| CI Configuration | [`.github/workflows/test.yml`](../.github/workflows/test.yml) |
 | SDK | .NET 10.x.x |
 | Configurations | `Debug`, `Release` (matrix) |
 
@@ -26,11 +26,13 @@ dotnet test ./test -c <Configuration> --verbosity minimal -p:DontReferenceItself
 {RuleId}_{AnalyzerOrCodeFixProviderName}Tests.cs
 ```
 
-When a test file becomes large, split by adding a `{TestSubjectOrFeature}` suffix:
+### Format (with feature suffix)
 
 ```
 {RuleId}_{AnalyzerOrCodeFixProviderName}Tests_{TestSubjectOrFeature}.cs
 ```
+
+This format is used when a test file becomes large and needs to be split by feature.
 
 ### Examples
 
@@ -46,9 +48,8 @@ When a test file becomes large, split by adding a `{TestSubjectOrFeature}` suffi
 
 ### Suffix Requirements
 
-The `{TestSubjectOrFeature}` suffix **MUST** be a persistent, descriptive identifier of the feature or subject under test.
-
-The following suffix names are **prohibited**: "NewTest", "Updated", or any other meaningless, context-related, or user-instruction-derived names.
+1. The `{TestSubjectOrFeature}` suffix **MUST** be a persistent, descriptive identifier of the feature or subject under test.
+2. The following suffix names are **prohibited**: "NewTest", "Updated", or any other meaningless, context-related, or user-instruction-derived names.
 
 ## Test Method Naming
 
@@ -88,14 +89,10 @@ The following suffix names are **prohibited**: "NewTest", "Updated", or any othe
 
 ### Prohibited Naming Pattern
 
-When testing the same subject for both positive and negative cases, the expectation value alone distinguishes them:
-
-| Prohibited | Correct |
-|------------|---------|
-| `SMA0000_Compliant_SuppressedByComment_Desc` | `SMA0000_Compliant_SuppressionComment_Desc` |
-| `SMA0000_Violation_NotSuppressedByComment_Desc` | `SMA0000_Violation_SuppressionComment_Desc` |
-
-Reason: The `Compliant`/`Violation` expectation already conveys whether the subject was suppressed or not. Adding "Not" or "Suppressed" as a prefix to the subject introduces redundancy.
+| Prohibited | Correct | Reason |
+|------------|---------|--------|
+| `SMA0000_Compliant_SuppressedByComment_Desc` | `SMA0000_Compliant_SuppressionComment_Desc` | `Compliant` already implies "suppressed" |
+| `SMA0000_Violation_NotSuppressedByComment_Desc` | `SMA0000_Violation_SuppressionComment_Desc` | `Violation` already implies "not suppressed" |
 
 ## FixAllTest
 
@@ -107,11 +104,15 @@ FixAllTest_{RuleId}_{CodeFixProviderName}.cs
 
 ### Reference Files
 
-- `FixAllTest_SMA0026_EnumObfuscationCodeFixProvider.cs`
-- `FixAllTest_SMA7000_LambdaStaticCodeFixProvider.cs`
-- `FixAllTest_SMA7001_LambdaStaticCodeFixProvider.cs`
-- `FixAllTest_SMA8000_NamedArgumentCodeFixProvider.cs`
-- `FixAllTest_SMA8002_NullSuppressionCodeFixProvider.cs`
+| File | Description |
+|------|-------------|
+| `FixAllTest_SMA0026_EnumObfuscationCodeFixProvider.cs` | Enum obfuscation code fix |
+| `FixAllTest_SMA7000_LambdaStaticCodeFixProvider.cs` | Lambda static code fix |
+| `FixAllTest_SMA7001_LambdaStaticCodeFixProvider.cs` | Lambda static code fix (variant) |
+| `FixAllTest_SMA8000_NamedArgumentCodeFixProvider.cs` | Named argument code fix |
+| `FixAllTest_SMA8002_NullSuppressionCodeFixProvider.cs` | Null suppression code fix |
+
+These files serve as the reference implementation. Refer to them for code structure when creating new FixAllTest files.
 
 ### Structure Requirements
 
@@ -127,7 +128,7 @@ FixAllTest_{RuleId}_{CodeFixProviderName}.cs
 
 ### Required TODO Comment
 
-Every FixAllTest method **MUST** include the following comment:
+Every FixAllTest method **MUST** include the following source code comment to notify developers of the current limitation:
 
 ```csharp
 // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
@@ -171,7 +172,11 @@ Every FixAllTest method **MUST** include the following comment:
 
 ## Verifiers
 
-Located in `test/Verifiers/`:
+### Location
+
+`test/Verifiers/`
+
+### Available Verifiers
 
 | Verifier | Purpose |
 |----------|---------|
@@ -182,7 +187,7 @@ Located in `test/Verifiers/`:
 
 ### Usage Pattern
 
-Declare a type alias at the top of the test file:
+Type alias declaration at the top of the test file:
 
 ```csharp
 // Analyzer-only test:
