@@ -8,6 +8,8 @@ using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
+    // NOTE: This test is for adjusting test coverage numbers.
+    //       Don't need to check machine-generated properties preciously.
     [TestClass]
     public class ResourceTest
     {
