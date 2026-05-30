@@ -1550,7 +1550,7 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA0060_Compliant_Rule()
+        public async Task SMA0060_Config_RuleSuppression()
         {
             var test = @"
 namespace Test
