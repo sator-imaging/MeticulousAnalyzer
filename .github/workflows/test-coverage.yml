@@ -93,9 +93,11 @@ jobs:
             LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
               | xargs -r wc -l \
               | awk '{sum += $1} END {print sum+0}')
+            TEST_COUNT=$(find . -name "coverage.cobertura.xml" -type f -exec grep -hoE '<method([[:space:]>])' {} + | wc -l)
 
             FILE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$FILE_COUNT")
             LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$LINE_COUNT")
+            TEST_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$TEST_COUNT")
 
             {
               sed \
@@ -105,6 +107,7 @@ jobs:
                 "$out_dir/SummaryGithub.md"
 
               echo
+              echo "Total test count: $TEST_COUNT  "
               echo "Total file count: $FILE_COUNT  "
               echo "Total line count: $LINE_COUNT"
               echo
@@ -127,7 +130,3 @@ jobs:
           fi
 
           generate_report "$COV_BRANCH" "$REPORT_OUTPUT/full" "$COV_TITLE" ""
-
-          echo "================================"
-          find . -name "coverage.cobertura.xml" -type f -exec cat {} +
-          echo "================================"
