@@ -1,13 +1,16 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
-#:property LangVersion=latest
-
 #:package BenchmarkDotNet@0.15.8
+#:property LangVersion=latest
+#:property PublishAot=false
+#:property ImplicitUsings=false
+
+#:package FUnit.Directives@*
+#warning funit include ../src/analysis/BurstLinq.cs
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
