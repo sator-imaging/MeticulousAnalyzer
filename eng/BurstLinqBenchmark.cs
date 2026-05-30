@@ -5,7 +5,6 @@
 #:property LangVersion=latest
 #:property PublishAot=false
 #:property ImplicitUsings=false
-#:property TargetFrameworks=net10.0;netcoreapp3.1
 
 #:package FUnit.Directives@*
 #warning funit include ../src/analysis/BurstLinq.cs
@@ -14,17 +13,22 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using SatorImaging.StaticMemberAnalyzer;
 
 
-BenchmarkRunner.Run<BurstLinqBenchmarks>(args: args);
+var config = ManualConfig.Create(DefaultConfig.Instance)
+    .AddJob(Job.ShortRun
+        .WithToolchain(InProcessNoEmitToolchain.Instance)
+        .WithId("net10.0"));
+
+BenchmarkRunner.Run<BurstLinqBenchmarks>(config, args: args);
 
 
 [MemoryDiagnoser]
-[ShortRunJob(RuntimeMoniker.Net10_0)]
-[ShortRunJob(RuntimeMoniker.NetCoreApp31)]
 public class BurstLinqBenchmarks
 {
     [Params(100, 1000)]
