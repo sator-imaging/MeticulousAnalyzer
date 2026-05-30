@@ -32,17 +32,18 @@ BenchmarkRunner.Run(typeof(BurstLinqBenchmarks).Assembly, config, args);
 
 
 [MemoryDiagnoser]
-[HideColumns(Column.Gen0, Column.Gen1, Column.Median, Column.Error)]
+[HideColumns(Column.Gen0, Column.Gen1, Column.Median, Column.Error, Column.RatioSD)]
 [GroupBenchmarksBy(BenchmarkDotNet.Configs.BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
 public class BurstLinqBenchmarks
 {
-    [Params(100, 1000)]
+    [Params(0, 10, 100)]
     public int Size;
 
     ImmutableArray<int> _immArray;
     IReadOnlyList<int> _roList = null!;
     IEnumerable<int> _enumerable = null!;
+    IEnumerable<object> _objEnumerable = null!;
 
     [GlobalSetup]
     public void Setup()
@@ -53,6 +54,11 @@ public class BurstLinqBenchmarks
         _immArray = builder.ToImmutable();
         _roList = (IReadOnlyList<int>)_immArray;
         _enumerable = (IEnumerable<int>)_immArray;
+
+        var objBuilder = ImmutableArray.CreateBuilder<object>(Size);
+        for (int i = 0; i < Size; i++)
+            objBuilder.Add(i);
+        _objEnumerable = (IEnumerable<object>)objBuilder.ToImmutable();
     }
 
 
@@ -229,5 +235,79 @@ public class BurstLinqBenchmarks
     public int[] ToArray_SystemLinq()
     {
         return System.Linq.Enumerable.ToArray(_enumerable);
+    }
+
+
+    /*  OfType (struct iterator)  ================================================================ */
+
+    [BenchmarkCategory("OfType")]
+    [Benchmark]
+    public int OfType_BurstLinq()
+    {
+        int count = 0;
+        foreach (var _ in _objEnumerable.OfType<int>())
+            count++;
+        return count;
+    }
+
+    [BenchmarkCategory("OfType")]
+    [Benchmark(Baseline = true)]
+    public int OfType_SystemLinq()
+    {
+        return System.Linq.Enumerable.Count(System.Linq.Enumerable.OfType<int>(_objEnumerable));
+    }
+
+
+    /*  OfType_FirstOrDefault (fused)  ================================================================ */
+
+    [BenchmarkCategory("OfType_FirstOrDefault")]
+    [Benchmark]
+    public int OfType_FirstOrDefault_BurstLinq()
+    {
+        return _objEnumerable.OfType_FirstOrDefault<int>();
+    }
+
+    [BenchmarkCategory("OfType_FirstOrDefault")]
+    [Benchmark(Baseline = true)]
+    public int OfType_FirstOrDefault_SystemLinq()
+    {
+        return System.Linq.Enumerable.FirstOrDefault(System.Linq.Enumerable.OfType<int>(_objEnumerable));
+    }
+
+
+    /*  OfType_Any (fused)  ================================================================ */
+
+    [BenchmarkCategory("OfType_Any")]
+    [Benchmark]
+    public bool OfType_Any_BurstLinq()
+    {
+        return _objEnumerable.OfType_Any<int>();
+    }
+
+    [BenchmarkCategory("OfType_Any")]
+    [Benchmark(Baseline = true)]
+    public bool OfType_Any_SystemLinq()
+    {
+        return System.Linq.Enumerable.Any(System.Linq.Enumerable.OfType<int>(_objEnumerable));
+    }
+
+
+    /*  Where + FirstOrDefault (struct iterator)  ================================================================ */
+
+    [BenchmarkCategory("WhereFirstOrDefault")]
+    [Benchmark]
+    public int WhereFirstOrDefault_BurstLinq()
+    {
+        foreach (var item in _roList.Where(static x => x > 50))
+            return item;
+        return default;
+    }
+
+    [BenchmarkCategory("WhereFirstOrDefault")]
+    [Benchmark(Baseline = true)]
+    public int WhereFirstOrDefault_SystemLinq()
+    {
+        return System.Linq.Enumerable.FirstOrDefault(
+            System.Linq.Enumerable.Where(_roList, static x => x > 50));
     }
 }
