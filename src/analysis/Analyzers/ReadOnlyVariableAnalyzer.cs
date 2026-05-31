@@ -23,7 +23,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public const string RuleId_ReadOnlyLocal = "SMA0060";
         public const string RuleId_ReadOnlyParameter = "SMA0061";
         public const string RuleId_ReadOnlyArgument = "SMA0062";
-        public const string RuleId_ReadOnlyPropertyArgument = "SMA0063";
+        public const string RuleId_PropertyAccessCanChangeState = "SMA0063";
         public const string RuleId_ReadOnlyMethodCall = "SMA0064";
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyLocal = new(
@@ -54,7 +54,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Description", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_PropertyAccessCanChangeState = new(
-            RuleId_ReadOnlyPropertyArgument,
+            RuleId_PropertyAccessCanChangeState,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_MessageFormat", Resources.ResourceManager, typeof(Resources)),
             Core.Category,

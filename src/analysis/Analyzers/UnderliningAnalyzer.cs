@@ -32,9 +32,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     {
         #region     /* =      DESCRIPTOR      = */
 
-        public const string RuleId_SymbolDesc = "SMA9000";
-        private static readonly DiagnosticDescriptor Rule_SymbolDesc = new(
-            RuleId_SymbolDesc,
+        public const string RuleId_UnderlineIdentifierSymbol = "SMA9000";
+        private static readonly DiagnosticDescriptor Rule_UnderlineIdentifierSymbol = new(
+            RuleId_UnderlineIdentifierSymbol,
             new LocalizableResourceString(nameof(Resources.SMA9000_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9000_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -42,9 +42,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9000_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_LocalVarDesc = "SMA9001";
-        private static readonly DiagnosticDescriptor Rule_LocalVarDesc = new(
-            RuleId_LocalVarDesc,
+        public const string RuleId_UnderlineLocalVar = "SMA9001";
+        private static readonly DiagnosticDescriptor Rule_UnderlineLocalVar = new(
+            RuleId_UnderlineLocalVar,
             new LocalizableResourceString(nameof(Resources.SMA9001_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9001_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -52,9 +52,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9001_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_ParameterDesc = "SMA9002";
-        private static readonly DiagnosticDescriptor Rule_ParameterDesc = new(
-            RuleId_ParameterDesc,
+        public const string RuleId_UnderlineParameter = "SMA9002";
+        private static readonly DiagnosticDescriptor Rule_UnderlineParameter = new(
+            RuleId_UnderlineParameter,
             new LocalizableResourceString(nameof(Resources.SMA9002_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9002_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -62,9 +62,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9002_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_DeclarationDesc = "SMA9010";
-        private static readonly DiagnosticDescriptor Rule_DeclarationDesc = new(
-            RuleId_DeclarationDesc,
+        public const string RuleId_UnderlineDeclaration = "SMA9010";
+        private static readonly DiagnosticDescriptor Rule_UnderlineDeclaration = new(
+            RuleId_UnderlineDeclaration,
             new LocalizableResourceString(nameof(Resources.SMA9010_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9010_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -72,9 +72,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9010_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_DesignatedTypeDesc = "SMA9015";
-        private static readonly DiagnosticDescriptor Rule_DesignatedTypeDesc = new(
-            RuleId_DesignatedTypeDesc,
+        public const string RuleId_UnderlineDesignatedType = "SMA9015";
+        private static readonly DiagnosticDescriptor Rule_UnderlineDesignatedType = new(
+            RuleId_UnderlineDesignatedType,
             new LocalizableResourceString(nameof(Resources.SMA9015_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9015_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -84,9 +84,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         // line annotators
-        public const string RuleId_LineHeadDesc = "SMA9020";
-        private static readonly DiagnosticDescriptor Rule_LineHeadDesc = new(
-            RuleId_LineHeadDesc,
+        public const string RuleId_UnderlineLineHead = "SMA9020";
+        private static readonly DiagnosticDescriptor Rule_UnderlineLineHead = new(
+            RuleId_UnderlineLineHead,
             new LocalizableResourceString(nameof(Resources.SMA9020_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9020_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -94,9 +94,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9020_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_LineLeadingDesc = "SMA9021";
-        private static readonly DiagnosticDescriptor Rule_LineLeadingDesc = new(
-            RuleId_LineLeadingDesc,
+        public const string RuleId_UnderlineLineLeading = "SMA9021";
+        private static readonly DiagnosticDescriptor Rule_UnderlineLineLeading = new(
+            RuleId_UnderlineLineLeading,
             new LocalizableResourceString(nameof(Resources.SMA9021_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9021_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -104,9 +104,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9021_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_LineFillDesc = "SMA9022";
-        private static readonly DiagnosticDescriptor Rule_LineFillDesc = new(
-            RuleId_LineFillDesc,
+        public const string RuleId_UnderlineLineFill = "SMA9022";
+        private static readonly DiagnosticDescriptor Rule_UnderlineLineFill = new(
+            RuleId_UnderlineLineFill,
             new LocalizableResourceString(nameof(Resources.SMA9022_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9022_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -114,9 +114,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9022_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_LineEndDesc = "SMA9023";
-        private static readonly DiagnosticDescriptor Rule_LineEndDesc = new(
-            RuleId_LineEndDesc,
+        public const string RuleId_UnderlineLineEnd = "SMA9023";
+        private static readonly DiagnosticDescriptor Rule_UnderlineLineEnd = new(
+            RuleId_UnderlineLineEnd,
             new LocalizableResourceString(nameof(Resources.SMA9023_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9023_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -126,9 +126,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         //warning!!
-        public const string RuleId_WarningDesc = "SMA9100";
-        private static readonly DiagnosticDescriptor Rule_WarningDesc = new(
-            RuleId_WarningDesc,
+        public const string RuleId_UnderlineWarning = "SMA9100";
+        private static readonly DiagnosticDescriptor Rule_UnderlineWarning = new(
+            RuleId_UnderlineWarning,
             new LocalizableResourceString(nameof(Resources.SMA9100_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9100_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -144,19 +144,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Core.Rule_DebugError,
             Core.Rule_DebugWarn,
 #endif
-            Rule_SymbolDesc,
-            Rule_LocalVarDesc,
-            Rule_ParameterDesc,
-            Rule_DeclarationDesc,
+            Rule_UnderlineIdentifierSymbol,
+            Rule_UnderlineLocalVar,
+            Rule_UnderlineParameter,
+            Rule_UnderlineDeclaration,
 
-            Rule_DesignatedTypeDesc,
+            Rule_UnderlineDesignatedType,
 
-            Rule_LineHeadDesc,
-            Rule_LineLeadingDesc,
-            Rule_LineFillDesc,
-            Rule_LineEndDesc,
+            Rule_UnderlineLineHead,
+            Rule_UnderlineLineLeading,
+            Rule_UnderlineLineFill,
+            Rule_UnderlineLineEnd,
 
-            Rule_WarningDesc
+            Rule_UnderlineWarning
             );
 
 
@@ -312,7 +312,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var symbolToDescription = (ts_symbolToDescription ??= new());
             var descAttrToMessage = (ts_descAttrToMessage ??= new());
 
-            Underlining(symbol.Locations, symbol, Rule_DeclarationDesc,
+            Underlining(symbol.Locations, symbol, Rule_UnderlineDeclaration,
                 reportAction, symbolToDescription, /*filePathToModel,*/ descAttrToMessage, compilation, token, 0);
 
 
@@ -322,14 +322,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 case INamedTypeSymbol type:
                     foreach (var tp in type.TypeParameters)
                     {
-                        Underlining(tp.Locations, tp, Rule_DeclarationDesc,
+                        Underlining(tp.Locations, tp, Rule_UnderlineDeclaration,
                             reportAction, symbolToDescription, /*filePathToModel,*/ descAttrToMessage, compilation, token, 0);
                     }
                     break;
                 case IMethodSymbol method:
                     foreach (var tp in method.TypeParameters)
                     {
-                        Underlining(tp.Locations, tp, Rule_DeclarationDesc,
+                        Underlining(tp.Locations, tp, Rule_UnderlineDeclaration,
                             reportAction, symbolToDescription, /*filePathToModel,*/ descAttrToMessage, compilation, token, 0);
                     }
                     break;
@@ -370,7 +370,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
-            var rule = Rule_SymbolDesc;
+            var rule = Rule_UnderlineIdentifierSymbol;
 
             var singleLocation = (ts_singleLocationArray ??= new Location[1]);
             singleLocation[0] = syntax.GetLocation();
@@ -395,7 +395,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             else if (symbol is ILocalSymbol localSymbol)
             {
                 symbol = localSymbol.Type;
-                rule = Rule_LocalVarDesc;
+                rule = Rule_UnderlineLocalVar;
             }
             else if (symbol is IParameterSymbol paramSymbol)
             {
@@ -406,7 +406,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 // then, draw underline based on variable type
                 symbol = paramSymbol.Type;
-                rule = Rule_ParameterDesc;
+                rule = Rule_UnderlineParameter;
             }
 
 
@@ -479,7 +479,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     if (typeArgsCount == 1)
                     {
                         singleLocation[0] = lambda.Parameter.GetLocation();
-                        Underlining(singleLocation, typeArgs[0], Rule_ParameterDesc,
+                        Underlining(singleLocation, typeArgs[0], Rule_UnderlineParameter,
                             reportAction, symbolToDescription, /*filePathToModel,*/ descAttrToMessage, compilation, token,
                             0);
                     }
@@ -494,7 +494,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         {
                             pos++;
                             singleLocation[0] = param.GetLocation();
-                            Underlining(singleLocation, typeArgs[pos], Rule_ParameterDesc,
+                            Underlining(singleLocation, typeArgs[pos], Rule_UnderlineParameter,
                                 reportAction, symbolToDescription, /*filePathToModel,*/ descAttrToMessage, compilation, token,
                                 0);
                         }
@@ -503,7 +503,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
 
-            reportAction.Invoke(Diagnostic.Create(Rule_ParameterDesc, syntax.GetLocation(),
+            reportAction.Invoke(Diagnostic.Create(Rule_UnderlineParameter, syntax.GetLocation(),
                 Core.SpanConcat("[SMA UNSUPPORTED]: ".AsSpan(), syntax.Kind().ToString().AsSpan()),
                 "TypeArguments.Count: " + typeArgsCount
                 ));
@@ -568,7 +568,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     loc.SourceTree,
                     loc.SourceSpan.Start,// - lineSpan.StartLinePosition.Character,
                     loc.SourceSpan.End,// + lineSpan.EndLinePosition.Character,
-                    Rule_DesignatedTypeDesc,
+                    Rule_UnderlineDesignatedType,
                     GetMessageFormatArgs(symbol, description)
                     );
             }
@@ -660,7 +660,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                     }
 
-                    Underlining(singleLocation, ctor, Rule_SymbolDesc,
+                    Underlining(singleLocation, ctor, Rule_UnderlineIdentifierSymbol,
                         reportAction, symbolToDescription, descAttrToMessage, compilation, token, 0);
 
                 NEXT:
@@ -1083,7 +1083,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             //warning??
             if (messageArgs[1] is string s && s.StartsWith("!", StringComparison.Ordinal))
             {
-                reportAction.Invoke(Diagnostic.Create(Rule_WarningDesc, location, messageArgs));
+                reportAction.Invoke(Diagnostic.Create(Rule_UnderlineWarning, location, messageArgs));
                 return;
             }
 
@@ -1113,7 +1113,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     //head!!
                     int linehead = start + 1;
                     reportAction.Invoke(Diagnostic.Create(
-                        Rule_LineHeadDesc, tree.GetLocation(new(linehead, length)), messageArgs));
+                        Rule_UnderlineLineHead, tree.GetLocation(new(linehead, length)), messageArgs));
 
                     // find non-whitespace
                     var lineheadText = treeText.GetSubText(start);
@@ -1131,7 +1131,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (start < locStart)
                         {
                             reportAction.Invoke(Diagnostic.Create(
-                                Rule_LineLeadingDesc, tree.GetLocation(new(start, length)), messageArgs));
+                                Rule_UnderlineLineLeading, tree.GetLocation(new(start, length)), messageArgs));
                         }
                     }
                 }
@@ -1148,7 +1148,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
                 reportAction.Invoke(Diagnostic.Create(
-                    Rule_LineEndDesc, tree.GetLocation(new(lineEnd, 0)), messageArgs));  // TextSpan end is inclusive. 0 is allowed
+                    Rule_UnderlineLineEnd, tree.GetLocation(new(lineEnd, 0)), messageArgs));  // TextSpan end is inclusive. 0 is allowed
             }
         }
 

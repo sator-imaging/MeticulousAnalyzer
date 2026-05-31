@@ -2006,7 +2006,7 @@ namespace Test
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState,
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,

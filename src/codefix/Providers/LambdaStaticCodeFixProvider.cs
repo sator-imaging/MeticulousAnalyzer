@@ -21,8 +21,8 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
             get => ImmutableArray.Create(
-                LambdaAnalyzer.RuleId_LambdaShouldBeStatic,
-                LambdaAnalyzer.RuleId_ImplicitConversionToDelegate
+                LambdaAnalyzer.RuleId_LambdaCanBeStatic,
+                LambdaAnalyzer.RuleId_InefficientDelegateDeclaration
             );
         }
 
@@ -41,7 +41,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
                 if (node == null) continue;
 
-                if (diagnostic.Id == LambdaAnalyzer.RuleId_LambdaShouldBeStatic)
+                if (diagnostic.Id == LambdaAnalyzer.RuleId_LambdaCanBeStatic)
                 {
                     var lambda = node.AncestorsAndSelf().OfType<LambdaExpressionSyntax>().FirstOrDefault();
                     if (lambda == null) continue;
@@ -53,7 +53,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                             equivalenceKey: "AddStaticModifier"),
                         diagnostic);
                 }
-                else if (diagnostic.Id == LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+                else if (diagnostic.Id == LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 {
                     var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                     if (semanticModel == null) continue;

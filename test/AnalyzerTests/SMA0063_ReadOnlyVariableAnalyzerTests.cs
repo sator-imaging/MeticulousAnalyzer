@@ -38,7 +38,7 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 0)
                 .WithArguments("self.ReadWriteProp", "self");
 
@@ -75,7 +75,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 0)
                 .WithArguments("foo.Prop", "foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
@@ -118,7 +118,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 0)
                 .WithArguments("foo.Prop", "foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
@@ -157,7 +157,7 @@ namespace Test
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState,
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,

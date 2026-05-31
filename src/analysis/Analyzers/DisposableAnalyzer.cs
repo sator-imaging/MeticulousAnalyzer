@@ -35,9 +35,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0040_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_NullAssignment = "SMA0041";
-        private static readonly DiagnosticDescriptor Rule_NullAssignment = new(
-            RuleId_NullAssignment,
+        public const string RuleId_NullAssignmentToDisposable = "SMA0041";
+        private static readonly DiagnosticDescriptor Rule_NullAssignmentToDisposable = new(
+            RuleId_NullAssignmentToDisposable,
             new LocalizableResourceString(nameof(Resources.SMA0041_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0041_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -64,7 +64,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             Core.Rule_DebugWarn,
 #endif
             Rule_MissingUsing,
-            Rule_NullAssignment,
+            Rule_NullAssignmentToDisposable,
             Rule_NotAllCodePathsReturn
             );
 
@@ -314,7 +314,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
 
                     // If we get here, no preceding dispose call was found. Report the diagnostic.
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignment, assignmentOp.Syntax.GetLocation(), assignmentOp.Target.Type.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignmentToDisposable, assignmentOp.Syntax.GetLocation(), assignmentOp.Target.Type.Name));
                 }
             }
         }

@@ -84,9 +84,9 @@ namespace Test_{0}
 
             for (int i = 0; i < 3; i++)
             {
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: i * 3 + 0));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: i * 3 + 1));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: i * 3 + 2));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: i * 3 + 0));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: i * 3 + 1));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: i * 3 + 2));
             }
 
             // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).

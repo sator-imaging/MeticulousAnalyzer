@@ -15,9 +15,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     {
         private const string SuppressionComment = "// Allow allocation";
 
-        public const string RuleId_LambdaShouldBeStatic = "SMA7000";
-        private static readonly DiagnosticDescriptor Rule_LambdaShouldBeStatic = new(
-            RuleId_LambdaShouldBeStatic,
+        public const string RuleId_LambdaCanBeStatic = "SMA7000";
+        private static readonly DiagnosticDescriptor Rule_LambdaCanBeStatic = new(
+            RuleId_LambdaCanBeStatic,
             new LocalizableResourceString(nameof(Resources.SMA7000_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA7000_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -25,9 +25,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA7000_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public const string RuleId_ImplicitConversionToDelegate = "SMA7001";
-        private static readonly DiagnosticDescriptor Rule_ImplicitConversionToDelegate = new(
-            RuleId_ImplicitConversionToDelegate,
+        public const string RuleId_InefficientDelegateDeclaration = "SMA7001";
+        private static readonly DiagnosticDescriptor Rule_InefficientDelegateDeclaration = new(
+            RuleId_InefficientDelegateDeclaration,
             new LocalizableResourceString(nameof(Resources.SMA7001_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA7001_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -46,8 +46,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             description: new LocalizableResourceString(nameof(Resources.SMA7002_Description), Resources.ResourceManager, typeof(Resources)));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            Rule_LambdaShouldBeStatic,
-            Rule_ImplicitConversionToDelegate,
+            Rule_LambdaCanBeStatic,
+            Rule_InefficientDelegateDeclaration,
             Rule_LambdaAllocation
         );
 
@@ -77,7 +77,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (IsEffectivelyStatic(lambda, semanticModel))
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaShouldBeStatic, lambda.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(Rule_LambdaCanBeStatic, lambda.GetLocation()));
             }
             else
             {
@@ -151,7 +151,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_ImplicitConversionToDelegate, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
+            context.ReportDiagnostic(Diagnostic.Create(Rule_InefficientDelegateDeclaration, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
         }
 
         private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)

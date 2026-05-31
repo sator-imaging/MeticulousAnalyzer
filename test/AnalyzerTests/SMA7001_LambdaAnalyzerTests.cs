@@ -29,10 +29,10 @@ public class C
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected0 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action");
-            var expected1 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected1 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 1)
                 .WithArguments("System.Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
@@ -54,7 +54,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -74,7 +74,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -94,7 +94,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Func<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -115,7 +115,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDelegate");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -136,7 +136,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action<string>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -189,7 +189,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -209,7 +209,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Func<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -266,7 +266,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -287,7 +287,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_ImplicitConversionToDelegate)
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
                 .WithArguments("System.Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);

@@ -42,7 +42,7 @@ namespace Test
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
                     .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignment)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignmentToDisposable)
                     .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable")
             };
@@ -82,7 +82,7 @@ namespace Test
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
                     .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignment)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignmentToDisposable)
                     .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable")
             };
@@ -115,7 +115,7 @@ namespace Test
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
                     .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignment)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignmentToDisposable)
                     .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable")
             };
@@ -213,7 +213,7 @@ namespace Test
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
                     .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignment)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignmentToDisposable)
                     .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable")
             };
@@ -254,7 +254,7 @@ namespace Test
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignment)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NullAssignmentToDisposable)
                     .WithLocation(markupKey: 2)
                     .WithArguments("MyDisposable")
             };
