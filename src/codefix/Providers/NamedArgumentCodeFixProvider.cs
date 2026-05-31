@@ -139,7 +139,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             }
             var separatedList = SyntaxFactory.SeparatedList(expressions, arraySeparators);
 
-            var typeSyntax = SyntaxFactory.ParseTypeName(elementType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+            var typeSyntax = SyntaxFactory.ParseTypeName(elementType.ToMinimalDisplayString(semanticModel, argumentList.SpanStart));
             var arrayTypeSyntax = SyntaxFactory.ArrayType(typeSyntax)
                 .AddRankSpecifiers(SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(SyntaxFactory.OmittedArraySizeExpression())));
 
