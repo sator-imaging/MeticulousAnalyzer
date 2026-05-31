@@ -155,14 +155,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             // Use the semantic IArrayCreationOperation to extract the actual params arguments.
-            var value = paramsArgOp.Value;
-            while (value is IConversionOperation conversion)
+            if (!TryUnwrapConversion(paramsArgOp.Value, out var unwrapped) ||
+                unwrapped is not IArrayCreationOperation arrayCreation ||
+                arrayCreation.Initializer == null)
             {
-                value = conversion.Operand;
-            }
-
-            if (value is not IArrayCreationOperation arrayCreation || arrayCreation.Initializer == null)
                 return;
+            }
 
             var paramsArgs = ImmutableArray.CreateBuilder<ArgumentSyntax>();
             foreach (var element in arrayCreation.Initializer.ElementValues)

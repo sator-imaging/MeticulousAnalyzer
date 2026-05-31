@@ -131,11 +131,11 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var expressions = paramsArgs.Select((a, i) => i == 0 ? a.Expression.WithLeadingTrivia(SyntaxTriviaList.Empty) : a.Expression).ToArray();
 
             // Preserve original separators (commas and their trivia) between params arguments.
+            var firstParamsIndex = argumentList.Arguments.IndexOf(paramsArgs[0]);
             var arraySeparators = new List<SyntaxToken>();
             for (int i = 0; i < paramsArgs.Count - 1; i++)
             {
-                var argIndex = argumentList.Arguments.IndexOf(paramsArgs[i]);
-                arraySeparators.Add(argumentList.Arguments.GetSeparator(argIndex));
+                arraySeparators.Add(argumentList.Arguments.GetSeparator(firstParamsIndex + i));
             }
             var separatedList = SyntaxFactory.SeparatedList(expressions, arraySeparators);
 
@@ -166,12 +166,11 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var firstArg = paramsArgs[0];
             var leadingTrivia = firstArg.GetFirstToken().LeadingTrivia;
 
-            var newArgument = SyntaxFactory.Argument(nameColon, SyntaxFactory.Token(SyntaxKind.None), arrayCreation)
+            var newArgument = SyntaxFactory.Argument(arrayCreation)
+                .WithNameColon(nameColon)
                 .WithLeadingTrivia(leadingTrivia);
 
             // Build new argument list preserving original separators for preceding args.
-            var firstParamsIndex = argumentList.Arguments.IndexOf(paramsArgs[0]);
-
             var newNodes = new List<ArgumentSyntax>();
             var newSeparators = new List<SyntaxToken>();
 
