@@ -304,7 +304,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Unchecked value conversion to enum type. に類似しているローカライズされた文字列を検索します。
+        ///   Unchecked value cast to enum type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0020_Description {
             get {
@@ -331,7 +331,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Casting enum type to other. に類似しているローカライズされた文字列を検索します。
+        ///   Casting enum type to another type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0021_Description {
             get {
@@ -358,7 +358,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Unchecked value conversion to generic enum type. に類似しているローカライズされた文字列を検索します。
+        ///   Unchecked value cast to generic enum type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0022_Description {
             get {
@@ -385,7 +385,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Casting generic enum type to other. に類似しているローカライズされた文字列を検索します。
+        ///   Casting generic enum type to another type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0023_Description {
             get {
@@ -412,7 +412,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Trying to convert enum value to string. に類似しているローカライズされた文字列を検索します。
+        ///   Enum string representation may break after obfuscation. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0024_Description {
             get {
@@ -439,7 +439,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Calling enum system method. に類似しているローカライズされた文字列を検索します。
+        ///   Enum system method call should be centralized. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0025_Description {
             get {
@@ -647,7 +647,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. に類似しているローカライズされた文字列を検索します。
+        ///   Instance that implements IDisposable pattern should be wrapped with `using` statement. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0040_Description {
             get {
@@ -1235,7 +1235,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   All disposable fields must be disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
+        ///   Disposable field is not disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0043_Description {
             get {

@@ -199,7 +199,7 @@
     <value>Enum Type Analysis</value>
   </data>
   <data name="SMA0020_Description" xml:space="preserve">
-    <value>Unchecked value conversion to enum type.</value>
+    <value>Unchecked value cast to enum type.</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
     <value>Unchecked value cast to enum '{0}'. Centralize and verify in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
@@ -208,7 +208,7 @@
     <value>Unchecked Cast to Enum Type</value>
   </data>
   <data name="SMA0021_Description" xml:space="preserve">
-    <value>Casting enum type to other.</value>
+    <value>Casting enum type to another type.</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
     <value>Casting enum '{0}' to another type. Centralize in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
@@ -217,7 +217,7 @@
     <value>Cast from Enum Type to Other</value>
   </data>
   <data name="SMA0022_Description" xml:space="preserve">
-    <value>Unchecked value conversion to generic enum type.</value>
+    <value>Unchecked value cast to generic enum type.</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
     <value>Unchecked value cast to generic enum '{0}'. Centralize and verify in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
@@ -226,7 +226,7 @@
     <value>Unchecked Cast to Generic Enum Type</value>
   </data>
   <data name="SMA0023_Description" xml:space="preserve">
-    <value>Casting generic enum type to other.</value>
+    <value>Casting generic enum type to another type.</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
     <value>Casting generic enum '{0}' to another type. Centralize in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
@@ -235,7 +235,7 @@
     <value>Cast from Generic Enum Type to Other</value>
   </data>
   <data name="SMA0024_Description" xml:space="preserve">
-    <value>Trying to convert enum value to string.</value>
+    <value>Enum string representation may break after obfuscation.</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
     <value>'{0}' string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment "// Allow enum conversion [Reason]"</value>
@@ -244,7 +244,7 @@
     <value>Enum to String</value>
   </data>
   <data name="SMA0025_Description" xml:space="preserve">
-    <value>Calling enum system method.</value>
+    <value>Enum system method call should be centralized.</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
     <value>Centralize enum system method calls in a utility class. Can suppress with comment "// Allow enum conversion [Reason]"</value>
@@ -313,7 +313,7 @@
     <value>Disposable Analysis</value>
   </data>
   <data name="SMA0040_Description" xml:space="preserve">
-    <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method.</value>
+    <value>Instance that implements IDisposable pattern should be wrapped with `using` statement.</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
     <value>'{0}' implements IDisposable pattern. Wrap with `using` statement. Can suppress with comment "// Don't dispose [Reason]"</value>
@@ -340,7 +340,7 @@
     <value>Not All Code Paths Return a Value</value>
   </data>
   <data name="SMA0043_Description" xml:space="preserve">
-    <value>All disposable fields must be disposed in the Dispose method.</value>
+    <value>Disposable field is not disposed in the Dispose method.</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
     <value>'{0}' is not disposed. Add disposal in Dispose method. Can suppress with comment "// Don't dispose [Reason]"</value>
