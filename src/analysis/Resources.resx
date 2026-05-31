@@ -199,55 +199,55 @@
     <value>Enum Type Analysis</value>
   </data>
   <data name="SMA0020_Description" xml:space="preserve">
-    <value>Unchecked value conversion to enum type. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Unchecked value conversion to enum type. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to enum '{0}'. Centralize and verify in a utility method. Suppress with "// Allow enum conversion [Reason]"</value>
+    <value>Unchecked value cast to enum '{0}'. Centralize and verify in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
   </data>
   <data name="SMA0020_Title" xml:space="preserve">
     <value>Unchecked Cast to Enum Type</value>
   </data>
   <data name="SMA0021_Description" xml:space="preserve">
-    <value>Casting enum type to other. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Casting enum type to other. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
-    <value>Casting enum '{0}' to another type. Centralize in a utility method. Suppress with "// Allow enum conversion [Reason]"</value>
+    <value>Casting enum '{0}' to another type. Centralize in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
   </data>
   <data name="SMA0022_Description" xml:space="preserve">
-    <value>Unchecked value conversion to generic enum type. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Unchecked value conversion to generic enum type. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to generic enum '{0}'. Centralize and verify in a utility method. Suppress with "// Allow enum conversion [Reason]"</value>
+    <value>Unchecked value cast to generic enum '{0}'. Centralize and verify in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
   </data>
   <data name="SMA0022_Title" xml:space="preserve">
     <value>Unchecked Cast to Generic Enum Type</value>
   </data>
   <data name="SMA0023_Description" xml:space="preserve">
-    <value>Casting generic enum type to other. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Casting generic enum type to other. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
-    <value>Casting generic enum '{0}' to another type. Centralize in a utility method. Suppress with "// Allow enum conversion [Reason]"</value>
+    <value>Casting generic enum '{0}' to another type. Centralize in a utility method. Can suppress with comment "// Allow enum conversion [Reason]"</value>
   </data>
   <data name="SMA0023_Title" xml:space="preserve">
     <value>Cast from Generic Enum Type to Other</value>
   </data>
   <data name="SMA0024_Description" xml:space="preserve">
-    <value>Trying to convert enum value to string. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Trying to convert enum value to string. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
-    <value>'{0}' string representation may break after obfuscation. Centralize enum-to-string handling. Suppress with "// Allow enum conversion [Reason]"</value>
+    <value>'{0}' string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment "// Allow enum conversion [Reason]"</value>
   </data>
   <data name="SMA0024_Title" xml:space="preserve">
     <value>Enum to String</value>
   </data>
   <data name="SMA0025_Description" xml:space="preserve">
-    <value>Calling enum system method. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Calling enum system method. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
-    <value>Centralize enum system method calls in a utility class. Suppress with "// Allow enum conversion [Reason]"</value>
+    <value>Centralize enum system method calls in a utility class. Can suppress with comment "// Allow enum conversion [Reason]"</value>
   </data>
   <data name="SMA0025_Title" xml:space="preserve">
     <value>Enum System Method</value>
@@ -314,10 +314,10 @@
     <value>Disposable Analysis</value>
   </data>
   <data name="SMA0040_Description" xml:space="preserve">
-    <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>'{0}' implements IDisposable pattern. Wrap with 'using' statement. Suppress with "// Don't dispose [Reason]"</value>
+    <value>'{0}' implements IDisposable pattern. Wrap with 'using' statement. Can suppress with comment "// Don't dispose [Reason]"</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
@@ -332,19 +332,19 @@
     <value>Null Assignment to Disposable</value>
   </data>
   <data name="SMA0042_Description" xml:space="preserve">
-    <value>A locally declared disposable object must be returned on all code paths. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>A locally declared disposable object must be returned on all code paths. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
   </data>
   <data name="SMA0042_MessageFormat" xml:space="preserve">
-    <value>Disposable '{0}' is not returned on all code paths. May leak. Suppress with "// Don't dispose [Reason]"</value>
+    <value>Disposable '{0}' is not returned on all code paths. May leak. Can suppress with comment "// Don't dispose [Reason]"</value>
   </data>
   <data name="SMA0042_Title" xml:space="preserve">
     <value>Not All Code Paths Return a Value</value>
   </data>
   <data name="SMA0043_Description" xml:space="preserve">
-    <value>All disposable fields must be disposed in the Dispose method. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>All disposable fields must be disposed in the Dispose method. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not disposed. Add disposal in Dispose method. Suppress with "// Don't dispose [Reason]"</value>
+    <value>'{0}' is not disposed. Add disposal in Dispose method. Can suppress with comment "// Don't dispose [Reason]"</value>
   </data>
   <data name="SMA0043_Title" xml:space="preserve">
     <value>Undisposed Member</value>
@@ -431,19 +431,19 @@
     <value>Async Context Analysis</value>
   </data>
   <data name="SMA0070_Description" xml:space="preserve">
-    <value>Task local variable should be awaited or returned. Add suppression comment "// Don't await [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Task local variable should be awaited or returned. Can suppress with comment "// Don't await [Reason(optional)]"</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited. Add 'await' or return it. Suppress with "// Don't await [Reason]"</value>
+    <value>Task '{0}' is not awaited. Add 'await' or return it. Can suppress with comment "// Don't await [Reason]"</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
   </data>
   <data name="SMA0071_Description" xml:space="preserve">
-    <value>Task local variable should be awaited or returned on all code paths. Add suppression comment "// Don't await [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Task local variable should be awaited or returned on all code paths. Can suppress with comment "// Don't await [Reason(optional)]"</value>
   </data>
   <data name="SMA0071_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited on all code paths. May fire-and-forget. Suppress with "// Don't await [Reason]"</value>
+    <value>Task '{0}' is not awaited on all code paths. May fire-and-forget. Can suppress with comment "// Don't await [Reason]"</value>
   </data>
   <data name="SMA0071_Title" xml:space="preserve">
     <value>Task Not Awaited on All Paths</value>
@@ -470,10 +470,10 @@
     <value>Inefficient delegate declaration</value>
   </data>
   <data name="SMA7002_Description" xml:space="preserve">
-    <value>Non-static lambda declaration and implicit conversion causes allocation. Add suppression comment "// Allow allocation [Reason(optional)]" to suppress this diagnostic.</value>
+    <value>Non-static lambda declaration and implicit conversion causes allocation. Can suppress with comment "// Allow allocation [Reason(optional)]"</value>
   </data>
   <data name="SMA7002_MessageFormat" xml:space="preserve">
-    <value>Non-static lambda causes allocation. Make it static or cache. Suppress with "// Allow allocation [Reason]"</value>
+    <value>Non-static lambda causes allocation. Make it static or cache. Can suppress with comment "// Allow allocation [Reason]"</value>
   </data>
   <data name="SMA7002_Title" xml:space="preserve">
     <value>Lambda allocation</value>
