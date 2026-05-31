@@ -157,6 +157,29 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8000_Compliant_ParamsAllVariableArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(params int[] values) {}
+
+        public void Test()
+        {
+            int a = 1;
+            int b = 2;
+            int c = 3;
+            Foo(a, b, c);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8000_Violation_ParamsStringArguments()
         {
             var test = @"

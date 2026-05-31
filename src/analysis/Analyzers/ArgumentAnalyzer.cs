@@ -163,16 +163,21 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var paramsArgs = ImmutableArray.CreateBuilder<ArgumentSyntax>();
+            bool hasLiteralOrRequired = false;
             foreach (var element in arrayCreation.Initializer.ElementValues)
             {
                 var argSyntax = element.Syntax?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax) as ArgumentSyntax;
                 if (argSyntax != null)
                 {
                     paramsArgs.Add(argSyntax);
+                    if (IsPossibleOperation(element, out _))
+                    {
+                        hasLiteralOrRequired = true;
+                    }
                 }
             }
 
-            if (paramsArgs.Count == 0)
+            if (paramsArgs.Count == 0 || !hasLiteralOrRequired)
                 return;
 
             foreach (var arg in paramsArgs)
