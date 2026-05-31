@@ -141,72 +141,50 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void ReportParamsArguments(OperationAnalysisContext context, ImmutableArray<IArgumentOperation> arguments, IParameterSymbol paramsParam)
         {
-            // In Roslyn 3.8.0, expanded params arguments appear as a single implicit IArgumentOperation
-            // with Kind=ParamArray. We need to look at the syntax to find the actual arguments.
-
-            // Check if the params argument is in expanded form (implicit ParamArray).
             IArgumentOperation? paramsArgOp = null;
             foreach (var arg in arguments)
             {
-                if (!SymbolEqualityComparer.Default.Equals(arg.Parameter, paramsParam))
-                    continue;
-
-                paramsArgOp = arg;
-                break;
+                if (SymbolEqualityComparer.Default.Equals(arg.Parameter, paramsParam))
+                {
+                    paramsArgOp = arg;
+                    break;
+                }
             }
 
-            if (paramsArgOp == null)
+            if (paramsArgOp == null || !paramsArgOp.IsImplicit)
                 return;
 
-            // If the argument is not implicit, it means an explicit array was passed - skip.
-            if (!paramsArgOp.IsImplicit)
-                return;
-
-            // Get the argument list from syntax.
-            var operationSyntax = context.Operation.Syntax;
-            ArgumentListSyntax? argListSyntax = null;
-
-            if (operationSyntax is InvocationExpressionSyntax invStx)
-                argListSyntax = invStx.ArgumentList;
-            else if (operationSyntax is ObjectCreationExpressionSyntax ctorStx)
-                argListSyntax = ctorStx.ArgumentList;
-
-            if (argListSyntax == null)
-                return;
-
-            // The params parameter is always the last parameter.
-            // Arguments at index >= (paramCount - 1) are the params arguments.
-            var method = paramsParam.ContainingSymbol as IMethodSymbol;
-            if (method == null)
-                return;
-
-            int paramsStartIndex = method.Parameters.Length - 1;
-            var allArgs = argListSyntax.Arguments;
-
-            if (allArgs.Count <= paramsStartIndex)
-                return;
-
-            // Collect the params arguments from syntax.
-            ArgumentSyntax? firstArgStx = null;
-            ArgumentSyntax? lastArgStx = null;
-            int paramsArgCount = 0;
-
-            for (int i = paramsStartIndex; i < allArgs.Count; i++)
+            // Use the semantic IArrayCreationOperation to extract the actual params arguments.
+            var value = paramsArgOp.Value;
+            while (value is IConversionOperation conversion)
             {
-                var stx = allArgs[i];
-
-                // If any of the params arguments already has a name colon, it's already named - skip all.
-                if (stx.NameColon != null)
-                    return;
-
-                paramsArgCount++;
-                if (firstArgStx == null)
-                    firstArgStx = stx;
-                lastArgStx = stx;
+                value = conversion.Operand;
             }
 
-            if (paramsArgCount == 0 || firstArgStx == null || lastArgStx == null)
+            if (value is not IArrayCreationOperation arrayCreation || arrayCreation.Initializer == null)
                 return;
+
+            var paramsArgs = ImmutableArray.CreateBuilder<ArgumentSyntax>();
+            foreach (var element in arrayCreation.Initializer.ElementValues)
+            {
+                var argSyntax = element.Syntax?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax) as ArgumentSyntax;
+                if (argSyntax != null)
+                {
+                    paramsArgs.Add(argSyntax);
+                }
+            }
+
+            if (paramsArgs.Count == 0)
+                return;
+
+            foreach (var arg in paramsArgs)
+            {
+                if (arg.NameColon != null)
+                    return;
+            }
+
+            var firstArgStx = paramsArgs[0];
+            var lastArgStx = paramsArgs[paramsArgs.Count - 1];
 
             // Create a location spanning from first to last params argument.
             var start = firstArgStx.SpanStart;
@@ -217,7 +195,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var properties = ImmutableDictionary.CreateBuilder<string, string?>();
             properties.Add("isParams", "true");
-            properties.Add("paramsArgCount", paramsArgCount.ToString());
+            properties.Add("paramsArgCount", paramsArgs.Count.ToString());
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_LiteralArgument,
