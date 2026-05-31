@@ -89,5 +89,83 @@ namespace Test_{0}
             // test.FixAllScope = FixAllScope.Solution;
             await test.RunAsync();
         }
+
+        private const string ParamsSourceTemplate = @"
+namespace TestParams_{0}
+{{
+    public class CP_{0}
+    {{
+        void M(string name, params int[] values) {{}}
+        void N(params string[] items) {{}}
+        void O(bool flag, int count) {{}}
+        void Test()
+        {{
+            M(""hello"", {{|#{1}:1, 2, 3|}});
+            N({{|#{2}:""a"", ""b"", ""c""|}});
+            O({{|#{3}:true|}}, {{|#{4}:42|}});
+        }}
+    }}
+}}";
+
+        private const string ParamsFixedTemplate = @"
+namespace TestParams_{0}
+{{
+    public class CP_{0}
+    {{
+        void M(string name, params int[] values) {{}}
+        void N(params string[] items) {{}}
+        void O(bool flag, int count) {{}}
+        void Test()
+        {{
+            M(""hello"", values: new int[] {{ 1, 2, 3 }});
+            N(items: new string[] {{ ""a"", ""b"", ""c"" }});
+            O(flag: true, count: 42);
+        }}
+    }}
+}}";
+
+        [TestMethod]
+        public async Task SMA8000_CodeFix_FixAllInSolution_WithParams()
+        {
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("TestParams0.cs", string.Format(ParamsSourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2, 3)),
+                        ("TestParams1.cs", string.Format(ParamsSourceTemplate.ReplaceLineEndings(), 1, 4, 5, 6, 7)),
+                    },
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("TestParams0.cs", string.Format(ParamsFixedTemplate.ReplaceLineEndings(), 0)),
+                        ("TestParams1.cs", string.Format(ParamsFixedTemplate.ReplaceLineEndings(), 1)),
+                    },
+                },
+                BatchFixedState =
+                {
+                    Sources =
+                    {
+                        ("TestParams0.cs", string.Format(ParamsFixedTemplate.ReplaceLineEndings(), 0)),
+                        ("TestParams1.cs", string.Format(ParamsFixedTemplate.ReplaceLineEndings(), 1)),
+                    },
+                },
+                NumberOfIncrementalIterations = 8,
+            };
+
+            for (int i = 0; i < 2; i++)
+            {
+                int offset = i * 4;
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 0).WithArguments("values"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 1).WithArguments("items"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 2).WithArguments("flag"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 3).WithArguments("count"));
+            }
+
+            await test.RunAsync();
+        }
     }
 }
