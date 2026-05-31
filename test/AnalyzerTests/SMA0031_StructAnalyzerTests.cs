@@ -84,7 +84,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidReadOnlyField)
                 .WithLocation(markupKey: 0)
-                .WithArguments("NestedStruct");
+                .WithArguments("Outer.NestedStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

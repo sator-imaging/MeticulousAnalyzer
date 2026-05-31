@@ -283,9 +283,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string ToDiagnosticMessageName(this ISymbol symbol)
         {
-            if (symbol is ILocalSymbol || symbol is IParameterSymbol)
-                return symbol.Name;
-            return symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+            return symbol switch
+            {
+                ILocalSymbol or IParameterSymbol => symbol.Name,
+                _ => symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat),
+            };
         }
 
         // string.Create and Concat(ReadOnlySpan) cannot be used in .net standard 2.0

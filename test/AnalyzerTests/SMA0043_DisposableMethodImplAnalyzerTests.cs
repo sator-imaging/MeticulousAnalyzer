@@ -30,7 +30,7 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("MyDisposable TestClass._field");
+                .WithArguments("TestClass._field");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1);
         }
 
@@ -95,7 +95,7 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("MyDisposable TestClass._field");
+                .WithArguments("TestClass._field");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1);
         }
 
@@ -116,7 +116,7 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("MyDisposable TestClass._field");
+                .WithArguments("TestClass._field");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1);
         }
 
@@ -213,10 +213,10 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("MyDisposable TestClass._field1");
+                .WithArguments("TestClass._field1");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 2)
-                .WithArguments("MyDisposable TestClass._field2");
+                .WithArguments("TestClass._field2");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
 
@@ -245,7 +245,7 @@ partial class TestClass
 }";
             var expected3 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 2)
-                .WithArguments("MyDisposable TestClass._field2");
+                .WithArguments("TestClass._field2");
 
             var test = new VerifyCS.Test
             {
@@ -288,7 +288,7 @@ class MyDisposable : IDisposable
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable MyDisposable._disposable");
+                .WithArguments("MyDisposable._disposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
