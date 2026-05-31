@@ -14,9 +14,6 @@ namespace SatorImaging.StaticMemberAnalyzer
 {
     public static class BurstLinq
     {
-        // NOTE: T[], List<T>, ArraySegment<T>, and ImmutableArray<T> implement IReadOnlyCollection<T>.
-        //       but ImmutableArray<T> or other list types from Roslyn doesn't implement ICollection<T>.
-
         /*  ElementAtOrDefault  ================================================================ */
 
         public static T? ElementAtOrDefault<T>(this IEnumerable<T> source, int index)
