@@ -102,8 +102,7 @@ FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 - **Cross-platform:** Use `.ReplaceLineEndings()` on templates for line-ending aware tests.
 - **Trivia:** Include leading/trailing trivia in templates (e.g., `/* Leading trivia */` and `// Trailing trivia`).
 - **Method name:** Use `{RuleId}_CodeFix_FixAllInSolution`.
-- **Source files:** Use 3 files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 diagnostics each (9 total).
-- **Iterations:** Set `NumberOfIncrementalIterations = 9`.
+- **Source files:** Use 3 files (`Test0.cs`, `Test1.cs`, `Test2.cs`) with 3 or more diagnostics each.
 - **States:** Include `TestState`, `FixedState`, and `BatchFixedState`.
 - **TODO comment:** Copy the source code comment below to notify developers of the limitation.
 - **MUST** include the following TODO comment in the test method:
