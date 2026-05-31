@@ -224,5 +224,40 @@ namespace Test
             var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
+
+        [TestMethod]
+        public async Task SMA8000_CodeFix_ParamsObjectArrayMixedTypes()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(params object[] values) {}
+
+        public void Test()
+        {
+            Foo({|#0:1, ""hello"", true|});
+        }
+    }
+}
+";
+            var fixtest = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(params object[] values) {}
+
+        public void Test()
+        {
+            Foo(values: new object[] { 1, ""hello"", true });
+        }
+    }
+}
+";
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
+        }
     }
 }
