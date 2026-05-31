@@ -124,7 +124,7 @@
     <value>Static field declaration order is wrong.</value>
   </data>
   <data name="SMA0001_MessageFormat" xml:space="preserve">
-    <value>Reading '{0}' before initialize</value>
+    <value>Reading '{0}' before initialization</value>
   </data>
   <data name="SMA0001_Title" xml:space="preserve">
     <value>Reading Uninitialized Value</value>
@@ -133,7 +133,7 @@
     <value>Trying to read value from static field declared in cross-referencing type.</value>
   </data>
   <data name="SMA0002_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' is referencing static field in type '{1}'</value>
+    <value>Type '{0}' is cross-referencing static field in type '{1}'</value>
   </data>
   <data name="SMA0002_Title" xml:space="preserve">
     <value>Cross Referencing across Type</value>
@@ -163,7 +163,7 @@
     <value>`TSelf` type arg should be pointing itself.</value>
   </data>
   <data name="SMA0010_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}'?</value>
+    <value>Did you mean '{0}'? TSelf type arg should point to itself</value>
   </data>
   <data name="SMA0010_Title" xml:space="preserve">
     <value>TSelf is Not Self</value>
@@ -172,7 +172,7 @@
     <value>`TSelf` type arg should be pointing itself or its base type.</value>
   </data>
   <data name="SMA0011_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}' or base type?</value>
+    <value>Did you mean '{0}' or base type? TSelf should be covariant</value>
   </data>
   <data name="SMA0011_Title" xml:space="preserve">
     <value>TSelf is Not Self or Base</value>
@@ -181,7 +181,7 @@
     <value>`TSelf` type arg should be pointing itself or its derived type.</value>
   </data>
   <data name="SMA0012_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}' or derived type?</value>
+    <value>Did you mean '{0}' or derived type? TSelf should be contravariant</value>
   </data>
   <data name="SMA0012_Title" xml:space="preserve">
     <value>TSelf is Not Self or Derived</value>
@@ -190,7 +190,7 @@
     <value>`TSelf` type constraint is not pointing itself.</value>
   </data>
   <data name="SMA0015_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}'?</value>
+    <value>Did you mean '{0}'? TSelf constraint is pointing to another type</value>
   </data>
   <data name="SMA0015_Title" xml:space="preserve">
     <value>TSelf Constraint is Not Self</value>
@@ -202,7 +202,7 @@
     <value>Unchecked value conversion to enum type. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
-    <value>Unchecked value of '{0}'</value>
+    <value>Unchecked cast to enum type '{0}'</value>
   </data>
   <data name="SMA0020_Title" xml:space="preserve">
     <value>Unchecked Cast to Enum Type</value>
@@ -211,7 +211,7 @@
     <value>Casting enum type to other. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
-    <value>Conversion of '{0}'</value>
+    <value>Cast from enum '{0}' to other type</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
@@ -220,7 +220,7 @@
     <value>Unchecked value conversion to generic enum type. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
-    <value>Unchecked value of '{0}'</value>
+    <value>Unchecked cast to generic enum type '{0}'</value>
   </data>
   <data name="SMA0022_Title" xml:space="preserve">
     <value>Unchecked Cast to Generic Enum Type</value>
@@ -229,7 +229,7 @@
     <value>Casting generic enum type to other. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
-    <value>Conversion of '{0}'</value>
+    <value>Cast from generic enum '{0}' to other type</value>
   </data>
   <data name="SMA0023_Title" xml:space="preserve">
     <value>Cast from Generic Enum Type to Other</value>
@@ -287,7 +287,7 @@
     <value>Constructor has declared explicitly so should not use parameter-less one.</value>
   </data>
   <data name="SMA0030_MessageFormat" xml:space="preserve">
-    <value>'{0}' has applicable constructor</value>
+    <value>'{0}' has applicable constructor, avoid using parameter-less one</value>
   </data>
   <data name="SMA0030_Title" xml:space="preserve">
     <value>Invalid Struct Constructor</value>
@@ -296,7 +296,7 @@
     <value>Mutable struct type should not be set to `readonly` field.</value>
   </data>
   <data name="SMA0031_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not readonly struct</value>
+    <value>'{0}' is not readonly struct, should not be set to readonly field</value>
   </data>
   <data name="SMA0031_Title" xml:space="preserve">
     <value>Mutable Struct Field marked as Read-Only</value>
@@ -317,7 +317,7 @@
     <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>'{0}' has 'IDisposable' pattern implemented</value>
+    <value>'{0}' has 'IDisposable' pattern implemented, missing 'using' statement</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
@@ -434,7 +434,7 @@
     <value>Task local variable should be awaited or returned. Add suppression comment "// Don't await [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited</value>
+    <value>Task '{0}' is not awaited, missing 'await' keyword</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
