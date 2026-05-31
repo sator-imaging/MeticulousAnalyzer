@@ -42,7 +42,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -81,7 +81,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -116,7 +116,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -151,7 +151,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -186,7 +186,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -221,7 +221,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params string[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -256,7 +256,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params object[] values");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
     }

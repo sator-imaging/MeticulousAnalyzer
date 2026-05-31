@@ -88,7 +88,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
-                    parameterName = attrSymbol.Parameters[argIndex].Name;
+                    parameterName = attrSymbol.Parameters[argIndex].ToDiagnosticMessageName();
                 }
             }
 
@@ -204,7 +204,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_LiteralArgument,
                 location,
                 properties.ToImmutable(),
-                paramsParam.Name));
+                paramsParam.ToDiagnosticMessageName()));
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)

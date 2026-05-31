@@ -423,7 +423,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // public static RETVAL Entries?
                 if (isPublic)
                 {
-                    symbolName ??= memberSymbol.Name;
+                    symbolName ??= memberSymbol.ToDiagnosticMessageName();
 
                     if (memberSymbol.IsStatic)
                     {
@@ -487,7 +487,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
                 //entries??
-                symbolName ??= fieldSymbol.Name;
+                symbolName ??= fieldSymbol.ToDiagnosticMessageName();
 
                 if (!symbolName.StartsWith(NAME_ENTRIES, StringComparison.Ordinal/*IgnoreCase*/)
                  && !symbolName.EndsWith(NAME_ENTRIES, StringComparison.OrdinalIgnoreCase)
@@ -531,7 +531,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                   || ctors.Length == 0
                 )
                 {
-                    fieldContainerSymbolName ??= fieldContainerSymbol.Name;
+                    fieldContainerSymbolName ??= fieldContainerSymbol.ToDiagnosticMessageName();
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, clsDeclStx.Identifier.GetLocation(), fieldContainerSymbolName,
@@ -540,7 +540,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (!fieldContainerSymbol.IsSealed)
                 {
-                    fieldContainerSymbolName ??= fieldContainerSymbol.Name;
+                    fieldContainerSymbolName ??= fieldContainerSymbol.ToDiagnosticMessageName();
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, clsDeclStx.Identifier.GetLocation(), fieldContainerSymbolName,
@@ -550,7 +550,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // no public 'Entries'
                 if (!hasPublicEntries)
                 {
-                    fieldContainerSymbolName ??= fieldContainerSymbol.Name;
+                    fieldContainerSymbolName ??= fieldContainerSymbol.ToDiagnosticMessageName();
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, clsDeclStx.Identifier.GetLocation(), fieldContainerSymbolName,

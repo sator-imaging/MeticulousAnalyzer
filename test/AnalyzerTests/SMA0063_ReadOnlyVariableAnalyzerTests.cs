@@ -40,7 +40,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 0)
-                .WithArguments("self.ReadWriteProp", "self");
+                .WithArguments("self.ReadWriteProp", "Program self");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -77,10 +77,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 0)
-                .WithArguments("foo.Prop", "foo");
+                .WithArguments("foo.Prop", "B foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 1)
-                .WithArguments("foo.GetC()", "foo");
+                .WithArguments("foo.GetC()", "B foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -120,10 +120,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 0)
-                .WithArguments("foo.Prop", "foo");
+                .WithArguments("foo.Prop", "B foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 1)
-                .WithArguments("foo.GetC()", "foo");
+                .WithArguments("foo.GetC()", "B foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }

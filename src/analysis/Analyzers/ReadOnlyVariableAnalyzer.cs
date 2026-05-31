@@ -247,12 +247,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (op is ILocalReferenceOperation localReference)
             {
-                yield return (localReference.Local.Name, false, false, op.Syntax.GetLocation(), op.Syntax);
+                yield return (localReference.Local.ToDiagnosticMessageName(), false, false, op.Syntax.GetLocation(), op.Syntax);
             }
             else if (op is IParameterReferenceOperation parameterReference)
             {
                 yield return (
-                    parameterReference.Parameter.Name,
+                    parameterReference.Parameter.ToDiagnosticMessageName(),
                     true,
                     parameterReference.Parameter.RefKind == RefKind.Out,
                     op.Syntax.GetLocation(),
@@ -277,7 +277,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (op is IVariableDeclaratorOperation variableDeclarator && variableDeclarator.Symbol is ILocalSymbol localSymbol)
             {
-                yield return (localSymbol.Name, false, false, op.Syntax.GetLocation(), op.Syntax);
+                yield return (localSymbol.ToDiagnosticMessageName(), false, false, op.Syntax.GetLocation(), op.Syntax);
             }
             else if (op is IDeclarationExpressionOperation declarationExpression)
             {
@@ -290,7 +290,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool HasMutableNamePrefix(string name)
         {
-            return name.StartsWith(value: "mut_");
+            var idx = name.LastIndexOf(' ');
+            var simpleName = idx >= 0 ? name.Substring(idx + 1) : name;
+            return simpleName.StartsWith(value: "mut_");
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument)
@@ -600,7 +602,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is ILocalReferenceOperation localReference)
                 {
-                    name = localReference.Local.Name;
+                    name = localReference.Local.ToDiagnosticMessageName();
                     isParameter = false;
 
                     if (Core.IsKnownImmutableType(localReference.Type)) return false;
@@ -610,7 +612,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IParameterReferenceOperation parameterReference)
                 {
-                    name = parameterReference.Parameter.Name;
+                    name = parameterReference.Parameter.ToDiagnosticMessageName();
                     isParameter = true;
 
                     if (Core.IsKnownImmutableType(parameterReference.Type)) return false;

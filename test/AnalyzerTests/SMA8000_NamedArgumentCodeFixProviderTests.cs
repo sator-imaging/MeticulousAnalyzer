@@ -235,7 +235,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("index");
+            var expected = VerifyFix.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("int index");
             await VerifyFix.VerifyCodeFixAsync(test, expected, fixtest);
         }
 

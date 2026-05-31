@@ -34,7 +34,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("B");
+            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("int CTest.B");
 
             var test = new VerifyCS.Test
             {

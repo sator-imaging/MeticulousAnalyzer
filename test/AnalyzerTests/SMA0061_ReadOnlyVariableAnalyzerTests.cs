@@ -34,7 +34,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("foo");
+                .WithArguments("int? foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -58,7 +58,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("valueParam");
+                .WithArguments("int valueParam");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -99,13 +99,13 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("value");
+                .WithArguments("int value");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 2)
-                .WithArguments("value");
+                .WithArguments("int value");
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 1)
-                .WithArguments("index");
+                .WithArguments("int index");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected2, expected1);
         }
@@ -135,7 +135,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 0)
-                .WithArguments("foo");
+                .WithArguments("Box foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }

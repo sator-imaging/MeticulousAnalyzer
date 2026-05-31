@@ -589,7 +589,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         : untrackedCastOperandType;
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.Name));
+                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
                 }
 
                 return;
