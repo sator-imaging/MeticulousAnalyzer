@@ -1,3 +1,18 @@
+# CodeFix Practices
+
+- Trivia (comments, whitespace, newlines) must always be preserved. Never strip trivia from nodes being moved or replaced unless intentionally relocating it to a new position.
+- Use `SeparatedSyntaxList<T>` APIs (`RemoveAt`, `Replace`, `WithArguments`) to manipulate argument lists instead of rebuilding from scratch. This preserves all original separators and their trivia.
+- When preserving original comma separators between arguments, use `GetSeparator(index)` on the original list rather than generating new comma tokens.
+- Use `ToMinimalDisplayString(semanticModel, position)` for type names in generated code. This respects the file's `using` directives and produces the shortest valid name.
+- Use `SyntaxFacts.GetKeywordKind` to detect C# keywords used as parameter names and prefix with `@` when generating `NameColon` syntax.
+- Prefer reusing existing helper methods (e.g. `TryUnwrapConversion`) over duplicating logic inline.
+- Pass diagnostic properties (`ImmutableDictionary`) from the analyzer to the codefix to communicate context (e.g. `isParams` flag) without re-analyzing.
+- FixAll must work across multiple files. FixAll tests should use `TestState`, `FixedState`, and `BatchFixedState` with multiple source files.
+- FixAll tests must include leading and trailing trivia (comments) around diagnostic spans to verify trivia is preserved after the fix.
+- Use `NumberOfIncrementalIterations` matching the total number of diagnostics when testing incremental FixAll.
+- Use `ReplaceLineEndings()` on test source templates to normalize line endings across platforms.
+
+
 # LINQ Migration Guide
 
 ## How to Migrate

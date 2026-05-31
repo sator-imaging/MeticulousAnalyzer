@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
@@ -34,6 +35,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterOperationAction(AnalyzeArgument, OperationKind.Argument);
+            context.RegisterOperationAction(AnalyzeInvocationForParams, OperationKind.Invocation);
+            context.RegisterOperationAction(AnalyzeObjectCreationForParams, OperationKind.ObjectCreation);
             context.RegisterSyntaxNodeAction(AnalyzeAttributeArgument, SyntaxKind.AttributeArgument);
         }
 
@@ -93,6 +96,115 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_LiteralArgument,
                 argStx.GetLocation(),
                 parameterName));
+        }
+
+        private static void AnalyzeInvocationForParams(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IInvocationOperation invocation)
+                return;
+
+            if (IsKnownAssertionOrMathMethod(invocation))
+                return;
+
+            var method = invocation.TargetMethod;
+            if (method.Parameters.Length == 0)
+                return;
+
+            var lastParam = method.Parameters[method.Parameters.Length - 1];
+            if (!lastParam.IsParams)
+                return;
+
+            if (IsPervasiveSystemLib(method.ContainingType))
+                return;
+
+            ReportParamsArguments(context, invocation.Arguments, lastParam);
+        }
+
+        private static void AnalyzeObjectCreationForParams(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IObjectCreationOperation creation)
+                return;
+
+            var ctor = creation.Constructor;
+            if (ctor == null || ctor.Parameters.Length == 0)
+                return;
+
+            var lastParam = ctor.Parameters[ctor.Parameters.Length - 1];
+            if (!lastParam.IsParams)
+                return;
+
+            if (IsPervasiveSystemLib(ctor.ContainingType))
+                return;
+
+            ReportParamsArguments(context, creation.Arguments, lastParam);
+        }
+
+        private static void ReportParamsArguments(OperationAnalysisContext context, ImmutableArray<IArgumentOperation> arguments, IParameterSymbol paramsParam)
+        {
+            IArgumentOperation? paramsArgOp = null;
+            foreach (var arg in arguments)
+            {
+                if (SymbolEqualityComparer.Default.Equals(arg.Parameter, paramsParam))
+                {
+                    paramsArgOp = arg;
+                    break;
+                }
+            }
+
+            if (paramsArgOp == null || !paramsArgOp.IsImplicit)
+                return;
+
+            // Use the semantic IArrayCreationOperation to extract the actual params arguments.
+            if (!TryUnwrapConversion(paramsArgOp.Value, out var unwrapped) ||
+                unwrapped is not IArrayCreationOperation arrayCreation ||
+                arrayCreation.Initializer == null)
+            {
+                return;
+            }
+
+            var paramsArgs = ImmutableArray.CreateBuilder<ArgumentSyntax>();
+            bool hasLiteralOrRequired = false;
+            foreach (var element in arrayCreation.Initializer.ElementValues)
+            {
+                var argSyntax = element.Syntax?.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentSyntax) as ArgumentSyntax;
+                if (argSyntax != null)
+                {
+                    paramsArgs.Add(argSyntax);
+                    if (IsPossibleOperation(element, out _))
+                    {
+                        hasLiteralOrRequired = true;
+                    }
+                }
+            }
+
+            if (paramsArgs.Count == 0 || !hasLiteralOrRequired)
+                return;
+
+            foreach (var arg in paramsArgs)
+            {
+                if (arg.NameColon != null)
+                    return;
+            }
+
+            var firstArgStx = paramsArgs[0];
+            var lastArgStx = paramsArgs[paramsArgs.Count - 1];
+
+            // Create a location spanning from first to last params argument.
+            var start = firstArgStx.SpanStart;
+            var end = lastArgStx.Span.End;
+            var location = Location.Create(
+                firstArgStx.SyntaxTree,
+                TextSpan.FromBounds(start, end));
+
+            var properties = ImmutableDictionary.CreateBuilder<string, string?>();
+            properties.Add("isParams", "true");
+            properties.Add("paramsArgCount", paramsArgs.Count.ToString());
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_LiteralArgument,
+                location,
+                properties.ToImmutable(),
+                paramsParam.Name));
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context)
