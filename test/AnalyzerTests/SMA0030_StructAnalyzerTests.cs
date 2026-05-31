@@ -136,7 +136,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidStructCtor)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Outer.NestedStruct");
+                .WithArguments("NestedStruct");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

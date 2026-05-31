@@ -35,7 +35,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("PartialStruct.InAnotherFile");
+            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("InAnotherFile");
 
             var test = new VerifyCS.Test
             {
@@ -67,7 +67,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("InterFileRef.OtherField");
+            var expected = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_AnotherFile).WithLocation(markupKey: 0).WithArguments("OtherField");
 
             var test = new VerifyCS.Test
             {

@@ -280,14 +280,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
 
+        static readonly SymbolDisplayFormat s_diagnosticMessageFormat = new SymbolDisplayFormat(
+            globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameOnly,
+            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+            memberOptions: SymbolDisplayMemberOptions.None,
+            delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
+            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.Default,
+            parameterOptions: SymbolDisplayParameterOptions.IncludeName,
+            propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
+            localOptions: SymbolDisplayLocalOptions.None,
+            kindOptions: SymbolDisplayKindOptions.None,
+            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
+        );
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string ToDiagnosticMessageName(this ISymbol symbol)
         {
-            return symbol switch
-            {
-                ILocalSymbol or IParameterSymbol => symbol.Name,
-                _ => symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat),
-            };
+            return symbol.ToDisplayString(s_diagnosticMessageFormat);
         }
 
         // string.Create and Concat(ReadOnlySpan) cannot be used in .net standard 2.0
