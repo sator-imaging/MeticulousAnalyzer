@@ -133,36 +133,16 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 expressions,
                 Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken).WithTrailingTrivia(SyntaxFactory.Space), expressions.Length - 1));
 
-            ExpressionSyntax arrayCreation;
-            if (elementType.IsAnonymousType)
-            {
-                arrayCreation = SyntaxFactory.ImplicitArrayCreationExpression(
-                    SyntaxFactory.Token(SyntaxKind.NewKeyword).WithTrailingTrivia(SyntaxFactory.Space),
-                    SyntaxFactory.Token(SyntaxKind.OpenBracketToken),
-                    new SyntaxTokenList(),
-                    SyntaxFactory.Token(SyntaxKind.CloseBracketToken).WithTrailingTrivia(SyntaxFactory.Space),
-                    SyntaxFactory.InitializerExpression(
-                        SyntaxKind.ArrayInitializerExpression,
-                        SyntaxFactory.Token(SyntaxKind.OpenBraceToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
-                        separatedList,
-                        SyntaxFactory.Token(SyntaxKind.CloseBraceToken).WithLeadingTrivia(SyntaxFactory.Space)));
-            }
-            else
-            {
-                arrayCreation = SyntaxFactory.ArrayCreationExpression(
-                    SyntaxFactory.Token(SyntaxKind.NewKeyword).WithTrailingTrivia(SyntaxFactory.Space),
-                    SyntaxFactory.ArrayType(
-                        SyntaxFactory.ParseTypeName(elementType.ToMinimalDisplayString(semanticModel, argumentList.SpanStart)),
-                        SyntaxFactory.SingletonList(
-                            SyntaxFactory.ArrayRankSpecifier(
-                                SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
-                                    SyntaxFactory.OmittedArraySizeExpression())))),
-                    SyntaxFactory.InitializerExpression(
-                        SyntaxKind.ArrayInitializerExpression,
-                        SyntaxFactory.Token(SyntaxKind.OpenBraceToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
-                        separatedList,
-                        SyntaxFactory.Token(SyntaxKind.CloseBraceToken).WithLeadingTrivia(SyntaxFactory.Space)));
-            }
+            var arrayCreation = SyntaxFactory.ImplicitArrayCreationExpression(
+                SyntaxFactory.Token(SyntaxKind.NewKeyword).WithTrailingTrivia(SyntaxFactory.Space),
+                SyntaxFactory.Token(SyntaxKind.OpenBracketToken),
+                new SyntaxTokenList(),
+                SyntaxFactory.Token(SyntaxKind.CloseBracketToken).WithTrailingTrivia(SyntaxFactory.Space),
+                SyntaxFactory.InitializerExpression(
+                    SyntaxKind.ArrayInitializerExpression,
+                    SyntaxFactory.Token(SyntaxKind.OpenBraceToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
+                    separatedList,
+                    SyntaxFactory.Token(SyntaxKind.CloseBraceToken).WithLeadingTrivia(SyntaxFactory.Space)));
 
             // Build name colon.
             var kind = SyntaxFacts.GetKeywordKind(parameterName);
