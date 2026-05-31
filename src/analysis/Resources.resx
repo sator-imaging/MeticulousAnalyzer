@@ -124,7 +124,7 @@
     <value>Static field declaration order is wrong.</value>
   </data>
   <data name="SMA0001_MessageFormat" xml:space="preserve">
-    <value>Reading '{0}' before initialization</value>
+    <value>'{0}' is used before it's initialized, reorder declarations</value>
   </data>
   <data name="SMA0001_Title" xml:space="preserve">
     <value>Reading Uninitialized Value</value>
@@ -133,7 +133,7 @@
     <value>Trying to read value from static field declared in cross-referencing type.</value>
   </data>
   <data name="SMA0002_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' is cross-referencing static field in type '{1}'</value>
+    <value>'{0}' cross-references static field in '{1}', initialization order is unpredictable</value>
   </data>
   <data name="SMA0002_Title" xml:space="preserve">
     <value>Cross Referencing across Type</value>
@@ -142,7 +142,7 @@
     <value>Initialization order of partial type files is undefined in language spec.</value>
   </data>
   <data name="SMA0003_MessageFormat" xml:space="preserve">
-    <value>Partial type member '{0}' is declared in another .cs file</value>
+    <value>'{0}' is declared in another partial file, initialization order is undefined</value>
   </data>
   <data name="SMA0003_Title" xml:space="preserve">
     <value>Static Member Declared in Another File</value>
@@ -151,7 +151,7 @@
     <value>Static field is read before initialize.</value>
   </data>
   <data name="SMA0004_MessageFormat" xml:space="preserve">
-    <value>'{0}' is reading this member before declaration</value>
+    <value>'{0}' reads this member before its declaration, move it after</value>
   </data>
   <data name="SMA0004_Title" xml:space="preserve">
     <value>Late Declaration</value>
@@ -163,7 +163,7 @@
     <value>`TSelf` type arg should be pointing itself.</value>
   </data>
   <data name="SMA0010_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}'? TSelf type arg should point to itself</value>
+    <value>TSelf should point to itself, did you mean '{0}'?</value>
   </data>
   <data name="SMA0010_Title" xml:space="preserve">
     <value>TSelf is Not Self</value>
@@ -172,7 +172,7 @@
     <value>`TSelf` type arg should be pointing itself or its base type.</value>
   </data>
   <data name="SMA0011_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}' or base type? TSelf should be covariant</value>
+    <value>TSelf should point to itself or base type, did you mean '{0}'?</value>
   </data>
   <data name="SMA0011_Title" xml:space="preserve">
     <value>TSelf is Not Self or Base</value>
@@ -181,7 +181,7 @@
     <value>`TSelf` type arg should be pointing itself or its derived type.</value>
   </data>
   <data name="SMA0012_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}' or derived type? TSelf should be contravariant</value>
+    <value>TSelf should point to itself or derived type, did you mean '{0}'?</value>
   </data>
   <data name="SMA0012_Title" xml:space="preserve">
     <value>TSelf is Not Self or Derived</value>
@@ -190,7 +190,7 @@
     <value>`TSelf` type constraint is not pointing itself.</value>
   </data>
   <data name="SMA0015_MessageFormat" xml:space="preserve">
-    <value>Did you mean '{0}'? TSelf constraint is pointing to another type</value>
+    <value>TSelf constraint should point to itself, did you mean '{0}'?</value>
   </data>
   <data name="SMA0015_Title" xml:space="preserve">
     <value>TSelf Constraint is Not Self</value>
@@ -202,7 +202,7 @@
     <value>Unchecked value conversion to enum type. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
-    <value>Unchecked cast to enum type '{0}'</value>
+    <value>Unchecked value cast to enum '{0}', verify the value is valid</value>
   </data>
   <data name="SMA0020_Title" xml:space="preserve">
     <value>Unchecked Cast to Enum Type</value>
@@ -211,7 +211,7 @@
     <value>Casting enum type to other. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
-    <value>Cast from enum '{0}' to other type</value>
+    <value>Casting enum '{0}' to another type, consider encapsulating</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
@@ -220,7 +220,7 @@
     <value>Unchecked value conversion to generic enum type. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
-    <value>Unchecked cast to generic enum type '{0}'</value>
+    <value>Unchecked value cast to generic enum '{0}', verify the value is valid</value>
   </data>
   <data name="SMA0022_Title" xml:space="preserve">
     <value>Unchecked Cast to Generic Enum Type</value>
@@ -229,7 +229,7 @@
     <value>Casting generic enum type to other. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
-    <value>Cast from generic enum '{0}' to other type</value>
+    <value>Casting generic enum '{0}' to another type, consider encapsulating</value>
   </data>
   <data name="SMA0023_Title" xml:space="preserve">
     <value>Cast from Generic Enum Type to Other</value>
@@ -238,7 +238,7 @@
     <value>Trying to convert enum value to string. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
-    <value>String representation of '{0}' may be changed by obfuscation tool</value>
+    <value>'{0}' string representation may break after obfuscation</value>
   </data>
   <data name="SMA0024_Title" xml:space="preserve">
     <value>Enum to String</value>
@@ -247,7 +247,7 @@
     <value>Calling enum system method. Add suppression comment "// Allow enum conversion [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
-    <value>Enum handling should be encapsulated in utility class</value>
+    <value>Encapsulate enum system method calls in a utility class</value>
   </data>
   <data name="SMA0025_Title" xml:space="preserve">
     <value>Enum System Method</value>
@@ -256,7 +256,7 @@
     <value>Enum obfuscation should have controlled.</value>
   </data>
   <data name="SMA0026_MessageFormat" xml:space="preserve">
-    <value>'Obfuscation' attribute should be added to prevent name changes</value>
+    <value>Add 'Obfuscation' attribute to prevent enum name changes</value>
   </data>
   <data name="SMA0026_Title" xml:space="preserve">
     <value>Enum Obfuscation</value>
@@ -265,7 +265,7 @@
     <value>Enum w/o `Flags` attribute should be defined as usual.</value>
   </data>
   <data name="SMA0027_MessageFormat" xml:space="preserve">
-    <value>Non-Flags enum type should have int-typed and no index initializer</value>
+    <value>Non-Flags enum should use int type without explicit index values</value>
   </data>
   <data name="SMA0027_Title" xml:space="preserve">
     <value>Unusual Enum Definition</value>
@@ -287,7 +287,7 @@
     <value>Constructor has declared explicitly so should not use parameter-less one.</value>
   </data>
   <data name="SMA0030_MessageFormat" xml:space="preserve">
-    <value>'{0}' has applicable constructor, avoid using parameter-less one</value>
+    <value>Use the explicit constructor for '{0}' instead of parameter-less default</value>
   </data>
   <data name="SMA0030_Title" xml:space="preserve">
     <value>Invalid Struct Constructor</value>
@@ -296,7 +296,7 @@
     <value>Mutable struct type should not be set to `readonly` field.</value>
   </data>
   <data name="SMA0031_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not readonly struct, should not be set to readonly field</value>
+    <value>'{0}' is mutable struct, don't assign it to a readonly field</value>
   </data>
   <data name="SMA0031_Title" xml:space="preserve">
     <value>Mutable Struct Field marked as Read-Only</value>
@@ -305,7 +305,7 @@
     <value>Implicit conversion from struct to reference type (including interface) causes boxing. Not important if it is not on a hot code path.</value>
   </data>
   <data name="SMA0032_MessageFormat" xml:space="preserve">
-    <value>Implicit boxing conversion from '{0}' to '{1}'</value>
+    <value>Implicit boxing from '{0}' to '{1}', consider using generic constraint</value>
   </data>
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
@@ -317,7 +317,7 @@
     <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>'{0}' has 'IDisposable' pattern implemented, missing 'using' statement</value>
+    <value>'{0}' implements IDisposable pattern, wrap with 'using' statement</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
@@ -326,7 +326,7 @@
     <value>Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.</value>
   </data>
   <data name="SMA0041_MessageFormat" xml:space="preserve">
-    <value>'{0}' is assigned null without a preceding `.Dispose()` or `?.Dispose()` call</value>
+    <value>Call .Dispose() on '{0}' before assigning null</value>
   </data>
   <data name="SMA0041_Title" xml:space="preserve">
     <value>Null Assignment to Disposable</value>
@@ -335,7 +335,7 @@
     <value>A locally declared disposable object must be returned on all code paths. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0042_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not returned on all code paths</value>
+    <value>Disposable '{0}' is not returned on all code paths, may leak</value>
   </data>
   <data name="SMA0042_Title" xml:space="preserve">
     <value>Not All Code Paths Return a Value</value>
@@ -344,7 +344,7 @@
     <value>All disposable fields must be disposed in the Dispose method. Add suppression comment "// Don't dispose [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not disposed</value>
+    <value>'{0}' is not disposed, add disposal in Dispose method</value>
   </data>
   <data name="SMA0043_Title" xml:space="preserve">
     <value>Undisposed Member</value>
@@ -353,7 +353,7 @@
     <value>Types that own disposable fields should implement the IDisposable pattern.</value>
   </data>
   <data name="SMA0044_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' has disposable members but does not implement Dispose method</value>
+    <value>'{0}' owns disposable members, implement Dispose method</value>
   </data>
   <data name="SMA0044_Title" xml:space="preserve">
     <value>Missing Dispose Implementation</value>
@@ -362,7 +362,7 @@
     <value>Types that own disposable fields should implement IDisposable interface.</value>
   </data>
   <data name="SMA0045_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' has disposable members but does not implement IDisposable interface</value>
+    <value>'{0}' owns disposable members, implement IDisposable interface</value>
   </data>
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
@@ -374,7 +374,7 @@
     <value>File should start with a header comment such as `//` or `/*`.</value>
   </data>
   <data name="SMA0050_MessageFormat" xml:space="preserve">
-    <value>Add file header comment at the top of the file</value>
+    <value>Add a file header comment (// or /*) at the top</value>
   </data>
   <data name="SMA0050_Title" xml:space="preserve">
     <value>Missing File Header Comment</value>
@@ -386,7 +386,7 @@
     <value>Avoid assignments to locals unless the local is intentionally mutable.</value>
   </data>
   <data name="SMA0060_MessageFormat" xml:space="preserve">
-    <value>Cannot modify immutable local '{0}'. Rename it to 'mut_{0}' to make it mutable.</value>
+    <value>Local '{0}' is immutable, rename to 'mut_{0}' to allow reassignment</value>
   </data>
   <data name="SMA0060_Title" xml:space="preserve">
     <value>Avoid Reassigning Locals</value>
@@ -395,7 +395,7 @@
     <value>Avoid assignments to parameters unless the parameter is intentionally mutable.</value>
   </data>
   <data name="SMA0061_MessageFormat" xml:space="preserve">
-    <value>Cannot modify immutable parameter '{0}'. Rename it to 'mut_{0}' to make it mutable.</value>
+    <value>Parameter '{0}' is immutable, rename to 'mut_{0}' to allow reassignment</value>
   </data>
   <data name="SMA0061_Title" xml:space="preserve">
     <value>Avoid Reassigning Parameters</value>
@@ -404,7 +404,7 @@
     <value>Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.</value>
   </data>
   <data name="SMA0062_MessageFormat" xml:space="preserve">
-    <value>Cannot pass immutable variable '{0}' as a writable argument</value>
+    <value>'{0}' is immutable, cannot pass as writable argument</value>
   </data>
   <data name="SMA0062_Title" xml:space="preserve">
     <value>Avoid Passing Writable Variables to Calls</value>
@@ -413,7 +413,7 @@
     <value>Avoid accessing properties of immutable variables as it can change their internal state.</value>
   </data>
   <data name="SMA0063_MessageFormat" xml:space="preserve">
-    <value>Property access '{0}' can change state of immutable variable '{1}'. Rename it to 'mut_{1}' to make it mutable.</value>
+    <value>Property '{0}' may mutate immutable '{1}', rename to 'mut_{1}' to allow</value>
   </data>
   <data name="SMA0063_Title" xml:space="preserve">
     <value>Property Access Can Change State</value>
@@ -422,7 +422,7 @@
     <value>Avoid calling methods of immutable variables as it can change their internal state.</value>
   </data>
   <data name="SMA0064_MessageFormat" xml:space="preserve">
-    <value>Method call '{0}' can change state of immutable variable '{1}'. Rename it to 'mut_{1}' to make it mutable.</value>
+    <value>Method '{0}' may mutate immutable '{1}', rename to 'mut_{1}' to allow</value>
   </data>
   <data name="SMA0064_Title" xml:space="preserve">
     <value>Method Call Can Change State</value>
@@ -434,7 +434,7 @@
     <value>Task local variable should be awaited or returned. Add suppression comment "// Don't await [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited, missing 'await' keyword</value>
+    <value>Task '{0}' is not awaited, add 'await' or return it</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
@@ -443,7 +443,7 @@
     <value>Task local variable should be awaited or returned on all code paths. Add suppression comment "// Don't await [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA0071_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited on all code paths</value>
+    <value>Task '{0}' is not awaited on all code paths, may fire-and-forget</value>
   </data>
   <data name="SMA0071_Title" xml:space="preserve">
     <value>Task Not Awaited on All Paths</value>
@@ -464,7 +464,7 @@
     <value>Older runtime inefficiently handle direct passing of method. Not important if it is not on a hot code path.</value>
   </data>
   <data name="SMA7001_MessageFormat" xml:space="preserve">
-    <value>Implicit conversion to '{0}' delegate</value>
+    <value>Implicit conversion to '{0}' delegate causes allocation on older runtime</value>
   </data>
   <data name="SMA7001_Title" xml:space="preserve">
     <value>Inefficient delegate declaration</value>
@@ -473,7 +473,7 @@
     <value>Non-static lambda declaration and implicit conversion causes allocation. Not important if it is not on a hot code path. Add suppression comment "// Allow allocation [Reason(optional)]" to suppress this diagnostic.</value>
   </data>
   <data name="SMA7002_MessageFormat" xml:space="preserve">
-    <value>Non-static lambda declaration and implicit conversion causes allocation</value>
+    <value>Non-static lambda causes allocation, make it static or cache</value>
   </data>
   <data name="SMA7002_Title" xml:space="preserve">
     <value>Lambda allocation</value>
@@ -485,7 +485,7 @@
     <value>Literal arguments should be passed as named arguments to express their meaning.</value>
   </data>
   <data name="SMA8000_MessageFormat" xml:space="preserve">
-    <value>Literal argument for parameter '{0}' should be passed as named argument</value>
+    <value>Pass literal for '{0}' as named argument for readability</value>
   </data>
   <data name="SMA8000_Title" xml:space="preserve">
     <value>Literal should be passed as named argument</value>
@@ -494,16 +494,16 @@
     <value>All system primitive numbers, from byte to decimal, should be declared explicitly typed.</value>
   </data>
   <data name="SMA8001_MessageFormat" xml:space="preserve">
-    <value>Variable '{0}' should be declared with an explicit number type instead of 'var'</value>
+    <value>Declare '{0}' with explicit number type instead of 'var'</value>
   </data>
   <data name="SMA8001_Title" xml:space="preserve">
     <value>Explicit number declaration</value>
   </data>
   <data name="SMA8002_Description" xml:space="preserve">
-    <value>Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Strongly recommended that safely suppressing it by using `Debug.Assert({0} is not null);` instead of `!` operator.</value>
+    <value>Null suppression should be fenced with 3 parentheses for visibility, or use Debug.Assert for safe null check.</value>
   </data>
   <data name="SMA8002_MessageFormat" xml:space="preserve">
-    <value>Null suppression operation should be fenced with 3 parentheses. Strongly recommended that safely suppressing it by using `Debug.Assert({0} is not null);` instead of `!` operator.</value>
+    <value>Fence '!' with 3 parentheses, or use Debug.Assert({0} is not null) instead</value>
   </data>
   <data name="SMA8002_Title" xml:space="preserve">
     <value>Null suppression operation</value>
