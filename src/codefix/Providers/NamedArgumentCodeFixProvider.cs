@@ -135,7 +135,7 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var arrayCreation = SyntaxFactory.ArrayCreationExpression(
                 SyntaxFactory.Token(SyntaxKind.NewKeyword).WithTrailingTrivia(SyntaxFactory.Space),
                 SyntaxFactory.ArrayType(
-                    SyntaxFactory.ParseTypeName(elementType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)),
+                    SyntaxFactory.ParseTypeName(elementType.ToMinimalDisplayString(semanticModel, argumentList.SpanStart)),
                     SyntaxFactory.SingletonList(
                         SyntaxFactory.ArrayRankSpecifier(
                             SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
@@ -163,16 +163,24 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var newArgument = SyntaxFactory.Argument(nameColon, SyntaxFactory.Token(SyntaxKind.None), arrayCreation)
                 .WithLeadingTrivia(leadingTrivia);
 
-            // Build new argument list: non-params args + the single new named params argument.
+            // Build new argument list: non-params args + the single new named params argument at the correct position.
             var newArgs = new List<ArgumentSyntax>();
+            bool inserted = false;
             foreach (var arg in argumentList.Arguments)
             {
-                if (!paramsArgs.Contains(arg))
+                if (paramsArgs.Contains(arg))
+                {
+                    if (!inserted)
+                    {
+                        newArgs.Add(newArgument);
+                        inserted = true;
+                    }
+                }
+                else
                 {
                     newArgs.Add(arg);
                 }
             }
-            newArgs.Add(newArgument);
 
             // Rebuild the separators (commas).
             var newArgList = SyntaxFactory.ArgumentList(

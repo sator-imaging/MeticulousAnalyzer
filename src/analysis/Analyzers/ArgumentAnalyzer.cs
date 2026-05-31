@@ -240,12 +240,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Skip if the argument maps to a params parameter (handled by invocation/creation analyzer).
-            if (argOp.Parameter != null && argOp.Parameter.IsParams)
-            {
-                return;
-            }
-
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction.
             if (argStx.IsKind(SyntaxKind.AttributeArgument))
             {
