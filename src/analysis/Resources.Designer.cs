@@ -304,7 +304,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Unchecked value conversion to enum type. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Unchecked value cast to enum type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0020_Description {
             get {
@@ -313,7 +313,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Unchecked value cast to enum &apos;{0}&apos;. Centralize and verify in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Unchecked value cast to enum &apos;{0}&apos;. Centralize and verify in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0020_MessageFormat {
             get {
@@ -331,7 +331,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Casting enum type to other. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Casting enum type to another type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0021_Description {
             get {
@@ -340,7 +340,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Casting enum &apos;{0}&apos; to another type. Centralize in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Casting enum &apos;{0}&apos; to another type. Centralize in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0021_MessageFormat {
             get {
@@ -358,7 +358,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Unchecked value conversion to generic enum type. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Unchecked value cast to generic enum type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0022_Description {
             get {
@@ -367,7 +367,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Unchecked value cast to generic enum &apos;{0}&apos;. Centralize and verify in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Unchecked value cast to generic enum &apos;{0}&apos;. Centralize and verify in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0022_MessageFormat {
             get {
@@ -385,7 +385,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Casting generic enum type to other. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Casting generic enum type to another type. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0023_Description {
             get {
@@ -394,7 +394,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Casting generic enum &apos;{0}&apos; to another type. Centralize in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Casting generic enum &apos;{0}&apos; to another type. Centralize in a utility method. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0023_MessageFormat {
             get {
@@ -412,7 +412,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Trying to convert enum value to string. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Enum string representation may break after obfuscation. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0024_Description {
             get {
@@ -421,7 +421,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   &apos;{0}&apos; string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment &quot;// Allow enum conversion [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   &apos;{0}&apos; string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0024_MessageFormat {
             get {
@@ -439,7 +439,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Calling enum system method. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Enum system method call should be centralized. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0025_Description {
             get {
@@ -448,7 +448,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   Centralize enum system method calls in a utility class. Can suppress with comment &quot;// Allow enum conversion [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Centralize enum system method calls in a utility class. Can suppress with comment &quot;// Allow enum conversion [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0025_MessageFormat {
             get {
@@ -620,7 +620,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Implicit boxing from &apos;{0}&apos; to &apos;{1}&apos;. Consider using generic constraint に類似しているローカライズされた文字列を検索します。
+        ///   Implicit boxing from &apos;{0}&apos; to &apos;{1}&apos;. Consider using generic constraint. Can suppress with comment &quot;// Allow boxing [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0032_MessageFormat {
             get {
@@ -647,7 +647,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. Can suppress with comment &quot;// Don&apos;t dispose [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Instance that implements IDisposable pattern should be wrapped with `using` statement. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0040_Description {
             get {
@@ -656,7 +656,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
         
         /// <summary>
-        ///   &apos;{0}&apos; implements IDisposable pattern. Wrap with &apos;using&apos; statement. Can suppress with comment &quot;// Don&apos;t dispose [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   &apos;{0}&apos; implements IDisposable pattern. Wrap with &apos;using&apos; statement. Can suppress with comment &quot;// Don&apos;t dispose [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0040_MessageFormat {
             get {
@@ -848,7 +848,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   A locally declared disposable object must be returned on all code paths. Can suppress with comment &quot;// Don&apos;t dispose [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   A locally declared disposable object must be returned on all code paths. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0042_Description {
             get {
@@ -857,7 +857,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Disposable &apos;{0}&apos; is not returned on all code paths. May leak. Can suppress with comment &quot;// Don&apos;t dispose [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Disposable &apos;{0}&apos; is not returned on all code paths. May leak. Can suppress with comment &quot;// Don&apos;t dispose [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0042_MessageFormat {
             get {
@@ -1235,7 +1235,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   All disposable fields must be disposed in the Dispose method. Can suppress with comment &quot;// Don&apos;t dispose [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Disposable field is not disposed in the Dispose method. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0043_Description {
             get {
@@ -1244,7 +1244,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   &apos;{0}&apos; is not disposed. Add disposal in Dispose method. Can suppress with comment &quot;// Don&apos;t dispose [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   &apos;{0}&apos; is not disposed. Add disposal in Dispose method. Can suppress with comment &quot;// Don&apos;t dispose [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0043_MessageFormat {
             get {
@@ -1324,7 +1324,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Task local variable should be awaited or returned. Can suppress with comment &quot;// Don&apos;t await [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Task local variable should be awaited or returned. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0070_Description {
             get {
@@ -1333,7 +1333,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Task &apos;{0}&apos; is not awaited. Add &apos;await&apos; or return it. Can suppress with comment &quot;// Don&apos;t await [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Task &apos;{0}&apos; is not awaited. Add &apos;await&apos; or return it. Can suppress with comment &quot;// Don&apos;t await [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0070_MessageFormat {
             get {
@@ -1351,7 +1351,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Task local variable should be awaited or returned on all code paths. Can suppress with comment &quot;// Don&apos;t await [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Task local variable should be awaited or returned on all code paths. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0071_Description {
             get {
@@ -1360,7 +1360,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Task &apos;{0}&apos; is not awaited on all code paths. May fire-and-forget. Can suppress with comment &quot;// Don&apos;t await [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Task &apos;{0}&apos; is not awaited on all code paths. May fire-and-forget. Can suppress with comment &quot;// Don&apos;t await [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA0071_MessageFormat {
             get {
@@ -1457,7 +1457,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Non-static lambda declaration and implicit conversion causes allocation. Can suppress with comment &quot;// Allow allocation [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Non-static lambda declaration and implicit conversion causes allocation. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA7002_Description {
             get {
@@ -1466,7 +1466,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
         }
 
         /// <summary>
-        ///   Non-static lambda causes allocation. Make it static or cache. Can suppress with comment &quot;// Allow allocation [Reason]&quot; に類似しているローカライズされた文字列を検索します。
+        ///   Non-static lambda causes allocation. Make it static or cache. Can suppress with comment &quot;// Allow allocation [Reason(optional)]&quot; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SMA7002_MessageFormat {
             get {
