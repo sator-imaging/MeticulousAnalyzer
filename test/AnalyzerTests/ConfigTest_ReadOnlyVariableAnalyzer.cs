@@ -123,7 +123,7 @@ namespace Test
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = true", expected);
         }

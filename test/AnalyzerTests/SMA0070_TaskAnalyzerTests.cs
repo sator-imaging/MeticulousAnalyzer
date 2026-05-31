@@ -32,7 +32,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -146,7 +146,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ValueTask t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -169,7 +169,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task<int> t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -216,7 +216,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -347,7 +347,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -394,7 +394,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -420,7 +420,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -444,7 +444,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -490,7 +490,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task _");
+                .WithArguments("_");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -646,7 +646,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("MyTask t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -697,7 +697,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -724,7 +724,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -752,7 +752,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -775,7 +775,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ValueTask<int> t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

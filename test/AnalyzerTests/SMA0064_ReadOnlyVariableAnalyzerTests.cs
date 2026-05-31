@@ -50,10 +50,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 0)
-                .WithArguments("s.MutableMethod()", "S s");
+                .WithArguments("s.MutableMethod()", "s");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 1)
-                .WithArguments("s.MutableProp", "S s");
+                .WithArguments("s.MutableProp", "s");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -80,7 +80,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 0)
-                .WithArguments("foo.Do()", "C foo");
+                .WithArguments("foo.Do()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -106,7 +106,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 0)
-                .WithArguments("foo.Do()", "C foo");
+                .WithArguments("foo.Do()", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -143,18 +143,18 @@ namespace Test
             // Diagnostic spans overlap and cannot use markers.
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(startLine: 20, startColumn: 17, endLine: 20, endColumn: 27)
-                .WithArguments("foo.GetB()", "C foo");
+                .WithArguments("foo.GetB()", "foo");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithSpan(startLine: 20, startColumn: 17, endLine: 20, endColumn: 40)
-                .WithArguments("foo.GetB().ReadOnlyProp", "C foo");
+                .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
             // Diagnostic spans overlap and cannot use markers.
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(startLine: 21, startColumn: 17, endLine: 21, endColumn: 27)
-                .WithArguments("foo.GetB()", "C foo");
+                .WithArguments("foo.GetB()", "foo");
             var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithSpan(startLine: 21, startColumn: 17, endLine: 21, endColumn: 40)
-                .WithArguments("foo.GetB().ReadOnlyProp", "C foo");
+                .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1, expected2, expected3);
         }

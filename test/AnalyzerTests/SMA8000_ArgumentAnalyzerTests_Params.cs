@@ -26,7 +26,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -49,7 +49,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -70,7 +70,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -91,7 +91,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -219,7 +219,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params string[] values");
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -240,7 +240,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("params int[] values");
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("values");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }

@@ -283,6 +283,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string ToDiagnosticMessageName(this ISymbol symbol)
         {
+            if (symbol is ILocalSymbol || symbol is IParameterSymbol)
+                return symbol.Name;
             return symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         }
 

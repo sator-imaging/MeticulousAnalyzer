@@ -290,9 +290,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool HasMutableNamePrefix(string name)
         {
-            var idx = name.LastIndexOf(' ');
-            var simpleName = idx >= 0 ? name.Substring(idx + 1) : name;
-            return simpleName.StartsWith(value: "mut_");
+            return name.StartsWith(value: "mut_");
         }
 
         private static void AnalyzeArgument(OperationAnalysisContext context, IArgumentOperation argument)

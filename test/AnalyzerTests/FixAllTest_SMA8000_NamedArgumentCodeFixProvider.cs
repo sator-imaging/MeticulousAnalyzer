@@ -84,7 +84,7 @@ namespace Test_{0}
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 0).WithArguments("a"));
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 1).WithArguments("b"));
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 2).WithArguments("c"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 3).WithArguments("params int[] values"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: offset + 3).WithArguments("values"));
             }
 
             // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).

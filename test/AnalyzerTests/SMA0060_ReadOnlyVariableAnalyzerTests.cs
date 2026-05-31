@@ -34,7 +34,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -59,7 +59,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -84,7 +84,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -109,7 +109,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int? foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -135,10 +135,10 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int left");
+                .WithArguments("left");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 1)
-                .WithArguments("int right");
+                .WithArguments("right");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -207,10 +207,10 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int left");
+                .WithArguments("left");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 1)
-                .WithArguments("int right");
+                .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
             // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError(identifier: "CS8184")
@@ -239,10 +239,10 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int left");
+                .WithArguments("left");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 1)
-                .WithArguments("int right");
+                .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
             // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError(identifier: "CS8184")
@@ -370,7 +370,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int i");
+                .WithArguments("i");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -424,7 +424,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Box foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -502,7 +502,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int i");
+                .WithArguments("i");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -527,7 +527,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -910,7 +910,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int r");
+                .WithArguments("r");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -935,7 +935,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -960,7 +960,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -985,7 +985,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1010,7 +1010,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1035,7 +1035,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1060,7 +1060,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1085,7 +1085,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1110,7 +1110,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1135,7 +1135,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1160,7 +1160,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int foo");
+                .WithArguments("foo");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1372,10 +1372,10 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int x");
+                .WithArguments("x");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 1)
-                .WithArguments("int y");
+                .WithArguments("y");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -1409,10 +1409,10 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int x");
+                .WithArguments("x");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 1)
-                .WithArguments("int y");
+                .WithArguments("y");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -1441,10 +1441,10 @@ namespace Test
 
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int x");
+                .WithArguments("x");
             var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter)
                 .WithLocation(markupKey: 1)
-                .WithArguments("int p");
+                .WithArguments("p");
 
             await VerifyWithRuleEnabledAsync(test, expected0, expected1);
         }
@@ -1578,7 +1578,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int i");
+                .WithArguments("i");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1604,7 +1604,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int i");
+                .WithArguments("i");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1632,7 +1632,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
-                .WithArguments("int read");
+                .WithArguments("read");
 
             await VerifyWithRuleEnabledAsync(test, expected);
         }
@@ -1946,7 +1946,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("int x");
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("x");
 
             await VerifyWithRuleEnabledAsync(test, expected0);
         }
@@ -1973,7 +1973,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("int x");
+            var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal).WithLocation(markupKey: 0).WithArguments("x");
 
             await VerifyWithRuleEnabledAsync(test, expected0);
         }

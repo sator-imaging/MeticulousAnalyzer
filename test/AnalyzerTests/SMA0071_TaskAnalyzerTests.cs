@@ -36,7 +36,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -67,7 +67,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -124,7 +124,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task<int> t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -151,7 +151,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ValueTask t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -182,7 +182,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -209,7 +209,7 @@ namespace Test
 ";
             var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_NotAllCodePathsAwait)
                 .WithLocation(markupKey: 0)
-                .WithArguments("Task t");
+                .WithArguments("t");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
