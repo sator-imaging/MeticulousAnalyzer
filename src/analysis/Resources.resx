@@ -274,8 +274,7 @@
     <value>Enum-like pattern implementation is not complete.</value>
   </data>
   <data name="SMA0028_MessageFormat" xml:space="preserve">
-    <value>Enum-like type '{0}'
-&gt; {1}</value>
+    <value>Enum-like type '{0}' is incomplete</value>
   </data>
   <data name="SMA0028_Title" xml:space="preserve">
     <value>Invalid Enum-like Pattern</value>
