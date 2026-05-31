@@ -256,7 +256,7 @@
     <value>Enum obfuscation should have controlled.</value>
   </data>
   <data name="SMA0026_MessageFormat" xml:space="preserve">
-    <value>Add 'Obfuscation' attribute to prevent enum name changes</value>
+    <value>Add `Obfuscation` attribute to prevent enum name changes</value>
   </data>
   <data name="SMA0026_Title" xml:space="preserve">
     <value>Enum Obfuscation</value>
@@ -317,7 +317,7 @@
     <value>`using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>'{0}' implements IDisposable pattern. Wrap with 'using' statement. Can suppress with comment "// Don't dispose [Reason]"</value>
+    <value>'{0}' implements IDisposable pattern. Wrap with `using` statement. Can suppress with comment "// Don't dispose [Reason]"</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
@@ -434,7 +434,7 @@
     <value>Task local variable should be awaited or returned. Can suppress with comment "// Don't await [Reason(optional)]"</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited. Add 'await' or return it. Can suppress with comment "// Don't await [Reason]"</value>
+    <value>Task '{0}' is not awaited. Add `await` or return it. Can suppress with comment "// Don't await [Reason]"</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
@@ -494,16 +494,16 @@
     <value>All system primitive numbers, from byte to decimal, should be declared explicitly typed.</value>
   </data>
   <data name="SMA8001_MessageFormat" xml:space="preserve">
-    <value>Declare '{0}' with explicit number type instead of 'var'</value>
+    <value>Declare '{0}' with explicit number type instead of `var`</value>
   </data>
   <data name="SMA8001_Title" xml:space="preserve">
     <value>Explicit number declaration</value>
   </data>
   <data name="SMA8002_Description" xml:space="preserve">
-    <value>Null suppression should be fenced with 3 parentheses for visibility, or use Debug.Assert for safe null check.</value>
+    <value>Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.</value>
   </data>
   <data name="SMA8002_MessageFormat" xml:space="preserve">
-    <value>Fence '!' with 3 parentheses, or use Debug.Assert({0} is not null) instead</value>
+    <value>Fence `!` with 3 parentheses, or use `Debug.Assert({0} is not null)` instead</value>
   </data>
   <data name="SMA8002_Title" xml:space="preserve">
     <value>Null suppression operation</value>
