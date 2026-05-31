@@ -119,7 +119,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -136,7 +136,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -153,7 +153,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -171,7 +171,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -189,7 +189,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -207,8 +207,8 @@ public class C
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
-            var expected1 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 1);
+            var expected0 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
+            var expected1 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 1);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 

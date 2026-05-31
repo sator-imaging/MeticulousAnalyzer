@@ -36,7 +36,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -65,7 +65,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -94,7 +94,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -123,7 +123,7 @@ public class C
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaShouldBeStatic).WithLocation(markupKey: 0);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_LambdaCanBeStatic).WithLocation(markupKey: 0);
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
     }

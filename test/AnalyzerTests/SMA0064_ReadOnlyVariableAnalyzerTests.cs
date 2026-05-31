@@ -51,7 +51,7 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 0)
                 .WithArguments("s.MutableMethod()", "s");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithLocation(markupKey: 1)
                 .WithArguments("s.MutableProp", "s");
 
@@ -144,7 +144,7 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(startLine: 20, startColumn: 17, endLine: 20, endColumn: 27)
                 .WithArguments("foo.GetB()", "foo");
-            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            var expected1 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithSpan(startLine: 20, startColumn: 17, endLine: 20, endColumn: 40)
                 .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
@@ -152,7 +152,7 @@ namespace Test
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithSpan(startLine: 21, startColumn: 17, endLine: 21, endColumn: 27)
                 .WithArguments("foo.GetB()", "foo");
-            var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument)
+            var expected3 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState)
                 .WithSpan(startLine: 21, startColumn: 17, endLine: 21, endColumn: 40)
                 .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
@@ -188,7 +188,7 @@ namespace Test
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
-                    ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                    ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState,
                     ReportDiagnostic.Error);
                 specificOptions = specificOptions.SetItem(
                     ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall,

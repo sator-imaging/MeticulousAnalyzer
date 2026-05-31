@@ -86,7 +86,7 @@ namespace Test
                 ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal,
                 ReadOnlyVariableAnalyzer.RuleId_ReadOnlyParameter,
                 ReadOnlyVariableAnalyzer.RuleId_ReadOnlyArgument,
-                ReadOnlyVariableAnalyzer.RuleId_ReadOnlyPropertyArgument,
+                ReadOnlyVariableAnalyzer.RuleId_PropertyAccessCanChangeState,
             };
 
             foreach (var id in ids)
