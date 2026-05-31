@@ -205,5 +205,71 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_CastAsObject_AssignToNonDisposableField()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+
+    class Program
+    {
+        static object _field;
+
+        void Method()
+        {
+            _field = {|#0:(new MyDisposable()) as object|};
+        }
+    }
+}
+";
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithSpan(startLine: 14, startColumn: 22, endLine: 14, endColumn: 42)
+                    .WithArguments("MyDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithLocation(markupKey: 0)
+                    .WithArguments("MyDisposable")
+            };
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_CastAsObject_Discard()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+
+    class Program
+    {
+        void Method()
+        {
+            _ = {|#0:(new MyDisposable()) as object|};
+        }
+    }
+}
+";
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithSpan(startLine: 12, startColumn: 17, endLine: 12, endColumn: 37)
+                    .WithArguments("MyDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithLocation(markupKey: 0)
+                    .WithArguments("MyDisposable")
+            };
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
