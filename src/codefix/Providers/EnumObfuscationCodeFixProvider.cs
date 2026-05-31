@@ -153,37 +153,41 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 // NOTE: to prevent error on no parentheses syntax --> `[Obfuscation]` (no '()' at end)
                 var updatedArgList = foundAttr.ArgumentList ?? SyntaxFactory.AttributeArgumentList();
 
-                var builder = ImmutableArray.CreateBuilder<AttributeArgumentSyntax>();
-                builder.Add(SyntaxFactory.AttributeArgument(
+                // Remove existing Exclude/ApplyToMembers arguments using SeparatedSyntaxList APIs
+                // to preserve original separators and their trivia.
+                var arguments = updatedArgList.Arguments;
+                for (int i = arguments.Count - 1; i >= 0; i--)
+                {
+                    var argName = arguments[i].NameEquals?.Name.ToString();
+                    if (argName is nameof(ObfuscationAttribute.Exclude) or nameof(ObfuscationAttribute.ApplyToMembers))
+                    {
+                        arguments = arguments.RemoveAt(i);
+                    }
+                }
+
+                // Insert the required arguments at the front.
+                var excludeArg = SyntaxFactory.AttributeArgument(
                     SyntaxFactory.NameEquals(
                         SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.Exclude))
                     ),
                     nameColon: null,
                     SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                ));
-                builder.Add(SyntaxFactory.AttributeArgument(
+                );
+                var applyToMembersArg = SyntaxFactory.AttributeArgument(
                     SyntaxFactory.NameEquals(
                         SyntaxFactory.IdentifierName(nameof(ObfuscationAttribute.ApplyToMembers))
                     ),
                     nameColon: null,
                     SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                ));
+                );
 
-                foreach (var arg in updatedArgList.Arguments)
-                {
-                    var argName = arg.NameEquals?.Name.ToString();
-                    if (argName is not nameof(ObfuscationAttribute.Exclude) and not nameof(ObfuscationAttribute.ApplyToMembers))
-                    {
-                        builder.Add(arg);
-                    }
-                }
+                arguments = arguments.Insert(0, applyToMembersArg);
+                arguments = arguments.Insert(0, excludeArg);
 
                 root = root.ReplaceNode(
                     foundAttr,
                     foundAttr.WithArgumentList(
-                        updatedArgList.WithArguments(
-                            SyntaxFactory.SeparatedList(builder.ToImmutable())
-                        )
+                        updatedArgList.WithArguments(arguments)
                     )
                 );
             }
