@@ -170,25 +170,16 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
                 .WithNameColon(nameColon)
                 .WithLeadingTrivia(leadingTrivia);
 
-            // Build new argument list preserving original separators for preceding args.
-            var newNodes = new List<ArgumentSyntax>();
-            var newSeparators = new List<SyntaxToken>();
-
-            for (int i = 0; i < firstParamsIndex; i++)
+            // Replace params arguments with the single named array argument,
+            // preserving all preceding and trailing arguments and their separators.
+            var arguments = argumentList.Arguments;
+            for (int i = paramsArgs.Count - 1; i > 0; i--)
             {
-                newNodes.Add(argumentList.Arguments[i]);
+                arguments = arguments.RemoveAt(firstParamsIndex + i);
             }
-            newNodes.Add(newArgument);
+            arguments = arguments.Replace(arguments[firstParamsIndex], newArgument);
 
-            for (int i = 0; i < firstParamsIndex; i++)
-            {
-                newSeparators.Add(argumentList.Arguments.GetSeparator(i));
-            }
-
-            var newArgList = SyntaxFactory.ArgumentList(
-                argumentList.OpenParenToken,
-                SyntaxFactory.SeparatedList(newNodes, newSeparators),
-                argumentList.CloseParenToken);
+            var newArgList = argumentList.WithArguments(arguments);
 
             var newRoot = root.ReplaceNode(argumentList, newArgList);
             return document.WithSyntaxRoot(newRoot);
