@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
@@ -34,6 +35,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterOperationAction(AnalyzeArgument, OperationKind.Argument);
+            context.RegisterOperationAction(AnalyzeInvocationForParams, OperationKind.Invocation);
+            context.RegisterOperationAction(AnalyzeObjectCreationForParams, OperationKind.ObjectCreation);
             context.RegisterSyntaxNodeAction(AnalyzeAttributeArgument, SyntaxKind.AttributeArgument);
         }
 
@@ -95,6 +98,134 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 parameterName));
         }
 
+        private static void AnalyzeInvocationForParams(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IInvocationOperation invocation)
+                return;
+
+            if (IsKnownAssertionOrMathMethod(invocation))
+                return;
+
+            var method = invocation.TargetMethod;
+            if (method.Parameters.Length == 0)
+                return;
+
+            var lastParam = method.Parameters[method.Parameters.Length - 1];
+            if (!lastParam.IsParams)
+                return;
+
+            if (IsPervasiveSystemLib(method.ContainingType))
+                return;
+
+            ReportParamsArguments(context, invocation.Arguments, lastParam);
+        }
+
+        private static void AnalyzeObjectCreationForParams(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IObjectCreationOperation creation)
+                return;
+
+            var ctor = creation.Constructor;
+            if (ctor == null || ctor.Parameters.Length == 0)
+                return;
+
+            var lastParam = ctor.Parameters[ctor.Parameters.Length - 1];
+            if (!lastParam.IsParams)
+                return;
+
+            if (IsPervasiveSystemLib(ctor.ContainingType))
+                return;
+
+            ReportParamsArguments(context, creation.Arguments, lastParam);
+        }
+
+        private static void ReportParamsArguments(OperationAnalysisContext context, ImmutableArray<IArgumentOperation> arguments, IParameterSymbol paramsParam)
+        {
+            // In Roslyn 3.8.0, expanded params arguments appear as a single implicit IArgumentOperation
+            // with Kind=ParamArray. We need to look at the syntax to find the actual arguments.
+
+            // Check if the params argument is in expanded form (implicit ParamArray).
+            IArgumentOperation? paramsArgOp = null;
+            foreach (var arg in arguments)
+            {
+                if (!SymbolEqualityComparer.Default.Equals(arg.Parameter, paramsParam))
+                    continue;
+
+                paramsArgOp = arg;
+                break;
+            }
+
+            if (paramsArgOp == null)
+                return;
+
+            // If the argument is not implicit, it means an explicit array was passed - skip.
+            if (!paramsArgOp.IsImplicit)
+                return;
+
+            // Get the argument list from syntax.
+            var operationSyntax = context.Operation.Syntax;
+            ArgumentListSyntax? argListSyntax = null;
+
+            if (operationSyntax is InvocationExpressionSyntax invStx)
+                argListSyntax = invStx.ArgumentList;
+            else if (operationSyntax is ObjectCreationExpressionSyntax ctorStx)
+                argListSyntax = ctorStx.ArgumentList;
+
+            if (argListSyntax == null)
+                return;
+
+            // The params parameter is always the last parameter.
+            // Arguments at index >= (paramCount - 1) are the params arguments.
+            var method = paramsParam.ContainingSymbol as IMethodSymbol;
+            if (method == null)
+                return;
+
+            int paramsStartIndex = method.Parameters.Length - 1;
+            var allArgs = argListSyntax.Arguments;
+
+            if (allArgs.Count <= paramsStartIndex)
+                return;
+
+            // Collect the params arguments from syntax.
+            ArgumentSyntax? firstArgStx = null;
+            ArgumentSyntax? lastArgStx = null;
+            int paramsArgCount = 0;
+
+            for (int i = paramsStartIndex; i < allArgs.Count; i++)
+            {
+                var stx = allArgs[i];
+
+                // If any of the params arguments already has a name colon, it's already named - skip all.
+                if (stx.NameColon != null)
+                    return;
+
+                paramsArgCount++;
+                if (firstArgStx == null)
+                    firstArgStx = stx;
+                lastArgStx = stx;
+            }
+
+            if (paramsArgCount == 0 || firstArgStx == null || lastArgStx == null)
+                return;
+
+            // Create a location spanning from first to last params argument.
+            var start = firstArgStx.SpanStart;
+            var end = lastArgStx.Span.End;
+            var location = Location.Create(
+                firstArgStx.SyntaxTree,
+                TextSpan.FromBounds(start, end));
+
+            var properties = ImmutableDictionary.CreateBuilder<string, string?>();
+            properties.Add("isParams", "true");
+            properties.Add("paramsArgCount", paramsArgCount.ToString());
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_LiteralArgument,
+                location,
+                properties.ToImmutable(),
+                paramsParam.Name));
+        }
+
         private static void AnalyzeArgument(OperationAnalysisContext context)
         {
             if (context.Operation is not IArgumentOperation argOp ||
@@ -105,6 +236,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (argOp.Syntax is not ArgumentSyntax argStx ||
                 argStx.NameColon != null)
+            {
+                return;
+            }
+
+            // Skip if the argument maps to a params parameter (handled by invocation/creation analyzer).
+            if (argOp.Parameter != null && argOp.Parameter.IsParams)
             {
                 return;
             }
