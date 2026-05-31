@@ -129,15 +129,23 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             // Build the array creation expression: new ElementType[] { arg1, arg2, ... }
             // Preserve trivia on expressions except leading trivia on the first (moved to newArgument).
             var expressions = paramsArgs.Select((a, i) => i == 0 ? a.Expression.WithLeadingTrivia(SyntaxTriviaList.Empty) : a.Expression).ToArray();
-            var separatedList = SyntaxFactory.SeparatedList(
-                expressions,
-                Enumerable.Repeat(SyntaxFactory.Token(SyntaxKind.CommaToken).WithTrailingTrivia(SyntaxFactory.Space), expressions.Length - 1));
 
-            var arrayCreation = SyntaxFactory.ImplicitArrayCreationExpression(
+            // Preserve original separators (commas and their trivia) between params arguments.
+            var arraySeparators = new List<SyntaxToken>();
+            for (int i = 0; i < paramsArgs.Count - 1; i++)
+            {
+                var argIndex = argumentList.Arguments.IndexOf(paramsArgs[i]);
+                arraySeparators.Add(argumentList.Arguments.GetSeparator(argIndex));
+            }
+            var separatedList = SyntaxFactory.SeparatedList(expressions, arraySeparators);
+
+            var typeSyntax = SyntaxFactory.ParseTypeName(elementType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+            var arrayTypeSyntax = SyntaxFactory.ArrayType(typeSyntax)
+                .AddRankSpecifiers(SyntaxFactory.ArrayRankSpecifier(SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(SyntaxFactory.OmittedArraySizeExpression())));
+
+            var arrayCreation = SyntaxFactory.ArrayCreationExpression(
                 SyntaxFactory.Token(SyntaxKind.NewKeyword).WithTrailingTrivia(SyntaxFactory.Space),
-                SyntaxFactory.Token(SyntaxKind.OpenBracketToken),
-                new SyntaxTokenList(),
-                SyntaxFactory.Token(SyntaxKind.CloseBracketToken).WithTrailingTrivia(SyntaxFactory.Space),
+                arrayTypeSyntax,
                 SyntaxFactory.InitializerExpression(
                     SyntaxKind.ArrayInitializerExpression,
                     SyntaxFactory.Token(SyntaxKind.OpenBraceToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
@@ -161,29 +169,26 @@ namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
             var newArgument = SyntaxFactory.Argument(nameColon, SyntaxFactory.Token(SyntaxKind.None), arrayCreation)
                 .WithLeadingTrivia(leadingTrivia);
 
-            // Build new argument list: non-params args + the single new named params argument at the correct position.
-            var newArgs = new List<ArgumentSyntax>();
-            bool inserted = false;
-            foreach (var arg in argumentList.Arguments)
+            // Build new argument list preserving original separators for preceding args.
+            var firstParamsIndex = argumentList.Arguments.IndexOf(paramsArgs[0]);
+
+            var newNodes = new List<ArgumentSyntax>();
+            var newSeparators = new List<SyntaxToken>();
+
+            for (int i = 0; i < firstParamsIndex; i++)
             {
-                if (paramsArgs.Contains(arg))
-                {
-                    if (!inserted)
-                    {
-                        newArgs.Add(newArgument);
-                        inserted = true;
-                    }
-                }
-                else
-                {
-                    newArgs.Add(arg);
-                }
+                newNodes.Add(argumentList.Arguments[i]);
+            }
+            newNodes.Add(newArgument);
+
+            for (int i = 0; i < firstParamsIndex; i++)
+            {
+                newSeparators.Add(argumentList.Arguments.GetSeparator(i));
             }
 
-            // Rebuild the separators (commas).
             var newArgList = SyntaxFactory.ArgumentList(
                 argumentList.OpenParenToken,
-                SyntaxFactory.SeparatedList(newArgs),
+                SyntaxFactory.SeparatedList(newNodes, newSeparators),
                 argumentList.CloseParenToken);
 
             var newRoot = root.ReplaceNode(argumentList, newArgList);

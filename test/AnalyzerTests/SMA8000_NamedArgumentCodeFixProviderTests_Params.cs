@@ -37,7 +37,7 @@ namespace Test
 
         public void Test()
         {
-            Foo(values: new[] { 1, 2, 3 });
+            Foo(values: new int[] { 1, 2, 3 });
         }
     }
 }
@@ -76,7 +76,7 @@ namespace Test
         {
             int foo = 10;
             int bar = 20;
-            Foo(values: new[] { 1, foo, 2, bar });
+            Foo(values: new int[] { 1, foo, 2, bar });
         }
     }
 }
@@ -111,7 +111,7 @@ namespace Test
 
         public void Test()
         {
-            Foo(""test"", values: new[] { 1, 2, 3 });
+            Foo(""test"", values: new int[] { 1, 2, 3 });
         }
     }
 }
@@ -146,7 +146,7 @@ namespace Test
 
         public void Test()
         {
-            Foo(values: new[] { 42 });
+            Foo(values: new int[] { 42 });
         }
     }
 }
@@ -181,7 +181,7 @@ namespace Test
 
         public void Test()
         {
-            var x = new CTest(values: new[] { 1, 2, 3 });
+            var x = new CTest(values: new int[] { 1, 2, 3 });
         }
     }
 }
@@ -216,7 +216,7 @@ namespace Test
 
         public void Test()
         {
-            Foo(values: new[] { ""a"", ""b"", ""c"" });
+            Foo(values: new string[] { ""a"", ""b"", ""c"" });
         }
     }
 }

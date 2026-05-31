@@ -39,7 +39,7 @@ namespace Test_{0}
         void Test() {{ M(/* Leading trivia */ a: true // Trailing trivia
 , /* Leading trivia */ b: false // Trailing trivia
 , /* Leading trivia */ c: true // Trailing trivia
-); P(""hello"", values: new[] {{ 1, 2, 3 }}); }}
+); P(""hello"", values: new int[] {{ 1, 2, 3 }}); }}
     }}
 }}";
 
