@@ -280,6 +280,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static string ToDiagnosticMessageName(this ISymbol symbol)
+        {
+            return symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+        }
+
         // string.Create and Concat(ReadOnlySpan) cannot be used in .net standard 2.0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string SpanConcat(ReadOnlySpan<char> left, ReadOnlySpan<char> right)

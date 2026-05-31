@@ -123,13 +123,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.Name);
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
             }
 
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.Name);
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
                 return;
             }
 

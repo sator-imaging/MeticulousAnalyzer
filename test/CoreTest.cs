@@ -565,5 +565,27 @@ class C {
                 Assert.AreSame(condOp.Operation, result);
             }
         }
+
+        // ===== ToDiagnosticMessageName =====
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_NonGenericType_ReturnsSimpleName()
+        {
+            var comp = CreateCompilation("class MyClass {} class C { MyClass x; }");
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type!;
+            Assert.AreEqual("MyClass", Core.ToDiagnosticMessageName(type));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_GenericType_ReturnsNameWithTypeParameters()
+        {
+            var comp = CreateCompilation("using System.Collections.Generic; class C { List<int> x; }");
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type!;
+            Assert.AreEqual("List<int>", Core.ToDiagnosticMessageName(type));
+        }
     }
 }
