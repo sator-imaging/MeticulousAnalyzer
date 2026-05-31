@@ -348,39 +348,17 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T[] ToArray<T>(this IEnumerable<T> source)
         {
-            int count = source is IReadOnlyCollection<T> roc ? roc.Count : -1;
-            if (count == 0)
+            if (source is ICollection<T> col)
             {
-                return Array.Empty<T>();
-            }
-
-            /* NOTE: Custom impl is soooooo slow!!
-            using var e = source.GetEnumerator();
-
-            if (count < 0)
-            {
-                return slow(e);
-                static T[] slow(IEnumerator<T> e)
+                int count = col.Count;
+                if (count == 0)
                 {
-                    var list = new List<T>(capacity: 8);
-                    while (e.MoveNext())
-                    {
-                        list.Add(e.Current);
-                    }
-                    return list.ToArray();
+                    return Array.Empty<T>();
                 }
+                var result = new T[count];
+                col.CopyTo(result, 0);
+                return result;
             }
-
-            var result = new T[count];
-
-            int i = -1;
-            while (e.MoveNext())
-            {
-                i++;
-                result[i] = e.Current;
-            }
-            return result;
-            */
 
             return System.Linq.Enumerable.ToArray(source);
         }
