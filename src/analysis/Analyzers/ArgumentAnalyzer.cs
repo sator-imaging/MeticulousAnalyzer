@@ -281,7 +281,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_LiteralArgument,
                 argOp.Syntax.GetLocation(),
-                argOp.Parameter?.Name ?? UnknownParameterName));
+                argOp.Parameter?.ToDiagnosticMessageName() ?? UnknownParameterName));
         }
 
         private static bool TryUnwrapConversion(IOperation operation, out IOperation unwrapped)

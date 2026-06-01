@@ -762,7 +762,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             PREFIX_SYMBOL.AsSpan().CopyTo(span);
             assem.AsSpan().CopyTo(span.Slice(PREFIX_SYMBOL.Length));
 
-            var targetName = targetSymbol.Name;
+            var targetName = targetSymbol.ToDiagnosticMessageName();
             Span<char> quoted = stackalloc char[targetName.Length + 2];
             quoted[0] = '\'';
             targetName.AsSpan().CopyTo(quoted.Slice(1));
