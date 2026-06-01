@@ -151,7 +151,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_InefficientDelegateDeclaration, operand.Syntax.GetLocation(), op.Type.ToDisplayString()));
+            context.ReportDiagnostic(Diagnostic.Create(Rule_InefficientDelegateDeclaration, operand.Syntax.GetLocation(), op.Type.ToDiagnosticMessageName()));
         }
 
         private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)

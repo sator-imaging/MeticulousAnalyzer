@@ -31,10 +31,10 @@ public class C
 ";
             var expected0 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             var expected1 = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 1)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
@@ -56,7 +56,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -76,7 +76,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<int>");
+                .WithArguments("Action<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -96,7 +96,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Func<int>");
+                .WithArguments("Func<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -138,7 +138,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<string>");
+                .WithArguments("Action<string>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -191,7 +191,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -211,7 +211,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Func<int>");
+                .WithArguments("Func<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -268,7 +268,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -289,7 +289,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
