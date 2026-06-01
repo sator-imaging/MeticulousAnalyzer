@@ -597,7 +597,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 foreach (var stxRef in entriesSymbol.DeclaringSyntaxReferences)
                 {
-                    entriesContainerSymbolName ??= entriesContainerSymbol.Name;
+                    entriesContainerSymbolName ??= entriesContainerSymbol.ToDiagnosticMessageName();
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, stxRef.GetSyntax().GetLocation(), entriesContainerSymbolName,
                         "'Entries' doesn't have field initializer"));
@@ -655,7 +655,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
         REPORT_INITIALIZER:
-            entriesContainerSymbolName ??= entriesContainerSymbol.Name;
+            entriesContainerSymbolName ??= entriesContainerSymbol.ToDiagnosticMessageName();
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_EnumLike, initializerStx.GetLocation(), entriesContainerSymbolName,
                 "'Entries' doesn't have all of 'public static readonly' field of type '" + entriesContainerSymbolName + "' in declared order"));

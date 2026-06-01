@@ -874,7 +874,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // !! REPORT !!
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.Name));
+                Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.ToDiagnosticMessageName()));
 
             return;
 
