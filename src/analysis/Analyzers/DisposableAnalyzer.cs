@@ -314,7 +314,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     }
 
                     // If we get here, no preceding dispose call was found. Report the diagnostic.
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignmentToDisposable, assignmentOp.Syntax.GetLocation(), assignmentOp.Target.Type.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_NullAssignmentToDisposable, assignmentOp.Syntax.GetLocation(), assignmentOp.Target.Type.ToDiagnosticMessageName()));
                 }
             }
         }
@@ -589,7 +589,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         : untrackedCastOperandType;
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.Name));
+                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
                 }
 
                 return;

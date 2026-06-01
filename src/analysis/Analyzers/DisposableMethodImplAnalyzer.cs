@@ -123,13 +123,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.Name);
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
             }
 
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.Name);
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
                 return;
             }
 
@@ -157,7 +157,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     // Declarator -> Declaration -> FieldDeclaration
                     if (!Core.IsSuppressedByComment(varDecl.Parent?.Parent, DisposableAnalyzer.SuppressionComment))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.Name));
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.ToDiagnosticMessageName()));
                     }
 
                     reported = true;  // Set true even if suppressed
@@ -165,7 +165,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (!reported)
                 {
-                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.Name);
+                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.ToDiagnosticMessageName());
                 }
             }
         }

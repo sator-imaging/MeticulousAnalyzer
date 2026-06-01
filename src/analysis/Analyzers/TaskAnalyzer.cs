@@ -110,12 +110,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (!inAllCodePaths)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_NotAllCodePathsAwait, syntax.Identifier.GetLocation(), local.Name));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_NotAllCodePathsAwait, syntax.Identifier.GetLocation(), local.ToDiagnosticMessageName()));
                 }
                 return;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingAwait, syntax.Identifier.GetLocation(), local.Name));
+            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingAwait, syntax.Identifier.GetLocation(), local.ToDiagnosticMessageName()));
         }
 
         private static bool IsTask(ITypeSymbol? type)

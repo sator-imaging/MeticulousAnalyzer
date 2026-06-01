@@ -165,7 +165,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                                 context.ReportDiagnostic(
                                     Diagnostic.Create(Rule_AnotherFile, refOp.Syntax.GetLocation(),
-                                    refOp.Member.Name));
+                                    refOp.Member.ToDiagnosticMessageName()));
                             }
                         }
 
@@ -175,12 +175,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             {
                                 context.ReportDiagnostic(
                                     Diagnostic.Create(Rule_WrongInit, refOp.Syntax.GetLocation(),
-                                    refOp.Member.Name));
+                                    refOp.Member.ToDiagnosticMessageName()));
 
                                 foreach (var loc in refOp.Member.Locations)
                                 {
                                     context.ReportDiagnostic(
-                                        Diagnostic.Create(Rule_LateDeclare, loc, declaredWithInitializerSymbolList[i].Name));
+                                        Diagnostic.Create(Rule_LateDeclare, loc, declaredWithInitializerSymbolList[i].ToDiagnosticMessageName()));
                                 }
                             }
                         }
@@ -220,7 +220,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                                 context.ReportDiagnostic(
                                     Diagnostic.Create(Rule_CrossRef, refOp.Syntax.GetLocation(),
-                                    refOp.Member.ContainingType.Name, declaredWithInitializerSymbolList[i].ContainingType.Name));
+                                    refOp.Member.ContainingType.ToDiagnosticMessageName(), declaredWithInitializerSymbolList[i].ContainingType.ToDiagnosticMessageName()));
 
                                 crossRefReportedSet.Add(refOp);
 

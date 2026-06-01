@@ -247,12 +247,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (op is ILocalReferenceOperation localReference)
             {
-                yield return (localReference.Local.Name, false, false, op.Syntax.GetLocation(), op.Syntax);
+                yield return (localReference.Local.ToDiagnosticMessageName(), false, false, op.Syntax.GetLocation(), op.Syntax);
             }
             else if (op is IParameterReferenceOperation parameterReference)
             {
                 yield return (
-                    parameterReference.Parameter.Name,
+                    parameterReference.Parameter.ToDiagnosticMessageName(),
                     true,
                     parameterReference.Parameter.RefKind == RefKind.Out,
                     op.Syntax.GetLocation(),
@@ -277,7 +277,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (op is IVariableDeclaratorOperation variableDeclarator && variableDeclarator.Symbol is ILocalSymbol localSymbol)
             {
-                yield return (localSymbol.Name, false, false, op.Syntax.GetLocation(), op.Syntax);
+                yield return (localSymbol.ToDiagnosticMessageName(), false, false, op.Syntax.GetLocation(), op.Syntax);
             }
             else if (op is IDeclarationExpressionOperation declarationExpression)
             {
@@ -600,7 +600,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is ILocalReferenceOperation localReference)
                 {
-                    name = localReference.Local.Name;
+                    name = localReference.Local.ToDiagnosticMessageName();
                     isParameter = false;
 
                     if (Core.IsKnownImmutableType(localReference.Type)) return false;
@@ -610,7 +610,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (current is IParameterReferenceOperation parameterReference)
                 {
-                    name = parameterReference.Parameter.Name;
+                    name = parameterReference.Parameter.ToDiagnosticMessageName();
                     isParameter = true;
 
                     if (Core.IsKnownImmutableType(parameterReference.Type)) return false;

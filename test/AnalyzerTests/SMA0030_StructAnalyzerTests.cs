@@ -106,7 +106,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InvalidStructCtor)
                 .WithLocation(markupKey: 0)
-                .WithArguments("MyStruct");
+                .WithArguments("MyStruct<int>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

@@ -202,7 +202,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     var (enumType, _) = GetEnumInfo(op.Instance?.Type ?? receiverType);
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_EnumToString, GetReportLocation(op), enumType?.Name ?? UnknownEnumTypeName));
+                        Rule_EnumToString, GetReportLocation(op), enumType?.ToDiagnosticMessageName() ?? UnknownEnumTypeName));
                 }
                 else
                 {
@@ -236,7 +236,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_CastToEnum, GetReportLocation(op), enumType.Name));
+                Rule_CastToEnum, GetReportLocation(op), enumType.ToDiagnosticMessageName()));
         }
 
 
@@ -264,7 +264,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_EnumToString, GetReportLocation(context.Operation), enumType.Name));
+                    Rule_EnumToString, GetReportLocation(context.Operation), enumType.ToDiagnosticMessageName()));
             }
         }
 
@@ -323,7 +323,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (enumType != null)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_EnumToString, GetReportLocation(binaryOp), enumType.Name));
+                        Rule_EnumToString, GetReportLocation(binaryOp), enumType.ToDiagnosticMessageName()));
 
                     return;
                 }
@@ -360,12 +360,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 context.ReportDiagnostic(Diagnostic.Create(
-                    concreteDescriptor, GetReportLocation(castOp), enumType.Name));
+                    concreteDescriptor, GetReportLocation(castOp), enumType.ToDiagnosticMessageName()));
             }
             else
             {
                 context.ReportDiagnostic(Diagnostic.Create(
-                    genericDescriptor, GetReportLocation(castOp), enumType.Name));
+                    genericDescriptor, GetReportLocation(castOp), enumType.ToDiagnosticMessageName()));
             }
         }
 
@@ -423,7 +423,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // public static RETVAL Entries?
                 if (isPublic)
                 {
-                    symbolName ??= memberSymbol.Name;
+                    symbolName ??= memberSymbol.ToDiagnosticMessageName();
 
                     if (memberSymbol.IsStatic)
                     {
@@ -487,7 +487,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
 
                 //entries??
-                symbolName ??= fieldSymbol.Name;
+                symbolName ??= fieldSymbol.ToDiagnosticMessageName();
 
                 if (!symbolName.StartsWith(NAME_ENTRIES, StringComparison.Ordinal/*IgnoreCase*/)
                  && !symbolName.EndsWith(NAME_ENTRIES, StringComparison.OrdinalIgnoreCase)
@@ -531,7 +531,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                   || ctors.Length == 0
                 )
                 {
-                    fieldContainerSymbolName ??= fieldContainerSymbol.Name;
+                    fieldContainerSymbolName ??= fieldContainerSymbol.ToDiagnosticMessageName();
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, clsDeclStx.Identifier.GetLocation(), fieldContainerSymbolName,
@@ -540,7 +540,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 if (!fieldContainerSymbol.IsSealed)
                 {
-                    fieldContainerSymbolName ??= fieldContainerSymbol.Name;
+                    fieldContainerSymbolName ??= fieldContainerSymbol.ToDiagnosticMessageName();
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, clsDeclStx.Identifier.GetLocation(), fieldContainerSymbolName,
@@ -550,7 +550,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // no public 'Entries'
                 if (!hasPublicEntries)
                 {
-                    fieldContainerSymbolName ??= fieldContainerSymbol.Name;
+                    fieldContainerSymbolName ??= fieldContainerSymbol.ToDiagnosticMessageName();
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_EnumLike, clsDeclStx.Identifier.GetLocation(), fieldContainerSymbolName,

@@ -122,7 +122,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_InvalidStructCtor, context.Operation.Syntax.GetLocation(), structSymbol.Name));
+                Rule_InvalidStructCtor, context.Operation.Syntax.GetLocation(), structSymbol.ToDiagnosticMessageName()));
         }
 
 
@@ -156,7 +156,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_InvalidReadOnlyField, fieldSymbol.Locations[0], typeSymbol.Name));
+                Rule_InvalidReadOnlyField, fieldSymbol.Locations[0], typeSymbol.ToDiagnosticMessageName()));
         }
 
 
