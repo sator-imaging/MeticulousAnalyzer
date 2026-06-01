@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">
-    <GlobalPackageVersion>5.0.0-rc.3</GlobalPackageVersion>
+    <GlobalPackageVersion>5.0.0-rc.4</GlobalPackageVersion>
     <GlobalPackageID>SatorImaging.StaticMemberAnalyzer</GlobalPackageID>
     <GlobalPackageTitle>Static Member Analyzer</GlobalPackageTitle>
     <GlobalPackageProduct>$(GlobalPackageTitle)</GlobalPackageProduct>

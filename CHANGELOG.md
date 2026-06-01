@@ -1,5 +1,43 @@
 # Changelog
 
+## [5.0.0-rc.4](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.4) (2026-06-01)
+
+### 🚀 Features
+* Add cross-file static initialization tests by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#337](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/337)
+* feat: add params support to named argument analysis and codefix by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#345](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/345)
+* feat: add ToDiagnosticMessageName helper for generic type display by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#350](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/350)
+### ✨ Bug Fixes
+* fix(codefix): preserve separator trivia in EnumObfuscationCodeFixProvider by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#347](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/347)
+* fix: add SMA0032 suppress info and clean up Description strings by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#351](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/351)
+### 📖 Documentation
+* docs: add test conventions README by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#340](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/340)
+### 📚 Other Changes
+* Align First() exceptions to ImmutableArray with DoesNotReturn throw helper by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#322](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/322)
+* Increase branch coverage to >= 80% with 60 new tests by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#324](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/324)
+* Targeted branch coverage tests for DisposableAnalyzer by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#326](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/326)
+* Remove using System.Linq from source files by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#323](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/323)
+* Rename config-related test methods to *_Config_* convention by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#327](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/327)
+* Reorganize config tests into ConfigTest_ files by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#329](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/329)
+* test: add ResourceTest for coverage (no reflection) by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#331](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/331)
+* Add BurstLinq benchmark using BenchmarkDotNet by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#328](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/328)
+* Add CoreTest.cs to increase Core.cs coverage by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#332](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/332)
+* test: add missing EnumAnalyzer tests from debug/EnumTests.cs by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#335](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/335)
+* Add missing DisposableAnalyzer tests from debug/DisposableTests.cs by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#336](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/336)
+* Update BurstLinqBenchmark to multi-target net10.0 and net5.0 by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#334](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/334)
+* perf: linq by [@sator-imaging](https://github.com/sator-imaging) in [#338](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/338)
+* BurstLinq: add ICollection<T>.Contains fast path by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#341](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/341)
+* perf: add benchmark for Linq_Where.ToImmutableArray by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#339](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/339)
+* BurstLinq: use ICollection<T>.CopyTo in ToArray by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#343](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/343)
+* test: add cast-and-forget tests for (new Disposable()) as object by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#344](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/344)
+* docs: update FixAllTest conventions in test/README.md by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#346](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/346)
+* Update diagnostic messages: tone, suppression help, cleanup by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#349](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/349)
+* Rename Rule_ and RuleId_ fields to reflect actual targets by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#348](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/348)
+* Remove xml docs to avoid unnecessary diffs by [@sator-imaging](https://github.com/sator-imaging) in [#352](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/352)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.3...v5.0.0-rc.4
+
+
 ## [5.0.0-rc.3](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.3) (2026-05-29)
 
 ### 🚀 Features
