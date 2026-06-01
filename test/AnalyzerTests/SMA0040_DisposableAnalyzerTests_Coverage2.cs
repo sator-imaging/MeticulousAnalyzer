@@ -43,8 +43,10 @@ namespace Test
 
         // TARGET: IsLocalVariableReturned - expression body with ThrowExpressionSyntax
         // Hits lines ~920-925 in DisposableAnalyzer.cs
+        // No diagnostic is expected because the expression-body throw means no local variable is
+        // ever declared or assigned, so the disposable tracking logic has nothing to report on.
         [TestMethod]
-        public async Task SMA0040_Violation_Disposable_ExpressionBodyThrow()
+        public async Task SMA0040_Compliant_Disposable_ExpressionBodyThrow()
         {
             var test = @"
 using System;

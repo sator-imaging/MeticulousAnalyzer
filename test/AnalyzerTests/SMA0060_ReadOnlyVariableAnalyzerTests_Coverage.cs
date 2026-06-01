@@ -156,7 +156,9 @@ namespace Test
         }
 
         // TARGET: AnalyzeStateChange - Parent is IConditionalAccessOperation (lines 204-207)
-        // When mutation operation's parent is a conditional access, the location comes from parent
+        // Differentiates from SMA0064_Violation_ConditionalAccessMutableMethod by using a parameter
+        // (not a local variable), which exercises the IParameterReferenceOperation branch in
+        // TryGetRootLocalOrParameter while still traversing the conditional access parent check
         [TestMethod]
         public async Task SMA0064_Violation_StateChangeViaConditionalAccess()
         {
