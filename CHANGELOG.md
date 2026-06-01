@@ -48,6 +48,7 @@
 * test: increase TaskAnalyzer coverage (phase 2) by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#315](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/315)
 * Add comprehensive BurstLinq unit tests by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#317](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/317)
 
+### New Contributors
 * [@kiro-agent](https://github.com/kiro-agent)[bot] made their first contribution in [#313](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/313)
 
 **Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.2...v5.0.0-rc.3
