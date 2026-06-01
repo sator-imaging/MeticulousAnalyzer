@@ -896,5 +896,82 @@ namespace Test
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        // ===================================================================
+        // AnalyzeNullAssignment - null assignment in non-block parent
+        // ===================================================================
+
+        [TestMethod]
+        public async Task SMA0041_Compliant_NullAssignment_NotInBlock()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        void Method(bool condition)
+        {
+            MyDisposable d = {|#0:new MyDisposable()|};
+            if (condition)
+                d = null;
+        }
+    }
+}
+";
+            // Only the MissingUsing is reported; NullAssignment is not reported because it's not in a block
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        // ===================================================================
+        // IsLocalVariableReturned - accessor body not returning on all paths
+        // ===================================================================
+
+        [TestMethod]
+        public async Task SMA0042_Violation_Disposable_NotReturnedOnAllPathsFromAccessor()
+        {
+            var test = @"
+using System;
+
+#nullable enable
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        MyDisposable? Prop
+        {
+            get
+            {
+                var {|#0:d = new MyDisposable()|};
+                if (DateTime.Now.Year > 3000)
+                {
+                    return null;
+                }
+                return d;
+            }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_NotAllCodePathsReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("d");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
