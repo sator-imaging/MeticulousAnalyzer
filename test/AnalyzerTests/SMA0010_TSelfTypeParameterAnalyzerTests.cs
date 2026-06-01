@@ -21,7 +21,7 @@ namespace Test
     public class MyValue : IValue<{|#0:object|}> { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(markupKey: 0).WithArguments("Test.MyValue");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(markupKey: 0).WithArguments("MyValue");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -54,7 +54,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(markupKey: 0).WithArguments("Test.Outer<T>.Nested");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfInvariant).WithLocation(markupKey: 0).WithArguments("Outer<T>.Nested");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }

@@ -19,7 +19,7 @@ namespace Test
     public class MyClass<TSelf> {|#0:where TSelf : SomeOtherClass|} { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfPointingOther).WithLocation(markupKey: 0).WithArguments("Test.MyClass<TSelf>");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfPointingOther).WithLocation(markupKey: 0).WithArguments("MyClass<TSelf>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
