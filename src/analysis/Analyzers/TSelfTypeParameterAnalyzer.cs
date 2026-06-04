@@ -17,6 +17,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TSelfTypeParameterAnalyzer : DiagnosticAnalyzer
     {
+        private const string UnknownTypeName = "<unknown>";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_TSelfInvariant = "SMA0010";
@@ -319,7 +321,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (!found)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_TSelfPointingOther,
-                    typeConstStx.GetLocation(), expectedSymbol.ToDiagnosticMessageName()));
+                    typeConstStx.GetLocation(), expectedSymbol?.ToDiagnosticMessageName() ?? UnknownTypeName));
             }
         }
 

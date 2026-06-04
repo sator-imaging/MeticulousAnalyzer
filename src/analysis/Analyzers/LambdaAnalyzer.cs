@@ -14,6 +14,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     public sealed class LambdaAnalyzer : DiagnosticAnalyzer
     {
         private const string SuppressionComment = "// Allow allocation";
+        private const string UnknownTypeName = "<unknown>";
 
         public const string RuleId_LambdaCanBeStatic = "SMA7000";
         private static readonly DiagnosticDescriptor Rule_LambdaCanBeStatic = new(
@@ -151,7 +152,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_InefficientDelegateDeclaration, operand.Syntax.GetLocation(), op.Type.ToDiagnosticMessageName()));
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_InefficientDelegateDeclaration,
+                operand.Syntax.GetLocation(),
+                op.Type?.ToDiagnosticMessageName() ?? UnknownTypeName));
         }
 
         private static bool IsEffectivelyStatic(LambdaExpressionSyntax lambda, SemanticModel semanticModel)

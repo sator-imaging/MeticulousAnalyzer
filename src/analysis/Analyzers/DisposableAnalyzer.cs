@@ -23,6 +23,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     {
         public const string SuppressionComment = "// Don't dispose";
 
+        private const string UnknownLocalName = "<unknown>";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_MissingUsing = "SMA0040";
@@ -795,9 +797,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                             //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
                                             // Reporting detailed diagnostic instead of generic one.
-                                            var localName = context.Compilation.GetSemanticModel(localVarDeclaratorStx.SyntaxTree)
+                                            var localName = context.Operation.SemanticModel
                                                 .GetDeclaredSymbol(localVarDeclaratorStx)?.ToDiagnosticMessageName()
-                                                ?? localVarDeclaratorStx.Identifier.Text;
+                                                ?? UnknownLocalName;
                                             context.ReportDiagnostic(Diagnostic.Create(
                                                 Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localName));
                                         }
