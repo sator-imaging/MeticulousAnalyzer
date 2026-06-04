@@ -670,5 +670,30 @@ namespace MyNamespace {
             var propertySymbol = model.GetDeclaredSymbol(property)!;
             Assert.AreEqual("Bar", Core.ToDiagnosticMessageName(propertySymbol));
         }
+
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_GlobalNamespace_ReturnsEmpty()
+        {
+            var comp = CreateCompilation("class C { }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var classDecl = FindFirst<ClassDeclarationSyntax>(tree.GetRoot());
+            var ns = model.GetDeclaredSymbol(classDecl)!.ContainingNamespace;
+            Assert.AreEqual(string.Empty, Core.ToDiagnosticMessageName(ns));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_Namespace_ReturnsFullPathNotLeafOnly()
+        {
+            var comp = CreateCompilation("namespace Foo.Bar { class C { } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var classDecl = FindFirst<ClassDeclarationSyntax>(tree.GetRoot());
+            var ns = model.GetDeclaredSymbol(classDecl)!.ContainingNamespace;
+            Assert.AreEqual("Foo.Bar", Core.ToDiagnosticMessageName(ns));
+            Assert.AreEqual("Bar", ns.Name);
+            Assert.AreNotEqual(ns.Name, Core.ToDiagnosticMessageName(ns));
+        }
     }
 }

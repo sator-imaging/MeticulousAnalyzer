@@ -89,7 +89,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithLocation(0).WithArguments(".ctor", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -218,6 +218,33 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_DeeplyNestedNamespaceShowsFullPathInMessage()
+        {
+            var test = @"
+namespace Foo.Declared
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar.Baz
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.Declared.InternalType.Value|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar.Baz", "Foo.Declared"));
         }
 
         [TestMethod]
