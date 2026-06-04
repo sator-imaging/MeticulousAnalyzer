@@ -178,8 +178,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ImplicitBoxing, op.Syntax.GetLocation(),
-                    op.Operand.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-                    op.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
+                    op.Operand.Type.ToDiagnosticMessageName(),
+                    op.Type.ToDiagnosticMessageName()));
             }
         }
     }

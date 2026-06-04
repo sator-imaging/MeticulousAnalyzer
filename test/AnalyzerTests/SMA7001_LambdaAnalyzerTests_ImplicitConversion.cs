@@ -86,7 +86,7 @@ public class Derived : Base
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -106,7 +106,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -146,7 +146,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<string>");
+                .WithArguments("Action<string>");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

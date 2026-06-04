@@ -795,8 +795,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                             //               ~~~~~~~~~~~~~~~~~~~~~~  fixed location (declarator syntax; formerly 'd' only)
 
                                             // Reporting detailed diagnostic instead of generic one.
+                                            var localName = context.Compilation.GetSemanticModel(localVarDeclaratorStx.SyntaxTree)
+                                                .GetDeclaredSymbol(localVarDeclaratorStx)?.ToDiagnosticMessageName()
+                                                ?? localVarDeclaratorStx.Identifier.Text;
                                             context.ReportDiagnostic(Diagnostic.Create(
-                                                Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localVarDeclaratorStx.Identifier.ToString()));
+                                                Rule_NotAllCodePathsReturn, localVarDeclaratorStx.GetLocation(), localName));
                                         }
 
                                         // Then, just go to NO_WARN to avoid additionally reporting SMA0040.
