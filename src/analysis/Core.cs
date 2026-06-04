@@ -282,7 +282,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         static readonly SymbolDisplayFormat s_diagnosticMessageFormat = new SymbolDisplayFormat(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
-            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameOnly,
+            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
             genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
             memberOptions: SymbolDisplayMemberOptions.None,
             delegateStyle: SymbolDisplayDelegateStyle.NameOnly,

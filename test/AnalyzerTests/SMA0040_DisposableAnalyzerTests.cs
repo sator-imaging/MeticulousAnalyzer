@@ -151,7 +151,7 @@ namespace Test
 
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("NestedDisposable");
+                .WithArguments("Outer.NestedDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

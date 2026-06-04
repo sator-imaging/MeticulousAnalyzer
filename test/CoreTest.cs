@@ -569,6 +569,28 @@ class C {
         // ===== ToDiagnosticMessageName =====
 
         [TestMethod]
+        public void ToDiagnosticMessageName_Local_ReturnsSimpleName()
+        {
+            var comp = CreateCompilation("class C { void M() { int foo; } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var localDecl = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var local = model.GetDeclaredSymbol(localDecl.Declaration.Variables[0])!;
+            Assert.AreEqual("foo", Core.ToDiagnosticMessageName(local));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_Parameter_ReturnsSimpleName()
+        {
+            var comp = CreateCompilation("class C { void M(params int[] values) { } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var method = FindFirst<MethodDeclarationSyntax>(tree.GetRoot());
+            var methodSymbol = model.GetDeclaredSymbol(method)!;
+            Assert.AreEqual("values", Core.ToDiagnosticMessageName(methodSymbol.Parameters[0]));
+        }
+
+        [TestMethod]
         public void ToDiagnosticMessageName_NonGenericType_ReturnsSimpleName()
         {
             var comp = CreateCompilation("class MyClass {} class C { MyClass x; }");
@@ -586,6 +608,67 @@ class C {
             var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type!;
             Assert.AreEqual("List<int>", Core.ToDiagnosticMessageName(type));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_GenericStructType_ReturnsNameWithTypeParameters()
+        {
+            var comp = CreateCompilation("struct MyStruct<T> {} class C { MyStruct<int> x; }");
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type!;
+            Assert.AreEqual("MyStruct<int>", Core.ToDiagnosticMessageName(type));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_NestedGenericType_IncludesOuterTypeWithoutNamespace()
+        {
+            var comp = CreateCompilation(@"
+namespace MyNamespace {
+    class Outer<T> {
+        class Inner<U> {
+            Inner<U> _field;
+        }
+    }
+}");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type!;
+            Assert.AreEqual("Outer<T>.Inner<U>", Core.ToDiagnosticMessageName(type));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_Field_ReturnsSimpleName()
+        {
+            var comp = CreateCompilation("class C { int _field; }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var fieldSymbol = model.GetDeclaredSymbol(field.Declaration.Variables[0])!;
+            Assert.AreEqual("_field", Core.ToDiagnosticMessageName(fieldSymbol));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_Method_ReturnsNameWithTypeParameters()
+        {
+            var comp = CreateCompilation("class C { void Foo<T>(int value) { } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var method = FindFirst<MethodDeclarationSyntax>(tree.GetRoot());
+            var methodSymbol = model.GetDeclaredSymbol(method)!;
+            Assert.AreEqual("Foo<T>", Core.ToDiagnosticMessageName(methodSymbol));
+        }
+
+        [TestMethod]
+        public void ToDiagnosticMessageName_Property_ReturnsSimpleName()
+        {
+            var comp = CreateCompilation("class C { float Bar { get; set; } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var property = FindFirst<PropertyDeclarationSyntax>(tree.GetRoot());
+            var propertySymbol = model.GetDeclaredSymbol(property)!;
+            Assert.AreEqual("Bar", Core.ToDiagnosticMessageName(propertySymbol));
         }
     }
 }
