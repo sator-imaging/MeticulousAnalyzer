@@ -300,7 +300,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             switch (symbol)
             {
                 case INamespaceSymbol ns:
-                    return ns.IsGlobalNamespace ? string.Empty : ns.ToDisplayString();
+                    return ns.IsGlobalNamespace ? "global" : ns.ToDisplayString();
                 default:
                     return symbol.ToDisplayString(s_diagnosticMessageFormat);
             }

@@ -673,14 +673,14 @@ namespace MyNamespace {
 
 
         [TestMethod]
-        public void ToDiagnosticMessageName_GlobalNamespace_ReturnsEmpty()
+        public void ToDiagnosticMessageName_GlobalNamespace_ReturnsGlobal()
         {
             var comp = CreateCompilation("class C { }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
             var classDecl = FindFirst<ClassDeclarationSyntax>(tree.GetRoot());
             var ns = model.GetDeclaredSymbol(classDecl)!.ContainingNamespace;
-            Assert.AreEqual(string.Empty, Core.ToDiagnosticMessageName(ns));
+            Assert.AreEqual("global", Core.ToDiagnosticMessageName(ns));
         }
 
         [TestMethod]
