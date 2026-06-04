@@ -44,7 +44,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 OperationKind.FieldReference,
                 OperationKind.PropertyReference,
                 OperationKind.EventReference,
-                OperationKind.EventAssignment,
                 OperationKind.MethodReference,
                 OperationKind.Invocation,
                 OperationKind.ObjectCreation);
@@ -111,7 +110,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 IDefaultValueOperation defaultValue => defaultValue.Type as INamedTypeSymbol,
                 ITypeOfOperation typeOf => typeOf.TypeOperand as INamedTypeSymbol,
                 IIsTypeOperation isType => isType.TypeOperand as INamedTypeSymbol,
-                IConversionOperation conversion => TryGetNamedTypeFromConversion(conversion),
+                IConversionOperation conversion => conversion.Type as INamedTypeSymbol,
                 ITypeParameterObjectCreationOperation typeParamCreation =>
                     typeParamCreation.Type is INamedTypeSymbol namedType && namedType.TypeKind != TypeKind.TypeParameter
                         ? namedType
@@ -120,34 +119,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 _ => null
             };
 
-        private static INamedTypeSymbol? TryGetNamedTypeFromConversion(IConversionOperation conversion)
-        {
-            if (conversion.Operand is IObjectCreationOperation or ITypeParameterObjectCreationOperation)
-            {
-                return null;
-            }
-
-            return conversion.Type as INamedTypeSymbol;
-        }
-
         private static INamedTypeSymbol? TryGetArrayElementNamedType(IArrayCreationOperation arrayCreation)
         {
-            if (arrayCreation.Type is IArrayTypeSymbol arrayType)
+            var type = arrayCreation.Type;
+            while (type is IArrayTypeSymbol arrayType)
             {
-                return arrayType.ElementType as INamedTypeSymbol;
+                type = arrayType.ElementType;
             }
 
-            return arrayCreation.Type as INamedTypeSymbol;
+            return type as INamedTypeSymbol;
         }
 
         private static ISymbol? TryGetSymbolFromMemberOperation(IOperation operation) =>
             operation switch
             {
-                IFieldReferenceOperation fieldRef when !IsUnderEventAssignment(fieldRef) => fieldRef.Field,
-                IPropertyReferenceOperation propertyRef when !IsUnderEventAssignment(propertyRef) => propertyRef.Property,
-                IEventReferenceOperation eventRef when !IsUnderEventAssignment(eventRef) => eventRef.Event,
-                IEventAssignmentOperation eventAssign =>
-                    eventAssign.EventReference is IEventReferenceOperation evtRef ? evtRef.Event : null,
+                IFieldReferenceOperation fieldRef => fieldRef.Field,
+                IPropertyReferenceOperation propertyRef => propertyRef.Property,
+                IEventReferenceOperation eventRef => eventRef.Event,
                 IMethodReferenceOperation methodRef => methodRef.Method,
                 IInvocationOperation invocation => invocation.TargetMethod,
                 IObjectCreationOperation objectCreation => (ISymbol?)objectCreation.Constructor ?? objectCreation.Type,
@@ -218,37 +206,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static ISymbol? TryGetNameOfSymbolFromSemanticModel(INameOfOperation nameOf)
         {
             var semanticModel = nameOf.SemanticModel;
-            if (semanticModel == null)
+            if (semanticModel == null || nameOf.Argument == null)
             {
                 return null;
             }
 
-            var symbol = semanticModel.GetSymbolInfo(nameOf.Syntax).Symbol;
+            var symbol = semanticModel.GetSymbolInfo(nameOf.Argument.Syntax).Symbol;
             if (symbol != null)
             {
                 return symbol;
             }
 
-            if (nameOf.Argument == null)
-            {
-                return null;
-            }
-
             var typeInfo = semanticModel.GetTypeInfo(nameOf.Argument.Syntax);
             return typeInfo.Type as INamedTypeSymbol;
-        }
-
-        private static bool IsUnderEventAssignment(IOperation operation)
-        {
-            for (var parent = operation.Parent; parent != null; parent = parent.Parent)
-            {
-                if (parent is IEventAssignmentOperation)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static INamedTypeSymbol? GetPatternTypeSymbol(IPatternOperation pattern) =>

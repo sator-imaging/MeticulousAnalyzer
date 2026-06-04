@@ -156,26 +156,27 @@ namespace Foo
     {
         public event EventHandler Raised;
     }
-
-    internal static class PublisherSource
-    {
-        public static Publisher Instance = new Publisher();
-    }
 }
 
 namespace Foo.Bar
 {
+    internal static class PublisherBridge
+    {
+        internal static Publisher Instance = null!;
+    }
+
     public class Consumer
     {
         public void M()
         {
-            {|#0:Foo.PublisherSource.Instance.Raised += (s, e) => { }|};
+            {|#0:PublisherBridge.Instance.Raised += (s, e) => { }|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Raised", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithSpan(16, 46, 16, 50).WithArguments("Publisher", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithSpan(23, 13, 23, 44).WithArguments("Raised", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
