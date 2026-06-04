@@ -19,8 +19,11 @@
 - [`TSelf` 类型参数分析](#tself-类型参数分析) 支持 CRTP 等模式
 - [代码审查分析](#代码审查分析) 用于命名参数、显式数值类型等
 - [只读变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
-- [RULES.md](RULES.md): [文件头注释强制规则](RULES.md#file-structure-analysis)和[编码辅助](RULES.md#coding-assistance)以及所有诊断规则（英文）
-
+- [文件头注释强制规则](RULES.md#file-structure-analysis) (详见 [**RULES.md**](RULES.md) (英文))
+- [项目结构分析](#项目结构分析) 防止跨命名空间的 `internal` 访问
+- [通过注释抑制](#通过注释抑制) 忽略特定的诊断规则
+- ~~[类型、字段与属性标注](#类型字段与属性标注-) 用于在编码时引起注意~~
+- [编码辅助](RULES.md#coding-assistance) 查看包括提高性能与代码质量在内的所有诊断规则: [**RULES.md**](RULES.md) (英文)
 
 
 ## 不稳定初始化分析
@@ -619,6 +622,36 @@ class Demo
 </details>
 
 
+
+
+
+&nbsp;
+
+# 项目结构分析
+
+C# 允许在同一程序集内从任意命名空间访问 `internal` 类型和成员。此分析器强制命名空间边界，使 `internal` 符号只能在其声明所在的命名空间内使用。
+
+- SMA0080: Internal cross-namespace access
+    - 禁止从其他命名空间访问 `internal`（以及 `protected internal`）的类型、成员、方法和构造函数。
+    - 父命名空间和兄弟命名空间也视为独立边界（例如 `Foo.Bar` 不能访问在 `Foo` 或 `Foo.Other` 中声明的符号）。
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
 
 
 

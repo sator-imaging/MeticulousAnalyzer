@@ -19,8 +19,11 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 - [`TSelf` 型引数解析](#tself-型引数解析) で CRTP 等をサポート
 - [コードレビュー向けの解析](#コードレビュー向けの解析) で名前付き引数や数値型の明示的宣言などを検査
 - [読み取り専用変数解析](#読み取り専用変数解析) でローカル/引数への代入と可変な引数受け渡しを検出
-- [RULES.md](RULES.md): [ファイルヘッダーコメントの強制](RULES.md#file-structure-analysis)や[コーディング支援](RULES.md#coding-assistance)を含む、全ての診断ルール（英語）
-
+- [ファイルヘッダーコメントの強制](RULES.md#file-structure-analysis) (詳細は [**RULES.md**](RULES.md) (英語) を参照)
+- [プロジェクト構造解析](#プロジェクト構造解析) で名前空間をまたぐ `internal` アクセスを防止
+- [コメントによる抑制](#コメントによる抑制) で特定の診断を無視
+- ~~[型・フィールド・プロパティへの注釈](#型・フィールド・プロパティへの注釈-) でコーディング中の注意を喚起~~
+- [コーディング支援](RULES.md#coding-assistance) パフォーマンスとコード品質向上のための解析を含む、全ての診断ルール一覧: [**RULES.md**](RULES.md) (英語)
 
 
 ## 初期化の不安定性解析
@@ -623,6 +626,34 @@ class Demo
 
 
 &nbsp;
+
+# プロジェクト構造解析
+
+C# では同一アセンブリ内であれば、宣言されている名前空間と異なる名前空間からでも `internal` 型やメンバーへアクセスできます。このアナライザーは、`internal` シンボルを宣言した名前空間内からのみ使用できるように境界を強制します。
+
+- SMA0080: Internal cross-namespace access
+    - 別の名前空間から `internal`（および `protected internal`）の型・メンバー・メソッド・コンストラクターへのアクセスを禁止します。
+    - 親名前空間や兄弟名前空間も別境界として扱います（例: `Foo.Bar` から `Foo` や `Foo.Other` で宣言されたシンボルへはアクセスできません）。
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
+
+
 
 # 構造体解析
 

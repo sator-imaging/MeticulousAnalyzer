@@ -624,6 +624,35 @@ class Demo
 
 &nbsp;
 
+# Project Structure Analysis
+
+C# allows `internal` types and members to be accessed from any namespace in the same assembly. This analyzer enforces namespace boundaries so that `internal` symbols are only used from the namespace where they are declared.
+
+- SMA0080: Internal cross-namespace access
+    - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
+    - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
+
+
+&nbsp;
+
 # Struct Analysis
 
 Analyze the use of `struct` types to prevent common mistakes and performance issues.
