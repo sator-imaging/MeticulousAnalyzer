@@ -24,7 +24,7 @@ namespace Test
     public class MyClass : MyValue1, IValue<{|#0:MyValue0|}> { }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfContravariant).WithLocation(markupKey: 0).WithArguments("Test.MyClass");
+            var expected = VerifyCS.Diagnostic(TSelfTypeParameterAnalyzer.RuleId_TSelfContravariant).WithLocation(markupKey: 0).WithArguments("MyClass");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

@@ -17,6 +17,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TSelfTypeParameterAnalyzer : DiagnosticAnalyzer
     {
+        private const string UnknownTypeName = "<unknown>";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_TSelfInvariant = "SMA0010";
@@ -239,7 +241,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (!isOmittableBaseType)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_TSelfCovariant, foundTypeArgNode.GetLocation(), targetTypeSymbol.ToString()));
+                                Rule_TSelfCovariant, foundTypeArgNode.GetLocation(), targetTypeSymbol.ToDiagnosticMessageName()));
                         }
                     }
 
@@ -263,7 +265,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (!isFound)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_TSelfContravariant, foundTypeArgNode.GetLocation(), targetTypeSymbol.ToString()));
+                                Rule_TSelfContravariant, foundTypeArgNode.GetLocation(), targetTypeSymbol.ToDiagnosticMessageName()));
                         }
                     }
 
@@ -271,7 +273,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     else
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
-                            Rule_TSelfInvariant, foundTypeArgNode.GetLocation(), targetTypeSymbol.ToString()));
+                            Rule_TSelfInvariant, foundTypeArgNode.GetLocation(), targetTypeSymbol.ToDiagnosticMessageName()));
                     }
                 }
             }
@@ -319,7 +321,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (!found)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule_TSelfPointingOther,
-                    typeConstStx.GetLocation(), expectedSymbol));
+                    typeConstStx.GetLocation(), expectedSymbol?.ToDiagnosticMessageName() ?? UnknownTypeName));
             }
         }
 

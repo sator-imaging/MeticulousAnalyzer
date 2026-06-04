@@ -40,7 +40,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<int, string>");
+                .WithArguments("Action<int, string>");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -71,7 +71,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<int, string, bool>");
+                .WithArguments("Action<int, string, bool>");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -91,7 +91,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             // VerifyCodeFixAsync checks that NO code fix is available if fixtest is null or same as test (depending on verifier implementation)
             // CSharpCodeFixVerifier usually checks if any fix was offered.
             await VerifyCS.VerifyCodeFixAsync(test, expected, test);
@@ -113,7 +113,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyCodeFixAsync(test, expected, test);
         }
 
@@ -146,7 +146,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -179,7 +179,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<int, int>");
+                .WithArguments("Action<int, int>");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -210,7 +210,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action<int>");
+                .WithArguments("Action<int>");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
 
@@ -241,7 +241,7 @@ public class C
 ";
             var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
                 .WithLocation(markupKey: 0)
-                .WithArguments("System.Action");
+                .WithArguments("Action");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
     }
