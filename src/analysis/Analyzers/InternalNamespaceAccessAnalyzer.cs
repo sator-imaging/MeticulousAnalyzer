@@ -80,12 +80,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 var location = operation.Syntax.GetLocation();
+                // NOTE: ToDiagnosticMessageName() for namespaces uses full name via ToDisplayString()
+                //       (see Core.ToDiagnosticMessageName), not the leaf segment from .Name.
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_InternalNamespaceAccess,
                     location,
-                    symbol.Name,
-                    GetNamespaceDisplay(useNamespace),
-                    GetNamespaceDisplay(declarationNamespace)));
+                    symbol.ToDiagnosticMessageName(),
+                    useNamespace.ToDiagnosticMessageName(),
+                    declarationNamespace.ToDiagnosticMessageName()));
             }
         }
 
@@ -126,8 +128,5 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSameNamespace(INamespaceSymbol left, INamespaceSymbol right) =>
             SymbolEqualityComparer.Default.Equals(left, right);
-
-        private static string GetNamespaceDisplay(INamespaceSymbol ns) =>
-            ns.IsGlobalNamespace ? string.Empty : ns.ToDisplayString();
     }
 }
