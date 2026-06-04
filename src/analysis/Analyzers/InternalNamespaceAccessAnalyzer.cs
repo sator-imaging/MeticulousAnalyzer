@@ -80,9 +80,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 var location = operation.Syntax.GetLocation();
-                // NOTE: Use ToDiagnosticMessageName() — not ISymbol.Name — so {0} matches other analyzers
-                //       (qualified type/member names). Do not use INamespaceSymbol.Name for {1}/{2}:
-                //       it is only the leaf segment (e.g. "Bar"), not the enclosing namespace ("Foo.Bar").
+                // NOTE: All args use ToDiagnosticMessageName() (not .Name). {0}: qualified member/type names
+                //       like other analyzers. {1}/{2}: same API; Core maps INamespaceSymbol to full
+                //       namespace via ToDisplayString() because .Name is only the leaf ("Bar", not "Foo.Bar").
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_InternalNamespaceAccess,
                     location,
