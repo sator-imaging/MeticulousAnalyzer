@@ -979,6 +979,36 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA7003__MD_TITLE__ {
+            get {
+                return ResourceManager.GetString("SMA7003__MD_TITLE__", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces..
+        /// </summary>
+        internal static string SMA7003_Description {
+            get {
+                return ResourceManager.GetString("SMA7003_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot access internal &apos;{0}&apos; from namespace &apos;{1}&apos; (declared in &apos;{2}&apos;).
+        /// </summary>
+        internal static string SMA7003_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7003_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA7003_Title {
+            get {
+                return ResourceManager.GetString("SMA7003_Title", resourceCulture);
+            }
+        }
+
         internal static string SMA8001_Title {
             get {
                 return ResourceManager.GetString("SMA8001_Title", resourceCulture);

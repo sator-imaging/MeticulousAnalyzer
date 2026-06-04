@@ -627,6 +627,37 @@ class Demo
 
 &nbsp;
 
+# 内部名前空間境界
+
+C# では同一アセンブリ内であれば、宣言されている名前空間と異なる名前空間からでも `internal` 型やメンバーへアクセスできます。このアナライザーは、`internal` シンボルを宣言した名前空間内からのみ使用できるように境界を強制します。
+
+- SMA7003: Internal cross-namespace access
+    - 別の名前空間から `internal`（および `protected internal`）の型・メンバー・メソッド・コンストラクターへのアクセスを禁止します。
+    - 親名前空間や兄弟名前空間も別境界として扱います（例: `Foo.Bar` から `Foo` や `Foo.Other` で宣言されたシンボルへはアクセスできません）。
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA7003
+        }
+    }
+}
+```
+
+詳細なルール一覧は **RULES.md** の [Coding Assistance](RULES.md#coding-assistance)（英語）を参照してください。
+
+
+&nbsp;
+
 # 構造体解析
 
 構造体（`struct`）型の使用を分析し、一般的なミスやパフォーマンスの問題を防止します。

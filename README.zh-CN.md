@@ -627,6 +627,37 @@ class Demo
 
 &nbsp;
 
+# 内部命名空间边界
+
+C# 允许在同一程序集内从任意命名空间访问 `internal` 类型和成员。此分析器强制命名空间边界，使 `internal` 符号只能在其声明所在的命名空间内使用。
+
+- SMA7003: Internal cross-namespace access
+    - 禁止从其他命名空间访问 `internal`（以及 `protected internal`）的类型、成员、方法和构造函数。
+    - 父命名空间和兄弟命名空间也视为独立边界（例如 `Foo.Bar` 不能访问在 `Foo` 或 `Foo.Other` 中声明的符号）。
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA7003
+        }
+    }
+}
+```
+
+完整规则列表请参阅 **RULES.md** 中的 [Coding Assistance](RULES.md#coding-assistance)（英文）。
+
+
+&nbsp;
+
 # 结构体分析
 
 分析 `struct` 类型的使用，防止常见的错误和性能问题。
