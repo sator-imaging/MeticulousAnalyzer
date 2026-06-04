@@ -19,8 +19,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
-- [File Header Comment Enforcement](RULES.md#file-structure-analysis) (See [**RULES.md**](RULES.md))
-- [Coding Assistance](RULES.md#coding-assistance) All diagnostic rules, including analysis for better performance and code quality: [**RULES.md**](RULES.md)
+- [RULES.md](RULES.md): [File Header Comment Enforcement](RULES.md#file-structure-analysis), [Coding Assistance](RULES.md#coding-assistance) and all diagnostic rules.
 
 
 

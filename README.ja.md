@@ -19,8 +19,7 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 - [`TSelf` 型引数解析](#tself-型引数解析) で CRTP 等をサポート
 - [コードレビュー向けの解析](#コードレビュー向けの解析) で名前付き引数や数値型の明示的宣言などを検査
 - [読み取り専用変数解析](#読み取り専用変数解析) でローカル/引数への代入と可変な引数受け渡しを検出
-- [ファイルヘッダーコメントの強制](RULES.md#file-structure-analysis) (詳細は [**RULES.md**](RULES.md) (英語) を参照)
-- [コーディング支援](RULES.md#coding-assistance) パフォーマンスとコード品質向上のための解析を含む、全ての診断ルール一覧: [**RULES.md**](RULES.md) (英語)
+- [RULES.md](RULES.md): [ファイルヘッダーコメントの強制](RULES.md#file-structure-analysis)や[コーディング支援](RULES.md#coding-assistance)を含む、全ての診断ルール（英語）
 
 
 
