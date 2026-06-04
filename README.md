@@ -19,6 +19,8 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
 - [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
+- [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
+
 - [RULES.md](RULES.md): [File Header Comment Enforcement](RULES.md#file-structure-analysis), [Coding Assistance](RULES.md#coding-assistance) and all diagnostic rules.
 
 
@@ -622,9 +624,12 @@ class Demo
 
 
 
+
 &nbsp;
 
 # Project Structure Analysis
+
+## Internal cross-namespace access
 
 C# allows `internal` types and members to be accessed from any namespace in the same assembly. This analyzer enforces namespace boundaries so that `internal` symbols are only used from the namespace where they are declared.
 
@@ -649,7 +654,6 @@ namespace Foo.Bar
     }
 }
 ```
-
 
 &nbsp;
 
