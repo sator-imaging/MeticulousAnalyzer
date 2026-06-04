@@ -11,16 +11,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class InternalNamespaceAccessAnalyzer : DiagnosticAnalyzer
     {
-        public const string RuleId_InternalNamespaceAccess = "SMA7003";
+        public const string RuleId_InternalNamespaceAccess = "SMA0080";
 
         private static readonly DiagnosticDescriptor Rule_InternalNamespaceAccess = new(
             RuleId_InternalNamespaceAccess,
-            new LocalizableResourceString(nameof(Resources.SMA7003_Title), Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString(nameof(Resources.SMA7003_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0080_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0080_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA7003_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0080_Description), Resources.ResourceManager, typeof(Resources)));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Rule_InternalNamespaceAccess);
@@ -63,7 +63,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             foreach (var symbol in accessedSymbols)
             {
-                if (!ShouldRestrict(symbol))
+                if (symbol == null || !ShouldRestrict(symbol))
                 {
                     continue;
                 }
@@ -91,48 +91,33 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static ImmutableArray<ISymbol> GetAccessedSymbols(IOperation operation)
         {
-            switch (operation)
+            ISymbol? symbol = operation switch
             {
-                case IFieldReferenceOperation fieldRef:
-                    return ImmutableArray.Create<ISymbol>(fieldRef.Field);
-                case IPropertyReferenceOperation propertyRef:
-                    return ImmutableArray.Create<ISymbol>(propertyRef.Property);
-                case IEventReferenceOperation eventRef:
-                    return ImmutableArray.Create<ISymbol>(eventRef.Event);
-                case IMethodReferenceOperation methodRef:
-                    return ImmutableArray.Create<ISymbol>(methodRef.Method);
-                case IInvocationOperation invocation:
-                    return ImmutableArray.Create<ISymbol>(invocation.TargetMethod);
-                case IObjectCreationOperation objectCreation:
-                    if (objectCreation.Constructor is { } ctor)
-                    {
-                        return ImmutableArray.Create<ISymbol>(ctor);
-                    }
+                IFieldReferenceOperation fieldRef => fieldRef.Field,
+                IPropertyReferenceOperation propertyRef => propertyRef.Property,
+                IEventReferenceOperation eventRef => eventRef.Event,
+                IMethodReferenceOperation methodRef => methodRef.Method,
+                IInvocationOperation invocation => invocation.TargetMethod,
+                IObjectCreationOperation objectCreation => (ISymbol?)objectCreation.Constructor ?? objectCreation.Type,
+                ITypeOfOperation typeOf => typeOf.TypeOperand as INamedTypeSymbol,
+                IConversionOperation conversion => conversion.Type as INamedTypeSymbol,
+                _ => null
+            };
 
-                    if (objectCreation.Type is INamedTypeSymbol namedType)
-                    {
-                        return ImmutableArray.Create<ISymbol>(namedType);
-                    }
-
-                    return default;
-                case ITypeOfOperation typeOf when typeOf.TypeOperand is INamedTypeSymbol typeOperand:
-                    return ImmutableArray.Create<ISymbol>(typeOperand);
-                case IConversionOperation conversion when conversion.Type is INamedTypeSymbol conversionType:
-                    return ImmutableArray.Create<ISymbol>(conversionType);
-                default:
-                    return default;
-            }
+            return symbol != null ? ImmutableArray.Create(symbol) : default;
         }
 
         private static bool ShouldRestrict(ISymbol symbol)
         {
-            if (IsInternalOrProtectedInternal(symbol.DeclaredAccessibility))
+            for (var current = symbol; current != null; current = current.ContainingType)
             {
-                return true;
+                if (IsInternalOrProtectedInternal(current.DeclaredAccessibility))
+                {
+                    return true;
+                }
             }
 
-            return symbol.ContainingType is { } containingType
-                && IsInternalOrProtectedInternal(containingType.DeclaredAccessibility);
+            return false;
         }
 
         private static bool IsInternalOrProtectedInternal(Accessibility accessibility) =>

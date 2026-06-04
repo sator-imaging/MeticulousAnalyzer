@@ -70,13 +70,17 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned. You can suppress by adding preceding comment "// Don't await".
 | SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths. You can suppress by adding preceding comment "// Don't await".
 
+## Project Structure Analysis
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA0080 | Internal cross-namespace access            | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces.
+
 ## Coding Assistance
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA7000 | Lambda can be static                       | Lambda declaration should add 'static' keyword for clarity.
 | SMA7001 | Inefficient delegate declaration           | Older runtime inefficiently handle direct passing of method.
 | SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation".
-| SMA7003 | Internal cross-namespace access            | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces.
 
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description

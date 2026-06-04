@@ -20,6 +20,7 @@
 - [结构体分析](#结构体分析) 检测无参构造函数误用等
 - [`TSelf` 类型参数分析](#tself-类型参数分析) 支持 CRTP 等模式
 - [文件头注释强制规则](RULES.md#file-structure-analysis) (详见 [**RULES.md**](RULES.md) (英文))
+- [项目结构分析](#项目结构分析) 防止跨命名空间的 `internal` 访问
 - [通过注释抑制](#通过注释抑制) 忽略特定的诊断规则
 - ~~[类型、字段与属性标注](#类型字段与属性标注-) 用于在编码时引起注意~~
 - [编码辅助](RULES.md#coding-assistance) 查看包括提高性能与代码质量在内的所有诊断规则: [**RULES.md**](RULES.md) (英文)
@@ -627,11 +628,11 @@ class Demo
 
 &nbsp;
 
-# 内部命名空间边界
+# 项目结构分析
 
 C# 允许在同一程序集内从任意命名空间访问 `internal` 类型和成员。此分析器强制命名空间边界，使 `internal` 符号只能在其声明所在的命名空间内使用。
 
-- SMA7003: Internal cross-namespace access
+- SMA0080: Internal cross-namespace access
     - 禁止从其他命名空间访问 `internal`（以及 `protected internal`）的类型、成员、方法和构造函数。
     - 父命名空间和兄弟命名空间也视为独立边界（例如 `Foo.Bar` 不能访问在 `Foo` 或 `Foo.Other` 中声明的符号）。
 
@@ -647,13 +648,12 @@ namespace Foo.Bar
     {
         void M()
         {
-            var x = new Foo.InternalType(); // SMA7003
+            var x = new Foo.InternalType(); // SMA0080
         }
     }
 }
 ```
 
-完整规则列表请参阅 **RULES.md** 中的 [Coding Assistance](RULES.md#coding-assistance)（英文）。
 
 
 &nbsp;
