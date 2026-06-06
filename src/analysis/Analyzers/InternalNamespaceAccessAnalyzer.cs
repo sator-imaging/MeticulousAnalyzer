@@ -195,11 +195,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return typeOf.TypeOperand as INamedTypeSymbol;
             }
 
-            if (nameOf.Argument?.Type is INamedTypeSymbol namedType)
-            {
-                return namedType;
-            }
-
             return null;
         }
 
@@ -211,14 +206,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return null;
             }
 
-            var symbol = semanticModel.GetSymbolInfo(nameOf.Argument.Syntax).Symbol;
-            if (symbol != null)
-            {
-                return symbol;
-            }
-
-            var typeInfo = semanticModel.GetTypeInfo(nameOf.Argument.Syntax);
-            return typeInfo.Type as INamedTypeSymbol;
+            return semanticModel.GetSymbolInfo(nameOf.Argument.Syntax).Symbol;
         }
 
         private static INamedTypeSymbol? GetPatternTypeSymbol(IPatternOperation pattern) =>
@@ -226,7 +214,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 ITypePatternOperation typePattern => typePattern.MatchedType as INamedTypeSymbol,
                 IDeclarationPatternOperation declarationPattern => declarationPattern.MatchedType as INamedTypeSymbol,
+                IRecursivePatternOperation recursivePattern => recursivePattern.MatchedType as INamedTypeSymbol,
                 INegatedPatternOperation negated => GetPatternTypeSymbol(negated.Pattern),
+                IBinaryPatternOperation binary =>
+                    GetPatternTypeSymbol(binary.LeftPattern) ?? GetPatternTypeSymbol(binary.RightPattern),
                 _ => null
             };
 

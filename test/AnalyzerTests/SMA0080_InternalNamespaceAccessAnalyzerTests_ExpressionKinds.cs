@@ -372,6 +372,89 @@ namespace Foo.Bar
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("this", "Foo.Bar", "Foo"));
         }
 
+
+        [TestMethod]
+        public async Task SMA0080_Compliant_NameOfLocalWithInternalType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal static class Helper
+    {
+        internal static void M(Foo.InternalType local)
+        {
+            var n = nameof(local);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_RecursivePattern()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public int Value { get; }
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M(object o)
+        {
+            if ({|#0:o is Foo.InternalType { Value: 0 }|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_BinaryPattern()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M(object o)
+        {
+            if ({|#0:o is Foo.InternalType or null|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
         [TestMethod]
         public async Task SMA0080_Violation_MethodGroupReference()
         {
