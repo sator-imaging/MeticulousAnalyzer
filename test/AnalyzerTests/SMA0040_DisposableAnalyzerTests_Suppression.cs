@@ -15,8 +15,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     {
         // NOTE: Assembly-level DisposableAnalyzerSuppressor attribute tests require
         // multi-project test setup to work properly with the analyzer test harness.
-        // The attribute suppression mechanism is validated in the debug project
-        // (debug/DisposableTests.cs) instead.
+        // The attribute suppression mechanism is validated in the sandbox project
+        // (sandbox/DisposableTests.cs) instead.
 
         [TestMethod]
         public async Task SMA0040_Violation_AssemblyAttribute_UnsuppressedType()

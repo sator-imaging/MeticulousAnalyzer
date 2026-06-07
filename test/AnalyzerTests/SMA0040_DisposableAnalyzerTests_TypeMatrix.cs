@@ -367,6 +367,6 @@ namespace Test
 
         // NOTE: Ref struct with DisposeAsync duck-typing pattern requires C# 13+ (net9.0+)
         // to be used with 'await using' or 'using' in async contexts.
-        // These patterns are validated in the debug project (debug/DisposableTests.cs) instead.
+        // These patterns are validated in the sandbox project (sandbox/DisposableTests.cs) instead.
     }
 }
