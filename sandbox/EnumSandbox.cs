@@ -11,7 +11,7 @@ using ShortAlias = System.Int16;
 #pragma warning disable CS8603 // Possible null reference return.
 #pragma warning disable CS8604 // Possible null reference argument for parameter.
 
-namespace AnalyzerDebug;
+namespace AnalyzerSandbox;
 
 file static class Extensions
 {

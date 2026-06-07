@@ -8,7 +8,7 @@ using System.Diagnostics;
 //#pragma warning disable SMA9002
 //#pragma warning disable SMA9100
 
-namespace AnalyzerDebug
+namespace AnalyzerSandbox
 {
     // v1.5: CategoryAttribute does NOT draw underline on inherited types and variables.
     //       it draws only on exact type reference and constructors including base constructor. ex) `public MyClass() : base() { }`
@@ -82,7 +82,7 @@ namespace AnalyzerDebug
     [Category("Category Attribute"), DisplayName("Display Name Attribute")]
     [DescriptionAttribute("Description for " + nameof(UnderliningTests) + "?" + "!")]
     [DebuggerDisplay("")]
-    public class UnderliningTests : List<Base>, IBase, INoUnderline<Base, long>, ITSelfTest<AnalyzerDebug.UnderliningTests>
+    public class UnderliningTests : List<Base>, IBase, INoUnderline<Base, long>, ITSelfTest<AnalyzerSandbox.UnderliningTests>
     {
         [DescriptionAttribute("??")] public UnderliningTests() { }
 

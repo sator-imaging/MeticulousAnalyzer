@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using NIE = System.NotImplementedException;
 
-[assembly: AnalyzerDebug.DisposableAnalyzerSuppressor(typeof(object), typeof(AnalyzerDebug.DisposableTests.DisposableNoNoWarn))]
+[assembly: AnalyzerSandbox.DisposableAnalyzerSuppressor(typeof(object), typeof(AnalyzerSandbox.DisposableTests.DisposableNoNoWarn))]
 
 #pragma warning disable SMA0032 // Implicit Boxing Conversion
 #pragma warning disable SMA0044 // Missing Dispose Implementation
@@ -14,7 +14,7 @@ using NIE = System.NotImplementedException;
 #pragma warning disable SMA8002 // Null suppression operation
 #pragma warning disable SMA8000 // Literal should be passed as named argument
 
-namespace AnalyzerDebug;
+namespace AnalyzerSandbox;
 
 [Conditional("DEBUG"), AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
 sealed class DisposableAnalyzerSuppressor : Attribute { public DisposableAnalyzerSuppressor(params Type[] _) { } }

@@ -1,6 +1,6 @@
 using System;
 
-namespace AnalyzerDebug;
+namespace AnalyzerSandbox;
 
 internal class InterFileReferencing
 {
