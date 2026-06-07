@@ -295,12 +295,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static string ToDiagnosticMessageName(this ISymbol symbol) =>
-            symbol switch
+        internal static string ToDiagnosticMessageName(this ISymbol symbol)
+        {
+            return symbol switch
             {
                 INamespaceSymbol ns => ns.IsGlobalNamespace ? "global" : ns.ToDisplayString(),
                 _ => symbol.ToDisplayString(s_diagnosticMessageFormat),
             };
+        }
 
         // string.Create and Concat(ReadOnlySpan) cannot be used in .net standard 2.0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
