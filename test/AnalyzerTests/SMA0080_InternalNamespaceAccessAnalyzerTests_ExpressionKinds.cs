@@ -424,7 +424,8 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithSpan(16, 17, 16, 51).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithSpan(16, 41, 16, 46).WithArguments("Value", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
