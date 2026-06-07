@@ -1,4 +1,4 @@
-namespace AnalyzerDebug
+namespace AnalyzerSandbox
 {
     class Demo
     {
