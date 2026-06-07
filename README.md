@@ -18,10 +18,9 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
-- [Immutable/Read-Only Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
-
-- [RULES.md](RULES.md): [File Header Comment Enforcement](RULES.md#file-structure-analysis), [Coding Assistance](RULES.md#coding-assistance) and all diagnostic rules.
+- [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
+- [**RULES.md**](RULES.md): All diagnostic rules, including [File Header Comment Enforcement](RULES.md#file-structure-analysis) and [Coding Assistance](RULES.md#coding-assistance)
 
 
 

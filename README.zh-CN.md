@@ -18,10 +18,9 @@
 - [结构体分析](#结构体分析) 检测无参构造函数误用等
 - [`TSelf` 类型参数分析](#tself-类型参数分析) 支持 CRTP 等模式
 - [代码审查分析](#代码审查分析) 用于命名参数、显式数值类型等
-- [只读变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
 - [项目结构分析](#项目结构分析) 强制同一程序集内 `internal` 符号的命名空间边界
-
-- [RULES.md](RULES.md): [文件头注释强制规则](RULES.md#file-structure-analysis)和[编码辅助](RULES.md#coding-assistance)以及所有诊断规则（英文）
+- [不可变变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
+- [**RULES.md**](RULES.md)（英文）： [文件头注释强制规则](RULES.md#file-structure-analysis)和[编码辅助](RULES.md#coding-assistance)以及所有诊断规则
 
 
 
