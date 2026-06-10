@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -30,208 +32,228 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            // Each action covers its own scan target to avoid duplicate reports:
-            // - Type references (typeof, locals, fields, parameters, generics, casts, etc.)
-            context.RegisterSyntaxNodeAction(AnalyzeTypeReference, SyntaxKind.IdentifierName, SyntaxKind.GenericName);
-            // - Method invocations (return type or declaring type)
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
-            // - Member references (properties, fields, events and method groups)
-            context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression, SyntaxKind.MemberBindingExpression);
-            // - Locals declarations (`var` only; explicit type is reported as type reference)
-            context.RegisterSyntaxNodeAction(AnalyzeLocalDeclaration, SyntaxKind.VariableDeclaration, SyntaxKind.ForEachStatement);
+            // Runtime usage via IOperation.
+            context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
+            context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
+            context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
+            context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
+            context.RegisterOperationAction(AnalyzeTypeOf, OperationKind.TypeOf);
+            context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
+
+            // Declaration-site type references have no IOperation.
+            context.RegisterSymbolAction(
+                AnalyzeDeclarationSymbol,
+                SymbolKind.Field,
+                SymbolKind.Property,
+                SymbolKind.Method,
+                SymbolKind.Parameter,
+                SymbolKind.Event);
         }
 
 
-        /*  type reference  ================================================================ */
+        /*  operation  ================================================================ */
 
-        private static void AnalyzeTypeReference(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
-            // NOTE: `var` keyword resolves to the inferred type. covered by locals declaration action.
-            if (context.Node is not SimpleNameSyntax name || name.IsVar)
+            if (context.Operation is not IInvocationOperation invocation)
             {
                 return;
             }
 
-            // NOTE: namespace parts of qualified name don't resolve to type symbol.
-            //       method/property/field references are covered by other actions.
-            if (context.SemanticModel.GetSymbolInfo(name).Symbol is not INamedTypeSymbol type)
-            {
-                return;
-            }
-
-            if (IsReflectionType(type))
-            {
-                Report(context, name.Identifier, type);
-            }
-        }
-
-
-        /*  invocation  ================================================================ */
-
-        private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
-        {
-            if (context.Node is not InvocationExpressionSyntax invocation)
-            {
-                return;
-            }
-
-            if (context.SemanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
-            {
-                return;
-            }
-
-            // NOTE: arguments are ignored. identifiers found in argument expressions
-            //       are detected by the other scan targets.
-            var found = FindReflectionType(method.ReturnType)
-                ?? GetReflectionReceiverType(context, GetReceiverSyntax(invocation.Expression), method);
+            var found = FindReflectionType(invocation.TargetMethod.ReturnType)
+                ?? GetReflectionReceiverType(invocation.Instance, invocation.TargetMethod);
             if (found == null)
             {
                 return;
             }
 
-            var nameSyntax = GetInvokedNameSyntax(invocation.Expression);
-            if (nameSyntax == null)
+            if (!TryGetMemberNameLocation(invocation.Syntax, out var location, out var name))
             {
                 return;
             }
 
-            Report(context, nameSyntax.Identifier, found);
+            Report(context, location, name, found);
         }
 
-        private static SimpleNameSyntax? GetInvokedNameSyntax(ExpressionSyntax expression)
+        private static void AnalyzePropertyReference(OperationAnalysisContext context)
         {
-            return expression switch
-            {
-                MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
-                MemberBindingExpressionSyntax memberBinding => memberBinding.Name,
-                AliasQualifiedNameSyntax aliasQualified => aliasQualified.Name,
-                SimpleNameSyntax simpleName => simpleName,
-                _ => null,
-            };
-        }
-
-        private static ExpressionSyntax? GetReceiverSyntax(ExpressionSyntax expression)
-        {
-            return expression switch
-            {
-                MemberAccessExpressionSyntax memberAccess => memberAccess.Expression,
-                // `foo?.Bar` receiver is found on enclosing conditional access expression
-                MemberBindingExpressionSyntax memberBinding => memberBinding.FirstAncestorOrSelf<ConditionalAccessExpressionSyntax>()?.Expression,
-                _ => null,
-            };
-        }
-
-        // NOTE: member declared on reflection type can be inherited by non-reflection type
-        //       (e.g. `System.Type` derives from `MemberInfo`) so that check receiver type
-        //       instead of member's containing type.
-        private static INamedTypeSymbol? GetReflectionReceiverType(SyntaxNodeAnalysisContext context, ExpressionSyntax? receiver, ISymbol member)
-        {
-            var receiverType = receiver != null
-                ? context.SemanticModel.GetTypeInfo(receiver).Type
-                : member.ContainingType;  // implicit receiver (omitted `this.` or `using static` import)
-
-            return receiverType is INamedTypeSymbol named && IsReflectionType(named) ? named : null;
-        }
-
-
-        /*  member reference  ================================================================ */
-
-        private static void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
-        {
-            SimpleNameSyntax name;
-            ExpressionSyntax? qualifier;
-
-            switch (context.Node)
-            {
-                case MemberAccessExpressionSyntax memberAccess:
-                    name = memberAccess.Name;
-                    qualifier = memberAccess.Expression;
-                    break;
-                case MemberBindingExpressionSyntax memberBinding:
-                    name = memberBinding.Name;
-                    qualifier = null;
-                    break;
-                default:
-                    return;
-            }
-
-            var symbol = context.SemanticModel.GetSymbolInfo(name).Symbol;
-
-            var memberType = symbol switch
-            {
-                IPropertySymbol property => property.Type,
-                IFieldSymbol field => field.Type,
-                IEventSymbol @event => @event.Type,
-                // method group reference. invoked method is covered by invocation action
-                IMethodSymbol method when context.Node.Parent is not InvocationExpressionSyntax => method.ReturnType,
-                _ => null,
-            };
-
-            if (symbol == null || memberType == null)
+            if (context.Operation is not IPropertyReferenceOperation propertyReference)
             {
                 return;
             }
 
-            // static member access on reflection type (e.g. `BindingFlags.Public`)
-            // is already reported as type reference on the qualifier identifier.
-            if (qualifier != null && context.SemanticModel.GetSymbolInfo(qualifier).Symbol is INamedTypeSymbol)
+            if (IsStaticTypeQualifiedAccess(propertyReference.Instance, propertyReference.Property.ContainingType))
             {
+                if (TryGetTypeQualifierLocation(propertyReference.Syntax, out var qualifierLocation, out var qualifierName))
+                {
+                    Report(context, qualifierLocation, qualifierName, propertyReference.Property.ContainingType);
+                }
+
                 return;
             }
 
-            var found = FindReflectionType(memberType)
-                ?? GetReflectionReceiverType(context, GetReceiverSyntax((ExpressionSyntax)context.Node), symbol);
+            var found = FindReflectionType(propertyReference.Type)
+                ?? GetReflectionReceiverType(propertyReference.Instance, propertyReference.Property);
             if (found == null)
             {
                 return;
             }
 
-            Report(context, name.Identifier, found);
+            if (!TryGetMemberNameLocation(propertyReference.Syntax, out var location, out var name))
+            {
+                return;
+            }
+
+            Report(context, location, name, found);
         }
 
-
-        /*  locals declaration  ================================================================ */
-
-        private static void AnalyzeLocalDeclaration(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeFieldReference(OperationAnalysisContext context)
         {
-            if (context.Node is VariableDeclarationSyntax declaration)
+            if (context.Operation is not IFieldReferenceOperation fieldReference)
             {
-                // explicitly typed declaration is reported as type reference.
+                return;
+            }
+
+            if (fieldReference.Parent is IInvocationOperation)
+            {
+                return;
+            }
+
+            if (IsStaticTypeQualifiedAccess(fieldReference.Instance, fieldReference.Field.ContainingType))
+            {
+                if (TryGetTypeQualifierLocation(fieldReference.Syntax, out var qualifierLocation, out var qualifierName))
+                {
+                    Report(context, qualifierLocation, qualifierName, fieldReference.Field.ContainingType);
+                }
+
+                return;
+            }
+
+            var found = FindReflectionType(fieldReference.Type)
+                ?? GetReflectionReceiverType(fieldReference.Instance, fieldReference.Field);
+            if (found == null)
+            {
+                return;
+            }
+
+            if (!TryGetMemberNameLocation(fieldReference.Syntax, out var location, out var name))
+            {
+                return;
+            }
+
+            Report(context, location, name, found);
+        }
+
+        private static void AnalyzeMethodReference(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IMethodReferenceOperation methodReference)
+            {
+                return;
+            }
+
+            if (methodReference.Parent is IInvocationOperation)
+            {
+                return;
+            }
+
+            if (IsStaticTypeQualifiedAccess(methodReference.Instance, methodReference.Method.ContainingType))
+            {
+                if (TryGetTypeQualifierLocation(methodReference.Syntax, out var qualifierLocation, out var qualifierName))
+                {
+                    Report(context, qualifierLocation, qualifierName, methodReference.Method.ContainingType);
+                }
+
+                return;
+            }
+
+            var found = FindReflectionType(methodReference.Method.ReturnType)
+                ?? GetReflectionReceiverType(methodReference.Instance, methodReference.Method);
+            if (found == null)
+            {
+                return;
+            }
+
+            if (!TryGetMemberNameLocation(methodReference.Syntax, out var location, out var name))
+            {
+                return;
+            }
+
+            Report(context, location, name, found);
+        }
+
+        private static void AnalyzeTypeOf(OperationAnalysisContext context)
+        {
+            if (context.Operation is not ITypeOfOperation typeOf)
+            {
+                return;
+            }
+
+            if (typeOf.TypeOperand is not INamedTypeSymbol type || !IsReflectionType(type))
+            {
+                return;
+            }
+
+            if (typeOf.Syntax is not TypeOfExpressionSyntax typeOfSyntax)
+            {
+                return;
+            }
+
+            ReportReflectionTypeNamesInTypeSyntax(context, typeOfSyntax.Type, typeOf.SemanticModel);
+        }
+
+        private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IVariableDeclaratorOperation declarator)
+            {
+                return;
+            }
+
+            if (declarator.Syntax is not VariableDeclaratorSyntax variableSyntax)
+            {
+                return;
+            }
+
+            var semanticModel = declarator.SemanticModel ?? context.Compilation.GetSemanticModel(variableSyntax.SyntaxTree);
+
+            if (variableSyntax.Parent is VariableDeclarationSyntax declaration)
+            {
                 if (!declaration.Type.IsVar)
                 {
+                    ReportReflectionTypeNamesInTypeSyntax(context, declaration.Type, semanticModel);
                     return;
                 }
-
-                foreach (var variable in declaration.Variables)
-                {
-                    if (context.SemanticModel.GetDeclaredSymbol(variable) is not ILocalSymbol local)
-                    {
-                        continue;
-                    }
-
-                    var found = FindReflectionType(local.Type);
-                    if (found != null)
-                    {
-                        Report(context, variable.Identifier, found);
-                    }
-                }
             }
-            else if (context.Node is ForEachStatementSyntax forEach)
+            else if (variableSyntax.FirstAncestorOrSelf<ForEachStatementSyntax>() is ForEachStatementSyntax forEach)
             {
                 if (!forEach.Type.IsVar)
                 {
+                    ReportReflectionTypeNamesInTypeSyntax(context, forEach.Type, semanticModel);
                     return;
                 }
+            }
 
-                if (context.SemanticModel.GetDeclaredSymbol(forEach) is not ILocalSymbol local)
-                {
-                    return;
-                }
+            var found = FindReflectionType(declarator.Symbol.Type);
+            if (found == null)
+            {
+                return;
+            }
 
-                var found = FindReflectionType(local.Type);
-                if (found != null)
+            Report(context, variableSyntax.Identifier.GetLocation(), variableSyntax.Identifier.Text, found);
+        }
+
+
+        /*  symbol  ================================================================ */
+
+        private static void AnalyzeDeclarationSymbol(SymbolAnalysisContext context)
+        {
+            foreach (var syntaxRef in context.Symbol.DeclaringSyntaxReferences)
+            {
+                var root = syntaxRef.GetSyntax();
+                var semanticModel = context.Compilation.GetSemanticModel(root.SyntaxTree);
+
+                foreach (var typeSyntax in ExtractDeclarationTypeSyntaxes(root, context.Symbol))
                 {
-                    Report(context, forEach.Identifier, found);
+                    ReportReflectionTypeNamesInTypeSyntax(context, typeSyntax, semanticModel);
                 }
             }
         }
@@ -239,13 +261,180 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         /*  helper  ================================================================ */
 
-        private static void Report(SyntaxNodeAnalysisContext context, SyntaxToken identifier, INamedTypeSymbol reflectionType)
+        private static void Report(OperationAnalysisContext context, Location location, string identifier, INamedTypeSymbol reflectionType)
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionUsage,
-                identifier.GetLocation(),
-                identifier.Text,
+                location,
+                identifier,
                 reflectionType.ToDisplayString()));
+        }
+
+        private static void Report(SymbolAnalysisContext context, Location location, string identifier, INamedTypeSymbol reflectionType)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_SystemReflectionUsage,
+                location,
+                identifier,
+                reflectionType.ToDisplayString()));
+        }
+
+        private static void ReportReflectionTypeNamesInTypeSyntax(
+            OperationAnalysisContext context,
+            TypeSyntax typeSyntax,
+            SemanticModel? semanticModel)
+        {
+            if (semanticModel == null)
+            {
+                return;
+            }
+
+            foreach (var name in typeSyntax.DescendantNodesAndSelf().OfType<SimpleNameSyntax>())
+            {
+                if (name.IsVar)
+                {
+                    continue;
+                }
+
+                if (semanticModel.GetSymbolInfo(name).Symbol is not INamedTypeSymbol type || !IsReflectionType(type))
+                {
+                    continue;
+                }
+
+                Report(context, name.Identifier.GetLocation(), name.Identifier.Text, type);
+            }
+        }
+
+        private static void ReportReflectionTypeNamesInTypeSyntax(
+            SymbolAnalysisContext context,
+            TypeSyntax typeSyntax,
+            SemanticModel semanticModel)
+        {
+            foreach (var name in typeSyntax.DescendantNodesAndSelf().OfType<SimpleNameSyntax>())
+            {
+                if (name.IsVar)
+                {
+                    continue;
+                }
+
+                if (semanticModel.GetSymbolInfo(name).Symbol is not INamedTypeSymbol type || !IsReflectionType(type))
+                {
+                    continue;
+                }
+
+                Report(context, name.Identifier.GetLocation(), name.Identifier.Text, type);
+            }
+        }
+
+        private static IEnumerable<TypeSyntax> ExtractDeclarationTypeSyntaxes(SyntaxNode root, ISymbol symbol)
+        {
+            switch (symbol)
+            {
+                case IFieldSymbol when root is VariableDeclaratorSyntax fieldVariable
+                    && fieldVariable.Parent is VariableDeclarationSyntax fieldDeclaration:
+                    yield return fieldDeclaration.Type;
+                    break;
+
+                case IPropertySymbol when root is PropertyDeclarationSyntax property:
+                    yield return property.Type;
+                    break;
+
+                case IMethodSymbol when root is MethodDeclarationSyntax method:
+                    yield return method.ReturnType;
+                    foreach (var parameter in method.ParameterList.Parameters)
+                    {
+                        yield return parameter.Type;
+                    }
+                    break;
+
+                case IMethodSymbol when root is LocalFunctionStatementSyntax localFunction:
+                    yield return localFunction.ReturnType;
+                    foreach (var parameter in localFunction.ParameterList.Parameters)
+                    {
+                        yield return parameter.Type;
+                    }
+                    break;
+
+                case IParameterSymbol when root is ParameterSyntax parameter:
+                    yield return parameter.Type;
+                    break;
+
+                case IEventSymbol when root is EventDeclarationSyntax eventDeclaration:
+                    yield return eventDeclaration.Type;
+                    break;
+
+                case IEventSymbol when root is EventFieldDeclarationSyntax eventField:
+                    yield return eventField.Declaration.Type;
+                    break;
+            }
+        }
+
+        private static bool TryGetMemberNameLocation(SyntaxNode syntax, out Location location, out string name)
+        {
+            switch (syntax)
+            {
+                case MemberAccessExpressionSyntax memberAccess:
+                    location = memberAccess.Name.Identifier.GetLocation();
+                    name = memberAccess.Name.Identifier.Text;
+                    return true;
+
+                case MemberBindingExpressionSyntax memberBinding:
+                    location = memberBinding.Name.Identifier.GetLocation();
+                    name = memberBinding.Name.Identifier.Text;
+                    return true;
+
+                case InvocationExpressionSyntax invocation:
+                    return TryGetMemberNameLocation(invocation.Expression, out location, out name);
+
+                case IdentifierNameSyntax identifier:
+                    location = identifier.Identifier.GetLocation();
+                    name = identifier.Identifier.Text;
+                    return true;
+
+                default:
+                    location = syntax.GetLocation();
+                    name = syntax.ToString();
+                    return true;
+            }
+        }
+
+        private static bool TryGetTypeQualifierLocation(SyntaxNode syntax, out Location location, out string name)
+        {
+            switch (syntax)
+            {
+                case MemberAccessExpressionSyntax memberAccess:
+                    if (memberAccess.Expression is SimpleNameSyntax qualifier)
+                    {
+                        location = qualifier.Identifier.GetLocation();
+                        name = qualifier.Identifier.Text;
+                        return true;
+                    }
+                    break;
+
+                case IdentifierNameSyntax identifier:
+                    location = identifier.Identifier.GetLocation();
+                    name = identifier.Identifier.Text;
+                    return true;
+            }
+
+            location = syntax.GetLocation();
+            name = syntax.ToString();
+            return false;
+        }
+
+        // NOTE: member declared on reflection type can be inherited by non-reflection type
+        //       (e.g. `System.Type` derives from `MemberInfo`) so check receiver type
+        //       instead of member's containing type.
+        private static INamedTypeSymbol? GetReflectionReceiverType(IOperation? instance, ISymbol member)
+        {
+            var receiverType = instance?.Type ?? member.ContainingType;
+
+            return receiverType is INamedTypeSymbol named && IsReflectionType(named) ? named : null;
+        }
+
+        private static bool IsStaticTypeQualifiedAccess(IOperation? instance, INamedTypeSymbol containingType)
+        {
+            return instance == null && IsReflectionType(containingType);
         }
 
         // NOTE: depth limit for pathological recursive generics.
@@ -269,7 +458,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return named;
                     }
 
-                    // e.g. IEnumerable<MethodInfo>, Task<MemberInfo[]>, Nullable<T>
                     foreach (var typeArg in named.TypeArguments)
                     {
                         var found = FindReflectionType(typeArg, depth + 1);
