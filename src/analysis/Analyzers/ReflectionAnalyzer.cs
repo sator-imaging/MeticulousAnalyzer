@@ -41,12 +41,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
 
             // Declaration-site type references have no IOperation.
+            // NOTE: parameter types are reported via the containing method symbol to avoid duplicate diagnostics.
             context.RegisterSymbolAction(
                 AnalyzeDeclarationSymbol,
                 SymbolKind.Field,
                 SymbolKind.Property,
                 SymbolKind.Method,
-                SymbolKind.Parameter,
                 SymbolKind.Event);
         }
 
@@ -208,26 +208,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var semanticModel = declarator.SemanticModel ?? context.Compilation.GetSemanticModel(declarator.Syntax.SyntaxTree);
+
+            if (declarator.Syntax is ForEachStatementSyntax forEach)
+            {
+                if (!forEach.Type.IsVar)
+                {
+                    ReportReflectionTypeNamesInTypeSyntax(context, forEach.Type, semanticModel);
+                    return;
+                }
+
+                var foreachFound = FindReflectionType(declarator.Symbol.Type);
+                if (foreachFound != null)
+                {
+                    Report(context, forEach.Identifier.GetLocation(), forEach.Identifier.Text, foreachFound);
+                }
+
+                return;
+            }
+
             if (declarator.Syntax is not VariableDeclaratorSyntax variableSyntax)
             {
                 return;
             }
-
-            var semanticModel = declarator.SemanticModel ?? context.Compilation.GetSemanticModel(variableSyntax.SyntaxTree);
 
             if (variableSyntax.Parent is VariableDeclarationSyntax declaration)
             {
                 if (!declaration.Type.IsVar)
                 {
                     ReportReflectionTypeNamesInTypeSyntax(context, declaration.Type, semanticModel);
-                    return;
-                }
-            }
-            else if (variableSyntax.FirstAncestorOrSelf<ForEachStatementSyntax>() is ForEachStatementSyntax forEach)
-            {
-                if (!forEach.Type.IsVar)
-                {
-                    ReportReflectionTypeNamesInTypeSyntax(context, forEach.Type, semanticModel);
                     return;
                 }
             }
@@ -353,10 +362,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         yield return parameter.Type;
                     }
-                    break;
-
-                case IParameterSymbol when root is ParameterSyntax parameter:
-                    yield return parameter.Type;
                     break;
 
                 case IEventSymbol when root is EventDeclarationSyntax eventDeclaration:
