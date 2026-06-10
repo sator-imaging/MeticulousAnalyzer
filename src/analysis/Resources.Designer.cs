@@ -979,6 +979,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA7003_Description {
+            get {
+                return ResourceManager.GetString("SMA7003_Description", resourceCulture);
+            }
+        }
+
+        internal static string SMA7003_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA7003_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA7003_Title {
+            get {
+                return ResourceManager.GetString("SMA7003_Title", resourceCulture);
+            }
+        }
+
         internal static string SMA8001_Title {
             get {
                 return ResourceManager.GetString("SMA8001_Title", resourceCulture);

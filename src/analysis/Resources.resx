@@ -477,6 +477,15 @@
   <data name="SMA7002_Title" xml:space="preserve">
     <value>Lambda allocation</value>
   </data>
+  <data name="SMA7003_Description" xml:space="preserve">
+    <value>This member or type is declared in System.Reflection, or returns a type from it.</value>
+  </data>
+  <data name="SMA7003_MessageFormat" xml:space="preserve">
+    <value>'{0}' involves System.Reflection</value>
+  </data>
+  <data name="SMA7003_Title" xml:space="preserve">
+    <value>System.Reflection usage</value>
+  </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Readability and Maintainability Analysis</value>
   </data>
