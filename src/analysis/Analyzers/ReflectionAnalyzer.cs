@@ -39,6 +39,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
             context.RegisterOperationAction(AnalyzeTypeOf, OperationKind.TypeOf);
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeForEachLoop, OperationKind.Loop);
 
             // Declaration-site type references have no IOperation.
             // NOTE: parameter types are reported via the containing method symbol to avoid duplicate diagnostics.
@@ -210,20 +211,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var semanticModel = declarator.SemanticModel ?? context.Compilation.GetSemanticModel(declarator.Syntax.SyntaxTree);
 
-            if (declarator.Syntax is ForEachStatementSyntax forEach)
+            if (declarator.Syntax is ForEachStatementSyntax)
             {
-                if (!forEach.Type.IsVar)
-                {
-                    ReportReflectionTypeNamesInTypeSyntax(context, forEach.Type, semanticModel);
-                    return;
-                }
-
-                var foreachFound = FindReflectionType(declarator.Symbol.Type);
-                if (foreachFound != null)
-                {
-                    Report(context, forEach.Identifier.GetLocation(), forEach.Identifier.Text, foreachFound);
-                }
-
+                // Handled by AnalyzeForEachLoop to avoid missing or duplicate diagnostics.
                 return;
             }
 
@@ -248,6 +238,40 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             Report(context, variableSyntax.Identifier.GetLocation(), variableSyntax.Identifier.Text, found);
+        }
+
+        private static void AnalyzeForEachLoop(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IForEachLoopOperation forEach)
+            {
+                return;
+            }
+
+            if (forEach.Syntax is not ForEachStatementSyntax forEachSyntax)
+            {
+                return;
+            }
+
+            var semanticModel = forEach.SemanticModel ?? context.Compilation.GetSemanticModel(forEachSyntax.SyntaxTree);
+
+            if (!forEachSyntax.Type.IsVar)
+            {
+                ReportReflectionTypeNamesInTypeSyntax(context, forEachSyntax.Type, semanticModel);
+                return;
+            }
+
+            ITypeSymbol? iterationType = forEach.LoopControlVariable is IVariableDeclaratorOperation declarator
+                ? declarator.Symbol.Type
+                : null;
+            iterationType ??= semanticModel.GetForEachStatementInfo(forEachSyntax).ElementType;
+
+            var found = FindReflectionType(iterationType);
+            if (found == null)
+            {
+                return;
+            }
+
+            Report(context, forEachSyntax.Identifier.GetLocation(), forEachSyntax.Identifier.Text, found);
         }
 
 
