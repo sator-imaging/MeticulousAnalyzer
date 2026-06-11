@@ -498,6 +498,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static INamedTypeSymbol? FindReflectionType(ITypeSymbol? type, int depth = 0)
         {
+            type = UnwrapByRefTypeIfPresent(type);
             if (type == null || depth > MaxTypeSearchDepth)
             {
                 return null;
@@ -507,9 +508,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 case IArrayTypeSymbol array:
                     return FindReflectionType(array.ElementType, depth + 1);
-
-                case IByRefTypeSymbol byRef:
-                    return FindReflectionType(byRef.ReferencedType, depth + 1);
 
                 case INamedTypeSymbol named:
                     if (IsReflectionType(named))
@@ -530,6 +528,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 default:
                     return null;
             }
+        }
+
+        // NOTE: IByRefTypeSymbol is unavailable in Microsoft.CodeAnalysis 3.8; unwrap at runtime when present.
+        private static ITypeSymbol? UnwrapByRefTypeIfPresent(ITypeSymbol? type)
+        {
+            if (type == null)
+            {
+                return null;
+            }
+
+            var referencedTypeProperty = type.GetType().GetProperty("ReferencedType");
+            if (referencedTypeProperty?.PropertyType == typeof(ITypeSymbol)
+                && referencedTypeProperty.GetValue(type) is ITypeSymbol referencedType)
+            {
+                return referencedType;
+            }
+
+            return type;
         }
 
         private static bool IsReflectionType(INamedTypeSymbol type)
