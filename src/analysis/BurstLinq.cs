@@ -55,9 +55,11 @@ namespace SatorImaging.StaticMemberAnalyzer
             Func<T, bool> static_lambda_where
         )
         {
-            foreach (var item in source)
+            var src = source.source;
+            var pred = source.predicate;
+            for (int i = 0, count = src.Length; i < count; i++)
             {
-                if (static_lambda_where.Invoke(item))
+                if (src[i] is T match && pred.Invoke(match) && static_lambda_where.Invoke(match))
                 {
                     return true;
                 }
@@ -72,9 +74,9 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (!source.IsDefaultOrEmpty)
             {
-                foreach (var item in source)
+                for (int i = 0, count = source.Length; i < count; i++)
                 {
-                    if (static_lambda_where.Invoke(item))
+                    if (static_lambda_where.Invoke(source[i]))
                     {
                         return true;
                     }
@@ -184,6 +186,15 @@ namespace SatorImaging.StaticMemberAnalyzer
             this IEnumerable<object> source
         )
         {
+            if (source is IReadOnlyList<object> list)
+            {
+                for (int i = 0, count = list.Count; i < count; i++)
+                {
+                    if (list[i] is T match) return match;
+                }
+                return default;
+            }
+
             foreach (var item in source)
             {
                 if (item is T match)
@@ -200,6 +211,15 @@ namespace SatorImaging.StaticMemberAnalyzer
             this IEnumerable<object> source
         )
         {
+            if (source is IReadOnlyList<object> list)
+            {
+                for (int i = 0, count = list.Count; i < count; i++)
+                {
+                    if (list[i] is T) return true;
+                }
+                return false;
+            }
+
             foreach (var item in source)
             {
                 if (item is T)
@@ -220,22 +240,28 @@ namespace SatorImaging.StaticMemberAnalyzer
         public readonly struct Linq_OfType<T>
         {
             readonly IEnumerable<object> source;
+            internal readonly IReadOnlyList<object>? sourceList;
             readonly bool isEmpty;
             public Linq_OfType(IEnumerable<object> source)
             {
                 this.source = source;
+                this.sourceList = source as IReadOnlyList<object>;
                 this.isEmpty = source is IReadOnlyCollection<object> roc && roc.Count == 0;
             }
 
-            public Enumerator GetEnumerator() => new(source, isEmpty);
+            public Enumerator GetEnumerator() => new(source, sourceList, isEmpty);
 
             [StructLayout(LayoutKind.Auto)]
             public ref struct Enumerator //: IDisposable
             {
+                readonly IReadOnlyList<object>? sourceList;
                 IEnumerator<object>? mut_enumerator;
-                public Enumerator(IEnumerable<object> e, bool isEmpty)
+                int index;
+                public Enumerator(IEnumerable<object> e, IReadOnlyList<object>? sourceList, bool isEmpty)
                 {
-                    this.mut_enumerator = isEmpty ? null : e.GetEnumerator();
+                    this.sourceList = sourceList;
+                    this.mut_enumerator = (isEmpty || sourceList is not null) ? null : e.GetEnumerator();
+                    this.index = -1;
                     Current = (((default)))!;
                 }
 
@@ -244,15 +270,34 @@ namespace SatorImaging.StaticMemberAnalyzer
 
                 public bool MoveNext()
                 {
-                    var e = mut_enumerator;
-                    if (e is not null)
+                    var list = sourceList;
+                    if (list is not null)
                     {
-                        while (e.MoveNext())
+                        int count = list.Count;
+                        int index = this.index;
+                        while ((++index) < count)
                         {
-                            if (e.Current is T match)
+                            if (list[index] is T match)
                             {
+                                this.index = index;
                                 Current = match;
                                 return true;
+                            }
+                        }
+                        this.index = count;
+                    }
+                    else
+                    {
+                        var e = mut_enumerator;
+                        if (e is not null)
+                        {
+                            while (e.MoveNext())
+                            {
+                                if (e.Current is T match)
+                                {
+                                    Current = match;
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -275,8 +320,8 @@ namespace SatorImaging.StaticMemberAnalyzer
         public readonly struct Linq_OfType_Where<TSource, TList, TOut>
             where TList : IReadOnlyList<TSource>
         {
-            readonly TList source;
-            readonly Func<TOut, bool> predicate;
+            internal readonly TList source;
+            internal readonly Func<TOut, bool> predicate;
             public Linq_OfType_Where(TList source, Func<TOut, bool> predicate)
             {
                 this.source = source;
@@ -368,6 +413,16 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T? FirstOrDefault<T>(this Linq_OfType<T> source)
         {
+            var list = source.sourceList;
+            if (list is not null)
+            {
+                for (int i = 0, count = list.Count; i < count; i++)
+                {
+                    if (list[i] is T match) return match;
+                }
+                return default;
+            }
+
             foreach (var item in source)
             {
                 return item;
@@ -383,6 +438,11 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T? FirstOrDefault<T>(this IEnumerable<T> source)
         {
+            if (source is IReadOnlyList<T> list)
+            {
+                return list.Count > 0 ? list[0] : default;
+            }
+
             foreach (var item in source)
             {
                 return item;
@@ -394,8 +454,9 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (!source.IsDefaultOrEmpty)
             {
-                foreach (var item in source)
+                for (int i = 0, count = source.Length; i < count; i++)
                 {
+                    var item = source[i];
                     if (static_lambda_first_or_default.Invoke(item))
                     {
                         return item;
@@ -407,6 +468,19 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T? FirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> static_lambda_first_or_default)
         {
+            if (source is IReadOnlyList<T> list)
+            {
+                for (int i = 0, count = list.Count; i < count; i++)
+                {
+                    var item = list[i];
+                    if (static_lambda_first_or_default.Invoke(item))
+                    {
+                        return item;
+                    }
+                }
+                return default;
+            }
+
             foreach (var item in source)
             {
                 if (static_lambda_first_or_default.Invoke(item))
@@ -439,9 +513,9 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static bool Any<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_any) where T : SyntaxNode
         {
-            foreach (var item in source)
+            for (int i = 0, count = source.Count; i < count; i++)
             {
-                if (static_lambda_any.Invoke(item))
+                if (static_lambda_any.Invoke(source[i]))
                 {
                     return true;
                 }
@@ -453,9 +527,9 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (!source.IsDefaultOrEmpty)
             {
-                foreach (var item in source)
+                for (int i = 0, count = source.Length; i < count; i++)
                 {
-                    if (static_lambda_any.Invoke(item))
+                    if (static_lambda_any.Invoke(source[i]))
                     {
                         return true;
                     }
@@ -466,6 +540,18 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static bool Any<T>(this IEnumerable<T> source, Func<T, bool> static_lambda_any)
         {
+            if (source is IReadOnlyList<T> list)
+            {
+                for (int i = 0, count = list.Count; i < count; i++)
+                {
+                    if (static_lambda_any.Invoke(list[i]))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
             foreach (var item in source)
             {
                 if (static_lambda_any.Invoke(item))
@@ -484,6 +570,18 @@ namespace SatorImaging.StaticMemberAnalyzer
             if (source is ICollection<T> col)
             {
                 return col.Contains(value);
+            }
+
+            if (source is IReadOnlyList<T> list)
+            {
+                for (int i = 0, count = list.Count; i < count; i++)
+                {
+                    if (EqualityComparer<T>.Default.Equals(list[i], value))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             foreach (var item in source)
@@ -516,10 +614,12 @@ namespace SatorImaging.StaticMemberAnalyzer
             where T : SyntaxNode
             where TOut : SyntaxNode
         {
-            foreach (var item in source)
+            for (int i = 0, count = source.Count; i < count; i++)
             {
-                foreach (var nest in static_lambda_select_many.Invoke(item))
+                var nested = static_lambda_select_many.Invoke(source[i]);
+                for (int j = 0, nestedCount = nested.Count; j < nestedCount; j++)
                 {
+                    var nest = nested[j];
                     if (static_lambda_first_or_default.Invoke(nest))
                     {
                         return nest;
