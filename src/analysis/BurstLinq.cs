@@ -72,9 +72,9 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (!source.IsDefaultOrEmpty)
             {
-                foreach (var item in source)
+                for (int i = 0, count = source.Length; i < count; i++)
                 {
-                    if (static_lambda_where.Invoke(item))
+                    if (static_lambda_where.Invoke(source[i]))
                     {
                         return true;
                     }
@@ -376,24 +376,6 @@ namespace SatorImaging.StaticMemberAnalyzer
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? FirstOrDefault<T>(this IReadOnlyList<T> source)
-        {
-            return source.Count > 0 ? source[0] : default;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? FirstOrDefault<T>(this SyntaxList<T> source) where T : SyntaxNode
-        {
-            return source.Count > 0 ? source[0] : default;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? FirstOrDefault<T>(this SeparatedSyntaxList<T> source) where T : SyntaxNode
-        {
-            return source.Count > 0 ? source[0] : default;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ImmutableArray<T> source)
         {
             return source.IsDefaultOrEmpty ? default : source[0];
@@ -417,8 +399,9 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (!source.IsDefaultOrEmpty)
             {
-                foreach (var item in source)
+                for (int i = 0, count = source.Length; i < count; i++)
                 {
+                    var item = source[i];
                     if (static_lambda_first_or_default.Invoke(item))
                     {
                         return item;
@@ -444,24 +427,6 @@ namespace SatorImaging.StaticMemberAnalyzer
         /*  Any  ================================================================ */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any<T>(this IReadOnlyList<T> source)
-        {
-            return source.Count > 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any<T>(this SyntaxList<T> source) where T : SyntaxNode
-        {
-            return source.Count > 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any<T>(this SeparatedSyntaxList<T> source) where T : SyntaxNode
-        {
-            return source.Count > 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<T>(this ImmutableArray<T> source)
         {
             return !source.IsDefaultOrEmpty;
@@ -474,15 +439,25 @@ namespace SatorImaging.StaticMemberAnalyzer
                 return roc.Count > 0;
             }
 
+            if (source is ICollection<T> col)
+            {
+                return col.Count > 0;
+            }
+
+            if (source is System.Collections.ICollection c)
+            {
+                return c.Count > 0;
+            }
+
             using var e = source.GetEnumerator();
             return e.MoveNext();
         }
 
         public static bool Any<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_any) where T : SyntaxNode
         {
-            foreach (var item in source)
+            for (int i = 0, count = source.Count; i < count; i++)
             {
-                if (static_lambda_any.Invoke(item))
+                if (static_lambda_any.Invoke(source[i]))
                 {
                     return true;
                 }
@@ -494,9 +469,9 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (!source.IsDefaultOrEmpty)
             {
-                foreach (var item in source)
+                for (int i = 0, count = source.Length; i < count; i++)
                 {
-                    if (static_lambda_any.Invoke(item))
+                    if (static_lambda_any.Invoke(source[i]))
                     {
                         return true;
                     }
