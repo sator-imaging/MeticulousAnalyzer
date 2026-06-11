@@ -324,7 +324,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (semanticModel.GetSymbolInfo(name).Symbol is not INamedTypeSymbol type || !IsReflectionType(type))
+                if (semanticModel.GetTypeInfo(name).Type is not INamedTypeSymbol type || !IsReflectionType(type))
                 {
                     continue;
                 }
@@ -350,7 +350,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (semanticModel.GetSymbolInfo(name).Symbol is not INamedTypeSymbol type || !IsReflectionType(type))
+                if (semanticModel.GetTypeInfo(name).Type is not INamedTypeSymbol type || !IsReflectionType(type))
                 {
                     continue;
                 }
@@ -507,6 +507,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 case IArrayTypeSymbol array:
                     return FindReflectionType(array.ElementType, depth + 1);
+
+                case IByRefTypeSymbol byRef:
+                    return FindReflectionType(byRef.ReferencedType, depth + 1);
 
                 case INamedTypeSymbol named:
                     if (IsReflectionType(named))
