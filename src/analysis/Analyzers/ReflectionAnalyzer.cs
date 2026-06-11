@@ -85,11 +85,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (IsStaticTypeQualifiedAccess(propertyReference.Instance, propertyReference.Property.ContainingType))
             {
-                if (TryGetTypeQualifierLocation(propertyReference.Syntax, out var qualifierLocation, out var qualifierName))
-                {
-                    Report(context, qualifierLocation, qualifierName, propertyReference.Property.ContainingType);
-                }
-
+                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(propertyReference.Syntax);
+                Report(context, qualifierLocation, qualifierName, propertyReference.Property.ContainingType);
                 return;
             }
 
@@ -122,11 +119,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (IsStaticTypeQualifiedAccess(fieldReference.Instance, fieldReference.Field.ContainingType))
             {
-                if (TryGetTypeQualifierLocation(fieldReference.Syntax, out var qualifierLocation, out var qualifierName))
-                {
-                    Report(context, qualifierLocation, qualifierName, fieldReference.Field.ContainingType);
-                }
-
+                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(fieldReference.Syntax);
+                Report(context, qualifierLocation, qualifierName, fieldReference.Field.ContainingType);
                 return;
             }
 
@@ -159,11 +153,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (IsStaticTypeQualifiedAccess(methodReference.Instance, methodReference.Method.ContainingType))
             {
-                if (TryGetTypeQualifierLocation(methodReference.Syntax, out var qualifierLocation, out var qualifierName))
-                {
-                    Report(context, qualifierLocation, qualifierName, methodReference.Method.ContainingType);
-                }
-
+                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(methodReference.Syntax);
+                Report(context, qualifierLocation, qualifierName, methodReference.Method.ContainingType);
                 return;
             }
 
@@ -226,7 +217,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (!declaration.Type.IsVar)
                 {
-                    ReportReflectionTypeNamesInTypeSyntax(context, declaration.Type, semanticModel);
+                    if (declaration.Variables.FirstOrDefault() == variableSyntax)
+                    {
+                        ReportReflectionTypeNamesInTypeSyntax(context, declaration.Type, semanticModel);
+                    }
+
                     return;
                 }
             }
@@ -317,7 +312,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             TypeSyntax typeSyntax,
             SemanticModel? semanticModel)
         {
-            if (semanticModel == null)
+            if (semanticModel == null || typeSyntax == null)
             {
                 return;
             }
@@ -343,6 +338,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             TypeSyntax typeSyntax,
             SemanticModel semanticModel)
         {
+            if (typeSyntax == null)
+            {
+                return;
+            }
+
             foreach (var name in typeSyntax.DescendantNodesAndSelf().OfType<SimpleNameSyntax>())
             {
                 if (name.IsVar)
@@ -365,18 +365,46 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 case IFieldSymbol when root is VariableDeclaratorSyntax fieldVariable
                     && fieldVariable.Parent is VariableDeclarationSyntax fieldDeclaration:
-                    yield return fieldDeclaration.Type;
-                    break;
-
-                case IPropertySymbol when root is PropertyDeclarationSyntax property:
-                    yield return property.Type;
-                    break;
-
-                case IMethodSymbol when root is MethodDeclarationSyntax method:
-                    yield return method.ReturnType;
-                    foreach (var parameter in method.ParameterList.Parameters)
+                    if (fieldDeclaration.Variables.FirstOrDefault() == fieldVariable)
                     {
-                        yield return parameter.Type;
+                        yield return fieldDeclaration.Type;
+                    }
+                    break;
+
+                case IPropertySymbol when root is BasePropertyDeclarationSyntax property:
+                    yield return property.Type;
+                    if (property is IndexerDeclarationSyntax indexer)
+                    {
+                        foreach (var parameter in indexer.ParameterList.Parameters)
+                        {
+                            if (parameter.Type != null)
+                            {
+                                yield return parameter.Type;
+                            }
+                        }
+                    }
+                    break;
+
+                case IMethodSymbol when root is BaseMethodDeclarationSyntax baseMethod:
+                    if (baseMethod is MethodDeclarationSyntax method)
+                    {
+                        yield return method.ReturnType;
+                    }
+                    else if (baseMethod is OperatorDeclarationSyntax op)
+                    {
+                        yield return op.ReturnType;
+                    }
+                    else if (baseMethod is ConversionOperatorDeclarationSyntax conv)
+                    {
+                        yield return conv.Type;
+                    }
+
+                    foreach (var parameter in baseMethod.ParameterList.Parameters)
+                    {
+                        if (parameter.Type != null)
+                        {
+                            yield return parameter.Type;
+                        }
                     }
                     break;
 
@@ -384,7 +412,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     yield return localFunction.ReturnType;
                     foreach (var parameter in localFunction.ParameterList.Parameters)
                     {
-                        yield return parameter.Type;
+                        if (parameter.Type != null)
+                        {
+                            yield return parameter.Type;
+                        }
                     }
                     break;
 
@@ -392,8 +423,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     yield return eventDeclaration.Type;
                     break;
 
-                case IEventSymbol when root is EventFieldDeclarationSyntax eventField:
-                    yield return eventField.Declaration.Type;
+                case IEventSymbol when root is VariableDeclaratorSyntax eventVariable
+                    && eventVariable.Parent is VariableDeclarationSyntax eventDeclaration
+                    && eventDeclaration.Parent is EventFieldDeclarationSyntax eventField:
+                    if (eventDeclaration.Variables.FirstOrDefault() == eventVariable)
+                    {
+                        yield return eventField.Declaration.Type;
+                    }
                     break;
             }
         }
@@ -427,28 +463,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool TryGetTypeQualifierLocation(SyntaxNode syntax, out Location location, out string name)
+        private static (Location Location, string Name) GetTypeQualifierLocation(SyntaxNode syntax)
         {
             switch (syntax)
             {
                 case MemberAccessExpressionSyntax memberAccess:
-                    if (memberAccess.Expression is SimpleNameSyntax qualifier)
-                    {
-                        location = qualifier.Identifier.GetLocation();
-                        name = qualifier.Identifier.Text;
-                        return true;
-                    }
-                    break;
+                    return (memberAccess.Expression.GetLocation(), memberAccess.Expression.ToString());
 
                 case IdentifierNameSyntax identifier:
-                    location = identifier.Identifier.GetLocation();
-                    name = identifier.Identifier.Text;
-                    return true;
-            }
+                    return (identifier.Identifier.GetLocation(), identifier.Identifier.Text);
 
-            location = syntax.GetLocation();
-            name = syntax.ToString();
-            return false;
+                default:
+                    return (syntax.GetLocation(), syntax.ToString());
+            }
         }
 
         // NOTE: member declared on reflection type can be inherited by non-reflection type
