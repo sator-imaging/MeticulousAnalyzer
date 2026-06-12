@@ -222,7 +222,7 @@ namespace Test
 
         void Method()
         {
-            _field = {|#0:(new MyDisposable()) as object|};
+            _field = {|#1:{|#0:new MyDisposable()|} as object|};
         }
     }
 }
@@ -231,7 +231,7 @@ namespace Test
             var expected = new[]
             {
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithSpan(startLine: 14, startColumn: 22, endLine: 14, endColumn: 42)
+                    .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable"),
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
@@ -254,7 +254,7 @@ namespace Test
     {
         void Method()
         {
-            _ = {|#0:(new MyDisposable()) as object|};
+            _ = {|#1:{|#0:new MyDisposable()|} as object|};
         }
     }
 }
@@ -263,7 +263,7 @@ namespace Test
             var expected = new[]
             {
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithSpan(startLine: 12, startColumn: 17, endLine: 12, endColumn: 37)
+                    .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable"),
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)

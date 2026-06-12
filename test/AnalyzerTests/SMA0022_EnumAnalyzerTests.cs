@@ -159,13 +159,13 @@ namespace Test
     {
         public void M<T>(T value) where T : Enum
         {
-            var x = {|#0:(T)(object)value|};
+            var x = {|#0:(T){|#1:(object)value|}|};
         }
     }
 }
 ";
             var expected0 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToGenericEnum).WithLocation(markupKey: 0).WithArguments("T");
-            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithSpan(startLine: 11, startColumn: 24, endLine: 11, endColumn: 37).WithArguments("T");
+            var expected1 = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastFromGenericEnum).WithLocation(markupKey: 1).WithArguments("T");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 

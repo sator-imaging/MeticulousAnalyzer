@@ -143,19 +143,13 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithSpan(path: "test.cs", startLine: 1, startColumn: 1, endLine: 1, endColumn: 14);
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(0);
             var verifier = new CSharpAnalyzerVerifier<FileHeaderCommentAnalyzer>.Test
             {
-                TestCode = test,
+                TestState = { Sources = { ("test.cs", test) } },
                 TestBehaviors = TestBehaviors.SkipSuppressionCheck,
             };
             verifier.ExpectedDiagnostics.Add(expected);
-            verifier.SolutionTransforms.Add((solution, projectId) =>
-            {
-                var project = solution.GetProject(projectId);
-                var document = project.Documents.First();
-                return solution.WithDocumentFilePath(document.Id, filePath: "test.cs");
-            });
             await verifier.RunAsync(CancellationToken.None);
         }
     }
