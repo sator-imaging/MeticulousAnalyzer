@@ -119,7 +119,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             IOperation operation,
             INamedTypeSymbol? reflectionType)
         {
-            if (reflectionType == null)
+            if (reflectionType == null || reflectionType.TypeKind == TypeKind.Enum)
             {
                 return;
             }

@@ -68,14 +68,14 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            {|#0:var|} methods = type?.GetMethods();
+            {|#0:var|} methods = type?.{|#1:GetMethods()|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MethodInfo[]", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(8, 32, 8, 45).WithArguments("GetMethods", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMethods", "System.Reflection.MethodInfo")
             );
         }
 
@@ -228,15 +228,13 @@ namespace Test
     {
         public void M()
         {
-            typeof(C).GetMembers({|#1:BindingFlags.Public|} | {|#2:BindingFlags.Instance|});
+            {|#0:typeof(C).GetMembers(BindingFlags.Public | BindingFlags.Instance)|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(10, 13, 10, 78).WithArguments("GetMembers", "System.Reflection.MemberInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Public", "System.Reflection.BindingFlags"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("Instance", "System.Reflection.BindingFlags")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "System.Reflection.MemberInfo")
             );
         }
 
