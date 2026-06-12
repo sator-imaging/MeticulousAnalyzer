@@ -2,7 +2,6 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -34,7 +33,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
             context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
-            context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeVariableDeclaration, OperationKind.VariableDeclaration);
         }
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
@@ -104,14 +103,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 FindReflectionType(methodReference.Method.ReturnType) ?? GetReflectionReceiverType(methodReference.Instance));
         }
 
-        private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
+        private static void AnalyzeVariableDeclaration(OperationAnalysisContext context)
         {
-            if (context.Operation is not IVariableDeclaratorOperation declarator)
+            if (context.Operation is not IVariableDeclarationOperation declaration)
             {
                 return;
             }
 
-            ReportIfReflection(context, declarator, FindReflectionType(declarator.Symbol.Type));
+            ReportIfReflection(context, declaration, FindReflectionType(declaration.Type));
         }
 
         private static void ReportIfReflection(
@@ -133,11 +132,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static Location GetReportLocation(IOperation operation)
         {
-            if (operation is IVariableDeclaratorOperation declarator
-                && declarator.Parent is IVariableDeclarationOperation declaration
-                && declaration.Syntax is VariableDeclarationSyntax variableDeclaration)
+            if (operation is IVariableDeclarationOperation declaration)
             {
-                return variableDeclaration.Type.GetLocation();
+                foreach (var location in declaration.Type.Locations)
+                {
+                    if (location.IsInSource)
+                    {
+                        return location;
+                    }
+                }
             }
 
             return operation.Syntax.GetLocation();
@@ -145,9 +148,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static string GetOperationName(IOperation operation)
         {
-            if (operation is IVariableDeclaratorOperation declarator)
+            if (operation is IVariableDeclarationOperation declaration)
             {
-                return declarator.Symbol.Type.ToDiagnosticMessageName();
+                return declaration.Type.ToDiagnosticMessageName();
             }
 
             ISymbol? symbol = operation switch
