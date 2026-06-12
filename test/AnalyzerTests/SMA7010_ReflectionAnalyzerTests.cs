@@ -304,5 +304,115 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA7010_Violation_ObjectCreation()
+        {
+            var test = @"
+using System.Reflection;
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            var {|#0:obj|} = {|#1:new AssemblyName()|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("obj", "AssemblyName"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("AssemblyName", "AssemblyName")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA7010_Violation_ObjectCreation_NoVariable()
+        {
+            var test = @"
+using System.Reflection;
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            Helper({|#0:new AssemblyName()|});
+        }
+        void Helper(object obj) {}
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("AssemblyName", "AssemblyName")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA7010_Violation_IndexerArgument()
+        {
+            var test = @"
+using System.Reflection;
+using System.Collections.Generic;
+namespace Test
+{
+    public class C
+    {
+        public void M(Dictionary<MethodInfo, string> dict, MethodInfo m)
+        {
+            _ = {|#0:dict[m]|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(10, 17, 10, 24).WithArguments("this", "MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(10, 22, 10, 23).WithArguments("key", "MethodInfo")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA7010_Violation_StaticMember_NonReflectionReturn()
+        {
+            var test = @"
+using System.Reflection;
+namespace Test
+{
+    public class C
+    {
+        public void M(Assembly asm)
+        {
+            var b = {|#0:asm == asm|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("operator ==", "Assembly")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA7010_Violation_ExplicitConversion()
+        {
+            var test = @"
+using System.Reflection;
+namespace Test
+{
+    public class C
+    {
+        public void M(object obj)
+        {
+            var {|#0:asm|} = {|#1:(Assembly)obj|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("asm", "Assembly"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Conversion", "Assembly")
+            );
+        }
     }
 }

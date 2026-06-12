@@ -44,10 +44,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
-            context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
-            context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
-            context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
+            context.RegisterOperationAction(AnalyzeObjectCreation, OperationKind.ObjectCreation);
+            context.RegisterOperationAction(AnalyzeMemberReference,
+                OperationKind.PropertyReference,
+                OperationKind.FieldReference,
+                OperationKind.EventReference,
+                OperationKind.MethodReference);
+            context.RegisterOperationAction(AnalyzeArgument, OperationKind.Argument);
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeBinaryOperator, OperationKind.Binary);
+            context.RegisterOperationAction(AnalyzeUnaryOperator, OperationKind.Unary);
+            context.RegisterOperationAction(AnalyzeConversion, OperationKind.Conversion);
         }
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
@@ -60,56 +67,120 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ReportIfReflection(
                 context,
                 invocation,
-                FindReflectionType(invocation.TargetMethod.ReturnType) ?? GetReflectionReceiverType(invocation.Instance));
-
-            foreach (var argument in invocation.Arguments)
-            {
-                ReportIfReflection(context, argument, FindReflectionType(argument.Value?.Type));
-            }
+                GetReflectionReceiverType(invocation.Instance) ??
+                FindReflectionType(invocation.TargetMethod.ReturnType) ??
+                (invocation.Instance == null ? FindReflectionType(invocation.TargetMethod.ContainingType) : null));
         }
 
-        private static void AnalyzePropertyReference(OperationAnalysisContext context)
+        private static void AnalyzeBinaryOperator(OperationAnalysisContext context)
         {
-            if (context.Operation is not IPropertyReferenceOperation propertyReference)
+            if (context.Operation is not IBinaryOperation binary)
             {
                 return;
             }
 
             ReportIfReflection(
                 context,
-                propertyReference,
-                FindReflectionType(propertyReference.Type) ?? GetReflectionReceiverType(propertyReference.Instance));
+                binary,
+                FindReflectionType(binary.Type) ??
+                (binary.OperatorMethod != null ? FindReflectionType(binary.OperatorMethod.ContainingType) : null) ??
+                FindReflectionType(binary.LeftOperand.Type) ??
+                FindReflectionType(binary.RightOperand.Type));
         }
 
-        private static void AnalyzeFieldReference(OperationAnalysisContext context)
+        private static void AnalyzeUnaryOperator(OperationAnalysisContext context)
         {
-            if (context.Operation is not IFieldReferenceOperation fieldReference)
+            if (context.Operation is not IUnaryOperation unary)
             {
                 return;
             }
 
             ReportIfReflection(
                 context,
-                fieldReference,
-                FindReflectionType(fieldReference.Type) ?? GetReflectionReceiverType(fieldReference.Instance));
+                unary,
+                FindReflectionType(unary.Type) ??
+                (unary.OperatorMethod != null ? FindReflectionType(unary.OperatorMethod.ContainingType) : null) ??
+                FindReflectionType(unary.Operand.Type));
         }
 
-        private static void AnalyzeMethodReference(OperationAnalysisContext context)
+        private static void AnalyzeObjectCreation(OperationAnalysisContext context)
         {
-            if (context.Operation is not IMethodReferenceOperation methodReference)
-            {
-                return;
-            }
-
-            if (methodReference.Parent is IInvocationOperation)
+            if (context.Operation is not IObjectCreationOperation creation)
             {
                 return;
             }
 
             ReportIfReflection(
                 context,
-                methodReference,
-                FindReflectionType(methodReference.Method.ReturnType) ?? GetReflectionReceiverType(methodReference.Instance));
+                creation,
+                FindReflectionType(creation.Constructor?.ContainingType) ?? FindReflectionType(creation.Type));
+        }
+
+        private static void AnalyzeMemberReference(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IMemberReferenceOperation memberReference)
+            {
+                return;
+            }
+
+            if (memberReference is IMethodReferenceOperation { Parent: IInvocationOperation })
+            {
+                return;
+            }
+
+            var member = memberReference.Member;
+            var reflectionType = GetReflectionReceiverType(memberReference.Instance);
+
+            if (reflectionType == null)
+            {
+                reflectionType = member switch
+                {
+                    IFieldSymbol field => FindReflectionType(field.Type),
+                    IPropertySymbol prop => FindReflectionType(prop.Type),
+                    IMethodSymbol method => FindReflectionType(method.ReturnType),
+                    IEventSymbol ev => FindReflectionType(ev.Type),
+                    _ => null,
+                };
+            }
+
+            if (reflectionType == null && memberReference.Instance == null)
+            {
+                reflectionType = FindReflectionType(member.ContainingType);
+            }
+
+            ReportIfReflection(context, memberReference, reflectionType);
+        }
+
+        private static void AnalyzeArgument(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IArgumentOperation argument)
+            {
+                return;
+            }
+
+            // Skip if the value is an operation that is already analyzed and reported as SMA7010.
+            if (argument.Value is IInvocationOperation
+                or IObjectCreationOperation
+                or IMemberReferenceOperation
+                or IBinaryOperation
+                or IUnaryOperation
+                or IConversionOperation)
+            {
+                return;
+            }
+
+            ReportIfReflection(context, argument, FindReflectionType(argument.Value?.Type));
+        }
+
+        private static void AnalyzeConversion(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IConversionOperation conversion ||
+                conversion.IsImplicit)
+            {
+                return;
+            }
+
+            ReportIfReflection(context, conversion, FindReflectionType(conversion.Type));
         }
 
         private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
@@ -147,6 +218,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            // Skip if it's inside an attribute.
+            var syntax = operation.Syntax;
+            while (syntax != null)
+            {
+                if (syntax is Microsoft.CodeAnalysis.CSharp.Syntax.AttributeSyntax)
+                {
+                    return;
+                }
+                syntax = syntax.Parent;
+            }
+
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionUsage,
                 operation.Syntax.GetLocation(),
@@ -159,8 +241,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var target = operation switch
             {
                 IInvocationOperation invocation => invocation.TargetMethod,
+                IObjectCreationOperation creation => creation.Constructor,
                 IMemberReferenceOperation member => member.Member,
                 IArgumentOperation argument => argument.Parameter,
+                IBinaryOperation binary => binary.OperatorMethod,
+                IUnaryOperation unary => unary.OperatorMethod,
                 _ => null,
             };
             
@@ -169,7 +254,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static INamedTypeSymbol? GetReflectionReceiverType(IOperation? instance)
         {
-            return instance?.Type is INamedTypeSymbol named && IsReflectionType(named) ? named : null;
+            return FindReflectionType(instance?.Type);
         }
 
         private const int MaxTypeSearchDepth = 8;
