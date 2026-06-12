@@ -128,6 +128,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            // Each declarator has its own symbol (e.g. var a, b = ... → one location per name).
             var location = declarator.Symbol.Locations is { Length: > 0 } locations
                 ? locations[0]
                 : declarator.Syntax.GetLocation();
