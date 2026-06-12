@@ -140,7 +140,6 @@ namespace Test
     }
 }
 ";
-            // Diagnostic spans overlap and cannot use markers.
             var expected0 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 0)
                 .WithArguments("foo.GetB()", "foo");
@@ -148,7 +147,6 @@ namespace Test
                 .WithLocation(markupKey: 1)
                 .WithArguments("foo.GetB().ReadOnlyProp", "foo");
 
-            // Diagnostic spans overlap and cannot use markers.
             var expected2 = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyMethodCall)
                 .WithLocation(markupKey: 2)
                 .WithArguments("foo.GetB()", "foo");

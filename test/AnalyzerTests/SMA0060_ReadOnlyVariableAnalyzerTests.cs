@@ -212,7 +212,6 @@ namespace Test
                 .WithLocation(markupKey: 1)
                 .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
-            // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError(identifier: "CS8184")
                 .WithLocation(markupKey: 2);
 
@@ -244,7 +243,6 @@ namespace Test
                 .WithLocation(markupKey: 1)
                 .WithArguments("right");
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
-            // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError(identifier: "CS8184")
                 .WithLocation(markupKey: 2);
 
