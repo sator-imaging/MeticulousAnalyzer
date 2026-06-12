@@ -129,14 +129,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (declarator.Syntax is not VariableDeclaratorSyntax syntax)
-            {
-                return;
-            }
+            var location = declarator.Syntax is VariableDeclaratorSyntax syntax
+                ? syntax.Identifier.GetLocation()
+                : declarator.Symbol.Locations[0];
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionVariable,
-                syntax.Identifier.GetLocation(),
+                location,
                 declarator.Symbol.Name,
                 declarator.Symbol.Type.ToDiagnosticMessageName()));
         }
