@@ -68,14 +68,14 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var methods = type?.{|#1:GetMethods()|};
+            var methods = type?.GetMethods();
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(8, 17, 8, 45).WithArguments("methods", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMethods", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(8, 32, 8, 45).WithArguments("GetMethods", "System.Reflection.MethodInfo")
             );
         }
 
