@@ -1,6 +1,8 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
+#define STMG_DEBUG_MESSAGE
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -189,6 +191,39 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
 
+        [TestMethod]
+        public void IsKnownImmutableType_SystemException_ReturnsFalse()
+        {
+            var source = "class C { System.Exception x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsFalse(Core.IsKnownImmutableType(type));
+        }
+
+        [TestMethod]
+        public void IsKnownImmutableType_GlobalClass_ReturnsFalse()
+        {
+            var source = "class MyGlobalClass {} class C { MyGlobalClass x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsFalse(Core.IsKnownImmutableType(type));
+        }
+
+        [TestMethod]
+        public void IsKnownImmutableType_CustomUri_ReturnsFalse()
+        {
+            var source = "namespace NotSystem { class Uri {} } class C { NotSystem.Uri x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsFalse(Core.IsKnownImmutableType(type));
+        }
+
         // ===== GetMemberNamePrefix =====
 
         [TestMethod]
@@ -225,6 +260,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             var result = Core.GetMemberNamePrefix(field);
             Assert.IsTrue(result.Contains("Outer"));
             Assert.IsTrue(result.Contains("Inner"));
+        }
+
+        [TestMethod]
+        public void GetMemberNamePrefix_DeepNamespace_ReturnsFullNamespace()
+        {
+            var tree = CSharpSyntaxTree.ParseText("namespace A.B.C { class MyClass { int x; } }");
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var result = Core.GetMemberNamePrefix(field);
+            Assert.IsTrue(result.Contains("A.B.C"));
+            Assert.IsTrue(result.Contains("MyClass"));
         }
 
         // ===== SpanConcat =====
@@ -669,6 +714,258 @@ namespace MyNamespace {
             var property = FindFirst<PropertyDeclarationSyntax>(tree.GetRoot());
             var propertySymbol = model.GetDeclaredSymbol(property)!;
             Assert.AreEqual("Bar", Core.ToDiagnosticMessageName(propertySymbol));
+        }
+
+        // ===== Report =====
+
+        [TestMethod]
+        public void Report_WithDebugMessageFlag_CallsInvoke()
+        {
+            var descriptor = new DiagnosticDescriptor("TEST", "TITLE", "MESSAGE {0}", "CAT", DiagnosticSeverity.Warning, true);
+            var location = Location.None;
+            var args = new object[] { "ARG" };
+            var called = false;
+            Core.Report(d => called = true, descriptor, location, args);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void Report_WithNullArgs_CallsInvoke()
+        {
+            var descriptor = new DiagnosticDescriptor("TEST", "TITLE", "MESSAGE", "CAT", DiagnosticSeverity.Warning, true);
+            var called = false;
+            Core.Report(d => called = true, descriptor, Location.None, null);
+            Assert.IsTrue(called);
+        }
+
+        // ===== ReportDebugMessage =====
+
+        [TestMethod]
+        public void ReportDebugMessage_Symbol_CallsInvoke()
+        {
+            var comp = CreateCompilation("class C { int x; }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var symbol = model.GetDeclaredSymbol(field.Declaration.Variables[0])!;
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, symbol, Location.None);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Operation_CallsInvoke()
+        {
+            var comp = CreateCompilation("class C { void M() { int x = 1; } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, op);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_SyntaxNode_CallsInvoke()
+        {
+            var tree = CSharpSyntaxTree.ParseText("class C { void M() { int x = 1; } }");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, local);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_SyntaxNodeWithMultipleChildren_CallsInvoke()
+        {
+            var tree = CSharpSyntaxTree.ParseText("class C { int x, y; }");
+            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, field.Declaration);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Title_CallsInvoke()
+        {
+            var called = false;
+#pragma warning disable CS0612
+            Core.ReportDebugMessage(d => called = true, "TITLE", Location.None, "MSG");
+#pragma warning restore
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_TitleAndLocations_CallsInvoke()
+        {
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, "TITLE", new[] { Location.None }, "MSG");
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_NullMessages_CallsInvoke()
+        {
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, "TITLE", new[] { Location.None }, null);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_EmptyLocations_DoesNotCallInvoke()
+        {
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, "TITLE", Array.Empty<Location>(), "MSG");
+            Assert.IsFalse(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_LocationsNull_DoesNotCallInvoke()
+        {
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, "TITLE", (IEnumerable<Location>)null!, "MSG");
+            Assert.IsFalse(called);
+        }
+
+        // ===== IsSuppressedByComment(IOperation) =====
+
+        [TestMethod]
+        public void IsSuppressedByComment_Operation_DiscardAssignment_ReturnsTrue()
+        {
+            var source = @"
+class C {
+    void M() {
+        // suppress
+        _ = 1;
+    }
+}";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var assignment = FindFirst<AssignmentExpressionSyntax>(tree.GetRoot());
+            var op = model.GetOperation(assignment)!;
+            // op is ISimpleAssignmentOperation, but we need to pass the expression on the right to trigger the logic in IsSuppressedByComment(IOperation)
+            var rightOp = ((ISimpleAssignmentOperation)op).Value;
+            Assert.IsTrue(Core.IsSuppressedByComment(rightOp, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_Operation_VariableInitializer_ReturnsTrue()
+        {
+            var source = @"
+class C {
+    void M() {
+        // suppress
+        var x = 1;
+    }
+}";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
+            Assert.IsTrue(Core.IsSuppressedByComment(op, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_Operation_VariableInitializer_NotSuppressed_ReturnsFalse()
+        {
+            var source = @"
+class C {
+    void M() {
+        var x = 1;
+    }
+}";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
+            Assert.IsFalse(Core.IsSuppressedByComment(op, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_MultiLineComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        /* suppress */
+        var x = 1;
+    }
+}");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsFalse(Core.IsSuppressedByComment(local, "// suppress"));
+        }
+
+        // ===== NormalizeTextWithEllipsis =====
+
+        [TestMethod]
+        public void NormalizeTextWithEllipsis_LongString_Truncates()
+        {
+            var longString = new string('a', 100);
+            var method = typeof(Core).GetMethod("NormalizeTextWithEllipsis", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var result = (string)method!.Invoke(null, new object[] { longString })!;
+            Assert.AreEqual(new string('a', 72) + "...", result);
+        }
+
+        [TestMethod]
+        public void NormalizeTextWithEllipsis_Null_ReturnsDefault()
+        {
+            var method = typeof(Core).GetMethod("NormalizeTextWithEllipsis", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var result = (string)method!.Invoke(null, new object[] { null })!;
+            Assert.AreEqual("<NULL TEXT>", result);
+        }
+
+        [TestMethod]
+        public void NormalizeTextWithEllipsis_ShortString_ReturnsSame()
+        {
+            var shortString = "abc";
+            var method = typeof(Core).GetMethod("NormalizeTextWithEllipsis", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var result = (string)method!.Invoke(null, new object[] { shortString })!;
+            Assert.AreEqual("abc", result);
+        }
+
+        // ===== ReportDebugMessage (IOperation) additional =====
+
+        [TestMethod]
+        public void ReportDebugMessage_OperationWithGrandParent_CallsInvoke()
+        {
+            var source = @"
+class C {
+    void M() {
+        int x = 1 + 2 + 3;
+    }
+}";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var literal = FindFirst<LiteralExpressionSyntax>(tree.GetRoot());
+            var op = model.GetOperation(literal)!;
+            var called = false;
+            Core.ReportDebugMessage(d => called = true, op);
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Obsolete_TitleMessageLocation_CallsInvoke()
+        {
+            var called = false;
+#pragma warning disable CS0612
+            Core.ReportDebugMessage(d => called = true, "TITLE", "MESSAGE", Location.None);
+#pragma warning restore
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Obsolete_TitleMessageLocations_CallsInvoke()
+        {
+            var called = false;
+#pragma warning disable CS0612
+            Core.ReportDebugMessage(d => called = true, "TITLE", "MESSAGE", new[] { Location.None });
+#pragma warning restore
+            Assert.IsTrue(called);
         }
     }
 }
