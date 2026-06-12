@@ -12,18 +12,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ReflectionAnalyzer : DiagnosticAnalyzer
     {
-        public const string RuleId_SystemReflectionUsage = "SMA7003";
+        public const string RuleId_SystemReflectionUsage = "SMA7010";
+        public const string RuleId_SystemReflectionVariable = "SMA7011";
 
         private static readonly DiagnosticDescriptor Rule_SystemReflectionUsage = new(
             RuleId_SystemReflectionUsage,
-            new LocalizableResourceString(nameof(Resources.SMA7003_Title), Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString(nameof(Resources.SMA7003_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA7010_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA7010_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA7003_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA7010_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_SystemReflectionUsage);
+        private static readonly DiagnosticDescriptor Rule_SystemReflectionVariable = new(
+            RuleId_SystemReflectionVariable,
+            new LocalizableResourceString(nameof(Resources.SMA7011_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA7011_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA7011_Description), Resources.ResourceManager, typeof(Resources)));
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            Rule_SystemReflectionUsage,
+            Rule_SystemReflectionVariable);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -111,7 +123,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            ReportIfReflection(context, declarator, FindReflectionType(declarator.Symbol.Type));
+            var reflectionType = FindReflectionType(declarator.Symbol.Type);
+            if (reflectionType == null || reflectionType.TypeKind == TypeKind.Enum)
+            {
+                return;
+            }
+
+            if (declarator.Syntax is not VariableDeclaratorSyntax syntax)
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_SystemReflectionVariable,
+                syntax.Identifier.GetLocation(),
+                declarator.Symbol.Name,
+                declarator.Symbol.Type.ToDiagnosticMessageName()));
         }
 
         private static void ReportIfReflection(
@@ -126,30 +153,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionUsage,
-                GetReportLocation(operation),
+                operation.Syntax.GetLocation(),
                 GetOperationName(operation),
                 reflectionType.ToDisplayString()));
         }
 
-        private static Location GetReportLocation(IOperation operation)
-        {
-            if (operation is IVariableDeclaratorOperation declarator
-                && declarator.Parent is IVariableDeclarationOperation declaration
-                && declaration.Syntax is VariableDeclarationSyntax variableDeclaration)
-            {
-                return variableDeclaration.Type.GetLocation();
-            }
-
-            return operation.Syntax.GetLocation();
-        }
-
         private static string GetOperationName(IOperation operation)
         {
-            if (operation is IVariableDeclaratorOperation declarator)
-            {
-                return declarator.Symbol.Type.ToDiagnosticMessageName();
-            }
-
             ISymbol? symbol = operation switch
             {
                 IInvocationOperation invocation => invocation.TargetMethod,
