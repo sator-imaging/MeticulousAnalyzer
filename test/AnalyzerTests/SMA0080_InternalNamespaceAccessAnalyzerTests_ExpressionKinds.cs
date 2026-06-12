@@ -286,16 +286,13 @@ namespace Foo.Bar
         public async Task SMA0080_Compliant_TypeParameterObjectCreation()
         {
             var test = @"
-namespace Foo
+namespace Foo.Bar
 {
     internal class InternalType
     {
         public InternalType() { }
     }
-}
 
-namespace Foo.Bar
-{
     internal static class Factory<T> where T : new()
     {
         internal static T Create() => new T();
@@ -305,12 +302,39 @@ namespace Foo.Bar
     {
         public void M()
         {
-            Factory<Foo.InternalType>.Create();
+            Factory<InternalType>.Create();
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+
+        [TestMethod]
+        public async Task SMA0080_Violation_TypeOfInternalArray()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var t = {|#0:typeof(Foo.InternalType[])|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]

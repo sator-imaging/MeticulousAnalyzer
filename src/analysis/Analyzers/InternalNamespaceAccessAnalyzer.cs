@@ -54,7 +54,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeTypeOperand(OperationAnalysisContext context)
         {
-            var type = TryGetNamedTypeFromOperation(context.Operation);
+            var type = TryGetTypeFromOperation(context.Operation);
             if (type != null)
             {
                 ReportCrossNamespaceAccess(context, context.Operation, type);
@@ -104,31 +104,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static INamedTypeSymbol? TryGetNamedTypeFromOperation(IOperation operation) =>
+        private static ITypeSymbol? TryGetTypeFromOperation(IOperation operation) =>
             operation switch
             {
-                IDefaultValueOperation defaultValue => defaultValue.Type as INamedTypeSymbol,
-                ITypeOfOperation typeOf => typeOf.TypeOperand as INamedTypeSymbol,
-                IIsTypeOperation isType => isType.TypeOperand as INamedTypeSymbol,
-                IConversionOperation conversion => conversion.Type as INamedTypeSymbol,
-                ITypeParameterObjectCreationOperation typeParamCreation =>
-                    typeParamCreation.Type is INamedTypeSymbol namedType && namedType.TypeKind != TypeKind.TypeParameter
-                        ? namedType
-                        : null,
-                IArrayCreationOperation arrayCreation => TryGetArrayElementNamedType(arrayCreation),
+                IDefaultValueOperation defaultValue => defaultValue.Type,
+                ITypeOfOperation typeOf => typeOf.TypeOperand,
+                IIsTypeOperation isType => isType.TypeOperand,
+                IConversionOperation conversion => conversion.Type,
+                ITypeParameterObjectCreationOperation typeParamCreation => typeParamCreation.Type,
+                IArrayCreationOperation arrayCreation => arrayCreation.Type,
                 _ => null
             };
-
-        private static INamedTypeSymbol? TryGetArrayElementNamedType(IArrayCreationOperation arrayCreation)
-        {
-            var type = arrayCreation.Type;
-            while (type is IArrayTypeSymbol arrayType)
-            {
-                type = arrayType.ElementType;
-            }
-
-            return type as INamedTypeSymbol;
-        }
 
         private static ISymbol? TryGetSymbolFromMemberOperation(IOperation operation) =>
             operation switch
@@ -210,12 +196,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return semanticModel.GetSymbolInfo(nameOf.Argument.Syntax).Symbol;
         }
 
-        private static INamedTypeSymbol? GetPatternTypeSymbol(IPatternOperation pattern) =>
+        private static ITypeSymbol? GetPatternTypeSymbol(IPatternOperation pattern) =>
             pattern switch
             {
-                ITypePatternOperation typePattern => typePattern.MatchedType as INamedTypeSymbol,
-                IDeclarationPatternOperation declarationPattern => declarationPattern.MatchedType as INamedTypeSymbol,
-                IRecursivePatternOperation recursivePattern => recursivePattern.MatchedType as INamedTypeSymbol,
+                ITypePatternOperation typePattern => typePattern.MatchedType,
+                IDeclarationPatternOperation declarationPattern => declarationPattern.MatchedType,
+                IRecursivePatternOperation recursivePattern => recursivePattern.MatchedType,
                 INegatedPatternOperation negated => GetPatternTypeSymbol(negated.Pattern),
                 IBinaryPatternOperation binary =>
                     GetPatternTypeSymbol(binary.LeftPattern) ?? GetPatternTypeSymbol(binary.RightPattern),
