@@ -166,7 +166,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 IInvocationOperation invocation => invocation.TargetMethod.ToDiagnosticMessageName(),
                 IMemberReferenceOperation member => member.Member.ToDiagnosticMessageName(),
                 IArgumentOperation argument => argument.Parameter.ToDiagnosticMessageName(),
-                _ => operation.Syntax.ToString(),
+                _ => operation.Kind.ToString(),
             };
         }
 
