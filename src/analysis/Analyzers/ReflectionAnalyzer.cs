@@ -34,7 +34,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
             context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
-            context.RegisterOperationAction(AnalyzeVariableDeclaration, OperationKind.VariableDeclaration);
+            context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
         }
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
@@ -104,29 +104,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 FindReflectionType(methodReference.Method.ReturnType) ?? GetReflectionReceiverType(methodReference.Instance));
         }
 
-        private static void AnalyzeVariableDeclaration(OperationAnalysisContext context)
+        private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
         {
-            if (context.Operation is not IVariableDeclarationOperation declaration)
+            if (context.Operation is not IVariableDeclaratorOperation declarator)
             {
                 return;
             }
 
-            var reflectionType = FindReflectionType(declaration.Type);
-            if (reflectionType == null)
-            {
-                return;
-            }
-
-            if (declaration.Syntax is not VariableDeclarationSyntax variableDeclaration)
-            {
-                return;
-            }
-
-            context.ReportDiagnostic(Diagnostic.Create(
-                Rule_SystemReflectionUsage,
-                variableDeclaration.Type.GetLocation(),
-                declaration.Type.ToDiagnosticMessageName(),
-                reflectionType.ToDisplayString()));
+            ReportIfReflection(context, declarator, FindReflectionType(declarator.Symbol.Type));
         }
 
         private static void ReportIfReflection(
@@ -141,13 +126,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionUsage,
-                operation.Syntax.GetLocation(),
+                GetReportLocation(operation),
                 GetOperationName(operation),
                 reflectionType.ToDisplayString()));
         }
 
+        private static Location GetReportLocation(IOperation operation)
+        {
+            if (operation is IVariableDeclaratorOperation declarator
+                && declarator.Parent is IVariableDeclarationOperation declaration
+                && declaration.Syntax is VariableDeclarationSyntax variableDeclaration)
+            {
+                return variableDeclaration.Type.GetLocation();
+            }
+
+            return operation.Syntax.GetLocation();
+        }
+
         private static string GetOperationName(IOperation operation)
         {
+            if (operation is IVariableDeclaratorOperation declarator)
+            {
+                return declarator.Symbol.Type.ToDiagnosticMessageName();
+            }
+
             ISymbol? symbol = operation switch
             {
                 IInvocationOperation invocation => invocation.TargetMethod,
