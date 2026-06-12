@@ -193,7 +193,7 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            _ = {|#0:d.GetSelf()|}.{|#1:GetSelf()|};
+            _ = {|#2:{|#0:d.GetSelf()|}.{|#1:GetSelf()|}|};
         }
     }
 }
@@ -203,7 +203,7 @@ namespace Test
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(18, 17, 18, 38)
+                .WithLocation(markupKey: 2)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
@@ -228,7 +228,7 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            _ = d.GetSelf()?.GetSelf()?.GetSelf();
+            _ = {|#0:d.GetSelf()|}?{|#1:.GetSelf()|}?{|#2:.GetSelf()|};
         }
     }
 }
@@ -236,13 +236,13 @@ namespace Test
 
             // The analyzer reports on each method invocation in the chain that returns a disposable.
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(18, 17, 18, 28)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(18, 29, 18, 39)
+                .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
             var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(18, 40, 18, 50)
+                .WithLocation(markupKey: 2)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
@@ -267,17 +267,17 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            _ = d?.Self.{|#0:GetSelf()|};
+            _ = d?{|#1:{|#0:.Self|}.GetSelf()|};
         }
     }
 }
 ";
 
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(18, 19, 18, 24)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(18, 19, 18, 34)
+                .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }

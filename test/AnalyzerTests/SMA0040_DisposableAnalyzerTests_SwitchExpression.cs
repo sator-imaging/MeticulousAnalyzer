@@ -29,12 +29,12 @@ namespace Test
 
         void Method(int value)
         {
-            _field = value switch
+            _field = {|#2:{|#0:{|#1:value switch
             {
                 1 => new MyDisposable(),
                 _ => throw new Exception(),
-            }
-            as object
+            }|}|}
+            as object|}
             ;
         }
     }
@@ -45,13 +45,13 @@ namespace Test
             // - switch expression arm creating disposable (reported twice - for switch and for assignment)
             // - the cast to object also triggers
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(14, 22, 18, 14)
+                .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(14, 22, 18, 14)
+                .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
             var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithSpan(14, 22, 19, 22)
+                .WithLocation(markupKey: 2)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }

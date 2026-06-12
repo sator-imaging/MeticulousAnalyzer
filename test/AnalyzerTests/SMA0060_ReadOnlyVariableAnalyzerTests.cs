@@ -199,7 +199,7 @@ namespace Test
         void M()
         {
             int left = 0;
-            ({|#0:left|}, var {|#1:right|}) = (1, 2);
+            {|#2:({|#0:left|}, var {|#1:right|})|} = (1, 2);
         }
     }
 }
@@ -214,7 +214,7 @@ namespace Test
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
             // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError(identifier: "CS8184")
-                .WithSpan(startLine: 9, startColumn: 13, endLine: 9, endColumn: 30);
+                .WithLocation(markupKey: 2);
 
             await VerifyWithRuleEnabledAsync(test, expectedCompiler, expected0, expected1);
         }
@@ -231,7 +231,7 @@ namespace Test
         void M()
         {
             int right = 0;
-            (var {|#0:left|}, {|#1:right|}) = (1, 2);
+            {|#2:(var {|#0:left|}, {|#1:right|})|} = (1, 2);
         }
     }
 }
@@ -246,7 +246,7 @@ namespace Test
             // TODO: Remove this compiler-error expectation after upgrading Unity to a version that includes Roslyn 4+ (C# 10 support).
             // Diagnostic spans overlap and cannot use markers.
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError(identifier: "CS8184")
-                .WithSpan(startLine: 9, startColumn: 13, endLine: 9, endColumn: 30);
+                .WithLocation(markupKey: 2);
 
             await VerifyWithRuleEnabledAsync(test, expectedCompiler, expected0, expected1);
         }
