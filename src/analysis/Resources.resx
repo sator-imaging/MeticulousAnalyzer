@@ -481,7 +481,7 @@
     <value>Reflection-based operation is not NativeAOT-friendly. Types declared in System.Reflection namespace should not be used.</value>
   </data>
   <data name="SMA7010_MessageFormat" xml:space="preserve">
-    <value>Avoid reflection: '{0}' involves '{1}'</value>
+    <value>Reflection operation '{0}' involves type '{1}'</value>
   </data>
   <data name="SMA7010_Title" xml:space="preserve">
     <value>System.Reflection usage</value>
@@ -490,7 +490,7 @@
     <value>Reflection-based variable is not NativeAOT-friendly. Types declared in System.Reflection namespace should not be used.</value>
   </data>
   <data name="SMA7011_MessageFormat" xml:space="preserve">
-    <value>Avoid reflection: '{0}' involves '{1}'</value>
+    <value>Variable '{0}' is declared with reflection type '{1}'</value>
   </data>
   <data name="SMA7011_Title" xml:space="preserve">
     <value>System.Reflection variable</value>
