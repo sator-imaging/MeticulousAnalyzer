@@ -2,7 +2,6 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -111,22 +110,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var reflectionType = FindReflectionType(declaration.Type);
-            if (reflectionType == null)
-            {
-                return;
-            }
-
-            if (declaration.Syntax is not VariableDeclarationSyntax variableDeclaration)
-            {
-                return;
-            }
-
-            context.ReportDiagnostic(Diagnostic.Create(
-                Rule_SystemReflectionUsage,
-                variableDeclaration.Type.GetLocation(),
-                GetDeclarationTypeName(variableDeclaration, declaration.Type),
-                reflectionType.ToDisplayString()));
+            ReportIfReflection(context, declaration, FindReflectionType(declaration.Type));
         }
 
         private static void ReportIfReflection(
@@ -146,18 +130,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 reflectionType.ToDisplayString()));
         }
 
-        private static string GetDeclarationTypeName(VariableDeclarationSyntax variableDeclaration, ITypeSymbol type)
-        {
-            if (variableDeclaration.Type is IdentifierNameSyntax { Identifier.Text: "var" })
-            {
-                return "var";
-            }
-
-            return type.ToDiagnosticMessageName();
-        }
-
         private static string GetOperationName(IOperation operation)
         {
+            if (operation is IVariableDeclarationOperation declaration)
+            {
+                return declaration.Type.ToDiagnosticMessageName();
+            }
+
             ISymbol? symbol = operation switch
             {
                 IInvocationOperation invocation => invocation.TargetMethod,
