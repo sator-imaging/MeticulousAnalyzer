@@ -34,7 +34,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
-            context.RegisterOperationAction(AnalyzeForEachLoop, OperationKind.Loop);
             context.RegisterOperationAction(AnalyzeTypeOf, OperationKind.TypeOf);
         }
 
@@ -115,21 +114,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ReportIfReflection(context, declarator, FindReflectionType(declarator.Symbol.Type));
         }
 
-        private static void AnalyzeForEachLoop(OperationAnalysisContext context)
-        {
-            if (context.Operation is not IForEachLoopOperation forEach)
-            {
-                return;
-            }
-
-            if (forEach.LoopControlVariable is not IVariableDeclaratorOperation declarator)
-            {
-                return;
-            }
-
-            ReportIfReflection(context, forEach, FindReflectionType(declarator.Symbol.Type));
-        }
-
         private static void AnalyzeTypeOf(OperationAnalysisContext context)
         {
             if (context.Operation is not ITypeOfOperation typeOf)
@@ -166,8 +150,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 IFieldReferenceOperation field => field.Field.Name,
                 IMethodReferenceOperation method => method.Method.Name,
                 IVariableDeclaratorOperation declarator => declarator.Symbol.Name,
-                IForEachLoopOperation forEach when forEach.LoopControlVariable is IVariableDeclaratorOperation loopDeclarator
-                    => loopDeclarator.Symbol.Name,
                 ITypeOfOperation => "typeof",
                 IArgumentOperation argument => argument.Parameter?.Name ?? "argument",
                 _ => operation.Kind.ToString(),

@@ -21,8 +21,8 @@ namespace Test
     {
         public void M(object foo)
         {
-            foo.GetType().{|#0:GetMembers|}();
-            typeof(Bar).{|#1:GetMembers|}();
+            {|#0:foo.GetType().GetMembers()|};
+            {|#1:typeof(Bar).GetMembers()|};
         }
     }
 }
@@ -47,7 +47,7 @@ namespace Test
 
         public void M()
         {
-            var {|#0:m|} = {|#1:GetIt|}();
+            var {|#0:m = |}{|#1:GetIt()|};
         }
     }
 }
@@ -68,7 +68,7 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var {|#0:methods|} = type?.{|#1:GetMethods|}();
+            var {|#0:methods = |}{|#1:type?.GetMethods()|};
         }
     }
 }
@@ -89,7 +89,7 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var {|#0:asm|} = type.{|#1:Assembly|};
+            var {|#0:asm = |}{|#1:type.Assembly|};
         }
     }
 }
@@ -112,8 +112,8 @@ namespace Test
     {
         public void M(MethodInfo method)
         {
-            method.{|#0:Invoke|}(null, null);
-            _ = method.{|#1:Name|};
+            {|#0:method.Invoke(null, null)|};
+            _ = {|#1:method.Name|};
         }
     }
 }
@@ -136,7 +136,7 @@ namespace Test
     {
         public void M()
         {
-            System.Func<MemberInfo[]> {|#0:f|} = typeof(C).{|#1:GetMembers|};
+            System.Func<MemberInfo[]> {|#0:f = |}{|#1:typeof(C).GetMembers|};
         }
     }
 }
@@ -204,7 +204,7 @@ namespace Test
     {
         public void M()
         {
-            MethodInfo {|#0:method|} = null;
+            MethodInfo {|#0:method = null|};
             _ = method;
         }
     }
@@ -252,13 +252,13 @@ namespace Test
     {
         public void M()
         {
-            typeof(C).{|#0:GetMembers|}({|#1:BindingFlags|}.Public | {|#2:BindingFlags|}.Instance);
+            typeof(C).GetMembers({|#1:BindingFlags.Public|} | {|#2:BindingFlags.Instance|});
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "System.Reflection.MemberInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(10, 13, 10, 78).WithArguments("GetMembers", "System.Reflection.MemberInfo"),
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Public", "System.Reflection.BindingFlags"),
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("Instance", "System.Reflection.BindingFlags")
             );
@@ -274,7 +274,7 @@ namespace Test
     {
         public void M()
         {
-            foreach (var {|#0:member|} in typeof(C).{|#1:GetMembers|}())
+            foreach (var {|#0:member|} in {|#1:typeof(C).GetMembers()|})
             {
                 _ = member;
             }
