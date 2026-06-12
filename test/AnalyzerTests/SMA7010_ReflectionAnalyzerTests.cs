@@ -7,10 +7,10 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
 namespace SatorImaging.StaticMemberAnalyzer.Test
 {
     [TestClass]
-    public class SMA7003_ReflectionAnalyzerTests
+    public class SMA7010_ReflectionAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA7003_Violation_Invocation_ReturnsReflectionType()
+        public async Task SMA7010_Violation_Invocation_ReturnsReflectionType()
         {
             var test = @"
 namespace Test
@@ -34,7 +34,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_Invocation_UserMethodReturnsReflectionType()
+        public async Task SMA7010_Violation_Invocation_UserMethodReturnsReflectionType()
         {
             var test = @"
 using System.Reflection;
@@ -59,7 +59,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_Invocation_ConditionalAccess()
+        public async Task SMA7010_Violation_Invocation_ConditionalAccess()
         {
             var test = @"
 namespace Test
@@ -80,7 +80,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_MemberReference_PropertyReturnsReflectionType()
+        public async Task SMA7010_Violation_MemberReference_PropertyReturnsReflectionType()
         {
             var test = @"
 namespace Test
@@ -101,7 +101,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_MemberReference_DeclaredInReflectionType()
+        public async Task SMA7010_Violation_MemberReference_DeclaredInReflectionType()
         {
             var test = @"
 using System.Reflection;
@@ -125,7 +125,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_MemberReference_MethodGroup()
+        public async Task SMA7010_Violation_MemberReference_MethodGroup()
         {
             var test = @"
 using System.Reflection;
@@ -148,7 +148,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_MemberDeclarationsWithoutUsage()
+        public async Task SMA7010_Compliant_MemberDeclarationsWithoutUsage()
         {
             var test = @"
 using System.Reflection;
@@ -169,7 +169,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_LocalDeclaration()
+        public async Task SMA7010_Violation_LocalDeclaration()
         {
             var test = @"
 using System.Reflection;
@@ -192,7 +192,33 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_ArgumentType()
+        public async Task SMA7011_Violation_MultiDeclaratorVariableDeclaration()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    public class C
+    {
+        static MethodInfo GetIt() => null;
+
+        public void M()
+        {
+            var {|#0:a|}, {|#1:b|} = {|#2:GetIt()|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("a", "MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(1).WithArguments("b", "MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("GetIt", "System.Reflection.MethodInfo")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA7010_Violation_ArgumentType()
         {
             var test = @"
 using System.Collections.Generic;
@@ -217,7 +243,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_EnumArgument_FieldReference()
+        public async Task SMA7010_Violation_EnumArgument_FieldReference()
         {
             var test = @"
 using System.Reflection;
@@ -239,7 +265,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_ForEachVarDeclaration()
+        public async Task SMA7011_Violation_ForEachVarDeclaration()
         {
             var test = @"
 namespace Test
@@ -263,7 +289,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_EnumMemberAccess()
+        public async Task SMA7010_Compliant_EnumMemberAccess()
         {
             var test = @"
 using System.Reflection;
@@ -284,7 +310,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_GetTypeAndNonReflectionMembers()
+        public async Task SMA7010_Compliant_GetTypeAndNonReflectionMembers()
         {
             var test = @"
 namespace Test
@@ -305,7 +331,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_AttributeUsage()
+        public async Task SMA7010_Compliant_AttributeUsage()
         {
             var test = @"
 using System.Reflection;
@@ -328,7 +354,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_UserDeclaredReflectionLikeNamespace()
+        public async Task SMA7010_Compliant_UserDeclaredReflectionLikeNamespace()
         {
             var test = @"
 namespace Some.System.Reflection
