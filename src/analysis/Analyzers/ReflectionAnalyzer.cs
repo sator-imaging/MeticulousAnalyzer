@@ -8,6 +8,8 @@ using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
+    // TODO: Latest .NET already includes a Trimmer Analyzer.
+    //       Consider disable this analyzer by default for latest environment.
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ReflectionAnalyzer : DiagnosticAnalyzer
     {
