@@ -478,7 +478,7 @@
     <value>Lambda allocation</value>
   </data>
   <data name="SMA7010_Description" xml:space="preserve">
-    <value>Reflection-based operation is not NativeAOT-friendly. Types declared in System.Reflection namespace should not be used.</value>
+    <value>Access to members of types from System.Reflection is not NativeAOT-friendly.</value>
   </data>
   <data name="SMA7010_MessageFormat" xml:space="preserve">
     <value>Reflection operation '{0}' involves type '{1}'</value>
@@ -487,7 +487,7 @@
     <value>System.Reflection usage</value>
   </data>
   <data name="SMA7011_Description" xml:space="preserve">
-    <value>Reflection-based variable is not NativeAOT-friendly. Types declared in System.Reflection namespace should not be used.</value>
+    <value>Local variables declared with types from System.Reflection are not NativeAOT-friendly.</value>
   </data>
   <data name="SMA7011_MessageFormat" xml:space="preserve">
     <value>Variable '{0}' is declared with reflection type '{1}'</value>
