@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -134,13 +135,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (operation is IVariableDeclarationOperation declaration)
             {
-                foreach (var location in declaration.Type.Locations)
+                return declaration.Syntax switch
                 {
-                    if (location.IsInSource)
-                    {
-                        return location;
-                    }
-                }
+                    LocalDeclarationStatementSyntax local => local.Declaration.Type.GetLocation(),
+                    VariableDeclarationSyntax variable => variable.Type.GetLocation(),
+                    ForEachStatementSyntax forEach => forEach.Type.GetLocation(),
+                    _ => operation.Syntax.GetLocation(),
+                };
             }
 
             return operation.Syntax.GetLocation();
