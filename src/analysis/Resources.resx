@@ -478,7 +478,7 @@
     <value>Lambda allocation</value>
   </data>
   <data name="SMA7003_Description" xml:space="preserve">
-    <value>Reflection-based operation is slow and not AOT-friendly. Types declared in System.Reflection namespace should not be used.</value>
+    <value>Reflection-based operation is not NativeAOT-friendly. Types declared in System.Reflection namespace should not be used.</value>
   </data>
   <data name="SMA7003_MessageFormat" xml:space="preserve">
     <value>Avoid reflection: '{0}' involves '{1}'</value>

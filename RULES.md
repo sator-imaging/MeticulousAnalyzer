@@ -76,7 +76,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA7000 | Lambda can be static                       | Lambda declaration should add 'static' keyword for clarity.
 | SMA7001 | Inefficient delegate declaration           | Older runtime inefficiently handle direct passing of method.
 | SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation".
-| SMA7003 | System.Reflection usage                    | Reflection-based operation is slow and not AOT-friendly. Types declared in System.Reflection namespace should not be used.
+| SMA7003 | System.Reflection usage                    | Reflection-based operation is not NativeAOT-friendly. Types declared in System.Reflection namespace should not be used.
 
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
