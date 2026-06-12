@@ -47,14 +47,14 @@ namespace Test
 
         public void M()
         {
-            var {|#0:m = |}{|#1:GetIt()|};
+            var {|#0:m = GetIt()|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("m", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetIt", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(12, 21, 12, 28).WithArguments("GetIt", "System.Reflection.MethodInfo")
             );
         }
 
@@ -68,14 +68,14 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var {|#0:methods = |}{|#1:type?.GetMethods()|};
+            var {|#0:methods = type?.GetMethods()|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("methods", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMethods", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(8, 29, 8, 45).WithArguments("GetMethods", "System.Reflection.MethodInfo")
             );
         }
 
@@ -89,14 +89,14 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var {|#0:asm = |}{|#1:type.Assembly|};
+            var {|#0:asm = type.Assembly|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("asm", "System.Reflection.Assembly"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Assembly", "System.Reflection.Assembly")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(8, 27, 8, 36).WithArguments("Assembly", "System.Reflection.Assembly")
             );
         }
 
@@ -136,14 +136,14 @@ namespace Test
     {
         public void M()
         {
-            System.Func<MemberInfo[]> {|#0:f = |}{|#1:typeof(C).GetMembers|};
+            System.Func<MemberInfo[]> {|#0:f = typeof(C).GetMembers|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("f", "System.Reflection.MemberInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "System.Reflection.MemberInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithSpan(10, 45, 10, 63).WithArguments("GetMembers", "System.Reflection.MemberInfo")
             );
         }
 
@@ -274,7 +274,7 @@ namespace Test
     {
         public void M()
         {
-            foreach (var {|#0:member|} in {|#1:typeof(C).GetMembers()|})
+            foreach ({|#0:var member|} in {|#1:typeof(C).GetMembers()|})
             {
                 _ = member;
             }
