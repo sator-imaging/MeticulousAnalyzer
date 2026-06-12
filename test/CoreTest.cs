@@ -1,7 +1,9 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
+#if DEBUG
 #define STMG_DEBUG_MESSAGE
+#endif
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -750,7 +752,11 @@ namespace MyNamespace {
             var symbol = model.GetDeclaredSymbol(field.Declaration.Variables[0])!;
             var called = false;
             Core.ReportDebugMessage(d => called = true, symbol, Location.None);
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -763,7 +769,11 @@ namespace MyNamespace {
             var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
             var called = false;
             Core.ReportDebugMessage(d => called = true, op);
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -773,7 +783,11 @@ namespace MyNamespace {
             var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
             var called = false;
             Core.ReportDebugMessage(d => called = true, local);
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -783,7 +797,11 @@ namespace MyNamespace {
             var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
             var called = false;
             Core.ReportDebugMessage(d => called = true, field.Declaration);
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -793,7 +811,11 @@ namespace MyNamespace {
 #pragma warning disable CS0612
             Core.ReportDebugMessage(d => called = true, "TITLE", Location.None, "MSG");
 #pragma warning restore
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -801,7 +823,11 @@ namespace MyNamespace {
         {
             var called = false;
             Core.ReportDebugMessage(d => called = true, "TITLE", new[] { Location.None }, "MSG");
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -809,7 +835,11 @@ namespace MyNamespace {
         {
             var called = false;
             Core.ReportDebugMessage(d => called = true, "TITLE", new[] { Location.None }, null);
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -945,7 +975,11 @@ class C {
             var op = model.GetOperation(literal)!;
             var called = false;
             Core.ReportDebugMessage(d => called = true, op);
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -955,7 +989,11 @@ class C {
 #pragma warning disable CS0612
             Core.ReportDebugMessage(d => called = true, "TITLE", "MESSAGE", Location.None);
 #pragma warning restore
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
 
         [TestMethod]
@@ -965,7 +1003,11 @@ class C {
 #pragma warning disable CS0612
             Core.ReportDebugMessage(d => called = true, "TITLE", "MESSAGE", new[] { Location.None });
 #pragma warning restore
+#if STMG_DEBUG_MESSAGE
             Assert.IsTrue(called);
+#else
+            Assert.IsFalse(called);
+#endif
         }
     }
 }
