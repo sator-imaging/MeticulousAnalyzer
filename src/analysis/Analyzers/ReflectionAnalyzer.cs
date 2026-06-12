@@ -2,11 +2,9 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -134,15 +132,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static Location GetReportLocation(IOperation operation)
         {
-            if (operation is IVariableDeclarationOperation declaration)
-            {
-                var firstChild = declaration.Syntax.ChildNodesAndTokens().FirstOrDefault();
-                if (firstChild.AsNode() is TypeSyntax typeSyntax)
-                {
-                    return typeSyntax.GetLocation();
-                }
-            }
-
             return operation.Syntax.GetLocation();
         }
 
