@@ -32,17 +32,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            // Runtime usage via IOperation.
             context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
             context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
             context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
-            context.RegisterOperationAction(AnalyzeTypeOf, OperationKind.TypeOf);
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
             context.RegisterOperationAction(AnalyzeForEachLoop, OperationKind.Loop);
+            context.RegisterOperationAction(AnalyzeTypeOf, OperationKind.TypeOf);
 
-            // Declaration-site type references have no IOperation.
-            // NOTE: parameter types are reported via the containing method symbol to avoid duplicate diagnostics.
+            // Member declaration types (field, property, method, event) have no IOperation.
             context.RegisterSymbolAction(
                 AnalyzeDeclarationSymbol,
                 SymbolKind.Field,
@@ -61,19 +59,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var found = FindReflectionType(invocation.TargetMethod.ReturnType)
-                ?? GetReflectionReceiverType(invocation.Instance, invocation.TargetMethod);
-            if (found == null)
-            {
-                return;
-            }
+            ReportIfReflection(
+                context,
+                TryGetMemberNameLocation(invocation.Syntax, out var location, out var name) ? location : invocation.Syntax.GetLocation(),
+                name ?? invocation.TargetMethod.Name,
+                FindReflectionType(invocation.TargetMethod.ReturnType)
+                    ?? GetReflectionReceiverType(invocation.Instance, invocation.TargetMethod));
 
-            if (!TryGetMemberNameLocation(invocation.Syntax, out var location, out var name))
+            foreach (var argument in invocation.Arguments)
             {
-                return;
-            }
+                var value = argument.Value;
+                if (value is IFieldReferenceOperation
+                    or IPropertyReferenceOperation
+                    or IMethodReferenceOperation
+                    or IBinaryOperation)
+                {
+                    continue;
+                }
 
-            Report(context, location, name, found);
+                ReportIfReflection(
+                    context,
+                    argument.Syntax.GetLocation(),
+                    argument.Syntax.ToString(),
+                    FindReflectionType(value?.Type));
+            }
         }
 
         private static void AnalyzePropertyReference(OperationAnalysisContext context)
@@ -83,26 +92,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (IsStaticTypeQualifiedAccess(propertyReference.Instance, propertyReference.Property.ContainingType))
-            {
-                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(propertyReference.Syntax);
-                Report(context, qualifierLocation, qualifierName, propertyReference.Property.ContainingType);
-                return;
-            }
-
-            var found = FindReflectionType(propertyReference.Type)
-                ?? GetReflectionReceiverType(propertyReference.Instance, propertyReference.Property);
-            if (found == null)
-            {
-                return;
-            }
-
-            if (!TryGetMemberNameLocation(propertyReference.Syntax, out var location, out var name))
-            {
-                return;
-            }
-
-            Report(context, location, name, found);
+            ReportMemberReference(
+                context,
+                propertyReference.Syntax,
+                propertyReference.Instance,
+                propertyReference.Property,
+                FindReflectionType(propertyReference.Type));
         }
 
         private static void AnalyzeFieldReference(OperationAnalysisContext context)
@@ -117,26 +112,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (IsStaticTypeQualifiedAccess(fieldReference.Instance, fieldReference.Field.ContainingType))
-            {
-                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(fieldReference.Syntax);
-                Report(context, qualifierLocation, qualifierName, fieldReference.Field.ContainingType);
-                return;
-            }
-
-            var found = FindReflectionType(fieldReference.Type)
-                ?? GetReflectionReceiverType(fieldReference.Instance, fieldReference.Field);
-            if (found == null)
-            {
-                return;
-            }
-
-            if (!TryGetMemberNameLocation(fieldReference.Syntax, out var location, out var name))
-            {
-                return;
-            }
-
-            Report(context, location, name, found);
+            ReportMemberReference(
+                context,
+                fieldReference.Syntax,
+                fieldReference.Instance,
+                fieldReference.Field,
+                FindReflectionType(fieldReference.Type));
         }
 
         private static void AnalyzeMethodReference(OperationAnalysisContext context)
@@ -151,46 +132,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (IsStaticTypeQualifiedAccess(methodReference.Instance, methodReference.Method.ContainingType))
-            {
-                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(methodReference.Syntax);
-                Report(context, qualifierLocation, qualifierName, methodReference.Method.ContainingType);
-                return;
-            }
-
-            var found = FindReflectionType(methodReference.Method.ReturnType)
-                ?? GetReflectionReceiverType(methodReference.Instance, methodReference.Method);
-            if (found == null)
-            {
-                return;
-            }
-
-            if (!TryGetMemberNameLocation(methodReference.Syntax, out var location, out var name))
-            {
-                return;
-            }
-
-            Report(context, location, name, found);
+            ReportMemberReference(
+                context,
+                methodReference.Syntax,
+                methodReference.Instance,
+                methodReference.Method,
+                FindReflectionType(methodReference.Method.ReturnType));
         }
 
         private static void AnalyzeTypeOf(OperationAnalysisContext context)
         {
-            if (context.Operation is not ITypeOfOperation typeOf)
+            if (context.Operation is not ITypeOfOperation typeOf
+                || typeOf.Syntax is not TypeOfExpressionSyntax typeOfSyntax)
             {
                 return;
             }
 
-            if (typeOf.TypeOperand is not INamedTypeSymbol type || !IsReflectionType(type))
-            {
-                return;
-            }
-
-            if (typeOf.Syntax is not TypeOfExpressionSyntax typeOfSyntax)
-            {
-                return;
-            }
-
-            ReportReflectionTypeNamesInTypeSyntax(context, typeOfSyntax.Type, typeOf.SemanticModel);
+            var semanticModel = typeOf.SemanticModel ?? context.Compilation.GetSemanticModel(typeOfSyntax.SyntaxTree);
+            ReportReflectionTypeSyntax(context, typeOfSyntax.Type, semanticModel);
         }
 
         private static void AnalyzeVariableDeclarator(OperationAnalysisContext context)
@@ -201,12 +160,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var semanticModel = declarator.SemanticModel ?? context.Compilation.GetSemanticModel(declarator.Syntax.SyntaxTree);
-
-            if (declarator.Syntax is ForEachStatementSyntax)
-            {
-                // Handled by AnalyzeForEachLoop to avoid missing or duplicate diagnostics.
-                return;
-            }
 
             if (declarator.Syntax is not VariableDeclaratorSyntax variableSyntax)
             {
@@ -219,30 +172,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     if (declaration.Variables.FirstOrDefault() == variableSyntax)
                     {
-                        ReportReflectionTypeNamesInTypeSyntax(context, declaration.Type, semanticModel);
+                        ReportReflectionTypeSyntax(context, declaration.Type, semanticModel);
                     }
 
                     return;
                 }
             }
 
-            var found = FindReflectionType(declarator.Symbol.Type);
-            if (found == null)
-            {
-                return;
-            }
-
-            Report(context, variableSyntax.Identifier.GetLocation(), variableSyntax.Identifier.Text, found);
+            ReportIfReflection(
+                context,
+                variableSyntax.Identifier.GetLocation(),
+                variableSyntax.Identifier.Text,
+                FindReflectionType(declarator.Symbol.Type));
         }
 
         private static void AnalyzeForEachLoop(OperationAnalysisContext context)
         {
-            if (context.Operation is not IForEachLoopOperation forEach)
-            {
-                return;
-            }
-
-            if (forEach.Syntax is not ForEachStatementSyntax forEachSyntax)
+            if (context.Operation is not IForEachLoopOperation forEach
+                || forEach.Syntax is not ForEachStatementSyntax forEachSyntax)
             {
                 return;
             }
@@ -251,22 +198,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (!forEachSyntax.Type.IsVar)
             {
-                ReportReflectionTypeNamesInTypeSyntax(context, forEachSyntax.Type, semanticModel);
+                ReportReflectionTypeSyntax(context, forEachSyntax.Type, semanticModel);
                 return;
             }
 
             ITypeSymbol? iterationType = forEach.LoopControlVariable is IVariableDeclaratorOperation declarator
                 ? declarator.Symbol.Type
-                : null;
-            iterationType ??= semanticModel.GetForEachStatementInfo(forEachSyntax).ElementType;
+                : semanticModel.GetForEachStatementInfo(forEachSyntax).ElementType;
 
-            var found = FindReflectionType(iterationType);
-            if (found == null)
-            {
-                return;
-            }
-
-            Report(context, forEachSyntax.Identifier.GetLocation(), forEachSyntax.Identifier.Text, found);
+            ReportIfReflection(
+                context,
+                forEachSyntax.Identifier.GetLocation(),
+                forEachSyntax.Identifier.Text,
+                FindReflectionType(iterationType));
         }
 
 
@@ -281,13 +225,55 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 foreach (var typeSyntax in ExtractDeclarationTypeSyntaxes(root, context.Symbol))
                 {
-                    ReportReflectionTypeNamesInTypeSyntax(context, typeSyntax, semanticModel);
+                    ReportReflectionTypeSyntax(context, typeSyntax, semanticModel);
                 }
             }
         }
 
 
         /*  helper  ================================================================ */
+
+        private static void ReportMemberReference(
+            OperationAnalysisContext context,
+            SyntaxNode syntax,
+            IOperation? instance,
+            ISymbol member,
+            INamedTypeSymbol? memberTypeReflection)
+        {
+            var reflectionType = memberTypeReflection ?? GetReflectionReceiverType(instance, member);
+            if (reflectionType == null)
+            {
+                return;
+            }
+
+            if (instance == null && IsReflectionType(member.ContainingType))
+            {
+                var (qualifierLocation, qualifierName) = GetTypeQualifierLocation(syntax);
+                Report(context, qualifierLocation, qualifierName, member.ContainingType);
+                return;
+            }
+
+            if (!TryGetMemberNameLocation(syntax, out var location, out var name))
+            {
+                return;
+            }
+
+            Report(context, location, name, reflectionType);
+        }
+
+        private static void ReportIfReflection(
+            OperationAnalysisContext context,
+            Location location,
+            string name,
+            INamedTypeSymbol? reflectionType)
+        {
+            if (reflectionType == null)
+            {
+                return;
+            }
+
+            Report(context, location, name, reflectionType);
+        }
 
         private static void Report(OperationAnalysisContext context, Location location, string identifier, INamedTypeSymbol reflectionType)
         {
@@ -307,55 +293,69 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 reflectionType.ToDisplayString()));
         }
 
-        private static void ReportReflectionTypeNamesInTypeSyntax(
+        private static void ReportReflectionTypeSyntax(
             OperationAnalysisContext context,
-            TypeSyntax typeSyntax,
-            SemanticModel? semanticModel)
+            TypeSyntax? typeSyntax,
+            SemanticModel semanticModel)
         {
-            if (semanticModel == null || typeSyntax == null)
-            {
-                return;
-            }
-
-            foreach (var name in typeSyntax.DescendantNodesAndSelf().OfType<SimpleNameSyntax>())
-            {
-                if (name.IsVar)
-                {
-                    continue;
-                }
-
-                if (semanticModel.GetTypeInfo(name).Type is not INamedTypeSymbol type || !IsReflectionType(type))
-                {
-                    continue;
-                }
-
-                Report(context, name.Identifier.GetLocation(), name.Identifier.Text, type);
-            }
+            ReportReflectionTypeSyntax(
+                typeSyntax,
+                semanticModel,
+                (location, name, type) => Report(context, location, name, type));
         }
 
-        private static void ReportReflectionTypeNamesInTypeSyntax(
+        private static void ReportReflectionTypeSyntax(
             SymbolAnalysisContext context,
-            TypeSyntax typeSyntax,
+            TypeSyntax? typeSyntax,
             SemanticModel semanticModel)
+        {
+            ReportReflectionTypeSyntax(
+                typeSyntax,
+                semanticModel,
+                (location, name, type) => Report(context, location, name, type));
+        }
+
+        private static void ReportReflectionTypeSyntax(
+            TypeSyntax? typeSyntax,
+            SemanticModel semanticModel,
+            System.Action<Location, string, INamedTypeSymbol> report)
         {
             if (typeSyntax == null)
             {
                 return;
             }
 
-            foreach (var name in typeSyntax.DescendantNodesAndSelf().OfType<SimpleNameSyntax>())
+            switch (typeSyntax)
             {
-                if (name.IsVar)
-                {
-                    continue;
-                }
+                case IdentifierNameSyntax identifier when !identifier.IsVar:
+                    if (semanticModel.GetTypeInfo(identifier).Type is INamedTypeSymbol type && IsReflectionType(type))
+                    {
+                        report(identifier.Identifier.GetLocation(), identifier.Identifier.Text, type);
+                    }
+                    break;
 
-                if (semanticModel.GetTypeInfo(name).Type is not INamedTypeSymbol type || !IsReflectionType(type))
-                {
-                    continue;
-                }
+                case GenericNameSyntax generic:
+                    foreach (var typeArgument in generic.TypeArgumentList.Arguments)
+                    {
+                        ReportReflectionTypeSyntax(typeArgument, semanticModel, report);
+                    }
+                    break;
 
-                Report(context, name.Identifier.GetLocation(), name.Identifier.Text, type);
+                case ArrayTypeSyntax array:
+                    ReportReflectionTypeSyntax(array.ElementType, semanticModel, report);
+                    break;
+
+                case QualifiedNameSyntax qualified:
+                    ReportReflectionTypeSyntax(qualified.Right, semanticModel, report);
+                    break;
+
+                case AliasQualifiedNameSyntax alias:
+                    ReportReflectionTypeSyntax(alias.Name, semanticModel, report);
+                    break;
+
+                case NullableTypeSyntax nullable:
+                    ReportReflectionTypeSyntax(nullable.ElementType, semanticModel, report);
+                    break;
             }
         }
 
@@ -434,7 +434,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool TryGetMemberNameLocation(SyntaxNode syntax, out Location location, out string name)
+        private static bool TryGetMemberNameLocation(SyntaxNode syntax, out Location location, out string? name)
         {
             switch (syntax)
             {
@@ -488,17 +488,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return receiverType is INamedTypeSymbol named && IsReflectionType(named) ? named : null;
         }
 
-        private static bool IsStaticTypeQualifiedAccess(IOperation? instance, INamedTypeSymbol containingType)
-        {
-            return instance == null && IsReflectionType(containingType);
-        }
-
-        // NOTE: depth limit for pathological recursive generics.
         private const int MaxTypeSearchDepth = 8;
 
         private static INamedTypeSymbol? FindReflectionType(ITypeSymbol? type, int depth = 0)
         {
-            type = UnwrapByRefTypeIfPresent(type);
             if (type == null || depth > MaxTypeSearchDepth)
             {
                 return null;
@@ -528,24 +521,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 default:
                     return null;
             }
-        }
-
-        // NOTE: IByRefTypeSymbol is unavailable in Microsoft.CodeAnalysis 3.8; unwrap at runtime when present.
-        private static ITypeSymbol? UnwrapByRefTypeIfPresent(ITypeSymbol? type)
-        {
-            if (type == null)
-            {
-                return null;
-            }
-
-            var referencedTypeProperty = type.GetType().GetProperty("ReferencedType");
-            if (referencedTypeProperty?.PropertyType == typeof(ITypeSymbol)
-                && referencedTypeProperty.GetValue(type) is ITypeSymbol referencedType)
-            {
-                return referencedType;
-            }
-
-            return type;
         }
 
         private static bool IsReflectionType(INamedTypeSymbol type)
