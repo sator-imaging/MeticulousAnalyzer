@@ -64,11 +64,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             foreach (var argument in invocation.Arguments)
             {
-                if (argument.Value is IBinaryOperation)
-                {
-                    continue;
-                }
-
                 ReportIfReflection(context, argument, FindReflectionType(argument.Value?.Type));
             }
         }
