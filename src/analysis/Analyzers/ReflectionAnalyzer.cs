@@ -209,11 +209,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsReflectionType(INamedTypeSymbol type)
         {
-            return IsSystemReflectionNamespace(type.ContainingNamespace);
-        }
-
-        private static bool IsSystemReflectionNamespace(INamespaceSymbol? ns)
-        {
+            var ns = type.ContainingNamespace;
             while (ns is { IsGlobalNamespace: false })
             {
                 if (ns is
