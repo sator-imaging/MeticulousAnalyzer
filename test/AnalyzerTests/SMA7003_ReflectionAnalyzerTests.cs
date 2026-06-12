@@ -68,7 +68,7 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            {|#0:var|} methods = type?.{|#1:GetMethods()|};
+            {|#0:var|} methods = type?{|#1:.GetMethods()|};
         }
     }
 }
@@ -260,6 +260,27 @@ namespace Test
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MemberInfo", "System.Reflection.MemberInfo"),
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "System.Reflection.MemberInfo")
             );
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Compliant_EnumMemberAccess()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            _ = BindingFlags.Public;
+            _ = BindingFlags.Public | BindingFlags.Instance;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
