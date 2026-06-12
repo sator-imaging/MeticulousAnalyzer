@@ -3,9 +3,9 @@ name: Test
 on:
   push:
     branches: [ main ]
-    paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
+    paths-ignore: [ '.github/**', 'assets/**' ]
   #pull_request:
-  #  paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
+  #  paths-ignore: [ '.github/**', 'assets/**' ]
   workflow_call:
   workflow_dispatch:
 
