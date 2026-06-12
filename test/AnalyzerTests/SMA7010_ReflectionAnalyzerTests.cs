@@ -28,8 +28,8 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "System.Reflection.MemberInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "System.Reflection.MemberInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "MemberInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "MemberInfo")
             );
         }
 
@@ -54,7 +54,7 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("m", "MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetIt", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetIt", "MethodInfo")
             );
         }
 
@@ -75,7 +75,7 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("methods", "MethodInfo[]"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMethods", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMethods", "MethodInfo")
             );
         }
 
@@ -96,7 +96,7 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("asm", "Assembly"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Assembly", "System.Reflection.Assembly")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Assembly", "Assembly")
             );
         }
 
@@ -119,8 +119,8 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("Invoke", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Name", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("Invoke", "MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Name", "MethodInfo")
             );
         }
 
@@ -143,7 +143,7 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("f", "Func<MemberInfo[]>"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "System.Reflection.MemberInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "MemberInfo")
             );
         }
 
@@ -189,7 +189,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("list", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("list", "MethodInfo")
             );
         }
 
@@ -211,7 +211,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "System.Reflection.MemberInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "MemberInfo")
             );
         }
 

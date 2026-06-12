@@ -54,7 +54,7 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("a", "MethodInfo"),
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(1).WithArguments("b", "MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("GetIt", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("GetIt", "MethodInfo")
             );
         }
 
@@ -78,7 +78,7 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("member", "MemberInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "System.Reflection.MemberInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "MemberInfo")
             );
         }
     }

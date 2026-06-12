@@ -153,7 +153,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 Rule_SystemReflectionUsage,
                 operation.Syntax.GetLocation(),
                 GetOperationName(operation),
-                reflectionType.ToDisplayString()));
+                reflectionType.ToDiagnosticMessageName()));
         }
 
         private static string GetOperationName(IOperation operation)
