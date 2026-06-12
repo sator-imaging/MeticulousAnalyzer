@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -135,13 +136,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (operation is IVariableDeclarationOperation declaration)
             {
-                return declaration.Syntax switch
+                var firstChild = declaration.Syntax.ChildNodesAndTokens().FirstOrDefault();
+                if (firstChild.AsNode() is TypeSyntax typeSyntax)
                 {
-                    LocalDeclarationStatementSyntax local => local.Declaration.Type.GetLocation(),
-                    VariableDeclarationSyntax variable => variable.Type.GetLocation(),
-                    ForEachStatementSyntax forEach => forEach.Type.GetLocation(),
-                    _ => operation.Syntax.GetLocation(),
-                };
+                    return typeSyntax.GetLocation();
+                }
             }
 
             return operation.Syntax.GetLocation();
