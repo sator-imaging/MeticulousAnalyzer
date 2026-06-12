@@ -456,6 +456,35 @@ namespace Foo.Bar
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
+
+        [TestMethod]
+        public async Task SMA0080_Violation_GenericTypeArgument()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:default(List<Foo.InternalType>)|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
         [TestMethod]
         public async Task SMA0080_Violation_MethodGroupReference()
         {

@@ -147,12 +147,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             IOperation operation,
             ISymbol? symbol)
         {
-            if (symbol == null || !ShouldRestrict(symbol))
+            var restrictedSymbol = FindRestrictedSymbol(symbol);
+            if (restrictedSymbol == null)
             {
                 return;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
+            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, context.Compilation.Assembly))
             {
                 return;
             }
@@ -163,7 +164,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var declarationNamespace = symbol.ContainingNamespace;
+            var declarationNamespace = restrictedSymbol.ContainingNamespace;
             if (declarationNamespace == null || IsSameNamespace(useNamespace, declarationNamespace))
             {
                 return;
@@ -178,7 +179,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_InternalNamespaceAccess,
                 location,
-                symbol.ToDiagnosticMessageName(),
+                restrictedSymbol.ToDiagnosticMessageName(),
                 useNamespace.ToDiagnosticMessageName(),
                 declarationNamespace.ToDiagnosticMessageName()));
         }
@@ -221,17 +222,53 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 _ => null
             };
 
-        private static bool ShouldRestrict(ISymbol symbol)
+        private static ISymbol? FindRestrictedSymbol(ISymbol? symbol)
         {
+            if (symbol == null)
+            {
+                return null;
+            }
+
+            while (symbol is IArrayTypeSymbol arrayType)
+            {
+                symbol = arrayType.ElementType;
+            }
+
             for (var current = symbol; current != null; current = current.ContainingType)
             {
                 if (IsInternalOrProtectedInternal(current.DeclaredAccessibility))
                 {
-                    return true;
+                    return current == symbol ? current : symbol;
                 }
             }
 
-            return false;
+            if (symbol is INamedTypeSymbol namedType)
+            {
+                foreach (var typeArg in namedType.TypeArguments)
+                {
+                    var restricted = FindRestrictedSymbol(typeArg);
+                    if (restricted != null)
+                    {
+                        return restricted;
+                    }
+                }
+            }
+
+            if (symbol is IMethodSymbol method)
+            {
+                foreach (var typeArg in method.TypeArguments)
+                {
+                    var restricted = FindRestrictedSymbol(typeArg);
+                    if (restricted != null)
+                    {
+                        return restricted;
+                    }
+                }
+
+                return FindRestrictedSymbol(method.ContainingType);
+            }
+
+            return null;
         }
 
         private static bool IsInternalOrProtectedInternal(Accessibility accessibility) =>
