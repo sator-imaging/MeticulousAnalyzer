@@ -484,7 +484,7 @@
     <value>Reflection operation '{0}' involves type '{1}'</value>
   </data>
   <data name="SMA7010_Title" xml:space="preserve">
-    <value>System.Reflection usage</value>
+    <value>Reflection Access</value>
   </data>
   <data name="SMA7011_Description" xml:space="preserve">
     <value>Local variables declared with types from System.Reflection are not NativeAOT-friendly.</value>
@@ -493,7 +493,7 @@
     <value>Variable '{0}' is declared with reflection type '{1}'</value>
   </data>
   <data name="SMA7011_Title" xml:space="preserve">
-    <value>System.Reflection variable</value>
+    <value>Reflection Type Variable</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Readability and Maintainability Analysis</value>
