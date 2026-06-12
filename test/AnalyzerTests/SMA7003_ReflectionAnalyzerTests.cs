@@ -228,7 +228,7 @@ namespace Test
     {
         public void M()
         {
-            {|#0:typeof(C).GetMembers(BindingFlags.Public | BindingFlags.Instance)|};
+            typeof(C){|#0:.GetMembers(BindingFlags.Public | BindingFlags.Instance)|};
         }
     }
 }
