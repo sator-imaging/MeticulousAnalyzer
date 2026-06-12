@@ -34,7 +34,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
-            context.RegisterOperationAction(AnalyzeTypeOf, OperationKind.TypeOf);
         }
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
@@ -114,16 +113,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ReportIfReflection(context, declarator, FindReflectionType(declarator.Symbol.Type));
         }
 
-        private static void AnalyzeTypeOf(OperationAnalysisContext context)
-        {
-            if (context.Operation is not ITypeOfOperation typeOf)
-            {
-                return;
-            }
-
-            ReportIfReflection(context, typeOf, FindReflectionType(typeOf.TypeOperand));
-        }
-
         private static void ReportIfReflection(
             OperationAnalysisContext context,
             IOperation operation,
@@ -150,7 +139,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 IFieldReferenceOperation field => field.Field.Name,
                 IMethodReferenceOperation method => method.Method.Name,
                 IVariableDeclaratorOperation declarator => declarator.Symbol.Name,
-                ITypeOfOperation => "typeof",
                 IArgumentOperation argument => argument.Parameter?.Name ?? "argument",
                 _ => operation.Kind.ToString(),
             };
@@ -198,8 +186,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsReflectionType(INamedTypeSymbol type)
         {
-            return IsSystemReflectionNamespace(type.ContainingNamespace)
-                && !IsAttributeType(type);
+            return IsSystemReflectionNamespace(type.ContainingNamespace);
         }
 
         private static bool IsSystemReflectionNamespace(INamespaceSymbol? ns)
@@ -221,28 +208,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
                 ns = ns.ContainingNamespace;
-            }
-
-            return false;
-        }
-
-        private static bool IsAttributeType(INamedTypeSymbol type)
-        {
-            for (var baseType = type.BaseType; baseType != null; baseType = baseType.BaseType)
-            {
-                if (baseType is
-                    {
-                        Name: nameof(System.Attribute), ContainingNamespace:
-                        {
-                            Name: nameof(System), ContainingNamespace:
-                            {
-                                IsGlobalNamespace: true,
-                            }
-                        }
-                    })
-                {
-                    return true;
-                }
             }
 
             return false;

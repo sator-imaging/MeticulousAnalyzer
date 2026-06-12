@@ -148,30 +148,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_TypeOf()
-        {
-            var test = @"
-using System.Reflection;
-
-namespace Test
-{
-    public class C
-    {
-        public void M()
-        {
-            _ = {|#0:typeof(MethodInfo)|};
-            _ = {|#1:typeof(System.Reflection.BindingFlags)|};
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("typeof", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("typeof", "System.Reflection.BindingFlags")
-            );
-        }
-
-        [TestMethod]
         public async Task SMA7003_Compliant_MemberDeclarationsWithoutUsage()
         {
             var test = @"
