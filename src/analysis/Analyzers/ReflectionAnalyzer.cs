@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -110,7 +111,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            ReportIfReflection(context, declaration, FindReflectionType(declaration.Type));
+            var reflectionType = FindReflectionType(declaration.Type);
+            if (reflectionType == null)
+            {
+                return;
+            }
+
+            if (declaration.Syntax is not VariableDeclarationSyntax variableDeclaration)
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_SystemReflectionUsage,
+                variableDeclaration.Type.GetLocation(),
+                declaration.Type.ToDiagnosticMessageName(),
+                reflectionType.ToDisplayString()));
         }
 
         private static void ReportIfReflection(
@@ -132,11 +148,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static string GetOperationName(IOperation operation)
         {
-            if (operation is IVariableDeclarationOperation declaration)
-            {
-                return declaration.Type.ToDiagnosticMessageName();
-            }
-
             ISymbol? symbol = operation switch
             {
                 IInvocationOperation invocation => invocation.TargetMethod,
