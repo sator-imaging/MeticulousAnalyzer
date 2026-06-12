@@ -2,7 +2,6 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -129,9 +128,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var location = declarator.Syntax is VariableDeclaratorSyntax syntax
-                ? syntax.Identifier.GetLocation()
-                : declarator.Symbol.Locations[0];
+            var location = declarator.Symbol.Locations is { Length: > 0 } locations
+                ? locations[0]
+                : declarator.Syntax.GetLocation();
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionVariable,
@@ -162,9 +161,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ISymbol? symbol = operation switch
             {
                 IInvocationOperation invocation => invocation.TargetMethod,
-                IPropertyReferenceOperation property => property.Property,
-                IFieldReferenceOperation field => field.Field,
-                IMethodReferenceOperation method => method.Method,
+                IMemberReferenceOperation member => member.Member,
                 IArgumentOperation argument => argument.Parameter,
                 _ => null,
             };
