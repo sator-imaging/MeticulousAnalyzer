@@ -46,7 +46,7 @@ namespace Test
 
         public void M()
         {
-            var {|#0:a|}, {|#1:b|} = {|#2:GetIt()|};
+            MethodInfo {|#0:a|}, {|#1:b|} = {|#2:GetIt()|};
         }
     }
 }
