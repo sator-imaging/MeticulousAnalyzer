@@ -158,15 +158,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static string GetOperationName(IOperation operation)
         {
-            ISymbol? symbol = operation switch
+            return operation switch
             {
-                IInvocationOperation invocation => invocation.TargetMethod,
-                IMemberReferenceOperation member => member.Member,
-                IArgumentOperation argument => argument.Parameter,
-                _ => null,
+                IInvocationOperation invocation => invocation.TargetMethod.ToDiagnosticMessageName(),
+                IMemberReferenceOperation member => member.Member.ToDiagnosticMessageName(),
+                IArgumentOperation argument => argument.Parameter.ToDiagnosticMessageName(),
+                _ => operation.Syntax.ToString(),
             };
-
-            return symbol?.ToDiagnosticMessageName() ?? operation.Kind.ToString();
         }
 
         private static INamedTypeSymbol? GetReflectionReceiverType(IOperation? instance)
