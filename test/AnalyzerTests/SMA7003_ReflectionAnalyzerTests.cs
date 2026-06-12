@@ -43,19 +43,18 @@ namespace Test
 {
     public class C
     {
-        static {|#0:MethodInfo|} GetIt() => null;
+        static MethodInfo GetIt() => null;
 
         public void M()
         {
-            var {|#1:m|} = {|#2:GetIt|}();
+            var {|#0:m|} = {|#1:GetIt|}();
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MethodInfo", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("m", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("GetIt", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("m", "System.Reflection.MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetIt", "System.Reflection.MethodInfo")
             );
         }
 
@@ -111,18 +110,17 @@ namespace Test
 {
     public class C
     {
-        public void M({|#0:MethodInfo|} method)
+        public void M(MethodInfo method)
         {
-            method.{|#1:Invoke|}(null, null);
-            _ = method.{|#2:Name|};
+            method.{|#0:Invoke|}(null, null);
+            _ = method.{|#1:Name|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MethodInfo", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Invoke", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("Name", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("Invoke", "System.Reflection.MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Name", "System.Reflection.MethodInfo")
             );
         }
 
@@ -138,19 +136,19 @@ namespace Test
     {
         public void M()
         {
-            System.Func<{|#0:MemberInfo|}[]> f = typeof(C).{|#1:GetMembers|};
+            System.Func<MemberInfo[]> {|#0:f|} = typeof(C).{|#1:GetMembers|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MemberInfo", "System.Reflection.MemberInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("f", "System.Reflection.MemberInfo"),
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "System.Reflection.MemberInfo")
             );
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_TypeReference_Typeof()
+        public async Task SMA7003_Violation_TypeOf()
         {
             var test = @"
 using System.Reflection;
@@ -161,20 +159,20 @@ namespace Test
     {
         public void M()
         {
-            _ = typeof({|#0:MethodInfo|});
-            _ = typeof(System.Reflection.{|#1:BindingFlags|});
+            _ = {|#0:typeof(MethodInfo)|};
+            _ = {|#1:typeof(System.Reflection.BindingFlags)|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MethodInfo", "System.Reflection.MethodInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("BindingFlags", "System.Reflection.BindingFlags")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("typeof", "System.Reflection.MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("typeof", "System.Reflection.BindingFlags")
             );
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_TypeReference_MemberDeclarations()
+        public async Task SMA7003_Compliant_MemberDeclarationsWithoutUsage()
         {
             var test = @"
 using System.Reflection;
@@ -183,25 +181,19 @@ namespace Test
 {
     public class C
     {
-        private {|#0:FieldInfo|} _field;
-        public {|#1:PropertyInfo|} Prop { get; set; }
-        public {|#2:EventInfo|}[] Events;
+        private FieldInfo _field;
+        public PropertyInfo Prop { get; set; }
+        public EventInfo[] Events;
 
-        public {|#3:MemberInfo|} M({|#4:ParameterInfo|} parameter) => null;
+        public MemberInfo M(ParameterInfo parameter) => null;
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("FieldInfo", "System.Reflection.FieldInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("PropertyInfo", "System.Reflection.PropertyInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("EventInfo", "System.Reflection.EventInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(3).WithArguments("MemberInfo", "System.Reflection.MemberInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(4).WithArguments("ParameterInfo", "System.Reflection.ParameterInfo")
-            );
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_TypeReference_LocalDeclaration()
+        public async Task SMA7003_Violation_LocalDeclaration()
         {
             var test = @"
 using System.Reflection;
@@ -212,19 +204,19 @@ namespace Test
     {
         public void M()
         {
-            {|#0:MethodInfo|} method = null;
+            MethodInfo {|#0:method|} = null;
             _ = method;
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MethodInfo", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("method", "System.Reflection.MethodInfo")
             );
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_TypeReference_GenericTypeArgument()
+        public async Task SMA7003_Violation_ArgumentType()
         {
             var test = @"
 using System.Collections.Generic;
@@ -234,17 +226,22 @@ namespace Test
 {
     public class C
     {
-        public void M(List<{|#0:MethodInfo|}> list) { }
+        public void M(List<MethodInfo> list)
+        {
+            Helper({|#0:list|});
+        }
+
+        static void Helper(List<MethodInfo> list) { }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("MethodInfo", "System.Reflection.MethodInfo")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("list", "System.Reflection.MethodInfo")
             );
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_EnumArgument_ReportedOnceAsTypeReference()
+        public async Task SMA7003_Violation_EnumArgument_FieldReference()
         {
             var test = @"
 using System.Reflection;
@@ -262,8 +259,8 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(0).WithArguments("GetMembers", "System.Reflection.MemberInfo"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("BindingFlags", "System.Reflection.BindingFlags"),
-                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("BindingFlags", "System.Reflection.BindingFlags")
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("Public", "System.Reflection.BindingFlags"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(2).WithArguments("Instance", "System.Reflection.BindingFlags")
             );
         }
 
