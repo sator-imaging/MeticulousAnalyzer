@@ -68,7 +68,7 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var methods = {|#1:type?.GetMethods()|};
+            var methods = type?.{|#1:GetMethods()|};
         }
     }
 }
