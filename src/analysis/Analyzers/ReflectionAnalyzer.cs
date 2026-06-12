@@ -125,9 +125,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionUsage,
-                operation.Syntax.GetLocation(),
+                GetReportLocation(operation),
                 GetOperationName(operation),
                 reflectionType.ToDisplayString()));
+        }
+
+        private static Location GetReportLocation(IOperation operation)
+        {
+            if (operation is IVariableDeclaratorOperation declarator
+                && declarator.Symbol.Locations is { Length: > 0 } locations)
+            {
+                return locations[0];
+            }
+
+            return operation.Syntax.GetLocation();
         }
 
         private static string GetOperationName(IOperation operation)
