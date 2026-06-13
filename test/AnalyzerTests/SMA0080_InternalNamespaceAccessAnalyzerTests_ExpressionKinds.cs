@@ -500,9 +500,43 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(15, 22, 15, 46).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithSpan(15, 22, 15, 38).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
+
+        [TestMethod]
+        public async Task SMA0080_Violation_NestedRecursivePatternPropertySubpattern()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+
+    public class PublicType
+    {
+        internal InternalType Property { get; }
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M(object o)
+        {
+            if ({|#0:o is Foo.PublicType { Property: Foo.InternalType _ }|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithSpan(20, 39, 20, 47).WithArguments("Property", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithSpan(20, 49, 20, 67).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
 
         [TestMethod]
         public async Task SMA0080_Violation_GenericTypeArgument()

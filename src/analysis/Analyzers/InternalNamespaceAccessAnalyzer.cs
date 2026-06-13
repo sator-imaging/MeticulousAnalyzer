@@ -65,7 +65,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 SymbolKind.NamedType,
                 SymbolKind.Method,
                 SymbolKind.Field,
-                SymbolKind.Property);
+                SymbolKind.Property,
+                SymbolKind.Event);
         }
 
         private static void AnalyzeTypeOperand(OperationAnalysisContext context)
@@ -97,11 +98,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzePattern(OperationAnalysisContext context)
         {
             if (context.Operation is not IPatternOperation pattern)
-            {
-                return;
-            }
-
-            if (pattern.Parent is IPatternOperation)
             {
                 return;
             }
@@ -175,6 +171,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         property.Type);
                     break;
 
+                case IEventSymbol @event:
+                    ReportCrossNamespaceAccess(
+                        context,
+                        GetEventTypeLocation(@event),
+                        @event.Type);
+                    break;
+
                 case IMethodSymbol method:
                     ReportCrossNamespaceAccess(
                         context,
@@ -186,6 +189,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             context,
                             GetParameterTypeLocation(method, parameter),
                             parameter.Type);
+                    }
+
+                    foreach (var typeParam in method.TypeParameters)
+                    {
+                        foreach (var constraint in typeParam.ConstraintTypes)
+                        {
+                            ReportCrossNamespaceAccess(
+                                context,
+                                GetTypeParameterConstraintLocation(method, typeParam, constraint, context.Compilation),
+                                constraint);
+                        }
                     }
 
                     break;
@@ -207,6 +221,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             @interface);
                     }
 
+                    foreach (var typeParam in namedType.TypeParameters)
+                    {
+                        foreach (var constraint in typeParam.ConstraintTypes)
+                        {
+                            ReportCrossNamespaceAccess(
+                                context,
+                                GetTypeParameterConstraintLocation(namedType, typeParam, constraint, context.Compilation),
+                                constraint);
+                        }
+                    }
+
                     break;
             }
         }
@@ -215,9 +240,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
+                var syntax = syntaxRef.GetSyntax();
+                if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
                     return methodDecl.ReturnType.GetLocation();
+                }
+
+                if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
+                {
+                    return localFunc.ReturnType.GetLocation();
                 }
             }
 
@@ -228,21 +259,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax methodDecl)
+                var syntax = syntaxRef.GetSyntax();
+                if (syntax is BaseMethodDeclarationSyntax methodDecl)
                 {
-                    continue;
+                    var index = GetParameterIndex(method, parameter);
+                    if (index >= 0 && index < methodDecl.ParameterList.Parameters.Count)
+                    {
+                        var parameterSyntax = methodDecl.ParameterList.Parameters[index];
+                        if (parameterSyntax.Type != null)
+                        {
+                            return parameterSyntax.Type.GetLocation();
+                        }
+                    }
                 }
-
-                var index = GetParameterIndex(method, parameter);
-                if (index < 0 || index >= methodDecl.ParameterList.Parameters.Count)
+                else if (syntax is LocalFunctionStatementSyntax localFunc)
                 {
-                    continue;
-                }
-
-                var parameterSyntax = methodDecl.ParameterList.Parameters[index];
-                if (parameterSyntax.Type != null)
-                {
-                    return parameterSyntax.Type.GetLocation();
+                    var index = GetParameterIndex(method, parameter);
+                    if (index >= 0 && index < localFunc.ParameterList.Parameters.Count)
+                    {
+                        var parameterSyntax = localFunc.ParameterList.Parameters[index];
+                        if (parameterSyntax.Type != null)
+                        {
+                            return parameterSyntax.Type.GetLocation();
+                        }
+                    }
                 }
             }
 
@@ -314,6 +354,82 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             return namedType.Locations[0];
+        }
+
+        private static Location GetEventTypeLocation(IEventSymbol @event)
+        {
+            foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
+            {
+                var syntax = syntaxRef.GetSyntax();
+                if (syntax is VariableDeclaratorSyntax declarator
+                    && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
+                {
+                    return variableDeclaration.Type.GetLocation();
+                }
+
+                if (syntax is EventDeclarationSyntax eventDeclaration)
+                {
+                    return eventDeclaration.Type.GetLocation();
+                }
+            }
+
+            return @event.Locations[0];
+        }
+
+        private static Location GetTypeParameterConstraintLocation(
+            ISymbol symbol,
+            ITypeParameterSymbol typeParam,
+            ITypeSymbol constraintType,
+            Compilation compilation)
+        {
+            foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
+            {
+                var syntax = syntaxRef.GetSyntax();
+                TypeParameterConstraintClauseSyntax? constraintClause = null;
+                if (syntax is TypeDeclarationSyntax typeDecl)
+                {
+                    foreach (var clause in typeDecl.ConstraintClauses)
+                    {
+                        if (clause.Name.Identifier.Text == typeParam.Name)
+                        {
+                            constraintClause = clause;
+                            break;
+                        }
+                    }
+                }
+                else if (syntax is MethodDeclarationSyntax methodDecl)
+                {
+                    foreach (var clause in methodDecl.ConstraintClauses)
+                    {
+                        if (clause.Name.Identifier.Text == typeParam.Name)
+                        {
+                            constraintClause = clause;
+                            break;
+                        }
+                    }
+                }
+
+                if (constraintClause == null)
+                {
+                    continue;
+                }
+
+                var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
+                foreach (var constraint in constraintClause.Constraints)
+                {
+                    if (constraint is TypeConstraintSyntax typeConstraint)
+                    {
+                        var typeInfo = semanticModel.GetTypeInfo(typeConstraint.Type);
+                        if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, constraintType)
+                            || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
+                        {
+                            return typeConstraint.Type.GetLocation();
+                        }
+                    }
+                }
+            }
+
+            return symbol.Locations[0];
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -417,9 +533,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 ITypePatternOperation typePattern => typePattern.MatchedType,
                 IDeclarationPatternOperation declarationPattern => declarationPattern.MatchedType,
                 IRecursivePatternOperation recursivePattern => recursivePattern.MatchedType,
-                INegatedPatternOperation negated => GetPatternTypeSymbol(negated.Pattern),
-                IBinaryPatternOperation binary =>
-                    GetPatternTypeSymbol(binary.LeftPattern) ?? GetPatternTypeSymbol(binary.RightPattern),
                 _ => null
             };
 

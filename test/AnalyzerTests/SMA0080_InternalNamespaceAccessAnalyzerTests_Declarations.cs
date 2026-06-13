@@ -169,5 +169,71 @@ namespace Foo.Bar
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_EventDeclarationType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal delegate void InternalHandler();
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer
+    {
+        internal event {|#0:Foo.InternalHandler|} Raised;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalHandler", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_ClassTypeParameterConstraint()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer<T> where T : {|#0:Foo.InternalType|}
+    {
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_MethodTypeParameterConstraint()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer
+    {
+        internal void M<T>() where T : {|#0:Foo.InternalType|} { }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
     }
 }
