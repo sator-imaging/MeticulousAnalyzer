@@ -55,9 +55,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(13, 18, 13, 34).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(13, 46, 13, 49).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(13, 51, 13, 54).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -319,8 +317,33 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(13, 18, 13, 34).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(15, 13, 15, 16).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Compliant_AnonymousTypePassedToGenericMethod()
+        {
+            var test = @"
+namespace Foo
+{
+    public static class Helper
+    {
+        public static void M<T>(T value) { }
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            Foo.Helper.M(new { Value = 1 });
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

@@ -179,6 +179,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     break;
 
                 case IMethodSymbol method:
+                    if (method.AssociatedSymbol != null)
+                    {
+                        break;
+                    }
+
                     ReportCrossNamespaceAccess(
                         context,
                         GetReturnTypeLocation(method),
@@ -604,6 +609,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             for (var current = symbol; current != null; current = current.ContainingType)
             {
+                if (current is INamedTypeSymbol { IsAnonymousType: true })
+                {
+                    continue;
+                }
+
                 if (IsInternalOrProtectedInternal(current.DeclaredAccessibility))
                 {
                     return current == symbol ? current : symbol;
