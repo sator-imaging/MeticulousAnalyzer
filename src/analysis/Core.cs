@@ -69,9 +69,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         internal static void Report(Action<Diagnostic> reportMethod,
                                     DiagnosticDescriptor descriptor,
                                     Location location,
-                                    object[]? messageFormatArgs,
+                                    object[]? messageFormatArgs
+#if STMG_DEBUG_MESSAGE
+                                    ,
                                     [CallerMemberName] string? memberName = null,
                                     [CallerLineNumber] int lineNumber = -1
+#endif
             )
         {
 #pragma warning disable CS0162
