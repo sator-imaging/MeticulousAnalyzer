@@ -235,5 +235,92 @@ namespace Foo.Bar
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_DelegateDeclarationParameterType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal delegate void Handler({|#0:Foo.InternalType|} value);
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_DelegateDeclarationReturnType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal delegate {|#0:Foo.InternalType|} Factory();
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_DelegateTypeParameterConstraint()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal delegate void Handler<T>() where T : {|#0:Foo.InternalType|};
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_IndexerDeclarationReturnType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer
+    {
+        internal {|#0:Foo.InternalType|} this[int index]
+        {
+            get { throw new System.NotImplementedException(); }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithSpan(13, 18, 13, 34).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithSpan(15, 13, 15, 16).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
     }
 }

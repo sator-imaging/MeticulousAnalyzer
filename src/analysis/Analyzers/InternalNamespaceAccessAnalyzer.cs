@@ -232,6 +232,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                     }
 
+                    if (namedType.TypeKind == TypeKind.Delegate && namedType.DelegateInvokeMethod is { } invokeMethod)
+                    {
+                        ReportCrossNamespaceAccess(
+                            context,
+                            GetDelegateReturnTypeLocation(namedType),
+                            invokeMethod.ReturnType);
+
+                        foreach (var parameter in invokeMethod.Parameters)
+                        {
+                            ReportCrossNamespaceAccess(
+                                context,
+                                GetDelegateParameterTypeLocation(namedType, parameter),
+                                parameter.Type);
+                        }
+                    }
+
                     break;
             }
         }
@@ -249,6 +265,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
                 {
                     return localFunc.ReturnType.GetLocation();
+                }
+
+                if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
+                {
+                    return operatorDecl.ReturnType.GetLocation();
+                }
+
+                if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
+                {
+                    return conversionDecl.Type.GetLocation();
                 }
             }
 
@@ -320,9 +346,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax propertyDeclaration)
+                var syntax = syntaxRef.GetSyntax();
+                if (syntax is PropertyDeclarationSyntax propertyDeclaration)
                 {
                     return propertyDeclaration.Type.GetLocation();
+                }
+
+                if (syntax is IndexerDeclarationSyntax indexerDeclaration)
+                {
+                    return indexerDeclaration.Type.GetLocation();
                 }
             }
 
@@ -400,6 +432,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 else if (syntax is MethodDeclarationSyntax methodDecl)
                 {
                     foreach (var clause in methodDecl.ConstraintClauses)
+                    {
+                        if (clause.Name.Identifier.Text == typeParam.Name)
+                        {
+                            constraintClause = clause;
+                            break;
+                        }
+                    }
+                }
+                else if (syntax is DelegateDeclarationSyntax delegateDecl)
+                {
+                    foreach (var clause in delegateDecl.ConstraintClauses)
                     {
                         if (clause.Name.Identifier.Text == typeParam.Name)
                         {
@@ -600,5 +643,45 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static bool IsSameNamespace(INamespaceSymbol left, INamespaceSymbol right) =>
             SymbolEqualityComparer.Default.Equals(left, right);
+
+        private static Location GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
+        {
+            foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl && delegateDecl.ReturnType != null)
+                {
+                    return delegateDecl.ReturnType.GetLocation();
+                }
+            }
+
+            return delegateType.Locations[0];
+        }
+
+        private static Location GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
+        {
+            var invokeMethod = delegateType.DelegateInvokeMethod;
+            if (invokeMethod == null)
+            {
+                return parameter.Locations[0];
+            }
+
+            foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl)
+                {
+                    var index = GetParameterIndex(invokeMethod, parameter);
+                    if (index >= 0 && index < delegateDecl.ParameterList.Parameters.Count)
+                    {
+                        var parameterSyntax = delegateDecl.ParameterList.Parameters[index];
+                        if (parameterSyntax.Type != null)
+                        {
+                            return parameterSyntax.Type.GetLocation();
+                        }
+                    }
+                }
+            }
+
+            return parameter.Locations[0];
+        }
     }
 }
