@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
 
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);STMG_DEBUG_MESSAGE</DefineConstants>
+
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
