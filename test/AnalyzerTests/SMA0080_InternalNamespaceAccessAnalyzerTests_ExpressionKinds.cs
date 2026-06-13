@@ -175,6 +175,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithSpan(16, 25, 16, 34).WithArguments("Publisher", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithSpan(16, 46, 16, 50).WithArguments("Publisher", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithSpan(23, 13, 23, 44).WithArguments("Raised", "Foo.Bar", "Foo"));
         }
@@ -220,6 +221,7 @@ namespace Foo.Bar
 
             await VerifyCS.VerifyAnalyzerAsync(test,
                 expectedCompiler,
+                VerifyCS.Diagnostic().WithSpan(21, 25, 21, 34).WithArguments("Publisher", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithSpan(21, 46, 21, 50).WithArguments("Publisher", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Raised", "Foo.Bar", "Foo"));
         }
@@ -392,6 +394,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithSpan(14, 25, 14, 41).WithArguments("InternalType", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithSpan(14, 53, 14, 57).WithArguments("InternalType", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("this", "Foo.Bar", "Foo"));
         }
@@ -399,6 +402,28 @@ namespace Foo.Bar
 
         [TestMethod]
         public async Task SMA0080_Compliant_NameOfLocalWithInternalType()
+        {
+            var test = @"
+namespace Foo.Bar
+{
+    internal class InternalType
+    {
+    }
+
+    internal static class Helper
+    {
+        internal static void M(InternalType local)
+        {
+            var n = nameof(local);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_MethodParameterDeclarationType()
         {
             var test = @"
 namespace Foo
@@ -412,14 +437,12 @@ namespace Foo.Bar
 {
     internal static class Helper
     {
-        internal static void M(Foo.InternalType local)
-        {
-            var n = nameof(local);
-        }
+        internal static void M({|#0:Foo.InternalType|} local) { }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]

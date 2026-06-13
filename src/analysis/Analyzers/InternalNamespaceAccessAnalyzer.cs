@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -58,14 +59,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 OperationKind.TypePattern);
 
             context.RegisterOperationAction(AnalyzeNameOf, OperationKind.NameOf);
+
+            context.RegisterSymbolAction(
+                AnalyzeSymbol,
+                SymbolKind.NamedType,
+                SymbolKind.Method,
+                SymbolKind.Field,
+                SymbolKind.Property);
         }
 
         private static void AnalyzeTypeOperand(OperationAnalysisContext context)
         {
-            var type = TryGetTypeFromOperation(context.Operation);
+            var operation = context.Operation;
+            if (operation is IConversionOperation conversion
+                && conversion.Operand is IDefaultValueOperation)
+            {
+                return;
+            }
+
+            var type = TryGetTypeFromOperation(operation);
             if (type != null)
             {
-                ReportCrossNamespaceAccess(context, context.Operation, type);
+                ReportCrossNamespaceAccess(context, operation, type);
             }
         }
 
@@ -142,10 +157,203 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 _ => null
             };
 
+        private static void AnalyzeSymbol(SymbolAnalysisContext context)
+        {
+            switch (context.Symbol)
+            {
+                case IFieldSymbol field:
+                    ReportCrossNamespaceAccess(
+                        context,
+                        GetFieldTypeLocation(field),
+                        field.Type);
+                    break;
+
+                case IPropertySymbol property:
+                    ReportCrossNamespaceAccess(
+                        context,
+                        GetPropertyTypeLocation(property),
+                        property.Type);
+                    break;
+
+                case IMethodSymbol method:
+                    ReportCrossNamespaceAccess(
+                        context,
+                        GetReturnTypeLocation(method),
+                        method.ReturnType);
+                    foreach (var parameter in method.Parameters)
+                    {
+                        ReportCrossNamespaceAccess(
+                            context,
+                            GetParameterTypeLocation(method, parameter),
+                            parameter.Type);
+                    }
+
+                    break;
+
+                case INamedTypeSymbol namedType:
+                    if (namedType.BaseType is { SpecialType: not SpecialType.System_Object } baseType)
+                    {
+                        ReportCrossNamespaceAccess(
+                            context,
+                            GetBaseOrInterfaceTypeLocation(namedType, baseType, context.Compilation),
+                            baseType);
+                    }
+
+                    foreach (var @interface in namedType.Interfaces)
+                    {
+                        ReportCrossNamespaceAccess(
+                            context,
+                            GetBaseOrInterfaceTypeLocation(namedType, @interface, context.Compilation),
+                            @interface);
+                    }
+
+                    break;
+            }
+        }
+
+        private static Location GetReturnTypeLocation(IMethodSymbol method)
+        {
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
+                {
+                    return methodDecl.ReturnType.GetLocation();
+                }
+            }
+
+            return method.Locations[0];
+        }
+
+        private static Location GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
+        {
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is not MethodDeclarationSyntax methodDecl)
+                {
+                    continue;
+                }
+
+                var index = GetParameterIndex(method, parameter);
+                if (index < 0 || index >= methodDecl.ParameterList.Parameters.Count)
+                {
+                    continue;
+                }
+
+                var parameterSyntax = methodDecl.ParameterList.Parameters[index];
+                if (parameterSyntax.Type != null)
+                {
+                    return parameterSyntax.Type.GetLocation();
+                }
+            }
+
+            return parameter.Locations[0];
+        }
+
+        private static int GetParameterIndex(IMethodSymbol method, IParameterSymbol parameter)
+        {
+            for (var i = 0; i < method.Parameters.Length; i++)
+            {
+                if (SymbolEqualityComparer.Default.Equals(method.Parameters[i], parameter))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static Location GetFieldTypeLocation(IFieldSymbol field)
+        {
+            foreach (var syntaxRef in field.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is VariableDeclaratorSyntax declarator
+                    && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
+                {
+                    return variableDeclaration.Type.GetLocation();
+                }
+            }
+
+            return field.Locations[0];
+        }
+
+        private static Location GetPropertyTypeLocation(IPropertySymbol property)
+        {
+            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax propertyDeclaration)
+                {
+                    return propertyDeclaration.Type.GetLocation();
+                }
+            }
+
+            return property.Locations[0];
+        }
+
+        private static Location GetBaseOrInterfaceTypeLocation(
+            INamedTypeSymbol namedType,
+            ITypeSymbol typeSymbol,
+            Compilation compilation)
+        {
+            foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
+                {
+                    continue;
+                }
+
+                var semanticModel = compilation.GetSemanticModel(typeDecl.SyntaxTree);
+                foreach (var baseTypeSyntax in typeDecl.BaseList.Types)
+                {
+                    var typeInfo = semanticModel.GetTypeInfo(baseTypeSyntax.Type);
+                    if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeSymbol)
+                        || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
+                    {
+                        return baseTypeSyntax.Type.GetLocation();
+                    }
+                }
+            }
+
+            return namedType.Locations[0];
+        }
+
         private static void ReportCrossNamespaceAccess(
             OperationAnalysisContext context,
             IOperation operation,
             ISymbol? symbol)
+        {
+            var location = operation.Syntax.GetLocation();
+            if (location == null)
+            {
+                return;
+            }
+
+            ReportCrossNamespaceAccess(
+                context.Compilation,
+                context.ContainingSymbol?.ContainingNamespace,
+                location,
+                symbol,
+                context.ReportDiagnostic);
+        }
+
+        private static void ReportCrossNamespaceAccess(
+            SymbolAnalysisContext context,
+            Location location,
+            ITypeSymbol? type)
+        {
+            ReportCrossNamespaceAccess(
+                context.Compilation,
+                context.Symbol.ContainingNamespace,
+                location,
+                type,
+                context.ReportDiagnostic);
+        }
+
+        private static void ReportCrossNamespaceAccess(
+            Compilation compilation,
+            INamespaceSymbol? useNamespace,
+            Location location,
+            ISymbol? symbol,
+            System.Action<Diagnostic> reportDiagnostic)
         {
             var restrictedSymbol = FindRestrictedSymbol(symbol);
             if (restrictedSymbol == null)
@@ -153,12 +361,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, context.Compilation.Assembly))
+            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, compilation.Assembly))
             {
                 return;
             }
 
-            var useNamespace = context.ContainingSymbol?.ContainingNamespace;
             if (useNamespace == null)
             {
                 return;
@@ -170,13 +377,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var location = operation.Syntax.GetLocation();
-            if (location == null)
-            {
-                return;
-            }
-
-            context.ReportDiagnostic(Diagnostic.Create(
+            reportDiagnostic(Diagnostic.Create(
                 Rule_InternalNamespaceAccess,
                 location,
                 restrictedSymbol.ToDiagnosticMessageName(),
@@ -251,16 +452,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     return current == symbol ? current : symbol;
                 }
-            }
 
-            if (symbol is INamedTypeSymbol namedType)
-            {
-                foreach (var typeArg in namedType.TypeArguments)
+                if (current is INamedTypeSymbol namedType)
                 {
-                    var restricted = FindRestrictedSymbol(typeArg);
-                    if (restricted != null)
+                    foreach (var typeArg in namedType.TypeArguments)
                     {
-                        return restricted;
+                        var restricted = FindRestrictedSymbol(typeArg);
+                        if (restricted != null)
+                        {
+                            return restricted;
+                        }
                     }
                 }
             }
@@ -274,15 +475,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         return restricted;
                     }
-                }
-            }
-
-            if (symbol.ContainingType != null)
-            {
-                var restricted = FindRestrictedSymbol(symbol.ContainingType);
-                if (restricted != null)
-                {
-                    return restricted;
                 }
             }
 
