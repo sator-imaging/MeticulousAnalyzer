@@ -115,7 +115,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithSpan(15, 22, 15, 40).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -448,7 +448,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(16, 17, 16, 51).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithSpan(16, 22, 16, 51).WithArguments("InternalType", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithSpan(16, 41, 16, 46).WithArguments("Value", "Foo.Bar", "Foo"));
         }
 
@@ -477,7 +477,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithSpan(15, 22, 15, 46).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
 
@@ -507,6 +507,94 @@ namespace Foo.Bar
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+
+        [TestMethod]
+        public async Task SMA0080_Violation_SwitchDeclarationPattern()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M(object o)
+        {
+            switch (o)
+            {
+                case {|#0:Foo.InternalType t|}:
+                    break;
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_GenericTypeFieldOnGenericClass()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+
+    public class GenericClass<T>
+    {
+        public static int Field;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.GenericClass<Foo.InternalType>.Field|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_SizeOfInternalType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal struct InternalStruct
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public unsafe void M()
+        {
+            var s = {|#0:sizeof(Foo.InternalStruct)|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalStruct", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]

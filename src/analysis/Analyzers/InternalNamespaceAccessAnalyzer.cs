@@ -37,7 +37,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 OperationKind.IsType,
                 OperationKind.Conversion,
                 OperationKind.TypeParameterObjectCreation,
-                OperationKind.ArrayCreation);
+                OperationKind.ArrayCreation,
+                OperationKind.SizeOf);
 
             context.RegisterOperationAction(
                 AnalyzeSymbolMember,
@@ -48,7 +49,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 OperationKind.Invocation,
                 OperationKind.ObjectCreation);
 
-            context.RegisterOperationAction(AnalyzePattern, OperationKind.IsPattern);
+            context.RegisterOperationAction(
+                AnalyzePattern,
+                OperationKind.BinaryPattern,
+                OperationKind.DeclarationPattern,
+                OperationKind.NegatedPattern,
+                OperationKind.RecursivePattern,
+                OperationKind.TypePattern);
+
             context.RegisterOperationAction(AnalyzeNameOf, OperationKind.NameOf);
         }
 
@@ -73,15 +81,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void AnalyzePattern(OperationAnalysisContext context)
         {
-            if (context.Operation is not IIsPatternOperation isPattern)
+            if (context.Operation is not IPatternOperation pattern)
             {
                 return;
             }
 
-            var type = GetPatternTypeSymbol(isPattern.Pattern);
+            if (pattern.Parent is IPatternOperation)
+            {
+                return;
+            }
+
+            var type = GetPatternTypeSymbol(pattern);
             if (type != null)
             {
-                ReportCrossNamespaceAccess(context, isPattern, type);
+                ReportCrossNamespaceAccess(context, pattern, type);
             }
         }
 
@@ -113,6 +126,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 IConversionOperation conversion => conversion.Type,
                 ITypeParameterObjectCreationOperation typeParamCreation => typeParamCreation.Type,
                 IArrayCreationOperation arrayCreation => arrayCreation.Type,
+                ISizeOfOperation sizeOf => sizeOf.TypeOperand,
                 _ => null
             };
 
@@ -215,9 +229,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return null;
             }
 
-            while (symbol is IArrayTypeSymbol arrayType)
+            while (true)
             {
-                symbol = arrayType.ElementType;
+                if (symbol is IArrayTypeSymbol arrayType)
+                {
+                    symbol = arrayType.ElementType;
+                }
+                else if (symbol is IPointerTypeSymbol pointerType)
+                {
+                    symbol = pointerType.PointedAtType;
+                }
+                else
+                {
+                    break;
+                }
             }
 
             for (var current = symbol; current != null; current = current.ContainingType)
@@ -250,8 +275,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return restricted;
                     }
                 }
+            }
 
-                return FindRestrictedSymbol(method.ContainingType);
+            if (symbol.ContainingType != null)
+            {
+                var restricted = FindRestrictedSymbol(symbol.ContainingType);
+                if (restricted != null)
+                {
+                    return restricted;
+                }
             }
 
             return null;
