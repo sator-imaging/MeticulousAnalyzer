@@ -293,7 +293,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is BaseMethodDeclarationSyntax methodDecl)
                 {
-                    var index = GetParameterIndex(method, parameter);
+                    var index = parameter.Ordinal;
                     if (index >= 0 && index < methodDecl.ParameterList.Parameters.Count)
                     {
                         var parameterSyntax = methodDecl.ParameterList.Parameters[index];
@@ -305,7 +305,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
                 else if (syntax is LocalFunctionStatementSyntax localFunc)
                 {
-                    var index = GetParameterIndex(method, parameter);
+                    var index = parameter.Ordinal;
                     if (index >= 0 && index < localFunc.ParameterList.Parameters.Count)
                     {
                         var parameterSyntax = localFunc.ParameterList.Parameters[index];
@@ -318,19 +318,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             return parameter.Locations[0];
-        }
-
-        private static int GetParameterIndex(IMethodSymbol method, IParameterSymbol parameter)
-        {
-            for (var i = 0; i < method.Parameters.Length; i++)
-            {
-                if (SymbolEqualityComparer.Default.Equals(method.Parameters[i], parameter))
-                {
-                    return i;
-                }
-            }
-
-            return -1;
         }
 
         private static Location GetFieldTypeLocation(IFieldSymbol field)
@@ -679,7 +666,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl)
                 {
-                    var index = GetParameterIndex(invokeMethod, parameter);
+                    var index = parameter.Ordinal;
                     if (index >= 0 && index < delegateDecl.ParameterList.Parameters.Count)
                     {
                         var parameterSyntax = delegateDecl.ParameterList.Parameters[index];
