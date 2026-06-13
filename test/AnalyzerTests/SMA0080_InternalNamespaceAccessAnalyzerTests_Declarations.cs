@@ -321,6 +321,85 @@ namespace Foo.Bar
         }
 
         [TestMethod]
+        public async Task SMA0080_Violation_IndexerDeclarationParameterType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer
+    {
+        internal int this[{|#0:Foo.InternalType|} key]
+        {
+            get => 0;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_LocalFunctionReturnType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer
+    {
+        internal void M()
+        {
+            {|#0:Foo.InternalType|} Local() => default;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithSpan(15, 41, 15, 48).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_LocalFunctionTypeParameterConstraint()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+    }
+}
+
+namespace Foo.Bar
+{
+    internal class Consumer
+    {
+        internal void M()
+        {
+            void Local<T>() where T : {|#0:Foo.InternalType|} { }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+        }
+
+        [TestMethod]
         public async Task SMA0080_Compliant_AnonymousTypePassedToGenericMethod()
         {
             var test = @"
