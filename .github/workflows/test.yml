@@ -27,9 +27,8 @@ jobs:
       - name: Unit Test
         run: |
           dotnet test ./test \
-            --configuration ${{ matrix.configuration }} \
             --verbosity minimal \
-            -p:DontReferenceItself=true
+            --configuration ${{ matrix.configuration }}
 
   mutation:
     strategy:
@@ -49,11 +48,10 @@ jobs:
           dotnet tool install -g dotnet-stryker
 
           dotnet stryker \
-            --configuration ${{ matrix.configuration }} \
             --output ./mutation-report \
             --reporter json \
             --verbosity info \
-            --msbuild-properties "DontReferenceItself=true"
+            --configuration ${{ matrix.configuration }}
 
       - name: Write Step Summary
         run: |
@@ -95,8 +93,8 @@ jobs:
             echo "| Total Mutants  | ${TOTAL}       |"
             echo "| Killed         | ${KILLED}      |"
             echo "| Survived       | ${SURVIVED}    |"
-            echo "| No Coverage    | ${NO_COVERAGE} |"
             echo "| Timeout        | ${TIMEOUT}     |"
+            echo "| No Coverage    | ${NO_COVERAGE} |"
             echo "| Mutation Score | ${SCORE}%      |"
           } >> "$GITHUB_STEP_SUMMARY"
 

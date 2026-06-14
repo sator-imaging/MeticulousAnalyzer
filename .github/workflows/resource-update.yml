@@ -37,21 +37,8 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
 
-    - name: Restore
-      run: |
-        ##cd src
-        dotnet restore  -p:DontReferenceItself=true  # required to avoid cyclic ref error
-
-    - name: Build
-      run: |
-        ##cd src
-
-        # Required to enable deterministic build --> -p:ContinuousIntegrationBuild=true
-        # * It seems that hash is calculated based on the whole git repository contents.
-        #   i.e., Including github actions yaml files.
-        dotnet build -c Release --no-restore \
-          -p:ContinuousIntegrationBuild=true \
-          -p:DontReferenceItself=true
+    - run: dotnet restore
+    - run: dotnet build -c Release --no-restore
 
     # Required for nuget-push action
     - uses: actions/upload-artifact@v4
