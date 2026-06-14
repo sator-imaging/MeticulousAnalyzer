@@ -14,7 +14,7 @@ jobs:
   test:
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        configuration: [Release, Debug]
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
 
@@ -24,9 +24,80 @@ jobs:
         with:
           dotnet-version: 10.x.x
 
-      - name: Test
+      - name: Unit Test
         run: |
           dotnet test ./test \
-            -c ${{ matrix.configuration }} \
+            --configuration ${{ matrix.configuration }} \
             --verbosity minimal \
             -p:DontReferenceItself=true
+
+  mutation:
+    strategy:
+      matrix:
+        configuration: [Release, Debug]
+
+    runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5      # v4.3.1
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: 10.x.x
+
+      - name: Mutation Test
+        run: |
+          dotnet tool install -g dotnet-stryker
+
+          dotnet stryker \
+            --configuration ${{ matrix.configuration }} \
+            --output ./mutation-report \
+            --reporter json \
+            --verbosity info \
+            --msbuild-properties "DontReferenceItself=true"
+
+      - name: Write Step Summary
+        run: |
+          REPORT_FILE=$(find ./mutation-report -name "mutation-report.json" | head -n 1)
+
+          if [ -z "$REPORT_FILE" ]; then
+            echo "::error title=mutation-report.json not found::Exited"
+            exit 1
+          fi
+
+          SCORE=$(jq '.metrics.mutationScore // 0' "$REPORT_FILE")
+          KILLED=$(jq '.metrics.killed // 0' "$REPORT_FILE")
+          SURVIVED=$(jq '.metrics.survived // 0' "$REPORT_FILE")
+          NO_COVERAGE=$(jq '.metrics.noCoverage // 0' "$REPORT_FILE")
+          TIMEOUT=$(jq '.metrics.timeout // 0' "$REPORT_FILE")
+
+          TOTAL=$(jq '.metrics.totalMutants // (.metrics.killed + .metrics.survived + .metrics.noCoverage + .metrics.timeout)' "$REPORT_FILE")
+
+          SCORE_INT=$(printf "%.0f" "$SCORE")
+
+          if [ "$SCORE_INT" -ge 80 ]; then
+            ICON="✅"
+            STATUS="Healthy"
+          elif [ "$SCORE_INT" -ge 50 ]; then
+            ICON="⚠️"
+            STATUS="Warning"
+          else
+            ICON="⛔"
+            STATUS="Critical"
+          fi
+
+          {
+            echo "# 🧬 Mutation Test"
+            echo ""
+            echo "## ${ICON} Overall Result: ${SCORE}% (${STATUS})"
+            echo ""
+            echo "| Metric         | Value          |"
+            echo "|----------------|---------------:|"
+            echo "| Total Mutants  | ${TOTAL}       |"
+            echo "| Killed         | ${KILLED}      |"
+            echo "| Survived       | ${SURVIVED}    |"
+            echo "| No Coverage    | ${NO_COVERAGE} |"
+            echo "| Timeout        | ${TIMEOUT}     |"
+            echo "| Mutation Score | ${SCORE}%      |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat "$REPORT_FILE"
