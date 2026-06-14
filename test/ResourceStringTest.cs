@@ -17,6 +17,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         public void AllResourceProperties_And_BurstLinq()
         {
             // ResourceManager property checks
+            _ = new Resources();
+            Resources.Culture = Resources.Culture;
+            _ = new CodeFixResources();
+            CodeFixResources.Culture = CodeFixResources.Culture;
+
             Assert.IsNotNull(Resources.ResourceManager);
             Assert.IsNotNull(CodeFixResources.ResourceManager);
 

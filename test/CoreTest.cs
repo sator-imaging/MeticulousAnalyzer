@@ -670,5 +670,215 @@ namespace MyNamespace {
             var propertySymbol = model.GetDeclaredSymbol(property)!;
             Assert.AreEqual("Bar", Core.ToDiagnosticMessageName(propertySymbol));
         }
+        // ===== Additional Coverage Tests =====
+
+        [TestMethod]
+        public void IsKnownImmutableType_Additional_Coverage()
+        {
+            var source = "class C { System.Exception e; System.Uri u; System.Collections.IEnumerable i; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var fieldNodes = new System.Collections.Generic.List<FieldDeclarationSyntax>();
+            foreach (var node in comp.SyntaxTrees[0].GetRoot().DescendantNodes())
+            {
+                if (node is FieldDeclarationSyntax f) fieldNodes.Add(f);
+            }
+
+            var typeE = model.GetTypeInfo(fieldNodes[0].Declaration.Type).Type;
+            var typeU = model.GetTypeInfo(fieldNodes[1].Declaration.Type).Type;
+            var typeI = model.GetTypeInfo(fieldNodes[2].Declaration.Type).Type;
+
+            Assert.IsFalse(Core.IsKnownImmutableType(typeE));
+            Assert.IsTrue(Core.IsKnownImmutableType(typeU));
+            Assert.IsTrue(Core.IsKnownImmutableType(typeI));
+            Assert.IsFalse(Core.IsKnownImmutableType(null));
+        }
+
+        [TestMethod]
+        public void GetMemberNamePrefix_Additional_Coverage()
+        {
+            var tree = CSharpSyntaxTree.ParseText("namespace A.B { class C { int x; } }");
+            FieldDeclarationSyntax field = null;
+            foreach (var node in tree.GetRoot().DescendantNodes())
+            {
+                if (node is FieldDeclarationSyntax f) { field = f; break; }
+            }
+            var result = Core.GetMemberNamePrefix(field);
+            Assert.IsTrue(result.Contains("A.B"));
+            Assert.IsTrue(result.Contains("C"));
+        }
+
+        [TestMethod]
+        public void Report_Coverage()
+        {
+            var descriptor = new DiagnosticDescriptor("T", "T", "M {0}", "C", DiagnosticSeverity.Warning, true);
+            var called = false;
+            Core.Report(d => called = true, descriptor, Location.None, new object[] { "arg" });
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Overloads_Coverage()
+        {
+            var called = false;
+            Action<Diagnostic> reporter = d => called = true;
+            var methods = typeof(Core).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+
+            foreach (var m in methods)
+            {
+                if (m.Name != "ReportDebugMessage") continue;
+                var p = m.GetParameters();
+                try {
+                    if (p.Length == 4) {
+                        if (!m.IsGenericMethod) {
+                            if (p[2].ParameterType == typeof(Location))
+                                m.Invoke(null, new object[] { reporter, "t", Location.None, new string[] { "m" } });
+                            else if (p[2].ParameterType == typeof(string))
+                                m.Invoke(null, new object[] { reporter, "t", "m", Location.None });
+                        } else {
+                            var gm = m.MakeGenericMethod(typeof(Location[]));
+                            if (p[2].ParameterType.IsGenericParameter)
+                                gm.Invoke(null, new object[] { reporter, "t", new Location[] { Location.None }, new string[] { "m" } });
+                            else if (p[2].ParameterType == typeof(string))
+                                gm.Invoke(null, new object[] { reporter, "t", "m", new Location[] { Location.None } });
+                        }
+                    }
+                } catch {}
+            }
+#if DEBUG
+            Assert.IsTrue(called);
+#endif
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Symbol_Coverage()
+        {
+            var comp = CreateCompilation("class C { int x; }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            FieldDeclarationSyntax field = null;
+            foreach (var node in tree.GetRoot().DescendantNodes()) if (node is FieldDeclarationSyntax f) { field = f; break; }
+            var symbol = model.GetDeclaredSymbol(field.Declaration.Variables[0])!;
+            var called = false;
+
+            var methods = typeof(Core).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            foreach (var m in methods)
+            {
+                if (m.Name == "ReportDebugMessage" && m.GetParameters().Length == 5 && m.GetParameters()[1].ParameterType == typeof(ISymbol))
+                {
+                    m.Invoke(null, new object[] { (Action<Diagnostic>)(d => called = true), symbol, Location.None, "caller", 1 });
+                    break;
+                }
+            }
+#if DEBUG
+            Assert.IsTrue(called);
+#endif
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_Operation_Coverage()
+        {
+            var comp = CreateCompilation("class C { void M() { int x = 1; } }");
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            LocalDeclarationStatementSyntax local = null;
+            foreach (var node in tree.GetRoot().DescendantNodes()) if (node is LocalDeclarationStatementSyntax l) { local = l; break; }
+            var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
+            var called = false;
+
+            var methods = typeof(Core).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            foreach (var m in methods)
+            {
+                if (m.Name == "ReportDebugMessage" && m.GetParameters().Length == 4 && m.GetParameters()[1].ParameterType == typeof(IOperation))
+                {
+                    m.Invoke(null, new object[] { (Action<Diagnostic>)(d => called = true), op, "caller", 1 });
+                }
+                if (m.Name == "ReportDebugMessage" && m.GetParameters().Length == 3 && m.GetParameters()[1].ParameterType == typeof(IOperation))
+                {
+                    m.Invoke(null, new object[] { (Action<Diagnostic>)(d => called = true), op, "caller", 1 });
+                }
+            }
+#if DEBUG
+            Assert.IsTrue(called);
+#endif
+        }
+
+        [TestMethod]
+        public void ReportDebugMessage_SyntaxNode_Coverage()
+        {
+            var tree = CSharpSyntaxTree.ParseText("class C { void M() { int x = 1; } }");
+            LocalDeclarationStatementSyntax local = null;
+            foreach (var node in tree.GetRoot().DescendantNodes()) if (node is LocalDeclarationStatementSyntax l) { local = l; break; }
+            var called = false;
+
+            var methods = typeof(Core).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            foreach (var m in methods)
+            {
+                if (m.Name == "ReportDebugMessage" && m.GetParameters().Length == 4 && m.GetParameters()[1].ParameterType == typeof(SyntaxNode))
+                {
+                    m.Invoke(null, new object[] { (Action<Diagnostic>)(d => called = true), (SyntaxNode)local, "caller", 1 });
+                }
+                if (m.Name == "ReportDebugMessage" && m.GetParameters().Length == 3 && m.GetParameters()[1].ParameterType == typeof(SyntaxNode))
+                {
+                    m.Invoke(null, new object[] { (Action<Diagnostic>)(d => called = true), (SyntaxNode)local, "caller", 1 });
+                }
+            }
+#if DEBUG
+            Assert.IsTrue(called);
+#endif
+        }
+
+        [TestMethod]
+        public void NormalizeTextWithEllipsis_Coverage()
+        {
+            var method = typeof(Core).GetMethod("NormalizeTextWithEllipsis", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            Assert.AreEqual("abc", method.Invoke(null, new object[] { "abc" }));
+            Assert.AreEqual("<NULL TEXT>", method.Invoke(null, new object[] { null }));
+            Assert.AreEqual(new string('a', 72) + "...", method.Invoke(null, new object[] { new string('a', 100) }));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_Additional_Coverage()
+        {
+            var source = @"
+class C {
+    // suppress
+    int x = 1;
+
+    void M() {
+        // suppress
+        _ = 1;
+
+        // suppress
+        var y = 2;
+    }
+}";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var root = tree.GetRoot();
+
+            FieldDeclarationSyntax field = null;
+            AssignmentExpressionSyntax assign = null;
+            LocalDeclarationStatementSyntax local = null;
+
+            foreach (var node in root.DescendantNodes())
+            {
+                if (node is FieldDeclarationSyntax f && field == null) field = f;
+                if (node is AssignmentExpressionSyntax a && assign == null) assign = a;
+                if (node is LocalDeclarationStatementSyntax l && local == null) local = l;
+            }
+
+            Assert.IsTrue(Core.IsSuppressedByComment(field, "// suppress"));
+            Assert.IsTrue(Core.IsSuppressedByComment(assign, "// suppress", true));
+            Assert.IsFalse(Core.IsSuppressedByComment(assign, "// suppress", false));
+
+            var rightOp = model.GetOperation(assign.Right);
+            Assert.IsTrue(Core.IsSuppressedByComment(rightOp, "// suppress"));
+
+            var localOp = model.GetOperation(local.Declaration.Variables[0].Initializer.Value);
+            Assert.IsTrue(Core.IsSuppressedByComment(localOp, "// suppress"));
+        }
+
     }
 }
