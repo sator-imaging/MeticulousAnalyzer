@@ -128,7 +128,7 @@ jobs:
             COV_BRANCH=ACTION_BRANCH
             COV_TITLE="Total Coverage"
             {
-              echo "⚠ Baseline test for coverage diff generation was failed or skipped."
+              echo "⚠️ Base commit coverage was skipped or failed."
               echo
             } >> $GITHUB_STEP_SUMMARY
           fi
