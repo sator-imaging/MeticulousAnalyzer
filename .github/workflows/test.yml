@@ -6,8 +6,14 @@ on:
     paths-ignore: [ '.github/**', 'assets/**' ]
   #pull_request:
   #  paths-ignore: [ '.github/**', 'assets/**' ]
-  workflow_call:
   workflow_dispatch:
+  # github.event_name, or other context data are propagated from caller.
+  # No way to detect whether or not this workflow is called by other.
+  workflow_call:
+    inputs:
+      __called:
+        type: boolean
+        default: true
 
 jobs:
 
@@ -34,7 +40,7 @@ jobs:
       matrix:
         configuration: [Release, Debug]
 
-    if: ${{ github.event_name != 'workflow_call' }}
+    if: !inputs.__called
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
     steps:
