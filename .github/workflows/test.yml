@@ -40,7 +40,7 @@ jobs:
       matrix:
         configuration: [Release, Debug]
 
-    if: !inputs.__called
+    if: ${{ !inputs.__called }}
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
     steps:
