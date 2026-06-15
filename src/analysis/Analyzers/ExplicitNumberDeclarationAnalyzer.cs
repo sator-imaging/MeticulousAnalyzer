@@ -31,6 +31,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeVariableDeclaration, SyntaxKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeDeclarationExpression, SyntaxKind.DeclarationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeForEachStatement, SyntaxKind.ForEachStatement);
         }
 
         private static void AnalyzeVariableDeclaration(SyntaxNodeAnalysisContext context)
@@ -48,19 +50,72 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             foreach (var variable in declaration.Variables)
             {
-                var symbol = context.SemanticModel.GetDeclaredSymbol(variable) as ILocalSymbol;
-                if (symbol == null)
-                {
-                    continue;
-                }
+                ReportIfPrimitiveNumber(context, variable.Identifier, context.SemanticModel.GetDeclaredSymbol(variable));
+            }
+        }
 
-                if (IsSystemPrimitiveNumber(symbol.Type))
+        private static void AnalyzeDeclarationExpression(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not DeclarationExpressionSyntax declaration)
+            {
+                return;
+            }
+
+            // Only target 'var' declaration.
+            if (declaration.Type is not IdentifierNameSyntax id || !id.IsVar)
+            {
+                return;
+            }
+
+            if (declaration.Designation is SingleVariableDesignationSyntax single)
+            {
+                ReportIfPrimitiveNumber(context, single.Identifier, context.SemanticModel.GetDeclaredSymbol(single));
+            }
+            else if (declaration.Designation is ParenthesizedVariableDesignationSyntax tuple)
+            {
+                ReportRecursive(context, tuple);
+            }
+        }
+
+        private static void ReportRecursive(SyntaxNodeAnalysisContext context, ParenthesizedVariableDesignationSyntax tuple)
+        {
+            foreach (var item in tuple.Variables)
+            {
+                if (item is SingleVariableDesignationSyntax single)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_ExplicitNumber,
-                        variable.Identifier.GetLocation(),
-                        variable.Identifier.Text));
+                    ReportIfPrimitiveNumber(context, single.Identifier, context.SemanticModel.GetDeclaredSymbol(single));
                 }
+                else if (item is ParenthesizedVariableDesignationSyntax nested)
+                {
+                    ReportRecursive(context, nested);
+                }
+            }
+        }
+
+        private static void AnalyzeForEachStatement(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not ForEachStatementSyntax forEach)
+            {
+                return;
+            }
+
+            // Only target 'var' declaration.
+            if (!forEach.Type.IsVar)
+            {
+                return;
+            }
+
+            ReportIfPrimitiveNumber(context, forEach.Identifier, context.SemanticModel.GetDeclaredSymbol(forEach));
+        }
+
+        private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, SyntaxToken identifier, ISymbol? symbol)
+        {
+            if (symbol is ILocalSymbol local && IsSystemPrimitiveNumber(local.Type))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ExplicitNumber,
+                    identifier.GetLocation(),
+                    identifier.Text));
             }
         }
 

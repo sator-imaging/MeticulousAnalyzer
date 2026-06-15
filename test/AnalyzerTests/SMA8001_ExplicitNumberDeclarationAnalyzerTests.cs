@@ -155,5 +155,44 @@ namespace Test
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("baz")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8001_Violation_OtherVarDeclarationsWithPrimitiveNumbers()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class C
+    {
+        public void M(Dictionary<string, int> dict)
+        {
+            if (dict.TryGetValue(""key"", out var {|#0:value|}))
+            {
+            }
+
+            foreach (var {|#1:item|} in new int[] { 1, 2, 3 })
+            {
+            }
+
+            var ({|#2:a|}, {|#3:b|}) = (1, 2.0);
+
+            foreach (var ({|#4:x|}, {|#5:y|}) in new (int, int)[] { (1, 2) })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("value"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("item"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("a"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(3).WithArguments("b"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(4).WithArguments("x"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(5).WithArguments("y")
+            );
+        }
     }
 }
