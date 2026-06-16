@@ -157,7 +157,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Violation_OtherVarDeclarationsWithPrimitiveNumbers()
+        public async Task SMA8001_Violation_OutVarDeclaration()
         {
             var test = @"
 using System.Collections.Generic;
@@ -171,14 +171,26 @@ namespace Test
             if (dict.TryGetValue(""key"", out var {|#0:value|}))
             {
             }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("value")
+            );
+        }
 
-            foreach (var {|#1:item|} in new int[] { 1, 2, 3 })
-            {
-            }
-
-            var ({|#2:a|}, {|#3:b|}) = (1, 2.0);
-
-            foreach (var ({|#4:x|}, {|#5:y|}) in new (int, int)[] { (1, 2) })
+        [TestMethod]
+        public async Task SMA8001_Violation_ForEachVariable()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            foreach (var {|#0:item|} in new int[] { 1, 2, 3 })
             {
             }
         }
@@ -186,13 +198,132 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("value"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("item"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("a"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(3).WithArguments("b"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(4).WithArguments("x"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(5).WithArguments("y")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("item")
             );
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Violation_Deconstruction()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            var ({|#0:a|}, {|#1:b|}) = (1, 2.0);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("a"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("b")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Violation_ForEachDeconstruction()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            foreach (var ({|#0:x|}, {|#1:y|}) in new (int, int)[] { (1, 2) })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("y")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Violation_DeconstructionWithDiscard()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            var (_, {|#0:b|}) = (1, 2);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Compliant_OutVarWithDiscard()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class C
+    {
+        public void M(Dictionary<string, int> dict)
+        {
+            if (dict.TryGetValue(""key"", out var _))
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Compliant_ForEachWithDiscard()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            foreach (var _ in new int[] { 1, 2, 3 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Compliant_DiscardAssignment()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            var _ = 1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

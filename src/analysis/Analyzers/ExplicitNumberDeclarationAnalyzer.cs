@@ -110,6 +110,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, SyntaxToken identifier, ISymbol? symbol)
         {
+            if (identifier.Text == "_")
+            {
+                return;
+            }
+
             if (symbol is ILocalSymbol local && IsSystemPrimitiveNumber(local.Type))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
