@@ -329,5 +329,61 @@ namespace Test
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8001_Violation_PartialDeconstructionWithVar()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            (_, var {|#0:x|}) = (1, 2);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Compliant_OutDiscardWithoutType()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            int.TryParse(""1"", out _);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Compliant_PureDiscardAssignment()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            _ = 1;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
