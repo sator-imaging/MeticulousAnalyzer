@@ -289,7 +289,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Compliant_ForEachWithDiscard()
+        public async Task SMA8001_Violation_ForEachWithDiscard()
         {
             var test = @"
 namespace Test
@@ -298,18 +298,20 @@ namespace Test
     {
         public void M()
         {
-            foreach (var _ in new int[] { 1, 2, 3 })
+            foreach (var {|#0:_|} in new int[] { 1, 2, 3 })
             {
             }
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
+            );
         }
 
         [TestMethod]
-        public async Task SMA8001_Compliant_DiscardAssignment()
+        public async Task SMA8001_Violation_DiscardVariableDeclaration()
         {
             var test = @"
 namespace Test
@@ -318,12 +320,14 @@ namespace Test
     {
         public void M()
         {
-            var _ = 1;
+            var {|#0:_|} = 1;
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
+            );
         }
     }
 }
