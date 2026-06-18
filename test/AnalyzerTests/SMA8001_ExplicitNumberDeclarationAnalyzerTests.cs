@@ -323,13 +323,14 @@ namespace Test
     {
         public void M()
         {
-            var (_, {|#0:b|}) = (1, 2);
+            var ({|#0:_|}, {|#1:b|}) = (1, 2);
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("b")
             );
         }
 
