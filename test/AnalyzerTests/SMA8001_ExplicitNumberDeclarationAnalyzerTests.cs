@@ -269,6 +269,51 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8001_Violation_ForEachPartialDeconstructionWithVar()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            foreach ((_, var {|#0:x|}) in new (int, int)[] { (1, 2) })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8001_Violation_ForEachDeconstructionWithMixedVar()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            foreach ((var {|#0:_|}, var {|#1:x|}) in new (int, int)[] { (1, 2) })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("x")
+            );
+        }
+
+        [TestMethod]
         public async Task SMA8001_Violation_DeconstructionWithDiscard()
         {
             var test = @"
@@ -289,7 +334,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8001_Compliant_OutVarWithDiscard()
+        public async Task SMA8001_Violation_OutVarWithDiscard()
         {
             var test = @"
 using System.Collections.Generic;
@@ -300,14 +345,16 @@ namespace Test
     {
         public void M(Dictionary<string, int> dict)
         {
-            if (dict.TryGetValue(""key"", out var _))
+            if (dict.TryGetValue(""key"", out var {|#0:_|}))
             {
             }
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
+            );
         }
 
         [TestMethod]
@@ -372,23 +419,6 @@ namespace Test
             );
         }
 
-        [TestMethod]
-        public async Task SMA8001_Compliant_OutDiscardWithoutType()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M()
-        {
-            int.TryParse(""1"", out _);
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
 
         [TestMethod]
         public async Task SMA8001_Compliant_PureDiscardAssignment()

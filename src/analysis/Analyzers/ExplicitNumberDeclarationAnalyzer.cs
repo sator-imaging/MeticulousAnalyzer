@@ -50,7 +50,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             foreach (var variable in declaration.Variables)
             {
-                ReportIfPrimitiveNumber(context, variable.Identifier, context.SemanticModel.GetDeclaredSymbol(variable));
+                ReportIfPrimitiveNumber(context, variable.Identifier, (context.SemanticModel.GetDeclaredSymbol(variable) as ILocalSymbol)?.Type);
             }
         }
 
@@ -69,7 +69,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (declaration.Designation is SingleVariableDesignationSyntax single)
             {
-                ReportIfPrimitiveNumber(context, single.Identifier, context.SemanticModel.GetDeclaredSymbol(single));
+                ReportIfPrimitiveNumber(context, single.Identifier, (context.SemanticModel.GetDeclaredSymbol(single) as ILocalSymbol)?.Type);
+            }
+            else if (declaration.Designation is DiscardDesignationSyntax discard)
+            {
+                // `out var _` should be reported as it's an explicit declaration with `var`.
+                ReportIfPrimitiveNumber(context, discard.UnderscoreToken, context.SemanticModel.GetTypeInfo(declaration).ConvertedType);
             }
             else if (declaration.Designation is ParenthesizedVariableDesignationSyntax tuple)
             {
@@ -83,12 +88,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (item is SingleVariableDesignationSyntax single)
                 {
-                    ReportIfPrimitiveNumber(context, single.Identifier, context.SemanticModel.GetDeclaredSymbol(single));
+                    ReportIfPrimitiveNumber(context, single.Identifier, (context.SemanticModel.GetDeclaredSymbol(single) as ILocalSymbol)?.Type);
                 }
                 else if (item is ParenthesizedVariableDesignationSyntax nested)
                 {
                     ReportRecursive(context, nested);
                 }
+                // NOTE: DiscardDesignationSyntax is NOT reported inside tuples to satisfy
+                // the requirement that `var (_, b) = ...` should only flag `b`.
             }
         }
 
@@ -105,12 +112,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            ReportIfPrimitiveNumber(context, forEach.Identifier, context.SemanticModel.GetDeclaredSymbol(forEach));
+            ReportIfPrimitiveNumber(context, forEach.Identifier, (context.SemanticModel.GetDeclaredSymbol(forEach) as ILocalSymbol)?.Type);
         }
 
-        private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, SyntaxToken identifier, ISymbol? symbol)
+        private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, SyntaxToken identifier, ITypeSymbol? type)
         {
-            if (symbol is ILocalSymbol local && IsSystemPrimitiveNumber(local.Type))
+            if (type != null && IsSystemPrimitiveNumber(type))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ExplicitNumber,
