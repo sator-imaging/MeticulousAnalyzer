@@ -84,6 +84,28 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8001_Compliant_OutDiscardAssignment()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class C
+    {
+        public void M(Dictionary<string, int> dict)
+        {
+            if (dict.TryGetValue(""key"", out _))
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8001_Compliant_VarWithNonNumberTypes()
         {
             var test = @"
