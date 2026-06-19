@@ -90,15 +90,19 @@ jobs:
               "${report_opts[@]}" \
               -targetdir:"$out_dir"
 
-            LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
+            EFFECTIVE_LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
               | xargs -r rg -v '^\s*(//|/\*|\{\s*$|\}\s*$|$)' \
+              | wc -l)
+            TOTAL_LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
+              | xargs -r rg -v '^\s*$' \
               | wc -l)
             TEST_COUNT=$(find "$target_dir" -name "*.trx" -exec grep -hoE 'total="[0-9]+"' {} + \
               | sed -E 's/total="([0-9]+)"/\1/' \
               | awk '{s+=$1} END {print s}'
             )
 
-            LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$LINE_COUNT")
+            EFFECTIVE_LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$EFFECTIVE_LINE_COUNT")
+            TOTAL_LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$TOTAL_LINE_COUNT")
             TEST_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$TEST_COUNT")
 
             {
@@ -110,7 +114,7 @@ jobs:
 
               echo
               echo "🧪 Total test count: $TEST_COUNT  "
-              echo "🗃️ Total lines of code: $LINE_COUNT  "
+              echo "🗃️ Total/Effective LoC: $TOTAL_LINE_COUNT / $EFFECTIVE_LINE_COUNT  "
               echo
             } >> "$GITHUB_STEP_SUMMARY"
           }
