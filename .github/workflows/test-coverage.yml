@@ -114,7 +114,7 @@ jobs:
 
               echo
               echo "🧪 Total test count: $TEST_COUNT  "
-              echo "🗃️ Total/Effective LoC: $TOTAL_LINE_COUNT / $EFFECTIVE_LINE_COUNT  "
+              echo "🗃️ Total lines of code: $TOTAL_LINE_COUNT / $EFFECTIVE_LINE_COUNT (excl. comments and brace-only lines)  "
               echo
             } >> "$GITHUB_STEP_SUMMARY"
           }
