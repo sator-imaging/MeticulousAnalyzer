@@ -43,12 +43,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            ITypeSymbol? type = null;
             foreach (var variable in declaration.Variables)
             {
-                if (context.SemanticModel.GetDeclaredSymbol(variable) is ILocalSymbol local)
+                if (variable.Identifier.Text == "_")
                 {
-                    ReportIfPrimitiveNumber(context, variable.Identifier, local.Type);
+                    if (context.SemanticModel.GetDeclaredSymbol(variable) is ILocalSymbol local)
+                    {
+                        ReportIfPrimitiveNumber(context, variable.Identifier, local.Type);
+                    }
+                    continue;
                 }
+
+                type ??= context.SemanticModel.GetTypeInfo(declaration.Type).Type;
+                ReportIfPrimitiveNumber(context, variable.Identifier, type);
             }
         }
 
@@ -59,17 +67,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeVariableDesignation(context, declaration.Designation);
+            AnalyzeVariableDesignation(context, declaration.Designation, context.SemanticModel.GetTypeInfo(declaration.Type).Type ?? context.SemanticModel.GetTypeInfo(declaration).Type);
         }
 
-        private static void AnalyzeVariableDesignation(SyntaxNodeAnalysisContext context, VariableDesignationSyntax designation)
+        private static void AnalyzeVariableDesignation(SyntaxNodeAnalysisContext context, VariableDesignationSyntax designation, ITypeSymbol? inferredType)
         {
             if (designation is SingleVariableDesignationSyntax single)
             {
-                if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
+                if (single.Identifier.Text == "_")
                 {
-                    ReportIfPrimitiveNumber(context, single.Identifier, local.Type);
+                    if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
+                    {
+                        ReportIfPrimitiveNumber(context, single.Identifier, local.Type);
+                    }
+                    return;
                 }
+
+                ReportIfPrimitiveNumber(context, single.Identifier, inferredType);
             }
             else if (designation is DiscardDesignationSyntax discard)
             {
@@ -88,9 +102,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else if (designation is ParenthesizedVariableDesignationSyntax tuple)
             {
-                foreach (var variable in tuple.Variables)
+                var elements = (inferredType as INamedTypeSymbol)?.TupleElements;
+                for (var i = 0; i < tuple.Variables.Count; i++)
                 {
-                    AnalyzeVariableDesignation(context, variable);
+                    AnalyzeVariableDesignation(context, tuple.Variables[i], elements?.Length > i ? elements.Value[i].Type : null);
                 }
             }
         }
@@ -102,10 +117,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (context.SemanticModel.GetDeclaredSymbol(forEach) is ILocalSymbol local)
+            if (forEach.Identifier.Text == "_")
             {
-                ReportIfPrimitiveNumber(context, forEach.Identifier, local.Type);
+                if (context.SemanticModel.GetDeclaredSymbol(forEach) is ILocalSymbol local)
+                {
+                    ReportIfPrimitiveNumber(context, forEach.Identifier, local.Type);
+                }
+                return;
             }
+
+            ReportIfPrimitiveNumber(context, forEach.Identifier, context.SemanticModel.GetTypeInfo(forEach.Type).Type);
         }
 
 
