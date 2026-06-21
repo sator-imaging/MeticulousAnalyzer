@@ -635,6 +635,7 @@ C# allows `internal` types and members to be accessed from any namespace in the 
 - SMA0080: Internal cross-namespace access
     - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
     - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
+    - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core`, `Common`, or `Internal` (case-sensitive).
 
 ```cs
 namespace Foo

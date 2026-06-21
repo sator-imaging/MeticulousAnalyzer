@@ -383,5 +383,31 @@ namespace Foo.Core
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Core", "Foo.Bar"));
         }
 
+        [TestMethod]
+        public async Task SMA0080_Compliant_AccessInternalNamespaceInternalMember()
+        {
+            var test = @"
+namespace Foo.Internal
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.Internal.InternalType.Value;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
