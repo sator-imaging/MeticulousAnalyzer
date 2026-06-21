@@ -6,9 +6,13 @@
   />
   -->
 
+  <PropertyGroup Condition=" '$(CI)' == 'true' OR '$(TF_BUILD)' == 'true' ">
+    <DontReferenceItself>true</DontReferenceItself>
+  </PropertyGroup>
+
   <!-- CMD: dotnet restore -p:DontReferenceItself=true  other-options... -->
   <ItemGroup Condition=" '$(DontReferenceItself)' != 'true'
-                     AND '$(MSBuildProjectFile)' != 'AnalyzerDebug.csproj'
+                     AND '$(MSBuildProjectFile)' != 'AnalyzerSandbox.csproj'
   ">
     <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
@@ -21,8 +25,21 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+  <PropertyGroup>
+    <!-- Include api comments for nuget packages -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(CI)' == 'true' OR '$(TF_BUILD)' == 'true' ">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">

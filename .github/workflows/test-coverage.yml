@@ -3,9 +3,9 @@ name: 'Test and Coverage Report'
 on:
   push:
     branches: [ main ]
-    paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
+    paths-ignore: [ '.github/**', 'assets/**' ]
   pull_request:
-    paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
+    paths-ignore: [ '.github/**', 'assets/**' ]
   workflow_dispatch:
 
 env:
@@ -90,17 +90,19 @@ jobs:
               "${report_opts[@]}" \
               -targetdir:"$out_dir"
 
-            FILE_COUNT=$(rg --files "$target_dir" -g '*.cs' | wc -l | tr -d ' ')
-            LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
-              | xargs -r wc -l \
-              | awk '{sum += $1} END {print sum+0}')
+            EFFECTIVE_LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
+              | xargs -r rg -v '^\s*(//|/\*|\{\s*$|\}\s*$|$)' \
+              | wc -l)
+            TOTAL_LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
+              | xargs -r rg -v '^\s*$' \
+              | wc -l)
             TEST_COUNT=$(find "$target_dir" -name "*.trx" -exec grep -hoE 'total="[0-9]+"' {} + \
               | sed -E 's/total="([0-9]+)"/\1/' \
               | awk '{s+=$1} END {print s}'
             )
 
-            FILE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$FILE_COUNT")
-            LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$LINE_COUNT")
+            EFFECTIVE_LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$EFFECTIVE_LINE_COUNT")
+            TOTAL_LINE_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$TOTAL_LINE_COUNT")
             TEST_COUNT=$(LC_ALL=en_US.UTF-8 numfmt --grouping "$TEST_COUNT")
 
             {
@@ -111,9 +113,8 @@ jobs:
                 "$out_dir/SummaryGithub.md"
 
               echo
-              echo "🧪 Total test count: $TEST_COUNT  "
-              echo "🗃️ Total file count: $FILE_COUNT  "
-              echo "📑 Total line count: $LINE_COUNT  "
+              echo "🧪 Total test count: __${TEST_COUNT}__  "
+              echo "🗃️ Total lines of code: __${TOTAL_LINE_COUNT}__ / __${EFFECTIVE_LINE_COUNT}__ (excl. comments and brace-only lines)  "
               echo
             } >> "$GITHUB_STEP_SUMMARY"
           }
@@ -128,7 +129,7 @@ jobs:
             COV_BRANCH=ACTION_BRANCH
             COV_TITLE="Total Coverage"
             {
-              echo "⚠ Baseline test for coverage diff generation was failed or skipped."
+              echo "⚠️ Base commit coverage was skipped or failed."
               echo
             } >> $GITHUB_STEP_SUMMARY
           fi

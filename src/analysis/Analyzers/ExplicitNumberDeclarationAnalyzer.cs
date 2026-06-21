@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -31,36 +32,91 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeVariableDeclaration, SyntaxKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeDeclarationExpression, SyntaxKind.DeclarationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeForEachStatement, SyntaxKind.ForEachStatement);
         }
 
         private static void AnalyzeVariableDeclaration(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is not VariableDeclarationSyntax declaration)
-            {
-                return;
-            }
-
-            // Only target 'var' declaration.
-            if (!declaration.Type.IsVar)
+            if (context.Node is not VariableDeclarationSyntax declaration || !declaration.Type.IsVar)
             {
                 return;
             }
 
             foreach (var variable in declaration.Variables)
             {
-                var symbol = context.SemanticModel.GetDeclaredSymbol(variable) as ILocalSymbol;
-                if (symbol == null)
+                if (context.SemanticModel.GetDeclaredSymbol(variable) is ILocalSymbol local)
                 {
-                    continue;
+                    ReportIfPrimitiveNumber(context, variable.Identifier, local.Type);
+                }
+            }
+        }
+
+        private static void AnalyzeDeclarationExpression(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not DeclarationExpressionSyntax declaration || declaration.Type is not IdentifierNameSyntax id || !id.IsVar)
+            {
+                return;
+            }
+
+            AnalyzeVariableDesignation(context, declaration.Designation);
+        }
+
+        private static void AnalyzeVariableDesignation(SyntaxNodeAnalysisContext context, VariableDesignationSyntax designation)
+        {
+            if (designation is SingleVariableDesignationSyntax single)
+            {
+                if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
+                {
+                    ReportIfPrimitiveNumber(context, single.Identifier, local.Type);
+                }
+            }
+            else if (designation is DiscardDesignationSyntax discard)
+            {
+                ITypeSymbol? type = context.SemanticModel.GetSymbolInfo(discard).Symbol switch
+                {
+                    IDiscardSymbol discardSymbol => discardSymbol.Type,
+                    _ => (context.SemanticModel.GetOperation(discard) as IDiscardOperation)?.Type
+                };
+
+                if (type == null && discard.Parent is DeclarationExpressionSyntax decl)
+                {
+                    type = context.SemanticModel.GetTypeInfo(decl).ConvertedType;
                 }
 
-                if (IsSystemPrimitiveNumber(symbol.Type))
+                ReportIfPrimitiveNumber(context, discard.UnderscoreToken, type);
+            }
+            else if (designation is ParenthesizedVariableDesignationSyntax tuple)
+            {
+                foreach (var variable in tuple.Variables)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_ExplicitNumber,
-                        variable.Identifier.GetLocation(),
-                        variable.Identifier.Text));
+                    AnalyzeVariableDesignation(context, variable);
                 }
+            }
+        }
+
+        private static void AnalyzeForEachStatement(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not ForEachStatementSyntax forEach || !forEach.Type.IsVar)
+            {
+                return;
+            }
+
+            if (context.SemanticModel.GetDeclaredSymbol(forEach) is ILocalSymbol local)
+            {
+                ReportIfPrimitiveNumber(context, forEach.Identifier, local.Type);
+            }
+        }
+
+
+        private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, SyntaxToken identifier, ITypeSymbol? type)
+        {
+            if (type != null && IsSystemPrimitiveNumber(type))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ExplicitNumber,
+                    identifier.GetLocation(),
+                    identifier.Text));
             }
         }
 

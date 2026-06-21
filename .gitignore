@@ -5,8 +5,8 @@ obj
 
 !.github
 !assets
-!debug
 !eng
+!sandbox
 !src
 !test
 !Unity

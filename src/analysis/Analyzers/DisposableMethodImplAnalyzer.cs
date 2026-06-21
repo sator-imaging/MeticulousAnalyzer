@@ -81,6 +81,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
+            {
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+
+                // Don't return. Always analyze Disposable method impl also.
+            }
+
             IMethodSymbol? fullDisposeMethod = null;
             IMethodSymbol? publicDisposeMethod = null;
             IMethodSymbol? explicitImplMethod = null;
@@ -119,11 +126,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 {
                     explicitImplMethod = method;
                 }
-            }
-
-            if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
-            {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
             }
 
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;

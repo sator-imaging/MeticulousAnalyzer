@@ -1508,7 +1508,7 @@ namespace Test
         void Method()
         {
             IDisposable[] arr = new IDisposable[1];
-            arr[0] = {|#0:new MyDisposable()|};
+            {|#1:arr[0]|} = {|#0:new MyDisposable()|};
         }
     }
 }
@@ -1516,7 +1516,7 @@ namespace Test
             var expected = new[]
             {
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithSpan(startLine: 12, startColumn: 13, endLine: 12, endColumn: 19)
+                    .WithLocation(markupKey: 1)
                     .WithArguments("IDisposable"),
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
@@ -1753,7 +1753,7 @@ namespace Test
     {
         void Method()
         {
-            _ = (object){|#0:new MyDisposable()|};
+            _ = {|#1:(object){|#0:new MyDisposable()|}|};
         }
     }
 }
@@ -1761,7 +1761,7 @@ namespace Test
             var expected = new[]
             {
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithSpan(startLine: 11, startColumn: 17, endLine: 11, endColumn: 43)
+                    .WithLocation(markupKey: 1)
                     .WithArguments("MyDisposable"),
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)

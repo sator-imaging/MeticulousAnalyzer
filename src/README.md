@@ -31,7 +31,7 @@ Its namespace is `SatorImaging.StaticMemberAnalyzer` (no `.Analysis`), shared by
 These locations are exempt from migration:
 
 - `eng/` - engineering/tooling scripts (e.g. `DocsGen.cs`)
-- `debug/` - debug-only code
+- `sandbox/` - analyzer playground
 - `test/` - test files
 
 

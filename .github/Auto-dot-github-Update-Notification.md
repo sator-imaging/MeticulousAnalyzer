@@ -27,7 +27,7 @@ on:
         type: string
         # DEBUG
         description: '**DEBUG**: NOT WORKING'
-        default: csproj=GlobalPackageVersion
+        default: csproj=This_is_for_Debug__Not_working
   workflow_call:   # Auto bump
     inputs:
       auto-bump:
@@ -38,19 +38,15 @@ on:
 
           Auto bump PR
 
-          - npm (any non-empty string)
-            Always executed (best-effort).
-            --> npm version "VERSION_WITHOUT_v_PREFIX" --no-git-tag-version
+          - npm
+            --> No configuration
 
           - csproj=XmlTagName (e.g. csproj=MyVersionProperty)
-            Finds the current version from the first matching .csproj/.props file.
-            --> Then performs plain text replacement.
-            --> NOTE: This is a naive string replacement (not XML-aware, not schema-aware).
-                Carefully review PR.
+            --> Finds the current version from the first matching .csproj/.props file.
 
-      # Backward compatibility (May 2026)
-      auto-bump-version:
-        type: string
+          NOTE: Always apply plain text replacement to entire codebase
+                that is not XML-aware, not schema-aware.
+                Carefully review PR.
 
 jobs:
   main:

@@ -3,30 +3,105 @@ name: Test
 on:
   push:
     branches: [ main ]
-    paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
+    paths-ignore: [ '.github/**', 'assets/**' ]
   #pull_request:
-  #  paths: [ "**/*.cs", "**/*.csproj", "**/*.props", "**/*.slnx" ]
-  workflow_call:
+  #  paths-ignore: [ '.github/**', 'assets/**' ]
   workflow_dispatch:
+  # github.event_name, or other context data are propagated from caller.
+  # No way to detect whether or not this workflow is called by other.
+  workflow_call:
+    inputs:
+      __called:
+        type: boolean
+        default: true
 
 jobs:
 
   test:
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        configuration: [Release, Debug]
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
-
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5      # v4.3.1
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
         with:
           dotnet-version: 10.x.x
 
-      - name: Test
+      - name: Unit Test
         run: |
           dotnet test ./test \
-            -c ${{ matrix.configuration }} \
             --verbosity minimal \
-            -p:DontReferenceItself=true
+            --configuration ${{ matrix.configuration }}
+
+  mutation:
+    strategy:
+      matrix:
+        configuration: [Release, Debug]
+
+    if: ${{ !inputs.__called }}
+
+    runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5      # v4.3.1
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: 10.x.x
+
+      - name: Mutation Test
+        run: |
+          dotnet tool install -g dotnet-stryker
+
+          dotnet stryker \
+            --output ./mutation-report \
+            --reporter json \
+            --verbosity info \
+            --configuration ${{ matrix.configuration }}
+
+      - name: Write Step Summary
+        run: |
+          REPORT_FILE=$(find ./mutation-report -name "mutation-report.json" | head -n 1)
+
+          if [ -z "$REPORT_FILE" ]; then
+            echo "::error title=mutation-report.json not found::Exited"
+            exit 1
+          fi
+
+          SCORE=$(jq '.metrics.mutationScore // 0' "$REPORT_FILE")
+          KILLED=$(jq '.metrics.killed // 0' "$REPORT_FILE")
+          SURVIVED=$(jq '.metrics.survived // 0' "$REPORT_FILE")
+          NO_COVERAGE=$(jq '.metrics.noCoverage // 0' "$REPORT_FILE")
+          TIMEOUT=$(jq '.metrics.timeout // 0' "$REPORT_FILE")
+
+          TOTAL=$(jq '.metrics.totalMutants // (.metrics.killed + .metrics.survived + .metrics.noCoverage + .metrics.timeout)' "$REPORT_FILE")
+
+          SCORE_INT=$(printf "%.0f" "$SCORE")
+
+          if [ "$SCORE_INT" -ge 80 ]; then
+            ICON="✅"
+            STATUS="Healthy"
+          elif [ "$SCORE_INT" -ge 50 ]; then
+            ICON="⚠️"
+            STATUS="Warning"
+          else
+            ICON="⛔"
+            STATUS="Critical"
+          fi
+
+          {
+            echo "# 🧬 Mutation Test"
+            echo ""
+            echo "## ${ICON} Overall Result: ${SCORE}% (${STATUS})"
+            echo ""
+            echo "| Metric         | Value          |"
+            echo "|----------------|---------------:|"
+            echo "| Total Mutants  | ${TOTAL}       |"
+            echo "| Killed         | ${KILLED}      |"
+            echo "| Survived       | ${SURVIVED}    |"
+            echo "| Timeout        | ${TIMEOUT}     |"
+            echo "| No Coverage    | ${NO_COVERAGE} |"
+            echo "| Mutation Score | ${SCORE}%      |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat "$REPORT_FILE"
