@@ -73,13 +73,13 @@ namespace Foo.Bar
 {
     internal class Consumer
     {
-        internal {|#0:Foo.InternalType|} M() => default;
+        internal {|#0:Foo.InternalType|} M() => {|#1:default|};
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(13, 42, 13, 49).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -363,14 +363,14 @@ namespace Foo.Bar
     {
         internal void M()
         {
-            {|#0:Foo.InternalType|} Local() => default;
+            {|#0:Foo.InternalType|} Local() => {|#1:default|};
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(15, 41, 15, 48).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
