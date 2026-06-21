@@ -45,10 +45,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             foreach (var variable in declaration.Variables)
             {
-                if (context.SemanticModel.GetDeclaredSymbol(variable) is ILocalSymbol local)
+                ITypeSymbol? type = null;
+                if (variable.Identifier.Text == "_")
                 {
-                    ReportIfPrimitiveNumber(context, variable.Identifier, local.Type);
+                    if (context.SemanticModel.GetDeclaredSymbol(variable) is ILocalSymbol local)
+                    {
+                        type = local.Type;
+                    }
                 }
+                else
+                {
+                    type = context.SemanticModel.GetTypeInfo(declaration.Type).ConvertedType;
+                }
+
+                ReportIfPrimitiveNumber(context, variable.Identifier, type);
             }
         }
 
@@ -66,22 +76,43 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             if (designation is SingleVariableDesignationSyntax single)
             {
-                if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
+                ITypeSymbol? type = null;
+                if (single.Identifier.Text == "_")
                 {
-                    ReportIfPrimitiveNumber(context, single.Identifier, local.Type);
+                    if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
+                    {
+                        type = local.Type;
+                    }
                 }
+                else if (single.Parent is DeclarationExpressionSyntax decl)
+                {
+                    type = context.SemanticModel.GetTypeInfo(decl).ConvertedType;
+                }
+                else
+                {
+                    if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
+                    {
+                        type = local.Type;
+                    }
+                }
+
+                ReportIfPrimitiveNumber(context, single.Identifier, type);
             }
             else if (designation is DiscardDesignationSyntax discard)
             {
-                ITypeSymbol? type = context.SemanticModel.GetSymbolInfo(discard).Symbol switch
+                ITypeSymbol? type = null;
+                if (discard.UnderscoreToken.Text == "_")
                 {
-                    IDiscardSymbol discardSymbol => discardSymbol.Type,
-                    _ => (context.SemanticModel.GetOperation(discard) as IDiscardOperation)?.Type
-                };
+                    type = context.SemanticModel.GetSymbolInfo(discard).Symbol switch
+                    {
+                        IDiscardSymbol discardSymbol => discardSymbol.Type,
+                        _ => (context.SemanticModel.GetOperation(discard) as IDiscardOperation)?.Type
+                    };
 
-                if (type == null && discard.Parent is DeclarationExpressionSyntax decl)
-                {
-                    type = context.SemanticModel.GetTypeInfo(decl).ConvertedType;
+                    if (type == null && discard.Parent is DeclarationExpressionSyntax decl)
+                    {
+                        type = context.SemanticModel.GetTypeInfo(decl).ConvertedType;
+                    }
                 }
 
                 ReportIfPrimitiveNumber(context, discard.UnderscoreToken, type);
@@ -102,10 +133,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (context.SemanticModel.GetDeclaredSymbol(forEach) is ILocalSymbol local)
+            ITypeSymbol? type = null;
+            if (forEach.Identifier.Text == "_")
             {
-                ReportIfPrimitiveNumber(context, forEach.Identifier, local.Type);
+                if (context.SemanticModel.GetDeclaredSymbol(forEach) is ILocalSymbol local)
+                {
+                    type = local.Type;
+                }
             }
+            else
+            {
+                type = context.SemanticModel.GetTypeInfo(forEach.Type).ConvertedType;
+            }
+
+            ReportIfPrimitiveNumber(context, forEach.Identifier, type);
         }
 
 
