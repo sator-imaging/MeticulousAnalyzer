@@ -1,5 +1,34 @@
 # Changelog
 
+## [5.0.0-rc.5](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.5) (2026-06-21)
+
+### 🚀 Features
+* feat: Add SMA7010/SMA7011 System.Reflection usage analyzers by [@sator-ai-dev](https://github.com/sator-ai-dev) in [#374](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/374)
+* feat: Update ExplicitNumberDeclarationAnalyzer to handle out var and foreach by [@sator-imaging](https://github.com/sator-imaging) in [#391](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/391)
+* feat: Add SMA0080: internal cross-namespace access analyzer by [@sator-ai-dev](https://github.com/sator-ai-dev) in [#367](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/367)
+### 📖 Documentation
+* docs: simplify by [@sator-imaging](https://github.com/sator-imaging) in [#363](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/363)
+* Update README table of contents by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#365](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/365)
+* docs: Update TOC label for RULES.md in README files by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#368](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/368)
+* Update README toc items by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#369](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/369)
+### 📚 Other Changes
+* Use ToDiagnosticMessageName() instead of .Name in Diagnostic.Create by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#354](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/354)
+* Add 20 tests to increase analyzer code coverage by [@kiro-agent](https://github.com/kiro-agent)[bot] in [#355](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/355)
+* feat: complete ToDiagnosticMessageName migration for Diagnostic.Create by [@sator-imaging](https://github.com/sator-imaging) in [#356](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/356)
+* Include outer type in nested type diagnostic names by [@sator-ai-dev](https://github.com/sator-ai-dev) in [#360](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/360)
+* feat: use ToDiagnosticMessageName for all remaining Diagnostic.Create symbol args by [@sator-imaging](https://github.com/sator-imaging) in [#361](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/361)
+* mv: debug->sandbox by [@sator-imaging](https://github.com/sator-imaging) in [#371](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/371)
+* test: ci events by [@sator-imaging](https://github.com/sator-imaging) in [#377](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/377)
+* Replace .WithSpan with marker syntax in tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#378](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/378)
+* Increase test coverage for Core and Resources by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#380](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/380)
+* Refactor code structure by [@sator-imaging](https://github.com/sator-imaging) in [#384](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/384)
+
+### 🎉 New Contributors
+* [@sator-ai-dev](https://github.com/sator-ai-dev) made their first contribution in [#360](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/360)
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.4...v5.0.0-rc.5
+
+
 ## [5.0.0-rc.4](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.4) (2026-06-01)
 
 ### 🚀 Features
