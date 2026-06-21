@@ -70,6 +70,11 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned. You can suppress by adding preceding comment "// Don't await".
 | SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths. You can suppress by adding preceding comment "// Don't await".
 
+## Project Structure Analysis
+| ID      | Diagnostic                                 | Description
+|---------|--------------------------------------------|-------------
+| SMA0080 | Internal cross-namespace access            | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces.
+
 ## Coding Assistance
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------

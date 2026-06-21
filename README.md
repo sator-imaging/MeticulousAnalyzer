@@ -18,6 +18,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
+- [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
 - [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [**RULES.md**](RULES.md): All diagnostic rules, including [File Header Comment Enforcement](RULES.md#file-structure-analysis) and [Coding Assistance](RULES.md#coding-assistance)
 
@@ -621,6 +622,37 @@ class Demo
 
 
 
+
+
+&nbsp;
+
+# Project Structure Analysis
+
+## Internal cross-namespace access
+
+C# allows `internal` types and members to be accessed from any namespace in the same assembly. This analyzer enforces namespace boundaries so that `internal` symbols are only used from the namespace where they are declared.
+
+- SMA0080: Internal cross-namespace access
+    - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
+    - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
 
 &nbsp;
 
