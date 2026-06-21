@@ -107,7 +107,7 @@ namespace Foo.Bar
     {
         public void M(object o)
         {
-            if ({|#0:o is Foo.InternalType t|})
+            if ({|#0:o is {|#1:Foo.InternalType t|}|})
             {
             }
         }
@@ -115,7 +115,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(15, 22, 15, 40).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -162,22 +162,22 @@ namespace Foo.Bar
 {
     internal static class PublisherBridge
     {
-        internal static Publisher Instance = null!;
+        internal static {|#1:Publisher|} Instance = {|#2:null|}!;
     }
 
     public class Consumer
     {
         public void M()
         {
-            {|#0:PublisherBridge.Instance.Raised += (s, e) => { }|};
+            {|#3:PublisherBridge.Instance.Raised|} += (s, e) => { };
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(16, 25, 16, 34).WithArguments("Publisher", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(16, 46, 16, 50).WithArguments("Publisher", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(23, 13, 23, 44).WithArguments("Raised", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("Publisher", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("Publisher", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(3).WithArguments("Raised", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -203,26 +203,26 @@ namespace Foo.Bar
 {
     internal static class PublisherBridge
     {
-        internal static Publisher Instance = null!;
+        internal static {|#1:Publisher|} Instance = {|#2:null|}!;
     }
 
     public class Consumer
     {
         public void M()
         {
-            EventHandler copy = {|#0:PublisherBridge.Instance.Raised|};
+            EventHandler copy = {|#0:PublisherBridge.Instance.{|#3:Raised|}|};
         }
     }
 }
 ";
             var expectedCompiler = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS0070")
-                .WithSpan(28, 58, 28, 64)
+                .WithLocation(3)
                 .WithArguments("Foo.Publisher.Raised", "Foo.Publisher");
 
             await VerifyCS.VerifyAnalyzerAsync(test,
                 expectedCompiler,
-                VerifyCS.Diagnostic().WithSpan(21, 25, 21, 34).WithArguments("Publisher", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(21, 46, 21, 50).WithArguments("Publisher", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("Publisher", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("Publisher", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Raised", "Foo.Bar", "Foo"));
         }
 
@@ -381,7 +381,7 @@ namespace Foo.Bar
 {
     internal static class LocalHolder
     {
-        internal static Foo.InternalType Instance = null!;
+        internal static {|#1:Foo.InternalType|} Instance = {|#2:null|}!;
     }
 
     public class Consumer
@@ -394,8 +394,8 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(14, 25, 14, 41).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(14, 53, 14, 57).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("InternalType", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("this", "Foo.Bar", "Foo"));
         }
 
@@ -463,7 +463,7 @@ namespace Foo.Bar
     {
         public void M(object o)
         {
-            if ({|#0:o is Foo.InternalType { Value: 0 }|})
+            if ({|#0:o is {|#1:Foo.InternalType { {|#2:Value|}: 0 }|}|})
             {
             }
         }
@@ -471,8 +471,8 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(16, 22, 16, 51).WithArguments("InternalType", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(16, 41, 16, 46).WithArguments("Value", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("Value", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
@@ -492,7 +492,7 @@ namespace Foo.Bar
     {
         public void M(object o)
         {
-            if ({|#0:o is Foo.InternalType or null|})
+            if ({|#0:o is {|#1:Foo.InternalType|} or null|})
             {
             }
         }
@@ -500,7 +500,7 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(15, 22, 15, 38).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
 
@@ -526,7 +526,7 @@ namespace Foo.Bar
     {
         public void M(object o)
         {
-            if ({|#0:o is Foo.PublicType { Property: Foo.InternalType _ }|})
+            if ({|#0:o is Foo.PublicType { {|#1:Property|}: {|#2:Foo.InternalType _|} }|})
             {
             }
         }
@@ -534,8 +534,8 @@ namespace Foo.Bar
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithSpan(20, 39, 20, 47).WithArguments("Property", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithSpan(20, 49, 20, 67).WithArguments("InternalType", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("Property", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("InternalType", "Foo.Bar", "Foo"));
         }
 
         [TestMethod]
