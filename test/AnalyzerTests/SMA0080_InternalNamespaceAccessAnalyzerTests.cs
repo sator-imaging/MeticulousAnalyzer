@@ -277,5 +277,111 @@ namespace Foo.Bar
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo"));
         }
 
+        [TestMethod]
+        public async Task SMA0080_Compliant_AccessCoreNamespaceInternalMember()
+        {
+            var test = @"
+namespace Foo.Core
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.Core.InternalType.Value;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Compliant_AccessCommonNamespaceInternalMember()
+        {
+            var test = @"
+namespace Foo.Common
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.Common.InternalType.Value;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_AccessCoreSubNamespaceInternalMember()
+        {
+            var test = @"
+namespace Foo.Core.Sub
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.Core.Sub.InternalType.Value|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Core.Sub"));
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_CoreNamespaceAccessOtherInternalMember()
+        {
+            var test = @"
+namespace Foo.Bar
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Core
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.Bar.InternalType.Value|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Core", "Foo.Bar"));
+        }
+
     }
 }

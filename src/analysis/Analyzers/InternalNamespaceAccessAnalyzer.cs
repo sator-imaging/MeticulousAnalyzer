@@ -600,7 +600,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             var declarationNamespace = restrictedSymbol.ContainingNamespace;
-            if (declarationNamespace == null || IsSameNamespace(useNamespace, declarationNamespace))
+            if (declarationNamespace == null
+                || declarationNamespace.Name is "Core" or "Common"
+                || IsSameNamespace(useNamespace, declarationNamespace))
             {
                 return;
             }
