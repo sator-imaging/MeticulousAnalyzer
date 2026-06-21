@@ -23,12 +23,12 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Enum Type Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0020 | Unchecked Cast to Enum Type                | Unchecked value conversion to enum type. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0021 | Cast from Enum Type to Other               | Casting enum type to other. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0022 | Unchecked Cast to Generic Enum Type        | Unchecked value conversion to generic enum type. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0023 | Cast from Generic Enum Type to Other       | Casting generic enum type to other. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0024 | Enum to String                             | Trying to convert enum value to string. You can suppress by adding preceding comment "// Allow enum conversion".
-| SMA0025 | Enum System Method                         | Calling enum system method. You can suppress by adding preceding comment "// Allow enum conversion".
+| SMA0020 | Unchecked Cast to Enum Type                | Unchecked value cast to enum type.
+| SMA0021 | Cast from Enum Type to Other               | Casting enum type to another type.
+| SMA0022 | Unchecked Cast to Generic Enum Type        | Unchecked value cast to generic enum type.
+| SMA0023 | Cast from Generic Enum Type to Other       | Casting generic enum type to another type.
+| SMA0024 | Enum to String                             | Enum string representation may break after obfuscation.
+| SMA0025 | Enum System Method                         | Enum system method call should be centralized.
 | SMA0026 | Enum Obfuscation                           | Enum obfuscation should have controlled.
 | SMA0027 | Unusual Enum Definition                    | Enum w/o `Flags` attribute should be defined as usual.
 | SMA0028 | Invalid Enum-like Pattern                  | Enum-like pattern implementation is not complete.
@@ -43,10 +43,10 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Disposable Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0040 | Missing Using Statement                    | `using` statement should be used for instance that has public `Dispose` or `DisposeAsync` method. You can suppress by adding preceding comment "// Don't dispose".
+| SMA0040 | Missing Using Statement                    | Instance that implements IDisposable pattern should be wrapped with `using` statement.
 | SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.
-| SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths. You can suppress by adding preceding comment "// Don't dispose".
-| SMA0043 | Undisposed Member                          | All disposable fields must be disposed in the Dispose method.
+| SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths.
+| SMA0043 | Undisposed Member                          | Disposable field is not disposed in the Dispose method.
 | SMA0044 | Missing Dispose Implementation             | Types that own disposable fields should implement the IDisposable pattern.
 | SMA0045 | Missing IDisposable Interface              | Types that own disposable fields should implement IDisposable interface.
 
@@ -67,8 +67,8 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Async Context Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned. You can suppress by adding preceding comment "// Don't await".
-| SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths. You can suppress by adding preceding comment "// Don't await".
+| SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned.
+| SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths.
 
 ## Project Structure Analysis
 | ID      | Diagnostic                                 | Description
@@ -80,16 +80,17 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 |---------|--------------------------------------------|-------------
 | SMA7000 | Lambda can be static                       | Lambda declaration should add 'static' keyword for clarity.
 | SMA7001 | Inefficient delegate declaration           | Older runtime inefficiently handle direct passing of method.
-| SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation. You can suppress by adding preceding comment "// Allow allocation".
-| SMA7010 | Reflection Access                          | Access to members of types from System.Reflection is not NativeAOT-friendly.
-| SMA7011 | Reflection Type Variable                   | Local variables declared with types from System.Reflection are not NativeAOT-friendly.
+| SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation.
+| | | |
+| SMA7010 | Reflection Access                          | Access to members of types from `System.Reflection` is not NativeAOT-friendly.
+| SMA7011 | Reflection Type Variable                   | Local variables declared with types from `System.Reflection` are not NativeAOT-friendly.
 
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
 | SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
-| SMA8002 | Null suppression operation                 | Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability. Strongly recommended that safely suppressing it by using `Debug.Assert({0} is not null);` instead of `!` operator.
+| SMA8002 | Null suppression operation                 | Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
