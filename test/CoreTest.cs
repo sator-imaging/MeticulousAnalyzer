@@ -671,7 +671,6 @@ namespace MyNamespace {
             Assert.AreEqual("Bar", Core.ToDiagnosticMessageName(propertySymbol));
         }
 
-
         [TestMethod]
         public void ToDiagnosticMessageName_GlobalNamespace_ReturnsGlobal()
         {
@@ -695,6 +694,7 @@ namespace MyNamespace {
             Assert.AreEqual("Bar", ns.Name);
             Assert.AreNotEqual(ns.Name, Core.ToDiagnosticMessageName(ns));
         }
+
         // ===== Additional Coverage Tests =====
 
         [TestMethod]
