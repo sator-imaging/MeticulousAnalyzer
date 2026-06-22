@@ -27,26 +27,6 @@ namespace SatorImaging.StaticMemberAnalyzer
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? ElementAtOrDefault<T>(this SyntaxList<T> source, int index) where T : SyntaxNode
-        {
-            if (unchecked((uint)index >= (uint)source.Count))
-            {
-                return default;
-            }
-            return source[index];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? ElementAtOrDefault<T>(this SeparatedSyntaxList<T> source, int index) where T : SyntaxNode
-        {
-            if (unchecked((uint)index >= (uint)source.Count))
-            {
-                return default;
-            }
-            return source[index];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? ElementAtOrDefault<T>(this IReadOnlyList<T> source, int index)
         {
             if (unchecked((uint)index >= (uint)source.Count))
@@ -58,15 +38,15 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T? ElementAtOrDefault<T>(this IEnumerable<T> source, int index)
         {
-            if (source is IReadOnlyList<T> rolist)
-            {
-                return rolist.ElementAtOrDefault(index);
-            }
-
             if (source is IReadOnlyCollection<T> roc &&
                 unchecked((uint)index >= (uint)roc.Count))
             {
                 return default;
+            }
+
+            if (source is IReadOnlyList<T> rolist)
+            {
+                return rolist[index];
             }
 
             return slow(source, index);
@@ -98,53 +78,6 @@ namespace SatorImaging.StaticMemberAnalyzer
             foreach (var item in source)
             {
                 if (static_lambda_where.Invoke(item))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool Where_Any<T>(
-            this SyntaxList<T> source,
-            Func<T, bool> static_lambda_where
-        )
-            where T : SyntaxNode
-        {
-            foreach (var item in source)
-            {
-                if (static_lambda_where.Invoke(item))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool Where_Any<T>(
-            this SeparatedSyntaxList<T> source,
-            Func<T, bool> static_lambda_where
-        )
-            where T : SyntaxNode
-        {
-            foreach (var item in source)
-            {
-                if (static_lambda_where.Invoke(item))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool Where_Any<T>(
-            this IReadOnlyList<T> source,
-            Func<T, bool> static_lambda_where
-        )
-        {
-            for (int i = 0, count = source.Count; i < count; i++)
-            {
-                if (static_lambda_where.Invoke(source[i]))
                 {
                     return true;
                 }
@@ -279,22 +212,11 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static T? OfType_FirstOrDefault<T>(this ImmutableArray<ISymbol> source) => OfType_FirstOrDefault<ISymbol, T>(source);
         public static T? OfType_FirstOrDefault<T>(this ImmutableArray<IOperation> source) => OfType_FirstOrDefault<IOperation, T>(source);
-        public static T? OfType_FirstOrDefault<T>(this ImmutableArray<ITypeSymbol> source) => OfType_FirstOrDefault<ITypeSymbol, T>(source);
-        public static T? OfType_FirstOrDefault<T>(this ImmutableArray<IParameterSymbol> source) => OfType_FirstOrDefault<IParameterSymbol, T>(source);
-        public static T? OfType_FirstOrDefault<T>(this ImmutableArray<AttributeData> source) => OfType_FirstOrDefault<AttributeData, T>(source);
 
         public static T? OfType_FirstOrDefault<T>(
             this IEnumerable<object> source
         )
         {
-            if (source is IReadOnlyList<object> rolist)
-            {
-                for (int i = 0, count = rolist.Count; i < count; i++)
-                {
-                    if (rolist[i] is T match) return match;
-                }
-            }
-
             foreach (var item in source)
             {
                 if (item is T match)
@@ -319,22 +241,11 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static bool OfType_Any<T>(this ImmutableArray<ISymbol> source) => OfType_Any<ISymbol, T>(source);
         public static bool OfType_Any<T>(this ImmutableArray<IOperation> source) => OfType_Any<IOperation, T>(source);
-        public static bool OfType_Any<T>(this ImmutableArray<ITypeSymbol> source) => OfType_Any<ITypeSymbol, T>(source);
-        public static bool OfType_Any<T>(this ImmutableArray<IParameterSymbol> source) => OfType_Any<IParameterSymbol, T>(source);
-        public static bool OfType_Any<T>(this ImmutableArray<AttributeData> source) => OfType_Any<AttributeData, T>(source);
 
         public static bool OfType_Any<T>(
             this IEnumerable<object> source
         )
         {
-            if (source is IReadOnlyList<object> rolist)
-            {
-                for (int i = 0, count = rolist.Count; i < count; i++)
-                {
-                    if (rolist[i] is T) return true;
-                }
-            }
-
             foreach (var item in source)
             {
                 if (item is T)
@@ -478,44 +389,6 @@ namespace SatorImaging.StaticMemberAnalyzer
             return result;
         }
 
-        public static TResult[] Select<TSource, TResult>(this SyntaxList<TSource> source, Func<TSource, TResult> static_lambda_select)
-            where TSource : SyntaxNode
-        {
-            int count = source.Count;
-            if (count == 0) return Array.Empty<TResult>();
-            var result = new TResult[count];
-            for (int i = 0; i < count; i++)
-            {
-                result[i] = static_lambda_select.Invoke(source[i]);
-            }
-            return result;
-        }
-
-        public static TResult[] Select<TSource, TResult>(this SeparatedSyntaxList<TSource> source, Func<TSource, TResult> static_lambda_select)
-            where TSource : SyntaxNode
-        {
-            int count = source.Count;
-            if (count == 0) return Array.Empty<TResult>();
-            var result = new TResult[count];
-            for (int i = 0; i < count; i++)
-            {
-                result[i] = static_lambda_select.Invoke(source[i]);
-            }
-            return result;
-        }
-
-        public static TResult[] Select<TSource, TResult>(this IReadOnlyList<TSource> source, Func<TSource, TResult> static_lambda_select)
-        {
-            int count = source.Count;
-            if (count == 0) return Array.Empty<TResult>();
-            var result = new TResult[count];
-            for (int i = 0; i < count; i++)
-            {
-                result[i] = static_lambda_select.Invoke(source[i]);
-            }
-            return result;
-        }
-
 
         /*  ToArray  ================================================================ */
 
@@ -528,24 +401,6 @@ namespace SatorImaging.StaticMemberAnalyzer
             }
             var result = new T[source.Length];
             source.CopyTo(result, 0);
-            return result;
-        }
-
-        public static T[] ToArray<T>(this SyntaxList<T> source) where T : SyntaxNode
-        {
-            int count = source.Count;
-            if (count == 0) return Array.Empty<T>();
-            var result = new T[count];
-            for (int i = 0; i < count; i++) result[i] = source[i];
-            return result;
-        }
-
-        public static T[] ToArray<T>(this SeparatedSyntaxList<T> source) where T : SyntaxNode
-        {
-            int count = source.Count;
-            if (count == 0) return Array.Empty<T>();
-            var result = new T[count];
-            for (int i = 0; i < count; i++) result[i] = source[i];
             return result;
         }
 
@@ -566,7 +421,14 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (source is ICollection<T> col)
             {
-                return col.ToArray();
+                int count = col.Count;
+                if (count == 0)
+                {
+                    return Array.Empty<T>();
+                }
+                var result = new T[count];
+                col.CopyTo(result, 0);
+                return result;
             }
 
             return System.Linq.Enumerable.ToArray(source);
@@ -614,52 +476,8 @@ namespace SatorImaging.StaticMemberAnalyzer
             return default;
         }
 
-        public static T? FirstOrDefault<T>(this SyntaxList<T> source, Func<T, bool> static_lambda_first_or_default)
-            where T : SyntaxNode
-        {
-            foreach (var item in source)
-            {
-                if (static_lambda_first_or_default.Invoke(item))
-                {
-                    return item;
-                }
-            }
-            return default;
-        }
-
-        public static T? FirstOrDefault<T>(this SeparatedSyntaxList<T> source, Func<T, bool> static_lambda_first_or_default)
-            where T : SyntaxNode
-        {
-            foreach (var item in source)
-            {
-                if (static_lambda_first_or_default.Invoke(item))
-                {
-                    return item;
-                }
-            }
-            return default;
-        }
-
-        public static T? FirstOrDefault<T>(this IReadOnlyList<T> source, Func<T, bool> static_lambda_first_or_default)
-        {
-            for (int i = 0, count = source.Count; i < count; i++)
-            {
-                var item = source[i];
-                if (static_lambda_first_or_default.Invoke(item))
-                {
-                    return item;
-                }
-            }
-            return default;
-        }
-
         public static T? FirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> static_lambda_first_or_default)
         {
-            if (source is IReadOnlyList<T> rolist)
-            {
-                return rolist.FirstOrDefault(static_lambda_first_or_default);
-            }
-
             foreach (var item in source)
             {
                 if (static_lambda_first_or_default.Invoke(item))
@@ -680,18 +498,6 @@ namespace SatorImaging.StaticMemberAnalyzer
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any<T>(this SyntaxList<T> source) where T : SyntaxNode
-        {
-            return source.Count > 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Any<T>(this SeparatedSyntaxList<T> source) where T : SyntaxNode
-        {
-            return source.Count > 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<T>(this IReadOnlyCollection<T> source)
         {
             return source.Count > 0;
@@ -701,7 +507,7 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             if (source is IReadOnlyCollection<T> roc)
             {
-                return roc.Any();
+                return roc.Count > 0;
             }
 
             using var e = source.GetEnumerator();
@@ -735,38 +541,8 @@ namespace SatorImaging.StaticMemberAnalyzer
             return false;
         }
 
-        public static bool Any<T>(this SeparatedSyntaxList<T> source, Func<T, bool> static_lambda_any)
-            where T : SyntaxNode
-        {
-            foreach (var item in source)
-            {
-                if (static_lambda_any.Invoke(item))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool Any<T>(this IReadOnlyList<T> source, Func<T, bool> static_lambda_any)
-        {
-            for (int i = 0, count = source.Count; i < count; i++)
-            {
-                if (static_lambda_any.Invoke(source[i]))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public static bool Any<T>(this IEnumerable<T> source, Func<T, bool> static_lambda_any)
         {
-            if (source is IReadOnlyList<T> rolist)
-            {
-                return rolist.Any(static_lambda_any);
-            }
-
             foreach (var item in source)
             {
                 if (static_lambda_any.Invoke(item))
@@ -784,18 +560,6 @@ namespace SatorImaging.StaticMemberAnalyzer
         public static bool Contains<T>(this ImmutableArray<T> source, T value)
         {
             return !source.IsDefault && source.Contains(value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains<T>(this SyntaxList<T> source, T value) where T : SyntaxNode
-        {
-            return source.Contains(value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains<T>(this SeparatedSyntaxList<T> source, T value) where T : SyntaxNode
-        {
-            return source.Contains(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
