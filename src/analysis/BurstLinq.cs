@@ -483,7 +483,7 @@ namespace SatorImaging.StaticMemberAnalyzer
         {
             for (int i = 0; i < source.Length; i++)
             {
-                if (source[i] == value)
+                if (source[i].Equals(value))
                 {
                     return true;
                 }
