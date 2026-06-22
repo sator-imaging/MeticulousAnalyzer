@@ -201,7 +201,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 case IMethodSymbol method:
                     if (method.AssociatedSymbol is IPropertySymbol or IEventSymbol
-                        || method.MethodKind == MethodKind.LocalFunction)
+                        || method.MethodKind == MethodKind.LocalFunction
+                        || method.IsImplicitlyDeclared)
                     {
                         break;
                     }
@@ -338,7 +339,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return method.Locations[0];
+            return method.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
@@ -372,7 +373,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return parameter.Locations[0];
+            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetFieldTypeLocation(IFieldSymbol field)
@@ -386,7 +387,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return field.Locations[0];
+            return field.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetPropertyTypeLocation(IPropertySymbol property)
@@ -405,7 +406,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return property.Locations[0];
+            return property.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
@@ -426,7 +427,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return parameter.Locations[0];
+            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetBaseOrInterfaceTypeLocation(
@@ -453,7 +454,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return namedType.Locations[0];
+            return namedType.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetEventTypeLocation(IEventSymbol @event)
@@ -473,7 +474,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return @event.Locations[0];
+            return @event.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetTypeParameterConstraintLocation(
@@ -551,7 +552,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return symbol.Locations[0];
+            return symbol.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -751,7 +752,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return delegateType.Locations[0];
+            return delegateType.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
@@ -759,7 +760,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var invokeMethod = delegateType.DelegateInvokeMethod;
             if (invokeMethod == null)
             {
-                return parameter.Locations[0];
+                return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
             }
 
             foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
@@ -778,7 +779,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return parameter.Locations[0];
+            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
     }
 }

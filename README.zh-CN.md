@@ -808,7 +808,7 @@ sator_imaging.immutable_variable = true
 sator_imaging.duck_typing_recognition = true
 
 # 跨命名空间的 internal 访问 (SMA0080)
-# (支持以逗号分隔的多个值)
+# (选项名称接受以逗号分隔的值列表)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
 ```
