@@ -108,7 +108,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Config_NoConfigPresent_ReportsViolation()
+        public async Task SMA0080_Config_NoConfigPresent_Violation()
         {
             var test = @"
 namespace Foo.Common
@@ -155,7 +155,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Config_SRType_Itself_StillReported_ReportsViolation()
+        public async Task SMA0080_Config_SRType_Itself_StillReported_Violation()
         {
             var test = @"
 namespace Foo

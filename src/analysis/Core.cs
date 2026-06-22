@@ -43,15 +43,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
             {
-                var split = value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                if (split.Length > 0)
+                var split = value.Split(',');
+                for (int i = 0; i < split.Length; i++)
                 {
-                    for (int i = 0; i < split.Length; i++)
-                    {
-                        split[i] = split[i].Trim();
-                    }
-                    return split;
+                    split[i] = split[i].Trim();
                 }
+                return split;
             }
             return Array.Empty<string>();
         }

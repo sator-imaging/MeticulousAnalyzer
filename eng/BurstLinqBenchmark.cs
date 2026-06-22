@@ -49,6 +49,11 @@ public class BurstLinqBenchmarks
     [GlobalSetup]
     public void Setup()
     {
+        _stringArray = new string[Size];
+        for (int i = 0; i < Size; i++)
+            _stringArray[i] = i.ToString();
+        if (Size > 0) _stringArray[Size - 1] = "Target";
+
         var builder = ImmutableArray.CreateBuilder<double>(Size);
         for (int i = 0; i < Size; i++)
             builder.Add((double)i);
