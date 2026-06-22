@@ -4,6 +4,10 @@
 [![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文-789)](./README.zh-CN.md)
 [![🇺🇸](https://img.shields.io/badge/🇺🇸-English-789)](./README.md)
 
+
+
+
+
 Roslyn-based analyzer to provide diagnostics of static fields and properties initialization and more.
 
 - [Flaky Initialization Analysis](#flaky-initialization-analysis) detects flaky initialization
@@ -17,6 +21,8 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
 - [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [**RULES.md**](RULES.md): All diagnostic rules, including [File Header Comment Enforcement](RULES.md#file-structure-analysis) and [Coding Assistance](RULES.md#coding-assistance)
+
+
 
 ## Flaky Initialization Analysis
 
@@ -34,6 +40,8 @@ Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern 
 
 ![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
 
+
+
 ## Annotation for Type, Field and Property 💯
 
 > [!IMPORTANT]
@@ -45,9 +53,14 @@ There is fancy extra feature to take your attention while coding in Visual Studi
 
 See [the following section](#annotating--underlining) for details.
 
+
 ![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
 
 </details>
+
+
+
+
 
 &nbsp;
 
@@ -59,6 +72,10 @@ See [the following section](#annotating--underlining) for details.
       PM> Install-Package SatorImaging.StaticMemberAnalyzer
       ```
 
+
+
+
+
 &nbsp;
 
 # Unity Integration
@@ -67,6 +84,10 @@ This analyzer can be used with Unity 2020.2 or above. See the following page for
 
 [Unity/README.md](Unity/README.md)
 
+
+
+
+
 &nbsp;
 
 # Cross-Referencing Problem
@@ -74,6 +95,7 @@ This analyzer can be used with Unity 2020.2 or above. See the following page for
 It is a design bug makes all things complex. Not only that but also it causes initialization error only when meet a specific condition.
 
 So it must be fixed even if app works correctly at a moment, to prevent simple but complicated potential bug which is hard to find in large code base by hand. As you know static fields will never report error when initialization failed!!
+
 
 ```cs
 class A {
@@ -105,6 +127,7 @@ public static class Test
 }
 ```
 
+
 **C# Compiler Initialization Sequence**
 
 - `A.Value = B.Other;`
@@ -114,6 +137,7 @@ public static class Test
     - // then, assign `B.Other` value (620) to `A.Value`
 - `A.Other = 310;`  // initialized here!! this value is not assigned to B.Value
 
+
 When reading B value first, initialization order is changed and resulting value is also changed accordingly:
 
 - `B.Other = 620;`
@@ -121,6 +145,10 @@ When reading B value first, initialization order is changed and resulting value 
     - // 'A' initialization is started by member access
     - `A.Value = B.Other;`  // correct: B.Other is initialized before reading value
     - `A.Other = 310;`
+
+
+
+
 
 &nbsp;
 
@@ -132,8 +160,10 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
+
 > [!TIP]
 > You can suppress by comment `// Allow enum conversion`; See [Suppression Comment](#suppression-comment) section for detail.
+
 
 ## Excluding Enum Type from Obfuscation
 
@@ -143,6 +173,7 @@ Helpful annotation and code fix for enum types which prevents modification of st
 
 > [!NOTE]
 > `Obfuscation` attribute is from C# base library and it does NOT provide feature to obfuscate compiled assembly. It just provides configuration option to obfuscation tools which recognizing this attribute.
+
 
 ## Kotlin-like Enum Pattern
 
@@ -161,6 +192,7 @@ Here are Enum-like type requirements:
 - `public static` member called `Entries` exists
 - `public bool Equals` method should not be declared/overridden
 
+
 ```cs
 public class EnumLike
 //           ~~~~~~~~ WARN: no `sealed` modifier on type and public constructor exists
@@ -177,6 +209,7 @@ public class EnumLike
 
     // 'ReadOnlyMemory<T>' can be used instead of array
     public static readonly ReadOnlyMemory<EnumLike> EntriesAsMemory = new(new[] { A, B });
+
 
     /* ===  Kotlin style enum template  === */
 
@@ -203,6 +236,7 @@ public class EnumLike
 }
 ```
 
+
 ### Benefits of Enum-like Types
 
 <p><details --open><summary>Benefits</summary>
@@ -218,6 +252,7 @@ if (EnumLike.A == invalid || EnumLike.B == invalid)
     // each enum like entry is a class instance and ReferenceEquals match required
 }
 ```
+
 
 Unfortunately, use in `switch` statement is a bit weird.
 
@@ -254,6 +289,10 @@ switch (val)
 
 </details>
 
+
+
+
+
 &nbsp;
 
 # Disposable Analyzer
@@ -269,6 +308,7 @@ d = (new object()) as IDisposable;
 > [!TIP]
 > You can enable "duck typing" recognition for `IDisposable`. See [How to Configure Analyzer](#how-to-configure-analyzer) for detail.
 
+
 Analyzer won't show warning in the following condition:
 - instance is created on `return` statement
     - `return new Disposable();`
@@ -277,8 +317,12 @@ Analyzer won't show warning in the following condition:
 - cast between disposable types
     - `var x = myDisposable as IDisposable;`
 
+
+
 > [!TIP]
 > You can suppress by comment `// Don't dispose`; See [Suppression Comment](#suppression-comment) section for detail.
+
+
 
 ## Disposable Implementation Analysis
 
@@ -312,6 +356,8 @@ class Test : IDisposable
 }
 ```
 
+
+
 ## Suppress `Disposable` Analysis
 
 > [!IMPORTANT]
@@ -333,6 +379,10 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 
 </details>
 
+
+
+
+
 &nbsp;
 
 # Async Context Analysis
@@ -347,8 +397,13 @@ async Task Method()
 }
 ```
 
+
 > [!TIP]
 > You can suppress by comment `// Don't await`; See [Suppression Comment](#suppression-comment) section for detail.
+
+
+
+
 
 &nbsp;
 
@@ -374,6 +429,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 >
 > (Known assertion and math methods are exempt from all checks)
 
+
 ## Explicit Number Declaration
 
 All system primitive numbers, from `sbyte` to `decimal`, should be declared with an explicit type instead of `var`.
@@ -395,6 +451,7 @@ double floating = 1;
 > [!IMPORTANT]
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
+
 ## Null suppression operation
 
 Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
@@ -414,6 +471,10 @@ var x = (((foo)))!;
 > Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
 >
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
+
+
+
+
 
 &nbsp;
 
@@ -462,6 +523,7 @@ This analyzer helps keep local values and parameters immutable by flagging write
             - Allowed: Callee parameter has `in` modifier
             - Allowed: Callee parameter has no modifier and struct is `readonly`
             - Otherwise reported
+
 
 ```cs
 class Demo
@@ -557,6 +619,11 @@ class Demo
 
 </details>
 
+
+
+
+
+
 &nbsp;
 
 # Project Structure Analysis
@@ -568,8 +635,6 @@ C# allows `internal` types and members to be accessed from any namespace in the 
 - SMA0080: Internal cross-namespace access
     - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
     - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
-    - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core` (hard-coded) or other namespaces specified by [configuration](#how-to-configure-analyzer).
-    - Members defined in a type named `SR` (hard-coded) or other types specified by [configuration](#how-to-configure-analyzer) are also exempt from this rule.
 
 ```cs
 namespace Foo
@@ -605,6 +670,7 @@ Analyze the use of `struct` types to prevent common mistakes and performance iss
 > [!TIP]
 > You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
 
+
 &nbsp;
 
 # Annotating / Underlining
@@ -618,10 +684,12 @@ There is optional feature to draw underline on selected types, fields, propertie
 
 As of Visual Studio's UX design, `Info` severity diagnostic underlines are drawn only on a few leading chars, not drawn whole marked area. So for workaround, underline on keyword is dashed.
 
+
 ![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
 
 > [!TIP]
 > `!`-starting message will add warning annotation on keyword instead of info diagnostic annotation.
+
 
 ## How to Use
 
@@ -629,10 +697,12 @@ To avoid dependency to this analyzer, required attribute for underlining is chos
 
 Analyzer is checking identifier keyword in C# source code, not checking actual C# type. `DescriptionAttribute` in C# attribute syntax is the only keyword to draw underline. Omitting `Attribute` or adding namespace are not recognized.
 
+
 > [!TIP]
 > `CategoryAttribute` can be used instead of `DescriptionAttribute`.
 >
 > By contrast from Description, CategoryAttribute draws underline only on exact type reference and constructors including `base()`. Any inherited types, variables, fields and properties don't get underline.
+
 
 ```cs
 using System.ComponentModel;
@@ -659,6 +729,8 @@ public static int Underline_Not_Drawn = 0;
 public static int Underline_Drawn = 310;
 ```
 
+
+
 ## Verbosity Control
 
 There are 4 types of underline, line head, line leading, line end and keyword.
@@ -666,7 +738,10 @@ There are 4 types of underline, line head, line leading, line end and keyword.
 By default, static field analyzer will draw most verbose underline.
 You can omit specific type of underline by using `#pragma` preprocessor directive or adding `SuppressMessage` attribute or etc.
 
+
 ![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/VerbosityControl.png)
+
+
 
 ## Unity Tips
 
@@ -683,6 +758,10 @@ To remove unnecessary attribute from Unity build, add the following `link.xml` f
 ```
 
 </details>
+
+
+
+
 
 &nbsp;
 
@@ -710,6 +789,7 @@ var x = new MyDisposable();
 var x = new MyDisposable();
 ```
 
+
 &nbsp;
 
 # How to Configure Analyzer
@@ -725,8 +805,7 @@ sator_imaging.immutable_variable = true
 # Disposable Analysis
 sator_imaging.duck_typing_recognition = true
 
-# Internal cross-namespace access (SMA0080)
-# (Option names accept comma-separated list of values)
+# Internal cross-namespace access (Comma-separated values)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
 ```

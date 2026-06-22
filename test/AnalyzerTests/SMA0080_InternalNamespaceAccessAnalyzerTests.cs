@@ -304,7 +304,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Violation_AccessCommonNamespaceInternalMember_NoConfig()
+        public async Task SMA0080_Compliant_AccessCommonNamespaceInternalMember_NoConfig()
         {
             var test = @"
 namespace Foo.Common
@@ -321,13 +321,12 @@ namespace Foo.Bar
     {
         public void M()
         {
-            var x = {|#0:Foo.Common.InternalType.Value|};
+            var x = Foo.Common.InternalType.Value;
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Common"));
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
