@@ -333,30 +333,38 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static IEnumerable<Location> GetReturnTypeLocations(IMethodSymbol method)
         {
+            var any = false;
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
                     yield return methodDecl.ReturnType.GetLocation();
+                    any = true;
                 }
                 else if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
                 {
                     yield return localFunc.ReturnType.GetLocation();
+                    any = true;
                 }
                 else if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
                 {
                     yield return operatorDecl.ReturnType.GetLocation();
+                    any = true;
                 }
                 else if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
                 {
                     yield return conversionDecl.Type.GetLocation();
+                    any = true;
                 }
             }
+
+            if (!any) foreach (var loc in method.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetParameterTypeLocations(IMethodSymbol method, IParameterSymbol parameter)
         {
+            var any = false;
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -369,6 +377,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (parameterSyntax.Type != null)
                         {
                             yield return parameterSyntax.Type.GetLocation();
+                            any = true;
                         }
                     }
                 }
@@ -381,42 +390,55 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (parameterSyntax.Type != null)
                         {
                             yield return parameterSyntax.Type.GetLocation();
+                            any = true;
                         }
                     }
                 }
             }
+
+            if (!any) foreach (var loc in parameter.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetFieldTypeLocations(IFieldSymbol field)
         {
+            var any = false;
             foreach (var syntaxRef in field.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is VariableDeclaratorSyntax declarator
                     && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
                 {
                     yield return variableDeclaration.Type.GetLocation();
+                    any = true;
                 }
             }
+
+            if (!any) foreach (var loc in field.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetPropertyTypeLocations(IPropertySymbol property)
         {
+            var any = false;
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is PropertyDeclarationSyntax propertyDeclaration)
                 {
                     yield return propertyDeclaration.Type.GetLocation();
+                    any = true;
                 }
                 else if (syntax is IndexerDeclarationSyntax indexerDeclaration)
                 {
                     yield return indexerDeclaration.Type.GetLocation();
+                    any = true;
                 }
             }
+
+            if (!any) foreach (var loc in property.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetIndexerParameterTypeLocations(IPropertySymbol property, IParameterSymbol parameter)
         {
+            var any = false;
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is IndexerDeclarationSyntax indexerDecl)
@@ -428,10 +450,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (parameterSyntax.Type != null)
                         {
                             yield return parameterSyntax.Type.GetLocation();
+                            any = true;
                         }
                     }
                 }
             }
+
+            if (!any) foreach (var loc in parameter.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetBaseOrInterfaceTypeLocations(
@@ -439,6 +464,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ITypeSymbol typeSymbol,
             Compilation compilation)
         {
+            var any = false;
             foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
@@ -454,13 +480,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
                     {
                         yield return baseTypeSyntax.Type.GetLocation();
+                        any = true;
                     }
                 }
             }
+
+            if (!any) foreach (var loc in namedType.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetEventTypeLocations(IEventSymbol @event)
         {
+            var any = false;
             foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -468,12 +498,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
                 {
                     yield return variableDeclaration.Type.GetLocation();
+                    any = true;
                 }
                 else if (syntax is EventDeclarationSyntax eventDeclaration)
                 {
                     yield return eventDeclaration.Type.GetLocation();
+                    any = true;
                 }
             }
+
+            if (!any) foreach (var loc in @event.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetTypeParameterConstraintLocations(
@@ -482,6 +516,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ITypeSymbol constraintType,
             Compilation compilation)
         {
+            var any = false;
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -546,10 +581,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
                         {
                             yield return typeConstraint.Type.GetLocation();
+                            any = true;
                         }
                     }
                 }
             }
+
+            if (!any) foreach (var loc in symbol.Locations) yield return loc;
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -744,17 +782,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static IEnumerable<Location> GetDelegateReturnTypeLocations(INamedTypeSymbol delegateType)
         {
+            var any = false;
             foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl && delegateDecl.ReturnType != null)
                 {
                     yield return delegateDecl.ReturnType.GetLocation();
+                    any = true;
                 }
             }
+
+            if (!any) foreach (var loc in delegateType.Locations) yield return loc;
         }
 
         private static IEnumerable<Location> GetDelegateParameterTypeLocations(INamedTypeSymbol delegateType, IParameterSymbol parameter)
         {
+            var any = false;
             var invokeMethod = delegateType.DelegateInvokeMethod;
             if (invokeMethod != null)
             {
@@ -769,11 +812,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                             if (parameterSyntax.Type != null)
                             {
                                 yield return parameterSyntax.Type.GetLocation();
+                                any = true;
                             }
                         }
                     }
                 }
             }
+
+            if (!any) foreach (var loc in parameter.Locations) yield return loc;
         }
     }
 }
