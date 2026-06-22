@@ -808,6 +808,7 @@ sator_imaging.immutable_variable = true
 sator_imaging.duck_typing_recognition = true
 
 # 名前空間をまたぐ internal アクセス (SMA0080)
+# (カンマ区切りで複数の値を指定可能)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
 ```

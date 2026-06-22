@@ -481,14 +481,11 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         public static bool Contains(this string[] source, string value)
         {
-            if (source.Length > 0)
+            for (int i = 0; i < source.Length; i++)
             {
-                for (int i = 0, count = source.Length; i < count; i++)
+                if (source[i] == value)
                 {
-                    if (string.Equals(source[i], value, StringComparison.Ordinal))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
             return false;

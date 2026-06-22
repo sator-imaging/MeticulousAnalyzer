@@ -205,6 +205,25 @@ public class BurstLinqBenchmarks
     }
 
 
+    /*  Contains (string array)  ================================================================ */
+
+    string[] _stringArray = null!;
+
+    [BenchmarkCategory("ContainsStringArray")]
+    [Benchmark]
+    public bool ContainsStringArray_BurstLinq()
+    {
+        return _stringArray.Contains("Target");
+    }
+
+    [BenchmarkCategory("ContainsStringArray")]
+    [Benchmark(Baseline = true)]
+    public bool ContainsStringArray_SystemLinq()
+    {
+        return System.Linq.Enumerable.Contains(_stringArray, "Target");
+    }
+
+
     /*  Select + ToArray (ImmutableArray)  ================================================================ */
 
     [BenchmarkCategory("SelectToArray")]

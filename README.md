@@ -808,6 +808,7 @@ sator_imaging.immutable_variable = true
 sator_imaging.duck_typing_recognition = true
 
 # Internal cross-namespace access (SMA0080)
+# (Option names accept comma-separated list of values)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
 ```

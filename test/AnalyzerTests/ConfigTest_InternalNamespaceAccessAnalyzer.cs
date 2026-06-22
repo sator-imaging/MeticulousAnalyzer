@@ -13,7 +13,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     using VerifyCS = global::StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<InternalNamespaceAccessAnalyzer>;
 
     [TestClass]
-    public class SMA0080_InternalNamespaceAccessAnalyzerTests_Config
+    public class ConfigTest_InternalNamespaceAccessAnalyzer
     {
         private static async Task VerifyWithConfigAsync(string source, string namespaces = "", string types = "", params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
@@ -35,7 +35,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_ConfigurableNamespaces()
+        public async Task SMA0080_Config_VisibleInternalNamespaces_MultipleValues_CaseSensitive()
         {
             var test = @"
 namespace Foo.Common
@@ -62,7 +62,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_ConfigurableTypes()
+        public async Task SMA0080_Config_VisibleInternalTypes_MultipleValues_CaseSensitive()
         {
             var test = @"
 namespace Foo
@@ -86,7 +86,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_SRType_Hardcoded()
+        public async Task SMA0080_Config_SRType_Hardcoded_NoConfigRequired()
         {
             var test = @"
 namespace Foo
@@ -108,7 +108,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Violation_WhenConfigMissing()
+        public async Task SMA0080_Config_NoConfigPresent_ReportsViolation()
         {
             var test = @"
 namespace Foo.Common
@@ -130,7 +130,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_NestedSRType()
+        public async Task SMA0080_Config_NestedSRType_Allowed()
         {
             var test = @"
 namespace Foo
@@ -155,7 +155,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Violation_SRType_Itself_StillReported()
+        public async Task SMA0080_Config_SRType_Itself_StillReported_ReportsViolation()
         {
             var test = @"
 namespace Foo

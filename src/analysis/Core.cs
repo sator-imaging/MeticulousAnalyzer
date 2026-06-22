@@ -46,16 +46,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 var split = value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 if (split.Length > 0)
                 {
-                    var list = new List<string>(capacity: split.Length);
                     for (int i = 0; i < split.Length; i++)
                     {
-                        var trimmed = split[i].Trim();
-                        if (trimmed.Length > 0)
-                        {
-                            list.Add(trimmed);
-                        }
+                        split[i] = split[i].Trim();
                     }
-                    return list.ToArray();
+                    return split;
                 }
             }
             return Array.Empty<string>();
