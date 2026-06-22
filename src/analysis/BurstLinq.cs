@@ -479,6 +479,21 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /*  Contains  ================================================================ */
 
+        public static bool Contains(this string[] source, string value)
+        {
+            if (source.Length > 0)
+            {
+                for (int i = 0, count = source.Length; i < count; i++)
+                {
+                    if (string.Equals(source[i], value, StringComparison.Ordinal))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public static bool Contains<T>(this IEnumerable<T> source, T value)
         {
             if (source is ICollection<T> col)

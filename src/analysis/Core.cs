@@ -28,12 +28,37 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         const string ConfigPrefix = "sator_imaging.";
         public const string Config_EnableImmutableVariable = ConfigPrefix + "immutable_variable";
         public const string Config_EnableDuckTypingRecognition = ConfigPrefix + "duck_typing_recognition";
+        public const string Config_VisibleInternalNamespaces = ConfigPrefix + "visible_internal_namespaces";
+        public const string Config_VisibleInternalTypes = ConfigPrefix + "visible_internal_types";
 
         public static bool GetConfiguration(CompilationStartAnalysisContext context, string key)
         {
             // GlobalOptions is NOT .editorconfig. Just check falsy.
             return context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !value.Equals("false", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static string[] GetConfigurationArray(CompilationStartAnalysisContext context, string key)
+        {
+            if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
+                && !string.IsNullOrWhiteSpace(value))
+            {
+                var split = value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (split.Length > 0)
+                {
+                    var list = new List<string>(capacity: split.Length);
+                    for (int i = 0; i < split.Length; i++)
+                    {
+                        var trimmed = split[i].Trim();
+                        if (trimmed.Length > 0)
+                        {
+                            list.Add(trimmed);
+                        }
+                    }
+                    return list.ToArray();
+                }
+            }
+            return Array.Empty<string>();
         }
 
 

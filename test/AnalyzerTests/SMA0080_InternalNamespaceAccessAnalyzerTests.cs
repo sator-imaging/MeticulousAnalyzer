@@ -304,7 +304,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_AccessCommonNamespaceInternalMember()
+        public async Task SMA0080_Violation_AccessCommonNamespaceInternalMember_NoConfig()
         {
             var test = @"
 namespace Foo.Common
@@ -321,12 +321,13 @@ namespace Foo.Bar
     {
         public void M()
         {
-            var x = Foo.Common.InternalType.Value;
+            var x = {|#0:Foo.Common.InternalType.Value|};
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Common"));
         }
 
         [TestMethod]
@@ -384,7 +385,7 @@ namespace Foo.Core
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_AccessInternalNamespaceInternalMember()
+        public async Task SMA0080_Violation_AccessInternalNamespaceInternalMember_NoConfig()
         {
             var test = @"
 namespace Foo.Internal
@@ -401,12 +402,13 @@ namespace Foo.Bar
     {
         public void M()
         {
-            var x = Foo.Internal.InternalType.Value;
+            var x = {|#0:Foo.Internal.InternalType.Value|};
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Internal"));
         }
 
     }

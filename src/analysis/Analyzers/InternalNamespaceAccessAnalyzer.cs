@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -27,10 +28,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Rule_InternalNamespaceAccess);
 
+        private static string[] VisibleNamespaces = System.Array.Empty<string>();
+        private static string[] VisibleTypes = System.Array.Empty<string>();
+
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
+
+            context.RegisterCompilationStartAction(ctx =>
+            {
+                VisibleNamespaces = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalNamespaces);
+                VisibleTypes = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalTypes);
+            });
 
             context.RegisterOperationAction(
                 AnalyzeTypeOperand,
@@ -594,6 +604,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (restrictedSymbol.ContainingType?.Name == "SR")
+            {
+                return;
+            }
+
+            if (VisibleTypes.Contains(restrictedSymbol.ContainingType?.Name ?? string.Empty))
+            {
+                return;
+            }
+
             if (useNamespace == null)
             {
                 return;
@@ -601,7 +621,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             var declarationNamespace = restrictedSymbol.ContainingNamespace;
             if (declarationNamespace == null
-                || declarationNamespace.Name is "Core" or "Common" or "Internal"
+                || declarationNamespace.Name == "Core"
+                || VisibleNamespaces.Contains(declarationNamespace.Name)
                 || IsSameNamespace(useNamespace, declarationNamespace))
             {
                 return;
