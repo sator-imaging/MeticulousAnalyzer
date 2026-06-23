@@ -479,11 +479,11 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /*  Contains  ================================================================ */
 
-        public static bool Contains<T>(this T[] source, T value) where T : IEquatable<T>
+        public static bool Contains(this string[] source, string value)
         {
             for (int i = 0; i < source.Length; i++)
             {
-                if (source[i].Equals(value))
+                if (source[i] == value)
                 {
                     return true;
                 }
