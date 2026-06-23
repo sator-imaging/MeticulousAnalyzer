@@ -15,7 +15,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
     public class ConfigTest_DisposableAnalyzer
     {
         [TestMethod]
-        public async Task SMA0040_Compliant_DuckTyping_DisabledByDefault()
+        public async Task SMA0040_Config_DuckTypingRecognition_Default_NoDiagnostic()
         {
             var source = @"
 using System;
@@ -42,7 +42,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violation_DuckTyping_Enabled()
+        public async Task SMA0040_Config_DuckTypingRecognition_Enabled_Dispose_Diagnostic()
         {
             var source = @"
 using System;
@@ -71,7 +71,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violation_DuckTypingAsync_Enabled()
+        public async Task SMA0040_Config_DuckTypingRecognition_Enabled_DisposeAsync_Diagnostic()
         {
             var source = @"
 using System;
@@ -101,7 +101,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Compliant_DuckTyping_ExplicitlyDisabled()
+        public async Task SMA0040_Config_DuckTypingRecognition_DisabledExplicitly_NoDiagnostic()
         {
             var source = @"
 using System;
