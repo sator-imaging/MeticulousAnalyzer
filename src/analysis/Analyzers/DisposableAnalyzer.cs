@@ -538,8 +538,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // Move to ternary operator.
-            if (focusedOp.Parent is IConditionalOperation)
+            // Move to parent operator.
+            while (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
             {
                 focusedOp = focusedOp.Parent;
             }
