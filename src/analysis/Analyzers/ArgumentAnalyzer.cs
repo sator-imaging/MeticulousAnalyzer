@@ -346,7 +346,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             //   ex. throw new Exception("Message", innerError);
             if (literalSpecialType is SpecialType.System_String
                                    or SpecialType.System_Char
-                                   // Almost logger takes a message as an object instead of string
+                                   // Most loggers take a message as an object instead of string
                                    or SpecialType.System_Object)
             {
                 return true;
