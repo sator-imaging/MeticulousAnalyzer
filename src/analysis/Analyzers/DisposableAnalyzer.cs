@@ -539,23 +539,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // Move to parent operator.
-            if (focusedOp.Parent is IConditionalOperation)
+            if (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
             {
                 focusedOp = focusedOp.Parent;
-            }
-            else if (focusedOp.Parent is ICoalesceOperation coalesceOp)
-            {
-                // Only move to parent if the right side is a throw expression.
-                var rhs = coalesceOp.WhenNull;
-                while (rhs is IConversionOperation conversion)
-                {
-                    rhs = conversion.Operand;
-                }
-
-                if (rhs is IThrowOperation)
-                {
-                    focusedOp = coalesceOp;
-                }
             }
 
             // Unwrap '?.' operation chain.

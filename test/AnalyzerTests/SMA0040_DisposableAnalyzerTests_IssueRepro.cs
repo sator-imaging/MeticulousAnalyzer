@@ -42,7 +42,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0040_Violation_CoalesceNormal()
+        public async Task SMA0040_Compliant_CoalesceNormal()
         {
             var test = @"
 using System;
@@ -60,22 +60,13 @@ namespace Test
 
         void Method()
         {
-            using var res = {|#0:DisposableReturningMethod()|} ?? {|#1:DisposableReturningMethod()|};
+            using var res = DisposableReturningMethod() ?? DisposableReturningMethod();
         }
     }
 }
 ";
-            var expected = new[]
-            {
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithLocation(markupKey: 0)
-                    .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithLocation(markupKey: 1)
-                    .WithArguments("MyDisposable")
-            };
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
