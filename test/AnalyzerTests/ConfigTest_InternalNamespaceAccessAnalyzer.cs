@@ -108,7 +108,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Config_NoConfigPresent_Compliant_Common()
+        public async Task SMA0080_Config_NoConfigPresent_Violation_Common()
         {
             var test = @"
 namespace Foo.Common
@@ -121,12 +121,12 @@ namespace Foo.Bar
     {
         public void M()
         {
-            var x = Foo.Common.InternalType.Value;
+            var x = {|#0:Foo.Common.InternalType.Value|};
         }
     }
 }
 ";
-            await VerifyWithConfigAsync(test);
+            await VerifyWithConfigAsync(test, expected: VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Common"));
         }
 
         [TestMethod]

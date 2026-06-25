@@ -1,6 +1,3 @@
-// Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -643,7 +640,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var declarationNamespace = restrictedSymbol.ContainingNamespace;
             if (declarationNamespace == null
                 || declarationNamespace.Name == "Core"
-                || declarationNamespace.Name == "Common"
                 || VisibleNamespaces.Contains(declarationNamespace.Name)
                 || IsSameNamespace(useNamespace, declarationNamespace))
             {
