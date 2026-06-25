@@ -682,5 +682,38 @@ namespace Foo.Bar
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Run", "Foo.Bar", "Foo"));
         }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_NameOfInternalTypeMember()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static void Method() { }
+        public static int Field;
+        public static int Property { get; set; }
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var n1 = {|#0:nameof(Foo.InternalType.Method)|};
+            var n2 = {|#1:nameof(Foo.InternalType.Field)|};
+            var n3 = {|#2:nameof(Foo.InternalType.Property)|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Method", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("Field", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("Property", "Foo.Bar", "Foo"));
+        }
     }
 }
