@@ -538,8 +538,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // Move to ternary operator.
-            if (focusedOp.Parent is IConditionalOperation)
+            // NOTE: Unpack ternary or coalesce operation.
+            //       --> Method() ?? throw new Exception()
+            //       --> condition ? Method() : new Disposable()
+            if (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
             {
                 focusedOp = focusedOp.Parent;
             }
