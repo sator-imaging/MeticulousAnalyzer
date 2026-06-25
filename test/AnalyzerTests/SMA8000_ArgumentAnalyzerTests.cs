@@ -390,6 +390,30 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8000_Compliant_ObjectFirstArgumentLoggerMessage()
+        {
+            var test = @"
+namespace Test
+{
+    public class Logger
+    {
+        public void Log(object message) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            var logger = new Logger();
+            logger.Log(""message"");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8000_Violation_NullAndDefaultArguments()
         {
             var test = @"
