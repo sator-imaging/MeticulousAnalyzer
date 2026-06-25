@@ -741,7 +741,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // --> Method() => new Disposable();
                 // --> Method() { return new Disposable(); }
                 {
-                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax)
+                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax or YieldStatementSyntax)
                     {
                         return true;
                     }
