@@ -694,6 +694,7 @@ namespace Foo
         public static void Method() { }
         public static int Field;
         public static int Property { get; set; }
+        public static event System.EventHandler Event;
     }
 }
 
@@ -706,6 +707,7 @@ namespace Foo.Bar
             var n1 = {|#0:nameof(Foo.InternalType.Method)|};
             var n2 = {|#1:nameof(Foo.InternalType.Field)|};
             var n3 = {|#2:nameof(Foo.InternalType.Property)|};
+            var n4 = {|#3:nameof(Foo.InternalType.Event)|};
         }
     }
 }
@@ -713,7 +715,8 @@ namespace Foo.Bar
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Method", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(1).WithArguments("Field", "Foo.Bar", "Foo"),
-                VerifyCS.Diagnostic().WithLocation(2).WithArguments("Property", "Foo.Bar", "Foo"));
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("Property", "Foo.Bar", "Foo"),
+                VerifyCS.Diagnostic().WithLocation(3).WithArguments("Event", "Foo.Bar", "Foo"));
         }
     }
 }
