@@ -60,7 +60,7 @@ namespace Test
 
         void Method()
         {
-            using var res = DisposableReturningMethod() ?? DisposableReturningMethod();
+            using var res = DisposableReturningMethod() ?? new MyDisposable();
         }
     }
 }
