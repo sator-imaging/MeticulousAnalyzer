@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Text;
+using System;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
@@ -103,7 +104,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation invocation)
                 return;
 
-            if (IsKnownAssertionOrMathMethod(invocation))
+            if (IsExemptOperation(invocation))
                 return;
 
             var method = invocation.TargetMethod;
@@ -123,6 +124,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeObjectCreationForParams(OperationAnalysisContext context)
         {
             if (context.Operation is not IObjectCreationOperation creation)
+                return;
+
+            if (IsExemptOperation(creation))
                 return;
 
             var ctor = creation.Constructor;
@@ -239,12 +243,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Test framework methods are exempt from all checks.
-            var invocationOp = argOp.Parent as IInvocationOperation;
-            if (invocationOp != null && IsKnownAssertionOrMathMethod(invocationOp))
+            // Test framework methods and some others are exempt from all checks.
+            if (IsExemptOperation(argOp.Parent))
             {
                 return;
             }
+
+            var invocationOp = argOp.Parent as IInvocationOperation;
 
             var argValue = argOp.Value;
 
@@ -359,12 +364,24 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsKnownAssertionOrMathMethod(IInvocationOperation invocation)
+        private static bool IsExemptOperation(IOperation? operation)
         {
-            return invocation.TargetMethod.ContainingType?.Name
+            var typeSymbol = operation switch
+            {
+                IInvocationOperation invocation => invocation.TargetMethod.ContainingType,
+                IObjectCreationOperation creation => creation.Constructor?.ContainingType,
+                _ => null,
+            };
+
+            var typeName = typeSymbol?.Name;
+            if (typeName is null) return false;
+
+            return typeName
                 is "Must" or "Assert" or "Debug"
                 // NOTE: 'Mathf' and 'math' for Unity engine and Burst compiler
-                or "Math" or "Mathf" or "math";
+                or "Math" or "Mathf" or "math"
+                || typeName.EndsWith("Exception", StringComparison.Ordinal)
+                || typeName.EndsWith("Logger", StringComparison.Ordinal);
         }
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)

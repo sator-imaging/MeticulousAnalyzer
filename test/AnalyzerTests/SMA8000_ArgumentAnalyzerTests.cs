@@ -883,5 +883,99 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_ExceptionType()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyException : Exception
+    {
+        public MyException(int code, bool fatal) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            throw new MyException(1, true);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_LoggerType()
+        {
+            var test = @"
+namespace Test
+{
+    public class MyLogger
+    {
+        public void Log(int level, bool detailed) {}
+    }
+
+    public class CTest
+    {
+        public void Test(MyLogger logger)
+        {
+            logger.Log(1, true);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_ParamsException()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class MyException : Exception
+    {
+        public MyException(params object[] args) {}
+    }
+
+    public class CTest
+    {
+        public void Test()
+        {
+            throw new MyException(1, ""msg"", true);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_ParamsLogger()
+        {
+            var test = @"
+namespace Test
+{
+    public class MyLogger
+    {
+        public void Log(params object[] args) {}
+    }
+
+    public class CTest
+    {
+        public void Test(MyLogger logger)
+        {
+            logger.Log(1, ""msg"", true);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
