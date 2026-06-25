@@ -538,7 +538,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // Move to parent operator.
+            // NOTE: Unpack ternary or coalesce operation.
+            //       --> Method() ?? throw new Exception()
+            //           ^^^^^^^^ Target may be child of parent operation
             if (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
             {
                 focusedOp = focusedOp.Parent;
