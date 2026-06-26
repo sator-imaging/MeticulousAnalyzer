@@ -67,7 +67,7 @@ namespace Test
                 .WithLocation(markupKey: 0)
                 .WithArguments("DuckDisposable");
 
-            await VerifyWithSettingsAsync(source, $"is_global = true\n{Core.Config_EnableDuckTypingRecognition} = true", expected);
+            await VerifyWithSettingsAsync(source, $"is_global = true\n{Core.Config_EnableDuckTypingRecognition} = enable", expected);
         }
 
         [TestMethod]
@@ -97,7 +97,7 @@ namespace Test
                 .WithLocation(markupKey: 0)
                 .WithArguments("DuckAsyncDisposable");
 
-            await VerifyWithSettingsAsync(source, $"is_global = true\n{Core.Config_EnableDuckTypingRecognition} = true", expected);
+            await VerifyWithSettingsAsync(source, $"is_global = true\n{Core.Config_EnableDuckTypingRecognition} = enable", expected);
         }
 
         [TestMethod]
@@ -122,7 +122,7 @@ namespace Test
     }
 }
 ";
-            await VerifyWithSettingsAsync(source, $"is_global = true\n{Core.Config_EnableDuckTypingRecognition} = false");
+            await VerifyWithSettingsAsync(source, $"is_global = true\n{Core.Config_EnableDuckTypingRecognition} = disable");
         }
 
         private static async Task VerifyWithSettingsAsync(string source, string? configContent, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)

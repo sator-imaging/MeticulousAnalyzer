@@ -800,10 +800,10 @@ Configuration can be set in `.globalconfig` file (NOT `.editorconfig`).
 is_global = true
 
 # Immutable/Read-Only Variable Analysis
-sator_imaging.immutable_variable = true
+sator_imaging.immutable_variable = enable
 
 # Disposable Analysis
-sator_imaging.duck_typing_recognition = true
+sator_imaging.duck_typing_recognition = enable
 ```
 
 See details for `.globalconfig` file: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format
