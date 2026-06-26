@@ -805,12 +805,11 @@ is_global = true
 sator_imaging.immutable_variable = enable
 
 # Disposable 解析
-sator_imaging.duck_typing_recognition = true
+sator_imaging.duck_typing_recognition = enable
 
 # 名前空間をまたぐ internal アクセス (カンマ区切り値)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
-sator_imaging.duck_typing_recognition = enable
 ```
 
 `.globalconfig` ファイルのフォーマット詳細については、以下を参照してください。
