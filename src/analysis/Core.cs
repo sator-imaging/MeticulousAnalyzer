@@ -38,17 +38,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 && !value.Equals("false", StringComparison.OrdinalIgnoreCase);
         }
 
+        static readonly char[] cache_splitCommaSeparatedValues = new char[] { ',', ' ' };
+
         public static string[] GetConfigurationArray(CompilationStartAnalysisContext context, string key)
         {
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
             {
-                var split = value.Split(',');
-                for (int i = 0; i < split.Length; i++)
-                {
-                    split[i] = split[i].Trim();
-                }
-                return split;
+                // TODO: StringSplitOptions.TrimEntries is not available in netstandard2.0
+                return value.Split(cache_splitCommaSeparatedValues, StringSplitOptions.RemoveEmptyEntries);
             }
             return Array.Empty<string>();
         }
