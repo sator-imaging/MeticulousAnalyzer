@@ -38,6 +38,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             context.RegisterCompilationStartAction(ctx =>
             {
+                // TODO: As roslyn triggers compilation start only on file is saved (Ctrl+S is pressed).
+                //       Registering action in compilation start action is **correct but not ideal** because
+                //       the analyzer feedback is not reported until Ctrl+S is pressed.
+                //       For now, basic best-effort configuration support is sufficient.
                 VisibleNamespaces = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalNamespaces);
                 VisibleTypes = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalTypes);
             });
