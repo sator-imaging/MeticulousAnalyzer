@@ -28,7 +28,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Rule_InternalNamespaceAccess);
 
-        private static bool IsConfigLoaded;
         private static string[] VisibleNamespaces = System.Array.Empty<string>();
         private static string[] VisibleTypes = System.Array.Empty<string>();
 
