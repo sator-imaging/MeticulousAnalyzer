@@ -22,3 +22,6 @@ obj
 !README*.md
 !LICENSE.md
 !RULES.md
+
+!/AGENTS.md
+!/CLAUDE.md

@@ -150,7 +150,7 @@ namespace Test
             };
 
             test.TestState.AnalyzerConfigFiles.Add(
-                ("/.globalconfig", $"is_global = true\n{Core.Config_EnableImmutableVariable} = true"));
+                ("/.globalconfig", $"is_global = true\n{Core.Config_EnableImmutableVariable} = enable"));
 
             test.SolutionTransforms.Add((solution, projectId) =>
             {

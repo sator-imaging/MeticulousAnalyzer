@@ -802,7 +802,7 @@ Configuration can be set in `.globalconfig` file (NOT `.editorconfig`).
 is_global = true
 
 # Immutable/Read-Only Variable Analysis
-sator_imaging.immutable_variable = true
+sator_imaging.immutable_variable = enable
 
 # Disposable Analysis
 sator_imaging.duck_typing_recognition = true
@@ -810,6 +810,7 @@ sator_imaging.duck_typing_recognition = true
 # Internal cross-namespace access (Comma-separated values)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
+sator_imaging.duck_typing_recognition = enable
 ```
 
 See details for `.globalconfig` file: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format

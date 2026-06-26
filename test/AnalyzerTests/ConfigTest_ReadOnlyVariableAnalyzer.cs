@@ -107,25 +107,25 @@ namespace Test
         [TestMethod]
         public async Task SMA0060_Config_MissingSeveritySetting()
         {
-            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = true");
+            await VerifyWithSettingsAsync(TestCode, configContent: "is_global = true\nsome_other_option = enable");
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Config_SeverityIsFalse()
+        public async Task SMA0060_Config_SeverityIsDisabled()
         {
-            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = false");
+            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = disable");
         }
 
 
         [TestMethod]
-        public async Task SMA0060_Config_SeverityIsTrue_Diagnostic()
+        public async Task SMA0060_Config_SeverityIsEnabled_Diagnostic()
         {
             var expected = VerifyCS.Diagnostic(ReadOnlyVariableAnalyzer.RuleId_ReadOnlyLocal)
                 .WithLocation(markupKey: 0)
                 .WithArguments("foo");
 
-            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = true", expected);
+            await VerifyWithSettingsAsync(TestCode, configContent: $"is_global = true\n{Core.Config_EnableImmutableVariable} = enable", expected);
         }
 
 

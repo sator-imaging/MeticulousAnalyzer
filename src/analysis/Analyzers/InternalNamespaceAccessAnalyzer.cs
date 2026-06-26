@@ -89,6 +89,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeTypeOperand(OperationAnalysisContext context)
         {
             var operation = context.Operation;
+            if (operation.Parent is INameOfOperation)
+            {
+                return;
+            }
+
             if (operation is IConversionOperation conversion
                 && conversion.Operand is IDefaultValueOperation)
             {
@@ -105,6 +110,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static void AnalyzeSymbolMember(OperationAnalysisContext context)
         {
             var operation = context.Operation;
+            if (operation.Parent is INameOfOperation)
+            {
+                return;
+            }
+
             var symbol = TryGetSymbolFromMemberOperation(operation);
             if (symbol != null)
             {
@@ -648,6 +658,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return memberRef.Member;
             }
 
+            if (nameOf.Argument is IMethodReferenceOperation methodRef)
+            {
+                return methodRef.Method;
+            }
+
             if (nameOf.Argument is ITypeOfOperation typeOf)
             {
                 return typeOf.TypeOperand as INamedTypeSymbol;
@@ -664,7 +679,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return null;
             }
 
-            return semanticModel.GetSymbolInfo(nameOf.Argument.Syntax).Symbol;
+            var symbolInfo = semanticModel.GetSymbolInfo(nameOf.Argument.Syntax);
+            return symbolInfo.Symbol ?? (symbolInfo.CandidateSymbols.Length > 0 ? symbolInfo.CandidateSymbols[0] : null);
         }
 
         private static ITypeSymbol? GetPatternTypeSymbol(IPatternOperation pattern) =>

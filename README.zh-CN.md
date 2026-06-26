@@ -802,7 +802,7 @@ var x = new MyDisposable();
 is_global = true
 
 # 只读变量分析
-sator_imaging.immutable_variable = true
+sator_imaging.immutable_variable = enable
 
 # Disposable 分析
 sator_imaging.duck_typing_recognition = true
@@ -810,6 +810,7 @@ sator_imaging.duck_typing_recognition = true
 # 跨命名空间的 internal 访问 (逗号分隔值)
 sator_imaging.visible_internal_namespaces = Common,Internal
 sator_imaging.visible_internal_types = Shared,Helpers
+sator_imaging.duck_typing_recognition = enable
 ```
 
 有关 `.globalconfig` 文件的格式详情，请参阅：
