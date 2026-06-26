@@ -46,7 +46,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
             {
-                // For ConfigTest, don't cache by key.
+                // For ConfigTest, don't cache by 'key'.
                 if (cache_globalArrayConfig.TryGetValue(value, out var cache))
                 {
                     return cache;
