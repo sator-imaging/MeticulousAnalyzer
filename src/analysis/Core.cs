@@ -43,16 +43,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         public static string[] GetConfigurationArray(CompilationStartAnalysisContext context, string key)
         {
-            if (cache_globalArrayConfig.TryGetValue(key, out var cache))
-            {
-                return cache;
-            }
-
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
             {
+                // For ConfigTest, don't cache by key.
+                if (cache_globalArrayConfig.TryGetValue(value, out var cache))
+                {
+                    return cache;
+                }
+
                 // TODO: StringSplitOptions.TrimEntries is not available in netstandard2.0
-                return value.Split(cache_splitCommaSeparatedValues, StringSplitOptions.RemoveEmptyEntries);
+                var result = value.Split(cache_splitCommaSeparatedValues, StringSplitOptions.RemoveEmptyEntries);
+
+                cache_globalArrayConfig[value] = result;
+                return result;
             }
             return Array.Empty<string>();
         }
