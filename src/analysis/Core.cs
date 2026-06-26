@@ -271,6 +271,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
         /*  string op  ================================================================ */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Location GetLocation(this ISymbol symbol)
+        {
+            return symbol.Locations.ElementAtOrDefault(0) ?? Location.None;
+        }
+
         internal static string GetMemberNamePrefix(SyntaxNode? node)
         {
             var sb = new StringBuilder();
