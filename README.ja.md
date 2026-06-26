@@ -800,10 +800,10 @@ var x = new MyDisposable();
 is_global = true
 
 # 読み取り専用変数解析
-sator_imaging.immutable_variable = true
+sator_imaging.immutable_variable = enable
 
 # Disposable 解析
-sator_imaging.duck_typing_recognition = true
+sator_imaging.duck_typing_recognition = enable
 ```
 
 `.globalconfig` ファイルのフォーマット詳細については、以下を参照してください。

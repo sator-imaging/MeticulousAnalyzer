@@ -33,7 +33,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             // GlobalOptions is NOT .editorconfig. Just check falsy.
             return context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
-                && !value.Equals("false", StringComparison.OrdinalIgnoreCase);
+                && value.Equals("enable", StringComparison.OrdinalIgnoreCase);
         }
 
 
