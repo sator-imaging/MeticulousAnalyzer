@@ -39,9 +39,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
         static readonly char[] cache_splitCommaSeparatedValues = new char[] { ',', ' ' };
+        static readonly Dictionary<string, string[]> cache_globalArrayConfig = new();
 
         public static string[] GetConfigurationArray(CompilationStartAnalysisContext context, string key)
         {
+            if (cache_globalArrayConfig.TryGetValue(key, out var cache))
+            {
+                return cache;
+            }
+
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
             {
