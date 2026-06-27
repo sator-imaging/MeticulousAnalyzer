@@ -80,7 +80,7 @@ namespace Foo.Bar
     }
 
     // Violation: attribute type used as field or in typeof() outside attribute syntax
-    public class TypeConsumer
+    internal class TypeConsumer
     {
         public {|#3:Foo.InternalAttribute|} attr;
         public System.Type type = {|#4:typeof(Foo.InternalAttribute)|};
@@ -92,7 +92,6 @@ namespace Foo.Bar
                 VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(2).WithArguments("Value", "Foo.Bar", "Foo"),
                 VerifyCS.Diagnostic().WithLocation(3).WithArguments("InternalAttribute", "Foo.Bar", "Foo"),
-                Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS0052").WithSpan(68, 38, 68, 42).WithArguments("Foo.Bar.TypeConsumer.attr", "Foo.InternalAttribute"),
                 VerifyCS.Diagnostic().WithLocation(4).WithArguments("InternalAttribute", "Foo.Bar", "Foo")
             );
         }
