@@ -637,7 +637,7 @@ C# allows `internal` types and members to be accessed from any namespace in the 
     - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
     - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core` (hard-coded) or other namespaces specified by [configuration](#how-to-configure-analyzer).
     - Members defined in a type named `SR` (hard-coded) or other types specified by [configuration](#how-to-configure-analyzer) are also exempt from this rule.
-    - Internal attribute types used in attribute syntax (e.g. `[InternalAttribute]`) are allowed, but internal types used as argument values will still be reported.
+    - Internal attribute types used in attribute syntax (e.g. `[InternalAttribute]`) are allowed. Internal types used as argument values are also allowed if they are declared in the same namespace as the attribute.
 
 ```cs
 namespace Foo

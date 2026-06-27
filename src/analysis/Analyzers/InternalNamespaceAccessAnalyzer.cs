@@ -587,12 +587,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            INamespaceSymbol? attrNamespace = null;
+            for (var node = operation.Syntax.Parent; node != null; node = node.Parent)
+            {
+                if (node is AttributeSyntax attrStx)
+                {
+                    if (operation.SemanticModel?.GetSymbolInfo(attrStx).Symbol is IMethodSymbol attrCtor)
+                    {
+                        attrNamespace = attrCtor.ContainingNamespace;
+                    }
+                    break;
+                }
+                if (node is StatementSyntax or MemberDeclarationSyntax)
+                {
+                    break;
+                }
+            }
+
             ReportCrossNamespaceAccess(
                 context.Compilation,
                 context.ContainingSymbol?.ContainingNamespace,
                 location,
                 symbol,
-                context.ReportDiagnostic);
+                context.ReportDiagnostic,
+                attrNamespace);
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -613,7 +631,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             INamespaceSymbol? useNamespace,
             Location location,
             ISymbol? symbol,
-            System.Action<Diagnostic> reportDiagnostic)
+            System.Action<Diagnostic> reportDiagnostic,
+            INamespaceSymbol? attrNamespace = null)
         {
             var restrictedSymbol = FindRestrictedSymbol(symbol);
             if (restrictedSymbol == null)
@@ -645,7 +664,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (declarationNamespace == null
                 || declarationNamespace.Name == "Core"
                 || VisibleNamespaces.Contains(declarationNamespace.Name)
-                || IsSameNamespace(useNamespace, declarationNamespace))
+                || IsSameNamespace(useNamespace, declarationNamespace)
+                || (attrNamespace != null && IsSameNamespace(attrNamespace, declarationNamespace)))
             {
                 return;
             }
