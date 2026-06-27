@@ -451,7 +451,7 @@
     <value>Project Structure Analysis</value>
   </data>
   <data name="SMA0080_Description" xml:space="preserve">
-    <value>Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: "Core" leaf namespace, "SR" type, and internal attribute types used in attribute syntax)</value>
+    <value>Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: "Core" leaf namespace, "SR" type, and internal attribute types used in attribute syntax. Note that arguments to these attributes are still subject to analysis)</value>
   </data>
   <data name="SMA0080_MessageFormat" xml:space="preserve">
     <value>Cannot access internal '{0}' declared in '{2}' from namespace '{1}'</value>
