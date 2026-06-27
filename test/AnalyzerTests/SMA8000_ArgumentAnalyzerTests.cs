@@ -907,5 +907,27 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_SystemNamespaceSingleArgument()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var t1 = TimeSpan.FromSeconds(10);
+            var t2 = TimeSpan.FromSeconds(10.0);
+            var d1 = DateTime.FromBinary(0);
+            var g1 = Guid.Parse(""00000000-0000-0000-0000-000000000000"");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

@@ -425,6 +425,8 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > [!NOTE]
 > `string`、`System.Text` 或 `System.IO` 方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
 >
+> 对于 `System` 命名空间中的类型，如果方法或构造函数只有一个参数，可以省略命名参数。（例如：`TimeSpan.FromSeconds(10)`）
+>
 > 请注意，`null` 和 `default` 字面量，以及 boolean 表达式（包括模式匹配，例如 `foo is not null` 或 `x == y`）无论其位置或所属命名空间如何，都不能省略命名参数，必须始终指定名称。
 >
 > (已知断言和数学方法免于所有检查)
