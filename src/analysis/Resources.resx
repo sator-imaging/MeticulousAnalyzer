@@ -511,7 +511,7 @@
     <value>Readability and Maintainability Analysis</value>
   </data>
   <data name="SMA8000_Description" xml:space="preserve">
-    <value>Literal arguments should be passed as named arguments to express their meaning. (Exception: methods and constructors in the System namespace with only one argument are exempt)</value>
+    <value>Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)</value>
   </data>
   <data name="SMA8000_MessageFormat" xml:space="preserve">
     <value>Pass literal for '{0}' as named argument for readability</value>

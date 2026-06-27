@@ -86,11 +86,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
-                if (attrSymbol.Parameters.Length == 1 && IsDirectlyInSystemNamespace(attrSymbol.ContainingType))
-                {
-                    return;
-                }
-
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
                     parameterName = attrSymbol.Parameters[argIndex].ToDiagnosticMessageName();
@@ -122,9 +117,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (IsPervasiveSystemLib(method.ContainingType))
                 return;
 
-            if (method.Parameters.Length == 1 && IsDirectlyInSystemNamespace(method.ContainingType))
-                return;
-
             ReportParamsArguments(context, invocation.Arguments, lastParam);
         }
 
@@ -142,9 +134,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
 
             if (IsPervasiveSystemLib(ctor.ContainingType))
-                return;
-
-            if (ctor.Parameters.Length == 1 && IsDirectlyInSystemNamespace(ctor.ContainingType))
                 return;
 
             ReportParamsArguments(context, creation.Arguments, lastParam);
@@ -277,8 +266,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return;
                     }
 
-                    var args = invocationOp?.Arguments ?? (argOp.Parent as IObjectCreationOperation)?.Arguments;
-                    if (args?.Length == 1 && IsDirectlyInSystemNamespace(methodOrCtorContainer))
+                    if (invocationOp != null && invocationOp.Arguments.Length == 1 && IsDirectlyInSystemNamespace(methodOrCtorContainer))
                     {
                         return;
                     }
