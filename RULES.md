@@ -92,7 +92,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning.
+| SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)
 | SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
 | SMA8002 | Null suppression operation                 | Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.
 

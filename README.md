@@ -425,6 +425,8 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > [!NOTE]
 > `string`, `System.Text`, or `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
 >
+> For types in the `System` namespace, named arguments can be omitted if the method has only one argument. (e.g., `TimeSpan.FromSeconds(10)`)
+>
 > Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
 >
 > (Known assertion and math methods are exempt from all checks)

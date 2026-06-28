@@ -75,6 +75,30 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8000_Violation_SystemNamespaceConstructorStillReported()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            // First string argument is allowed for constructors by default.
+            var g1 = new Guid(""00000000-0000-0000-0000-000000000000"");
+
+            // Int/Long argument for constructor is not allowed to be unnamed.
+            var t1 = new TimeSpan({|#1:1000|});
+        }
+    }
+}
+";
+            var expected1 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 1).WithArguments("ticks");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected1);
+        }
+
+        [TestMethod]
         public async Task SMA8000_Compliant_ConstAndEnumArguments()
         {
             var test = @"
@@ -901,6 +925,28 @@ namespace Test
         public void Test()
         {
             var x = Mathf.Clamp(0.5f, 0, 1);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_SystemNamespaceSingleArgument()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var t1 = TimeSpan.FromSeconds(10);
+            var t2 = TimeSpan.FromSeconds(10.0);
+            var d1 = DateTime.FromBinary(0);
+            var g1 = Guid.Parse(""00000000-0000-0000-0000-000000000000"");
         }
     }
 }

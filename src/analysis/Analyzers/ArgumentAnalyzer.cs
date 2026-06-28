@@ -266,6 +266,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return;
                     }
 
+                    if (invocationOp != null && invocationOp.Arguments.Length == 1 && IsDirectlyInSystemNamespace(methodOrCtorContainer))
+                    {
+                        return;
+                    }
+
                     // int, string or char is allowed if it's the first argument.
                     if (argStx.Parent is ArgumentListSyntax argListStx &&
                         argListStx.Arguments.IndexOf(argStx) == 0)
@@ -384,6 +389,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                     }
                 };
+        }
+
+        private static bool IsDirectlyInSystemNamespace(INamedTypeSymbol? typeSymbol)
+        {
+            return typeSymbol?.ContainingNamespace is INamespaceSymbol
+            {
+                Name: "System",
+                ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true }
+            };
         }
     }
 }
