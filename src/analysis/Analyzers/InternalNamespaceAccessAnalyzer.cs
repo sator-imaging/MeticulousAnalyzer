@@ -194,20 +194,20 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 case IFieldSymbol field:
                     ReportCrossNamespaceAccess(
                         context,
-                        GetFieldTypeLocations(field),
+                        GetFieldTypeLocation(field),
                         field.Type);
                     break;
 
                 case IPropertySymbol property:
                     ReportCrossNamespaceAccess(
                         context,
-                        GetPropertyTypeLocations(property),
+                        GetPropertyTypeLocation(property),
                         property.Type);
                     foreach (var parameter in property.Parameters)
                     {
                         ReportCrossNamespaceAccess(
                             context,
-                            GetIndexerParameterTypeLocations(property, parameter),
+                            GetIndexerParameterTypeLocation(property, parameter),
                             parameter.Type);
                     }
 
@@ -216,7 +216,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 case IEventSymbol @event:
                     ReportCrossNamespaceAccess(
                         context,
-                        GetEventTypeLocations(@event),
+                        GetEventTypeLocation(@event),
                         @event.Type);
                     break;
 
@@ -240,7 +240,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         ReportCrossNamespaceAccess(
                             context,
-                            GetBaseOrInterfaceTypeLocations(namedType, baseType, context.Compilation),
+                            GetBaseOrInterfaceTypeLocation(namedType, baseType, context.Compilation),
                             baseType);
                     }
 
@@ -248,7 +248,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         ReportCrossNamespaceAccess(
                             context,
-                            GetBaseOrInterfaceTypeLocations(namedType, @interface, context.Compilation),
+                            GetBaseOrInterfaceTypeLocation(namedType, @interface, context.Compilation),
                             @interface);
                     }
 
@@ -258,7 +258,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         {
                             ReportCrossNamespaceAccess(
                                 context,
-                                GetTypeParameterConstraintLocations(namedType, typeParam, constraint, context.Compilation),
+                                GetTypeParameterConstraintLocation(namedType, typeParam, constraint, context.Compilation),
                                 constraint);
                         }
                     }
@@ -267,14 +267,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     {
                         ReportCrossNamespaceAccess(
                             context,
-                            GetDelegateReturnTypeLocations(namedType),
+                            GetDelegateReturnTypeLocation(namedType),
                             invokeMethod.ReturnType);
 
                         foreach (var parameter in invokeMethod.Parameters)
                         {
                             ReportCrossNamespaceAccess(
                                 context,
-                                GetDelegateParameterTypeLocations(namedType, parameter),
+                                GetDelegateParameterTypeLocation(namedType, parameter),
                                 parameter.Type);
                         }
                     }
@@ -307,7 +307,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ReportCrossNamespaceAccess(
                 compilation,
                 useNamespace,
-                GetReturnTypeLocations(method),
+                GetReturnTypeLocation(method),
                 method.ReturnType,
                 reportDiagnostic);
             foreach (var parameter in method.Parameters)
@@ -315,7 +315,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 ReportCrossNamespaceAccess(
                     compilation,
                     useNamespace,
-                    GetParameterTypeLocations(method, parameter),
+                    GetParameterTypeLocation(method, parameter),
                     parameter.Type,
                     reportDiagnostic);
             }
@@ -327,257 +327,35 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     ReportCrossNamespaceAccess(
                         compilation,
                         useNamespace,
-                        GetTypeParameterConstraintLocations(method, typeParam, constraint, compilation),
+                        GetTypeParameterConstraintLocation(method, typeParam, constraint, compilation),
                         constraint,
                         reportDiagnostic);
                 }
             }
         }
 
-        private static ImmutableArray<Location> GetReturnTypeLocations(IMethodSymbol method)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
-                {
-                    builder.Add(methodDecl.ReturnType.GetLocation());
-                }
-                else if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
-                {
-                    builder.Add(localFunc.ReturnType.GetLocation());
-                }
-                else if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
-                {
-                    builder.Add(operatorDecl.ReturnType.GetLocation());
-                }
-                else if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
-                {
-                    builder.Add(conversionDecl.Type.GetLocation());
-                }
-            }
+        private static ImmutableArray<Location> GetReturnTypeLocation(IMethodSymbol method) => method.Locations;
 
-            return builder.Count > 0 ? builder.ToImmutable() : method.Locations;
-        }
+        private static ImmutableArray<Location> GetParameterTypeLocation(IMethodSymbol _, IParameterSymbol parameter) => parameter.Locations;
 
-        private static ImmutableArray<Location> GetParameterTypeLocations(IMethodSymbol method, IParameterSymbol parameter)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is BaseMethodDeclarationSyntax methodDecl)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < methodDecl.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = methodDecl.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            builder.Add(parameterSyntax.Type.GetLocation());
-                        }
-                    }
-                }
-                else if (syntax is LocalFunctionStatementSyntax localFunc)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < localFunc.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = localFunc.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            builder.Add(parameterSyntax.Type.GetLocation());
-                        }
-                    }
-                }
-            }
+        private static ImmutableArray<Location> GetFieldTypeLocation(IFieldSymbol field) => field.Locations;
 
-            return builder.Count > 0 ? builder.ToImmutable() : parameter.Locations;
-        }
+        private static ImmutableArray<Location> GetPropertyTypeLocation(IPropertySymbol property) => property.Locations;
 
-        private static ImmutableArray<Location> GetFieldTypeLocations(IFieldSymbol field)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in field.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is VariableDeclaratorSyntax declarator
-                    && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
-                {
-                    builder.Add(variableDeclaration.Type.GetLocation());
-                }
-            }
+        private static ImmutableArray<Location> GetIndexerParameterTypeLocation(IPropertySymbol _, IParameterSymbol parameter) => parameter.Locations;
 
-            return builder.Count > 0 ? builder.ToImmutable() : field.Locations;
-        }
-
-        private static ImmutableArray<Location> GetPropertyTypeLocations(IPropertySymbol property)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is PropertyDeclarationSyntax propertyDeclaration)
-                {
-                    builder.Add(propertyDeclaration.Type.GetLocation());
-                }
-                else if (syntax is IndexerDeclarationSyntax indexerDeclaration)
-                {
-                    builder.Add(indexerDeclaration.Type.GetLocation());
-                }
-            }
-
-            return builder.Count > 0 ? builder.ToImmutable() : property.Locations;
-        }
-
-        private static ImmutableArray<Location> GetIndexerParameterTypeLocations(IPropertySymbol property, IParameterSymbol parameter)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is IndexerDeclarationSyntax indexerDecl)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < indexerDecl.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = indexerDecl.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            builder.Add(parameterSyntax.Type.GetLocation());
-                        }
-                    }
-                }
-            }
-
-            return builder.Count > 0 ? builder.ToImmutable() : parameter.Locations;
-        }
-
-        private static ImmutableArray<Location> GetBaseOrInterfaceTypeLocations(
+        private static ImmutableArray<Location> GetBaseOrInterfaceTypeLocation(
             INamedTypeSymbol namedType,
-            ITypeSymbol typeSymbol,
-            Compilation compilation)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
-                {
-                    continue;
-                }
+            ITypeSymbol _1,
+            Compilation _2) => namedType.Locations;
 
-                var semanticModel = compilation.GetSemanticModel(typeDecl.SyntaxTree);
-                foreach (var baseTypeSyntax in typeDecl.BaseList.Types)
-                {
-                    var typeInfo = semanticModel.GetTypeInfo(baseTypeSyntax.Type);
-                    if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeSymbol)
-                        || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
-                    {
-                        builder.Add(baseTypeSyntax.Type.GetLocation());
-                    }
-                }
-            }
+        private static ImmutableArray<Location> GetEventTypeLocation(IEventSymbol @event) => @event.Locations;
 
-            return builder.Count > 0 ? builder.ToImmutable() : namedType.Locations;
-        }
-
-        private static ImmutableArray<Location> GetEventTypeLocations(IEventSymbol @event)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is VariableDeclaratorSyntax declarator
-                    && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
-                {
-                    builder.Add(variableDeclaration.Type.GetLocation());
-                }
-                else if (syntax is EventDeclarationSyntax eventDeclaration)
-                {
-                    builder.Add(eventDeclaration.Type.GetLocation());
-                }
-            }
-
-            return builder.Count > 0 ? builder.ToImmutable() : @event.Locations;
-        }
-
-        private static ImmutableArray<Location> GetTypeParameterConstraintLocations(
+        private static ImmutableArray<Location> GetTypeParameterConstraintLocation(
             ISymbol symbol,
-            ITypeParameterSymbol typeParam,
-            ITypeSymbol constraintType,
-            Compilation compilation)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                TypeParameterConstraintClauseSyntax? constraintClause = null;
-                if (syntax is TypeDeclarationSyntax typeDecl)
-                {
-                    foreach (var clause in typeDecl.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-                else if (syntax is MethodDeclarationSyntax methodDecl)
-                {
-                    foreach (var clause in methodDecl.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-                else if (syntax is DelegateDeclarationSyntax delegateDecl)
-                {
-                    foreach (var clause in delegateDecl.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-                else if (syntax is LocalFunctionStatementSyntax localFunc)
-                {
-                    foreach (var clause in localFunc.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-
-                if (constraintClause == null)
-                {
-                    continue;
-                }
-
-                var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
-                foreach (var constraint in constraintClause.Constraints)
-                {
-                    if (constraint is TypeConstraintSyntax typeConstraint)
-                    {
-                        var typeInfo = semanticModel.GetTypeInfo(typeConstraint.Type);
-                        if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, constraintType)
-                            || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
-                        {
-                            builder.Add(typeConstraint.Type.GetLocation());
-                        }
-                    }
-                }
-            }
-
-            return builder.Count > 0 ? builder.ToImmutable() : symbol.Locations;
-        }
+            ITypeParameterSymbol _1,
+            ITypeSymbol _2,
+            Compilation _3) => symbol.Locations;
 
         private static void ReportCrossNamespaceAccess(
             OperationAnalysisContext context,
@@ -823,46 +601,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsSameNamespace(INamespaceSymbol left, INamespaceSymbol right) =>
             SymbolEqualityComparer.Default.Equals(left, right);
 
-        private static ImmutableArray<Location> GetDelegateReturnTypeLocations(INamedTypeSymbol delegateType)
-        {
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl && delegateDecl.ReturnType != null)
-                {
-                    builder.Add(delegateDecl.ReturnType.GetLocation());
-                }
-            }
+        private static ImmutableArray<Location> GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType) => delegateType.Locations;
 
-            return builder.Count > 0 ? builder.ToImmutable() : delegateType.Locations;
-        }
-
-        private static ImmutableArray<Location> GetDelegateParameterTypeLocations(INamedTypeSymbol delegateType, IParameterSymbol parameter)
-        {
-            var invokeMethod = delegateType.DelegateInvokeMethod;
-            if (invokeMethod == null)
-            {
-                return parameter.Locations;
-            }
-
-            var builder = ImmutableArray.CreateBuilder<Location>();
-            foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < delegateDecl.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = delegateDecl.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            builder.Add(parameterSyntax.Type.GetLocation());
-                        }
-                    }
-                }
-            }
-
-            return builder.Count > 0 ? builder.ToImmutable() : parameter.Locations;
-        }
+        private static ImmutableArray<Location> GetDelegateParameterTypeLocation(INamedTypeSymbol _, IParameterSymbol parameter) => parameter.Locations;
     }
 }
