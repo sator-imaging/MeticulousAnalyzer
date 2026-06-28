@@ -15,15 +15,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     {
         private const string SuppressionComment = "// Ignore exception:";
 
-        public const string RuleId_CatchWithoutThrow = "SMA0005";
+        public const string RuleId_CatchWithoutThrow = "SMA8010";
         private static readonly DiagnosticDescriptor Rule_CatchWithoutThrow = new(
             RuleId_CatchWithoutThrow,
-            new LocalizableResourceString(nameof(Resources.SMA0005_Title), Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString(nameof(Resources.SMA0005_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8010_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8010_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0005_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8010_Description), Resources.ResourceManager, typeof(Resources)));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
@@ -47,7 +47,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (HasThrowStatement(catchClause.Block))
+            if (GuaranteesThrow(catchClause.Block))
             {
                 return;
             }
@@ -64,19 +64,28 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ReportDiagnostic(Diagnostic.Create(Rule_CatchWithoutThrow, catchClause.CatchKeyword.GetLocation()));
         }
 
-        private static bool HasThrowStatement(BlockSyntax? block)
+        private static bool GuaranteesThrow(SyntaxNode? node)
         {
-            if (block == null) return false;
+            if (node == null) return false;
 
-            // check for throw statement or expression inside this block, but not inside nested catch clauses, lambdas or local functions
-            foreach (var descendant in block.DescendantNodes(node =>
-                node is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax or CatchClauseSyntax)))
+            if (node is ThrowStatementSyntax) return true;
+
+            if (node is BlockSyntax block)
             {
-                if (descendant is ThrowStatementSyntax or ThrowExpressionSyntax)
+                foreach (var stmt in block.Statements)
                 {
-                    return true;
+                    if (GuaranteesThrow(stmt)) return true;
                 }
             }
+
+            if (node is IfStatementSyntax ifStmt)
+            {
+                return ifStmt.Else != null && GuaranteesThrow(ifStmt.Statement) && GuaranteesThrow(ifStmt.Else.Statement);
+            }
+
+            // Note: ThrowExpressionSyntax is NOT considered as guaranteed throw to satisfy "Don't allow throw in null-coalescing operator"
+            // and because it's usually part of expressions that might not be evaluated or don't guarantee block-level throw.
+
             return false;
         }
     }

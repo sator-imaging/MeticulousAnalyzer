@@ -9,10 +9,10 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<SatorImaging.S
 namespace SatorImaging.StaticMemberAnalyzer.Test.AnalyzerTests
 {
     [TestClass]
-    public class SMA0005_CatchAnalyzerTests
+    public class SMA8010_CatchAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0005_Violation_NoThrowInCatch()
+        public async Task SMA8010_Violation_NoThrowInCatch()
         {
             var test = @"
 using System;
@@ -29,7 +29,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Violation_NoThrowInCatch_WithoutType()
+        public async Task SMA8010_Violation_NoThrowInCatch_WithoutType()
         {
             var test = @"
 using System;
@@ -46,7 +46,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Violation_NestedCatch()
+        public async Task SMA8010_Violation_NestedCatch()
         {
             var test = @"
 using System;
@@ -67,7 +67,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Violation_SuppressionMissingReason()
+        public async Task SMA8010_Violation_SuppressionMissingReason()
         {
             var test = @"
 using System;
@@ -85,7 +85,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Compliant_ThrowExists()
+        public async Task SMA8010_Compliant_ThrowExists()
         {
             var test = @"
 using System;
@@ -104,7 +104,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Compliant_ThrowNewExists()
+        public async Task SMA8010_Compliant_ThrowNewExists()
         {
             var test = @"
 using System;
@@ -123,7 +123,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Compliant_SuppressionWithReason()
+        public async Task SMA8010_Compliant_SuppressionWithReason()
         {
             var test = @"
 using System;
@@ -140,7 +140,27 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Compliant_ThrowInNestedBlock()
+        public async Task SMA8010_Violation_ThrowInPartialIf()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        {|#0:catch|}
+        {
+            if (true) throw new Exception();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_ThrowInBothBranches()
         {
             var test = @"
 using System;
@@ -151,7 +171,8 @@ class C
         try { }
         catch
         {
-            if (true) throw new Exception();
+            if (DateTime.Now.Second % 2 == 0) throw new Exception(""even"");
+            else throw new Exception(""odd"");
         }
     }
 }";
@@ -159,7 +180,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Violation_ThrowInNestedCatch()
+        public async Task SMA8010_Violation_ThrowInNestedCatch()
         {
             var test = @"
 using System;
@@ -180,7 +201,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA0005_Compliant_ThrowExpression()
+        public async Task SMA8010_Violation_ThrowExpressionInNullCoalesce()
         {
             var test = @"
 using System;
@@ -189,13 +210,14 @@ class C
     string M(object o)
     {
         try { return o.ToString(); }
-        catch
+        {|#0:catch|}
         {
             return o?.ToString() ?? throw new Exception();
         }
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
         }
     }
 }

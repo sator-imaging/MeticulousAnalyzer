@@ -366,13 +366,13 @@
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
   </data>
-  <data name="SMA0005_Description" xml:space="preserve">
+  <data name="SMA8010_Description" xml:space="preserve">
     <value>Catch blocks must contain a 'throw' statement unless suppressed with a comment providing a reason.</value>
   </data>
-  <data name="SMA0005_MessageFormat" xml:space="preserve">
+  <data name="SMA8010_MessageFormat" xml:space="preserve">
     <value>Catch block does not contain a 'throw' statement</value>
   </data>
-  <data name="SMA0005_Title" xml:space="preserve">
+  <data name="SMA8010_Title" xml:space="preserve">
     <value>Catch Block Without Throw</value>
   </data>
   <data name="SMA0050__MD_TITLE__" xml:space="preserve">
