@@ -637,6 +637,9 @@ C# allows `internal` types and members to be accessed from any namespace in the 
 - SMA0080: Internal cross-namespace access
     - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
     - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
+    - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core` (hard-coded) or other namespaces specified by [configuration](#how-to-configure-analyzer).
+    - Members defined in a type named `SR` (hard-coded) or other types specified by [configuration](#how-to-configure-analyzer) are also exempt from this rule.
+    - Internal attribute types used in attribute syntax (e.g. `[InternalAttribute]`) are allowed. Internal types used as argument values are also allowed if they are declared in the same namespace as the attribute.
 
 ```cs
 namespace Foo
@@ -806,6 +809,10 @@ sator_imaging.immutable_variable = enable
 
 # Disposable Analysis
 sator_imaging.duck_typing_recognition = enable
+
+# Internal cross-namespace access (Comma-separated values)
+sator_imaging.visible_internal_namespaces = Common,Internal
+sator_imaging.visible_internal_types = Shared,Helpers
 ```
 
 See details for `.globalconfig` file: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files#format

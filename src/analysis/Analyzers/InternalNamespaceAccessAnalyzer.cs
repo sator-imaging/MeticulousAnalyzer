@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
@@ -27,10 +28,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Rule_InternalNamespaceAccess);
 
+        private static string[] VisibleNamespaces = System.Array.Empty<string>();
+        private static string[] VisibleTypes = System.Array.Empty<string>();
+
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
+
+            // TODO: As roslyn triggers compilation start only on file is saved (Ctrl+S is pressed).
+            //       Registering action in compilation start action is **correct but not ideal** because
+            //       the analyzer feedback is not reported until Ctrl+S is pressed.
+            //       For now, basic best-effort configuration support is sufficient.
+            context.RegisterCompilationStartAction(ctx =>
+            {
+                VisibleNamespaces = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalNamespaces);
+                VisibleTypes = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalTypes);
+            });
 
             context.RegisterOperationAction(
                 AnalyzeTypeOperand,
@@ -97,6 +111,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         {
             var operation = context.Operation;
             if (operation.Parent is INameOfOperation)
+            {
+                return;
+            }
+
+            // Allow named arguments in attribute syntax. [Attr(Named = value)]
+            // Named is a property or field reference on the attribute type.
+            if (operation.Syntax.Parent is NameEqualsSyntax { Parent: AttributeArgumentSyntax })
             {
                 return;
             }
@@ -201,7 +222,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
                 case IMethodSymbol method:
                     if (method.AssociatedSymbol is IPropertySymbol or IEventSymbol
-                        || method.MethodKind == MethodKind.LocalFunction)
+                        || method.MethodKind == MethodKind.LocalFunction
+                        || method.IsImplicitlyDeclared)
                     {
                         break;
                     }
@@ -338,7 +360,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return method.Locations[0];
+            return method.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
@@ -372,7 +394,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return parameter.Locations[0];
+            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetFieldTypeLocation(IFieldSymbol field)
@@ -386,7 +408,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return field.Locations[0];
+            return field.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetPropertyTypeLocation(IPropertySymbol property)
@@ -405,7 +427,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return property.Locations[0];
+            return property.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
@@ -426,7 +448,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return parameter.Locations[0];
+            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetBaseOrInterfaceTypeLocation(
@@ -453,7 +475,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return namedType.Locations[0];
+            return namedType.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetEventTypeLocation(IEventSymbol @event)
@@ -473,7 +495,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return @event.Locations[0];
+            return @event.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetTypeParameterConstraintLocation(
@@ -551,7 +573,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return symbol.Locations[0];
+            return symbol.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -565,12 +587,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            INamespaceSymbol? attrNamespace = null;
+            for (var node = operation.Syntax.Parent; node != null; node = node.Parent)
+            {
+                if (node is AttributeSyntax attrStx)
+                {
+                    if (operation.SemanticModel?.GetSymbolInfo(attrStx).Symbol is IMethodSymbol attrCtor)
+                    {
+                        attrNamespace = attrCtor.ContainingNamespace;
+                    }
+                    break;
+                }
+                if (node is StatementSyntax or MemberDeclarationSyntax)
+                {
+                    break;
+                }
+            }
+
             ReportCrossNamespaceAccess(
                 context.Compilation,
                 context.ContainingSymbol?.ContainingNamespace,
                 location,
                 symbol,
-                context.ReportDiagnostic);
+                context.ReportDiagnostic,
+                attrNamespace);
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -591,7 +631,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             INamespaceSymbol? useNamespace,
             Location location,
             ISymbol? symbol,
-            System.Action<Diagnostic> reportDiagnostic)
+            System.Action<Diagnostic> reportDiagnostic,
+            INamespaceSymbol? attrNamespace = null)
         {
             var restrictedSymbol = FindRestrictedSymbol(symbol);
             if (restrictedSymbol == null)
@@ -604,13 +645,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (restrictedSymbol.ContainingType?.Name == "SR")
+            {
+                return;
+            }
+
+            if (VisibleTypes.Contains(restrictedSymbol.ContainingType?.Name ?? string.Empty))
+            {
+                return;
+            }
+
             if (useNamespace == null)
             {
                 return;
             }
 
             var declarationNamespace = restrictedSymbol.ContainingNamespace;
-            if (declarationNamespace == null || IsSameNamespace(useNamespace, declarationNamespace))
+            if (declarationNamespace == null
+                || declarationNamespace.Name == "Core"
+                || VisibleNamespaces.Contains(declarationNamespace.Name)
+                || IsSameNamespace(useNamespace, declarationNamespace)
+                || (attrNamespace != null && IsSameNamespace(attrNamespace, declarationNamespace)))
             {
                 return;
             }
@@ -744,7 +799,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return delegateType.Locations[0];
+            return delegateType.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
 
         private static Location GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
@@ -752,7 +807,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var invokeMethod = delegateType.DelegateInvokeMethod;
             if (invokeMethod == null)
             {
-                return parameter.Locations[0];
+                return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
             }
 
             foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
@@ -771,7 +826,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return parameter.Locations[0];
+            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
         }
     }
 }
