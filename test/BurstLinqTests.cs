@@ -926,6 +926,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             Assert.IsTrue(source.Contains("world"));
         }
 
+        [TestMethod]
+        public void Contains_StringArray_ReturnsTrue_ValueFound()
+        {
+            string[] source = new[] { "A", "B", "C" };
+            Assert.IsTrue(source.Contains("B"));
+        }
+
+        [TestMethod]
+        public void Contains_StringArray_ReturnsFalse_ValueAbsent()
+        {
+            string[] source = new[] { "A", "B", "C" };
+            Assert.IsFalse(source.Contains("Z"));
+        }
+
+        [TestMethod]
+        public void Contains_StringArray_ReturnsFalse_EmptyArray()
+        {
+            string[] source = Array.Empty<string>();
+            Assert.IsFalse(source.Contains("A"));
+        }
+
         #endregion
 
         #region First (ImmutableArray)

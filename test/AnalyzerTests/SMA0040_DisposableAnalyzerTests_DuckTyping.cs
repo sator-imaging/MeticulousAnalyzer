@@ -23,7 +23,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Test
             };
             test.TestState.AnalyzerConfigFiles.Add(("/.globalconfig", @"
 is_global = true
-sator_imaging.duck_typing_recognition = true
+sator_imaging.duck_typing_recognition = enable
 "));
             test.ExpectedDiagnostics.AddRange(expected);
             await test.RunAsync(CancellationToken.None);

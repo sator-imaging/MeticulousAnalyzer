@@ -1,1 +1,1 @@
-See AGENTS.md
+[Read the instructions](./AGENTS.md)

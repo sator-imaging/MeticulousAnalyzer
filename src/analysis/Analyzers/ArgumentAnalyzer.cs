@@ -75,7 +75,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (!requireReporting &&
                 argIndex == 0 &&
                 operation != null &&
-                IsOmittableType(operation, isConstructor: true))
+                IsOmittableFirstArgumentType(operation, isConstructor: true))
             {
                 return;
             }
@@ -266,11 +266,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         return;
                     }
 
+                    if (invocationOp != null && invocationOp.Arguments.Length == 1 && IsDirectlyInSystemNamespace(methodOrCtorContainer))
+                    {
+                        return;
+                    }
+
                     // int, string or char is allowed if it's the first argument.
                     if (argStx.Parent is ArgumentListSyntax argListStx &&
                         argListStx.Arguments.IndexOf(argStx) == 0)
                     {
-                        if (IsOmittableType(argValue, isConstructor: invocationOp == null))
+                        if (IsOmittableFirstArgumentType(argValue, isConstructor: invocationOp == null))
                         {
                             return;
                         }
@@ -338,13 +343,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsOmittableType(IOperation operation, bool isConstructor)
+        private static bool IsOmittableFirstArgumentType(IOperation operation, bool isConstructor)
         {
             var literalSpecialType = operation.Type?.SpecialType;
 
             // First string or char argument is allowed for both method and constructor.
             //   ex. throw new Exception("Message", innerError);
-            if (literalSpecialType is SpecialType.System_String or SpecialType.System_Char)
+            if (literalSpecialType is SpecialType.System_String
+                                   or SpecialType.System_Char
+                                   // Most loggers take a message as an object instead of string
+                                   or SpecialType.System_Object)
             {
                 return true;
             }
@@ -381,6 +389,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         }
                     }
                 };
+        }
+
+        private static bool IsDirectlyInSystemNamespace(INamedTypeSymbol? typeSymbol)
+        {
+            return typeSymbol?.ContainingNamespace is INamespaceSymbol
+            {
+                Name: "System",
+                ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true }
+            };
         }
     }
 }

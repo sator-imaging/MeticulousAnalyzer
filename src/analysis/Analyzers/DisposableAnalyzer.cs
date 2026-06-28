@@ -538,8 +538,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // Move to ternary operator.
-            if (focusedOp.Parent is IConditionalOperation)
+            // NOTE: Unpack ternary or coalesce operation.
+            //       --> condition ? Method() : new Disposable()
+            //       --> Method() ?? throw new Exception()
+            if (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
             {
                 focusedOp = focusedOp.Parent;
             }
@@ -741,7 +743,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 // --> Method() => new Disposable();
                 // --> Method() { return new Disposable(); }
                 {
-                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax)
+                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax or YieldStatementSyntax)
                     {
                         return true;
                     }
