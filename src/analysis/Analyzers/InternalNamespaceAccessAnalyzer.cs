@@ -11,9 +11,9 @@ using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
-    // NOTE: Source generator usually injects helper attribute and types as internal type, in their namespace.
+    // NOTE: Source generator usually injects helper attributes and types as internal type, in their namespace.
     //       As a result, a lot of errors may occur.
-    //       --> Internals in their namespace are allowed to be accessed in attribute syntax.
+    //       --> Internals in their namespace are allowed to be accessed only in attribute syntax.
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class InternalNamespaceAccessAnalyzer : DiagnosticAnalyzer
     {
