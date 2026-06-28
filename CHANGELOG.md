@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.0.0-rc.7](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.7) (2026-06-28)
+
+### 🚀 Features
+* Exempt single-argument System namespace methods from SMA8000 by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#412](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/412)
+* Allow internal access for Core namespaces by [@sator-imaging](https://github.com/sator-imaging) in [#409](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/409)
+* BurstLinq Performance Optimizations and Concrete Overloads by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#401](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/401)
+### 📚 Other Changes
+* Add DisposableAnalyzer regression coverage for constructor-based coalesce expressions by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#416](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/416)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.6...v5.0.0-rc.7
+
+
 ## [5.0.0-rc.6](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.6) (2026-06-27)
 
 ### 📣 Breaking Changes ⚠
