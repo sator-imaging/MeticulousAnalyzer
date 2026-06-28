@@ -16,6 +16,26 @@ namespace SatorImaging.StaticMemberAnalyzer
     {
         /*  ElementAtOrDefault  ================================================================ */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? ElementAtOrDefault<T>(this ImmutableArray<T> source, int index)
+        {
+            if (source.IsDefault || unchecked((uint)index >= (uint)source.Length))
+            {
+                return default;
+            }
+            return source[index];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? ElementAtOrDefault<T>(this IReadOnlyList<T> source, int index)
+        {
+            if (unchecked((uint)index >= (uint)source.Count))
+            {
+                return default;
+            }
+            return source[index];
+        }
+
         public static T? ElementAtOrDefault<T>(this IEnumerable<T> source, int index)
         {
             if (source is IReadOnlyCollection<T> roc &&
@@ -180,6 +200,19 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /* =====  + FirstOrDefault  ===== */
 
+        public static TResult? OfType_FirstOrDefault<TSource, TResult>(this ImmutableArray<TSource> source)
+        {
+            if (source.IsDefaultOrEmpty) return default;
+            for (int i = 0, count = source.Length; i < count; i++)
+            {
+                if (source[i] is TResult match) return match;
+            }
+            return default;
+        }
+
+        public static T? OfType_FirstOrDefault<T>(this ImmutableArray<ISymbol> source) => OfType_FirstOrDefault<ISymbol, T>(source);
+        public static T? OfType_FirstOrDefault<T>(this ImmutableArray<IOperation> source) => OfType_FirstOrDefault<IOperation, T>(source);
+
         public static T? OfType_FirstOrDefault<T>(
             this IEnumerable<object> source
         )
@@ -195,6 +228,19 @@ namespace SatorImaging.StaticMemberAnalyzer
         }
 
         /* =====  + Any  ===== */
+
+        public static bool OfType_Any<TSource, TResult>(this ImmutableArray<TSource> source)
+        {
+            if (source.IsDefaultOrEmpty) return false;
+            for (int i = 0, count = source.Length; i < count; i++)
+            {
+                if (source[i] is TResult) return true;
+            }
+            return false;
+        }
+
+        public static bool OfType_Any<T>(this ImmutableArray<ISymbol> source) => OfType_Any<ISymbol, T>(source);
+        public static bool OfType_Any<T>(this ImmutableArray<IOperation> source) => OfType_Any<IOperation, T>(source);
 
         public static bool OfType_Any<T>(
             this IEnumerable<object> source
@@ -346,6 +392,31 @@ namespace SatorImaging.StaticMemberAnalyzer
 
         /*  ToArray  ================================================================ */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] ToArray<T>(this ImmutableArray<T> source)
+        {
+            if (source.IsDefaultOrEmpty)
+            {
+                return Array.Empty<T>();
+            }
+            var result = new T[source.Length];
+            source.CopyTo(result, 0);
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] ToArray<T>(this ICollection<T> source)
+        {
+            int count = source.Count;
+            if (count == 0)
+            {
+                return Array.Empty<T>();
+            }
+            var result = new T[count];
+            source.CopyTo(result, 0);
+            return result;
+        }
+
         public static T[] ToArray<T>(this IEnumerable<T> source)
         {
             if (source is ICollection<T> col)
@@ -426,6 +497,12 @@ namespace SatorImaging.StaticMemberAnalyzer
             return !source.IsDefaultOrEmpty;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Any<T>(this IReadOnlyCollection<T> source)
+        {
+            return source.Count > 0;
+        }
+
         public static bool Any<T>(this IEnumerable<T> source)
         {
             if (source is IReadOnlyCollection<T> roc)
@@ -478,6 +555,18 @@ namespace SatorImaging.StaticMemberAnalyzer
 
 
         /*  Contains  ================================================================ */
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Contains<T>(this ImmutableArray<T> source, T value)
+        {
+            return !source.IsDefault && source.Contains(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Contains<T>(this ICollection<T> source, T value)
+        {
+            return source.Contains(value);
+        }
 
         public static bool Contains(this string[] source, string value)
         {
