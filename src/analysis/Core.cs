@@ -368,6 +368,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                      or FieldDeclarationSyntax
                      // Allow suppression comment "Allow allocation" on lambda declaration
                      or LambdaExpressionSyntax
+                     // Allow suppression comment on catch clause
+                     or CatchClauseSyntax
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
@@ -383,6 +385,32 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
 
             return comment != default
                 && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal static string GetPrecedingComments(SyntaxNode? node)
+        {
+            if (node == null) return string.Empty;
+
+            var sb = new StringBuilder();
+            foreach (var trivia in node.GetFirstToken().LeadingTrivia)
+            {
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                {
+                    var comment = trivia.ToString();
+                    if (comment.StartsWith("//"))
+                    {
+                        comment = comment.Substring(2);
+                    }
+
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("\n");
+                    }
+                    sb.Append(comment);
+                }
+            }
+
+            return sb.ToString();
         }
 
 
