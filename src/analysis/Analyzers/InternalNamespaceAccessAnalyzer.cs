@@ -42,8 +42,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             //       For now, basic best-effort configuration support is sufficient.
             context.RegisterCompilationStartAction(ctx =>
             {
-                VisibleNamespaces = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalNamespaces);
-                VisibleTypes = Core.GetConfigurationArray(ctx, Core.Config_VisibleInternalTypes);
+                VisibleNamespaces = Core.GetGlobalConfigurationArray(ctx, Core.Config_VisibleInternalNamespaces);
+                VisibleTypes = Core.GetGlobalConfigurationArray(ctx, Core.Config_VisibleInternalTypes);
             });
 
             context.RegisterOperationAction(

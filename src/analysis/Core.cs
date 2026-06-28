@@ -31,7 +31,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         public const string Config_VisibleInternalNamespaces = ConfigPrefix + "visible_internal_namespaces";
         public const string Config_VisibleInternalTypes = ConfigPrefix + "visible_internal_types";
 
-        public static bool GetConfiguration(CompilationStartAnalysisContext context, string key)
+        public static bool GetGlobalConfigurationBoolean(CompilationStartAnalysisContext context, string key)
         {
             // GlobalOptions is NOT .editorconfig. Just check falsy.
             return context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
@@ -41,7 +41,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         static readonly char[] cache_splitCommaSeparatedValues = new char[] { ',', ' ' };
         static readonly Dictionary<string, string[]> cache_globalArrayConfig = new();
 
-        public static string[] GetConfigurationArray(CompilationStartAnalysisContext context, string key)
+        public static string[] GetGlobalConfigurationArray(CompilationStartAnalysisContext context, string key)
         {
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
