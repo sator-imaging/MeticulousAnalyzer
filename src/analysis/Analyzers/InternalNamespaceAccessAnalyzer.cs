@@ -1,14 +1,6 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/StaticMemberAnalyzer
 
-/*
- * This analyzer flags access to internal members from different namespaces.
- * Note that:
- * - Source generator injects helper attribute and types as internal type.
- * - A lot of false-positive errors may occur.
- * - Attribute arguments still be reported as designed.
- */
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -19,6 +11,9 @@ using System.Collections.Immutable;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
+    // Source generator injects helper attribute and types as internal type.
+    // A lot of false-positive errors may occur.
+    // Attribute arguments still be reported as designed.
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class InternalNamespaceAccessAnalyzer : DiagnosticAnalyzer
     {
