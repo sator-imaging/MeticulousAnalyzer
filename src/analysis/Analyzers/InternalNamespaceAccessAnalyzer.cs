@@ -721,7 +721,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static ISymbol? FindRestrictedSymbol(ISymbol? symbol)
         {
-            if (symbol == null)
+            if (symbol == null || symbol is ITypeParameterSymbol)
             {
                 return null;
             }
