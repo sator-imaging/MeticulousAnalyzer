@@ -12,9 +12,6 @@ using System.Runtime.CompilerServices;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
-    // Source generators usually inject internal helper attributes and types into their own namespace,
-    // leading to potential false-positive errors. Internal access within their own namespace is
-    // permitted only when occurring within attribute syntax.
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class InternalNamespaceAccessAnalyzer : DiagnosticAnalyzer
     {
@@ -37,6 +34,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
 
+        // Source generators typically inject internal helper attributes or types into their own namespace.
+        // Access to these attributes or types is only permitted when declared in '.g.cs'.
         private static bool IsGeneratedCode(SyntaxTree? tree)
         {
             if (tree == null)
@@ -44,7 +43,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return false;
             }
 
-            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath.EndsWith(".g.cs", StringComparison.Ordinal))).Value;
+            // NOTE: The most reliable detection logic is checking the file name.
+            //       There are some attributes or properties but Roslyn does not
+            //       provide official guidelines for generated code.
+            //       SGs may or may not set these so the result is not deterministic.
+            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
         }
 
         public override void Initialize(AnalysisContext context)
@@ -631,18 +634,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ISymbol? symbol,
             System.Action<Diagnostic> reportDiagnostic)
         {
-            if (IsGeneratedCode(location.SourceTree))
-            {
-                return;
-            }
-
             var restrictedSymbol = FindRestrictedSymbol(symbol);
             if (restrictedSymbol == null)
             {
                 return;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, compilation.Assembly))
+            // Internal namespace check only targets the same assembly.
+            if (!SymbolEqualityComparer.Default.Equals(compilation.Assembly, restrictedSymbol.ContainingAssembly))
             {
                 return;
             }
@@ -667,6 +666,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || declarationNamespace.Name == "Core"
                 || VisibleNamespaces.Contains(declarationNamespace.Name)
                 || IsSameNamespace(useNamespace, declarationNamespace))
+            {
+                return;
+            }
+
+            if (IsGeneratedCode(location.SourceTree))
             {
                 return;
             }
