@@ -55,7 +55,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (Core.IsSuppressedByComment(catchClause, SuppressionComment))
             {
                 var comments = Core.GetPrecedingComments(catchClause);
-                if (!comments.TrimEnd().EndsWith("Ignore exception:", StringComparison.OrdinalIgnoreCase))
+                if (!comments.TrimEnd().EndsWith(SuppressionComment.Substring(2), StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
