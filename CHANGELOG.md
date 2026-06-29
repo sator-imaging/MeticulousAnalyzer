@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.0-rc.8](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.8) (2026-06-29)
+
+### ✨ Bug Fixes
+* Fix infinite loop in InternalNamespaceAccessAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#423](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/423)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.7...v5.0.0-rc.8
+
+
 ## [5.0.0-rc.7](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.7) (2026-06-28)
 
 ### 🚀 Features
