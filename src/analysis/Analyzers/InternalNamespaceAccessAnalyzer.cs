@@ -334,246 +334,51 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static Location GetReturnTypeLocation(IMethodSymbol method)
+        private static ImmutableArray<Location> GetReturnTypeLocation(IMethodSymbol method)
         {
-            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
-                {
-                    return methodDecl.ReturnType.GetLocation();
-                }
-
-                if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
-                {
-                    return localFunc.ReturnType.GetLocation();
-                }
-
-                if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
-                {
-                    return operatorDecl.ReturnType.GetLocation();
-                }
-
-                if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
-                {
-                    return conversionDecl.Type.GetLocation();
-                }
-            }
-
-            return method.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return method.Locations;
         }
 
-        private static Location GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
+        private static ImmutableArray<Location> GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
         {
-            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is BaseMethodDeclarationSyntax methodDecl)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < methodDecl.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = methodDecl.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            return parameterSyntax.Type.GetLocation();
-                        }
-                    }
-                }
-                else if (syntax is LocalFunctionStatementSyntax localFunc)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < localFunc.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = localFunc.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            return parameterSyntax.Type.GetLocation();
-                        }
-                    }
-                }
-            }
-
-            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return parameter.Locations;
         }
 
-        private static Location GetFieldTypeLocation(IFieldSymbol field)
+        private static ImmutableArray<Location> GetFieldTypeLocation(IFieldSymbol field)
         {
-            foreach (var syntaxRef in field.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is VariableDeclaratorSyntax declarator
-                    && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
-                {
-                    return variableDeclaration.Type.GetLocation();
-                }
-            }
-
-            return field.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return field.Locations;
         }
 
-        private static Location GetPropertyTypeLocation(IPropertySymbol property)
+        private static ImmutableArray<Location> GetPropertyTypeLocation(IPropertySymbol property)
         {
-            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is PropertyDeclarationSyntax propertyDeclaration)
-                {
-                    return propertyDeclaration.Type.GetLocation();
-                }
-
-                if (syntax is IndexerDeclarationSyntax indexerDeclaration)
-                {
-                    return indexerDeclaration.Type.GetLocation();
-                }
-            }
-
-            return property.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return property.Locations;
         }
 
-        private static Location GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
+        private static ImmutableArray<Location> GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
         {
-            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is IndexerDeclarationSyntax indexerDecl)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < indexerDecl.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = indexerDecl.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            return parameterSyntax.Type.GetLocation();
-                        }
-                    }
-                }
-            }
-
-            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return parameter.Locations;
         }
 
-        private static Location GetBaseOrInterfaceTypeLocation(
+        private static ImmutableArray<Location> GetBaseOrInterfaceTypeLocation(
             INamedTypeSymbol namedType,
             ITypeSymbol typeSymbol,
             Compilation compilation)
         {
-            foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
-                {
-                    continue;
-                }
-
-                var semanticModel = compilation.GetSemanticModel(typeDecl.SyntaxTree);
-                foreach (var baseTypeSyntax in typeDecl.BaseList.Types)
-                {
-                    var typeInfo = semanticModel.GetTypeInfo(baseTypeSyntax.Type);
-                    if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeSymbol)
-                        || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
-                    {
-                        return baseTypeSyntax.Type.GetLocation();
-                    }
-                }
-            }
-
-            return namedType.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return namedType.Locations;
         }
 
-        private static Location GetEventTypeLocation(IEventSymbol @event)
+        private static ImmutableArray<Location> GetEventTypeLocation(IEventSymbol @event)
         {
-            foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                if (syntax is VariableDeclaratorSyntax declarator
-                    && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
-                {
-                    return variableDeclaration.Type.GetLocation();
-                }
-
-                if (syntax is EventDeclarationSyntax eventDeclaration)
-                {
-                    return eventDeclaration.Type.GetLocation();
-                }
-            }
-
-            return @event.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return @event.Locations;
         }
 
-        private static Location GetTypeParameterConstraintLocation(
+        private static ImmutableArray<Location> GetTypeParameterConstraintLocation(
             ISymbol symbol,
             ITypeParameterSymbol typeParam,
             ITypeSymbol constraintType,
             Compilation compilation)
         {
-            foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                TypeParameterConstraintClauseSyntax? constraintClause = null;
-                if (syntax is TypeDeclarationSyntax typeDecl)
-                {
-                    foreach (var clause in typeDecl.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-                else if (syntax is MethodDeclarationSyntax methodDecl)
-                {
-                    foreach (var clause in methodDecl.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-                else if (syntax is DelegateDeclarationSyntax delegateDecl)
-                {
-                    foreach (var clause in delegateDecl.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-                else if (syntax is LocalFunctionStatementSyntax localFunc)
-                {
-                    foreach (var clause in localFunc.ConstraintClauses)
-                    {
-                        if (clause.Name.Identifier.Text == typeParam.Name)
-                        {
-                            constraintClause = clause;
-                            break;
-                        }
-                    }
-                }
-
-                if (constraintClause == null)
-                {
-                    continue;
-                }
-
-                var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
-                foreach (var constraint in constraintClause.Constraints)
-                {
-                    if (constraint is TypeConstraintSyntax typeConstraint)
-                    {
-                        var typeInfo = semanticModel.GetTypeInfo(typeConstraint.Type);
-                        if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, constraintType)
-                            || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
-                        {
-                            return typeConstraint.Type.GetLocation();
-                        }
-                    }
-                }
-            }
-
-            return symbol.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return symbol.Locations;
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -606,6 +411,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 location,
                 type,
                 context.ReportDiagnostic);
+        }
+
+        private static void ReportCrossNamespaceAccess(
+            SymbolAnalysisContext context,
+            ImmutableArray<Location> locations,
+            ITypeSymbol? type)
+        {
+            foreach (var location in locations)
+            {
+                ReportCrossNamespaceAccess(context, location, type);
+            }
+        }
+
+        private static void ReportCrossNamespaceAccess(
+            Compilation compilation,
+            INamespaceSymbol? useNamespace,
+            ImmutableArray<Location> locations,
+            ISymbol? symbol,
+            System.Action<Diagnostic> reportDiagnostic)
+        {
+            foreach (var location in locations)
+            {
+                ReportCrossNamespaceAccess(compilation, useNamespace, location, symbol, reportDiagnostic);
+            }
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -769,44 +598,14 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         private static bool IsSameNamespace(INamespaceSymbol left, INamespaceSymbol right) =>
             SymbolEqualityComparer.Default.Equals(left, right);
 
-        private static Location GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
+        private static ImmutableArray<Location> GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
         {
-            foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl && delegateDecl.ReturnType != null)
-                {
-                    return delegateDecl.ReturnType.GetLocation();
-                }
-            }
-
-            return delegateType.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return delegateType.Locations;
         }
 
-        private static Location GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
+        private static ImmutableArray<Location> GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
         {
-            var invokeMethod = delegateType.DelegateInvokeMethod;
-            if (invokeMethod == null)
-            {
-                return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
-            }
-
-            foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl)
-                {
-                    var index = parameter.Ordinal;
-                    if (index >= 0 && index < delegateDecl.ParameterList.Parameters.Count)
-                    {
-                        var parameterSyntax = delegateDecl.ParameterList.Parameters[index];
-                        if (parameterSyntax.Type != null)
-                        {
-                            return parameterSyntax.Type.GetLocation();
-                        }
-                    }
-                }
-            }
-
-            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return parameter.Locations;
         }
     }
 }
