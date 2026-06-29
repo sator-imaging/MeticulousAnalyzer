@@ -411,5 +411,38 @@ namespace Foo.Bar
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Internal"));
         }
 
+        [TestMethod]
+        public async Task SMA0080_Compliant_GeneratedCodeExemption()
+        {
+            var testSource = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.InternalType.Value;
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test.g.cs", testSource) }
+                }
+            };
+
+            await test.RunAsync();
+        }
     }
 }

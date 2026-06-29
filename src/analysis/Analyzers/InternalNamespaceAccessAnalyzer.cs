@@ -8,9 +8,13 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
+    // Source generators usually inject internal helper attributes and types into their own namespace,
+    // leading to potential false-positive errors. Internal access within their own namespace is
+    // permitted only when occurring within attribute syntax.
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class InternalNamespaceAccessAnalyzer : DiagnosticAnalyzer
     {
@@ -30,6 +34,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static string[] VisibleNamespaces = System.Array.Empty<string>();
         private static string[] VisibleTypes = System.Array.Empty<string>();
+
+        private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
+
+        private static bool IsGeneratedCode(SyntaxTree? tree)
+        {
+            if (tree == null)
+            {
+                return false;
+            }
+
+            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath.EndsWith(".g.cs", StringComparison.Ordinal))).Value;
+        }
 
         public override void Initialize(AnalysisContext context)
         {
@@ -615,6 +631,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ISymbol? symbol,
             System.Action<Diagnostic> reportDiagnostic)
         {
+            if (IsGeneratedCode(location.SourceTree))
+            {
+                return;
+            }
+
             var restrictedSymbol = FindRestrictedSymbol(symbol);
             if (restrictedSymbol == null)
             {
