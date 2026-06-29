@@ -640,12 +640,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Internal namespace check only targets the same assembly.
-            if (!SymbolEqualityComparer.Default.Equals(compilation.Assembly, restrictedSymbol.ContainingAssembly))
-            {
-                return;
-            }
-
             if (restrictedSymbol.ContainingType?.Name == "SR")
             {
                 return;
@@ -673,6 +667,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (IsGeneratedCode(location.SourceTree))
             {
                 return;
+            }
+
+            // Exempt if restricted symbol is declared in generated code.
+            foreach (var loc in restrictedSymbol.Locations)
+            {
+                if (IsGeneratedCode(loc.SourceTree))
+                {
+                    return;
+                }
             }
 
             reportDiagnostic(Diagnostic.Create(
