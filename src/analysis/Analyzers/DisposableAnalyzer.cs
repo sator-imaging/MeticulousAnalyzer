@@ -80,11 +80,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Analyzer%20Actions%20Semantics.md
 
+            // TODO: As roslyn triggers compilation start only on file is saved (Ctrl+S is pressed).
+            //       Registering action in compilation start action is **correct but not ideal** because
+            //       the analyzer feedback is not reported until Ctrl+S is pressed.
+            //       For now, basic best-effort configuration support is sufficient.
             context.RegisterCompilationStartAction(ctx =>
             {
-                // NOTE: DO NOT try supporting configuration correctly.
-                //       Just enough setting static switch here.
-                IsDuckTypingEnabled = Core.GetConfiguration(ctx, Core.Config_EnableDuckTypingRecognition);
+                IsDuckTypingEnabled = Core.GetGlobalConfigurationBoolean(ctx, Core.Config_EnableDuckTypingRecognition);
             });
 
             context.RegisterOperationAction(AnalyzeCast, OperationKind.Conversion);
@@ -539,8 +541,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // NOTE: Unpack ternary or coalesce operation.
-            //       --> Method() ?? throw new Exception()
             //       --> condition ? Method() : new Disposable()
+            //       --> Method() ?? throw new Exception()
             if (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
             {
                 focusedOp = focusedOp.Parent;

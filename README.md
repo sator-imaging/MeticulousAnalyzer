@@ -425,6 +425,8 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 > [!NOTE]
 > `string`, `System.Text`, or `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
 >
+> For types in the `System` namespace, named arguments can be omitted if the method has only one argument. (e.g., `TimeSpan.FromSeconds(10)`)
+>
 > Note that `null` and `default` literals, and boolean expressions (including pattern matching, e.g., `foo is not null` or `x == y`) are NOT exempt from the named argument rule and must always be named, regardless of their position or the containing namespace.
 >
 > (Known assertion and math methods are exempt from all checks)
@@ -637,6 +639,7 @@ C# allows `internal` types and members to be accessed from any namespace in the 
     - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
     - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core` (hard-coded) or other namespaces specified by [configuration](#how-to-configure-analyzer).
     - Members defined in a type named `SR` (hard-coded) or other types specified by [configuration](#how-to-configure-analyzer) are also exempt from this rule.
+    - Internal attribute types used in attribute syntax (e.g. `[InternalAttribute]`) are allowed. Internal types used as argument values are also allowed if they are declared in the same namespace as the attribute.
 
 ```cs
 namespace Foo
