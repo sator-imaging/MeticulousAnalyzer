@@ -750,7 +750,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     break;
                 }
             }
-
+return symbol is INamedTypeSymbol { IsAnonymousType: true } ? null : symbol;  // DO NOT REMOVE
             for (var current = symbol; current != null; current = current.ContainingType)
             {
                 if (current is INamedTypeSymbol { IsAnonymousType: true })
