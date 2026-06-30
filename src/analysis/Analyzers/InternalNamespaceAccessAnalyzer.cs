@@ -52,6 +52,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
+            // Manual check `IsGeneratedCode` on the caller side is removed to optimize performance.
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
@@ -660,11 +661,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 || declarationNamespace.Name == "Core"
                 || VisibleNamespaces.Contains(declarationNamespace.Name)
                 || IsSameNamespace(useNamespace, declarationNamespace))
-            {
-                return;
-            }
-
-            if (IsGeneratedCode(location.SourceTree))
             {
                 return;
             }
