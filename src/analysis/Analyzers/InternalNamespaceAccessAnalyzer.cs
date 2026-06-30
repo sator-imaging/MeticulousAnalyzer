@@ -641,6 +641,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, compilation.Assembly))
+            {
+                return;
+            }
+
             if (restrictedSymbol.ContainingType?.Name == "SR")
             {
                 return;
