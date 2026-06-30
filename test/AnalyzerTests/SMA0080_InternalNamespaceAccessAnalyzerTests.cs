@@ -523,5 +523,44 @@ namespace Foo.Bar
             await test.RunAsync();
         }
 
+        [TestMethod]
+        public async Task SMA0080_Violation_CrossNamespaceInternalAccess_NormalFiles()
+        {
+            var source1 = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+";
+            var source2 = @"
+namespace Foo.Bar
+{
+    internal class InternalConsumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.InternalType.Value|};
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("File1.cs", source1),
+                        ("File2.cs", source2),
+                    }
+                }
+            };
+
+            test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo"));
+            await test.RunAsync();
+        }
     }
 }
