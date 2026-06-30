@@ -36,13 +36,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         // Source generators typically inject internal helper attributes or types into their own namespace.
         // Access to these attributes or types is only permitted when declared in '.g.cs'.
-        private static bool IsGeneratedCode(SyntaxTree? tree)
+        private static bool IsGeneratedCode(SyntaxTree tree)
         {
-            if (tree == null)
-            {
-                return false;
-            }
-
             // NOTE: The most reliable detection logic is checking the file name.
             //       There are some attributes or properties but Roslyn does not
             //       provide official guidelines for generated code.
@@ -52,7 +47,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            // Manual check `IsGeneratedCode` on the caller side is removed to optimize performance.
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
@@ -668,7 +662,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // Exempt if restricted symbol is declared in generated code.
             foreach (var loc in restrictedSymbol.Locations)
             {
-                if (!IsGeneratedCode(loc.SourceTree))
+                var sourceTree = loc.SourceTree;
+                if (sourceTree is not null && !IsGeneratedCode(sourceTree))
                 {
                     reportDiagnostic(Diagnostic.Create(
                         Rule_InternalNamespaceAccess,
