@@ -755,7 +755,7 @@ return symbol is INamedTypeSymbol { IsAnonymousType: true } ? null : symbol;  //
             {
                 if (current is INamedTypeSymbol { IsAnonymousType: true })
                 {
-                    return null;
+                    continue;
                 }
 
                 if (IsInternalOrProtectedInternal(current.DeclaredAccessibility))
