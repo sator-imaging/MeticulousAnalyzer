@@ -746,7 +746,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
             }
 
-                return symbol;  // Test
+            return symbol is INamedTypeSymbol { IsAnonymousType: true } ? null : symbol;  // Test
 
             for (var current = symbol; current != null; current = current.ContainingType)
             {
