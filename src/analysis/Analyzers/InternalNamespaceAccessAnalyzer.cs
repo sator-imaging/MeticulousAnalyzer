@@ -341,36 +341,36 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static Location GetReturnTypeLocation(IMethodSymbol method)
+        private static ImmutableArray<Location> GetReturnTypeLocation(IMethodSymbol method)
         {
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
-                    return methodDecl.ReturnType.GetLocation();
+                    return ImmutableArray.Create(methodDecl.ReturnType.GetLocation());
                 }
 
                 if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
                 {
-                    return localFunc.ReturnType.GetLocation();
+                    return ImmutableArray.Create(localFunc.ReturnType.GetLocation());
                 }
 
                 if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
                 {
-                    return operatorDecl.ReturnType.GetLocation();
+                    return ImmutableArray.Create(operatorDecl.ReturnType.GetLocation());
                 }
 
                 if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
                 {
-                    return conversionDecl.Type.GetLocation();
+                    return ImmutableArray.Create(conversionDecl.Type.GetLocation());
                 }
             }
 
-            return method.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return method.Locations;
         }
 
-        private static Location GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
+        private static ImmutableArray<Location> GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
         {
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
@@ -383,7 +383,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         var parameterSyntax = methodDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return parameterSyntax.Type.GetLocation();
+                            return ImmutableArray.Create(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
@@ -395,49 +395,49 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         var parameterSyntax = localFunc.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return parameterSyntax.Type.GetLocation();
+                            return ImmutableArray.Create(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
             }
 
-            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return parameter.Locations;
         }
 
-        private static Location GetFieldTypeLocation(IFieldSymbol field)
+        private static ImmutableArray<Location> GetFieldTypeLocation(IFieldSymbol field)
         {
             foreach (var syntaxRef in field.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is VariableDeclaratorSyntax declarator
                     && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
                 {
-                    return variableDeclaration.Type.GetLocation();
+                    return ImmutableArray.Create(variableDeclaration.Type.GetLocation());
                 }
             }
 
-            return field.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return field.Locations;
         }
 
-        private static Location GetPropertyTypeLocation(IPropertySymbol property)
+        private static ImmutableArray<Location> GetPropertyTypeLocation(IPropertySymbol property)
         {
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is PropertyDeclarationSyntax propertyDeclaration)
                 {
-                    return propertyDeclaration.Type.GetLocation();
+                    return ImmutableArray.Create(propertyDeclaration.Type.GetLocation());
                 }
 
                 if (syntax is IndexerDeclarationSyntax indexerDeclaration)
                 {
-                    return indexerDeclaration.Type.GetLocation();
+                    return ImmutableArray.Create(indexerDeclaration.Type.GetLocation());
                 }
             }
 
-            return property.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return property.Locations;
         }
 
-        private static Location GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
+        private static ImmutableArray<Location> GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
         {
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
@@ -449,16 +449,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         var parameterSyntax = indexerDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return parameterSyntax.Type.GetLocation();
+                            return ImmutableArray.Create(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
             }
 
-            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return parameter.Locations;
         }
 
-        private static Location GetBaseOrInterfaceTypeLocation(
+        private static ImmutableArray<Location> GetBaseOrInterfaceTypeLocation(
             INamedTypeSymbol namedType,
             ITypeSymbol typeSymbol,
             Compilation compilation)
@@ -477,15 +477,15 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeSymbol)
                         || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
                     {
-                        return baseTypeSyntax.Type.GetLocation();
+                        return ImmutableArray.Create(baseTypeSyntax.Type.GetLocation());
                     }
                 }
             }
 
-            return namedType.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return namedType.Locations;
         }
 
-        private static Location GetEventTypeLocation(IEventSymbol @event)
+        private static ImmutableArray<Location> GetEventTypeLocation(IEventSymbol @event)
         {
             foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
             {
@@ -493,19 +493,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 if (syntax is VariableDeclaratorSyntax declarator
                     && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
                 {
-                    return variableDeclaration.Type.GetLocation();
+                    return ImmutableArray.Create(variableDeclaration.Type.GetLocation());
                 }
 
                 if (syntax is EventDeclarationSyntax eventDeclaration)
                 {
-                    return eventDeclaration.Type.GetLocation();
+                    return ImmutableArray.Create(eventDeclaration.Type.GetLocation());
                 }
             }
 
-            return @event.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return @event.Locations;
         }
 
-        private static Location GetTypeParameterConstraintLocation(
+        private static ImmutableArray<Location> GetTypeParameterConstraintLocation(
             ISymbol symbol,
             ITypeParameterSymbol typeParam,
             ITypeSymbol constraintType,
@@ -574,13 +574,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, constraintType)
                             || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
                         {
-                            return typeConstraint.Type.GetLocation();
+                            return ImmutableArray.Create(typeConstraint.Type.GetLocation());
                         }
                     }
                 }
             }
 
-            return symbol.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return symbol.Locations;
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -613,6 +613,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 location,
                 type,
                 context.ReportDiagnostic);
+        }
+
+        private static void ReportCrossNamespaceAccess(
+            SymbolAnalysisContext context,
+            ImmutableArray<Location> locations,
+            ITypeSymbol? type)
+        {
+            foreach (var loc in locations)
+            {
+                ReportCrossNamespaceAccess(context, loc, type);
+            }
+        }
+
+        private static void ReportCrossNamespaceAccess(
+            Compilation compilation,
+            INamespaceSymbol? useNamespace,
+            ImmutableArray<Location> locations,
+            ISymbol? symbol,
+            System.Action<Diagnostic> reportDiagnostic)
+        {
+            foreach (var loc in locations)
+            {
+                ReportCrossNamespaceAccess(compilation, useNamespace, loc, symbol, reportDiagnostic);
+            }
         }
 
         private static void ReportCrossNamespaceAccess(
@@ -775,25 +799,25 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             return null;
         }
 
-        private static Location GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
+        private static ImmutableArray<Location> GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
         {
             foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is DelegateDeclarationSyntax delegateDecl && delegateDecl.ReturnType != null)
                 {
-                    return delegateDecl.ReturnType.GetLocation();
+                    return ImmutableArray.Create(delegateDecl.ReturnType.GetLocation());
                 }
             }
 
-            return delegateType.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return delegateType.Locations;
         }
 
-        private static Location GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
+        private static ImmutableArray<Location> GetDelegateParameterTypeLocation(INamedTypeSymbol delegateType, IParameterSymbol parameter)
         {
             var invokeMethod = delegateType.DelegateInvokeMethod;
             if (invokeMethod == null)
             {
-                return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+                return parameter.Locations;
             }
 
             foreach (var syntaxRef in delegateType.DeclaringSyntaxReferences)
@@ -806,13 +830,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                         var parameterSyntax = delegateDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return parameterSyntax.Type.GetLocation();
+                            return ImmutableArray.Create(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
             }
 
-            return parameter.Locations.ElementAtOrDefault(0) ?? Location.None;
+            return parameter.Locations;
         }
     }
 }
