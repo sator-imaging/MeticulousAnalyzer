@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -30,6 +31,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         private static string[] VisibleNamespaces = System.Array.Empty<string>();
         private static string[] VisibleTypes = System.Array.Empty<string>();
+
+        private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
+
+        // Source generators typically inject internal helper attributes or types into their own namespace.
+        // Access to these attributes or types is only permitted when declared in '.g.cs'.
+        private static bool IsGeneratedCode(SyntaxTree tree)
+        {
+            // NOTE: The most reliable detection logic is checking the file name.
+            //       There are some attributes or properties but Roslyn does not
+            //       provide official guidelines for generated code.
+            //       SGs may or may not set these so the result is not deterministic.
+            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
+        }
 
         public override void Initialize(AnalysisContext context)
         {
@@ -614,11 +628,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, compilation.Assembly))
-            {
-                return;
-            }
-
             if (restrictedSymbol.ContainingType?.Name == "SR")
             {
                 return;
@@ -638,17 +647,27 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (declarationNamespace == null
                 || declarationNamespace.Name == "Core"
                 || VisibleNamespaces.Contains(declarationNamespace.Name)
-                || IsSameNamespace(useNamespace, declarationNamespace))
+                || SymbolEqualityComparer.Default.Equals(useNamespace, declarationNamespace))
             {
                 return;
             }
 
-            reportDiagnostic(Diagnostic.Create(
-                Rule_InternalNamespaceAccess,
-                location,
-                restrictedSymbol.ToDiagnosticMessageName(),
-                useNamespace.ToDiagnosticMessageName(),
-                declarationNamespace.ToDiagnosticMessageName()));
+            // Exempt if restricted symbol is declared in generated code.
+            foreach (var loc in restrictedSymbol.Locations)
+            {
+                var sourceTree = loc.SourceTree;
+                if (sourceTree is not null && !IsGeneratedCode(sourceTree))
+                {
+                    reportDiagnostic(Diagnostic.Create(
+                        Rule_InternalNamespaceAccess,
+                        location,
+                        restrictedSymbol.ToDiagnosticMessageName(),
+                        useNamespace.ToDiagnosticMessageName(),
+                        declarationNamespace.ToDiagnosticMessageName()));
+
+                    return;
+                }
+            }
         }
 
         private static ISymbol? TryGetNameOfSymbolFromOperation(INameOfOperation nameOf)
@@ -722,7 +741,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (IsInternalOrProtectedInternal(current.DeclaredAccessibility))
+                if (current.DeclaredAccessibility is Accessibility.Internal
+                                                  or Accessibility.ProtectedOrInternal)
                 {
                     return current == symbol ? current : symbol;
                 }
@@ -754,13 +774,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             return null;
         }
-
-        private static bool IsInternalOrProtectedInternal(Accessibility accessibility) =>
-            accessibility == Accessibility.Internal
-            || accessibility == Accessibility.ProtectedOrInternal;
-
-        private static bool IsSameNamespace(INamespaceSymbol left, INamespaceSymbol right) =>
-            SymbolEqualityComparer.Default.Equals(left, right);
 
         private static Location GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
         {

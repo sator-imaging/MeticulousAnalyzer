@@ -411,5 +411,156 @@ namespace Foo.Bar
                 VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Internal"));
         }
 
+        [TestMethod]
+        public async Task SMA0080_Compliant_GeneratedCodeExemption()
+        {
+            var testSource = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.InternalType.Value;
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test.g.cs", testSource) }
+                }
+            };
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Compliant_AccessInternalDefinedInGeneratedCode()
+        {
+            var genSource = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+";
+            var consumerSource = @"
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.InternalType.Value;
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test.g.cs", genSource),
+                        ("Consumer.cs", consumerSource),
+                    }
+                }
+            };
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Compliant_GeneratedCodeExemption_InternalDefinedInNormalCode()
+        {
+            var normalSource = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+";
+            var genConsumerSource = @"
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.InternalType.Value;
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Normal.cs", normalSource),
+                        ("Consumer.g.cs", genConsumerSource),
+                    }
+                }
+            };
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_CrossNamespaceInternalAccess_NormalFiles()
+        {
+            var source1 = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+";
+            var source2 = @"
+namespace Foo.Bar
+{
+    internal class InternalConsumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.InternalType.Value|};
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("File1.cs", source1),
+                        ("File2.cs", source2),
+                    }
+                }
+            };
+
+            test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo"));
+            await test.RunAsync();
+        }
     }
 }
