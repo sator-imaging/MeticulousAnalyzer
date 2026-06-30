@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.0.0-rc.9](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.9) (2026-06-30)
+
+### 🚀 Features
+* perf: remove unnecessary check by [@sator-imaging](https://github.com/sator-imaging) in [#431](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/431)
+* Exempt generated code from internal namespace access analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#428](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/428)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.8...v5.0.0-rc.9
+
+
 ## [5.0.0-rc.8](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.8) (2026-06-29)
 
 ### ✨ Bug Fixes
