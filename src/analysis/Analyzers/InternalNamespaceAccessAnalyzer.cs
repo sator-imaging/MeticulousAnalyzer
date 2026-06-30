@@ -115,13 +115,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Allow named arguments in attribute syntax. [Attr(Named = value)]
-            // Named is a property or field reference on the attribute type.
-            if (operation.Syntax.Parent is NameEqualsSyntax { Parent: AttributeArgumentSyntax })
-            {
-                return;
-            }
-
             var symbol = TryGetSymbolFromMemberOperation(operation);
             if (symbol != null)
             {
