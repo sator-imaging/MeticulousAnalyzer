@@ -641,11 +641,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(restrictedSymbol.ContainingAssembly, compilation.Assembly))
-            {
-                return;
-            }
-
             if (restrictedSymbol.ContainingType?.Name == "SR")
             {
                 return;
@@ -665,7 +660,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (declarationNamespace == null
                 || declarationNamespace.Name == "Core"
                 || VisibleNamespaces.Contains(declarationNamespace.Name)
-                || IsSameNamespace(useNamespace, declarationNamespace))
+                || SymbolEqualityComparer.Default.Equals(useNamespace, declarationNamespace))
             {
                 return;
             }
@@ -673,18 +668,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             // Exempt if restricted symbol is declared in generated code.
             foreach (var loc in restrictedSymbol.Locations)
             {
-                if (IsGeneratedCode(loc.SourceTree))
+                if (!IsGeneratedCode(loc.SourceTree))
                 {
+                    reportDiagnostic(Diagnostic.Create(
+                        Rule_InternalNamespaceAccess,
+                        location,
+                        restrictedSymbol.ToDiagnosticMessageName(),
+                        useNamespace.ToDiagnosticMessageName(),
+                        declarationNamespace.ToDiagnosticMessageName()));
+
                     return;
                 }
             }
-
-            reportDiagnostic(Diagnostic.Create(
-                Rule_InternalNamespaceAccess,
-                location,
-                restrictedSymbol.ToDiagnosticMessageName(),
-                useNamespace.ToDiagnosticMessageName(),
-                declarationNamespace.ToDiagnosticMessageName()));
         }
 
         private static ISymbol? TryGetNameOfSymbolFromOperation(INameOfOperation nameOf)
@@ -750,7 +745,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     break;
                 }
             }
-return symbol is INamedTypeSymbol { IsAnonymousType: true } ? null : symbol;  // DO NOT REMOVE
+
             for (var current = symbol; current != null; current = current.ContainingType)
             {
                 if (current is INamedTypeSymbol { IsAnonymousType: true })
@@ -758,7 +753,8 @@ return symbol is INamedTypeSymbol { IsAnonymousType: true } ? null : symbol;  //
                     continue;
                 }
 
-                if (IsInternalOrProtectedInternal(current.DeclaredAccessibility))
+                if (current.DeclaredAccessibility is Accessibility.Internal
+                                                  or Accessibility.ProtectedOrInternal)
                 {
                     return current == symbol ? current : symbol;
                 }
@@ -790,13 +786,6 @@ return symbol is INamedTypeSymbol { IsAnonymousType: true } ? null : symbol;  //
 
             return null;
         }
-
-        private static bool IsInternalOrProtectedInternal(Accessibility accessibility) =>
-            accessibility == Accessibility.Internal
-            || accessibility == Accessibility.ProtectedOrInternal;
-
-        private static bool IsSameNamespace(INamespaceSymbol left, INamespaceSymbol right) =>
-            SymbolEqualityComparer.Default.Equals(left, right);
 
         private static Location GetDelegateReturnTypeLocation(INamedTypeSymbol delegateType)
         {
