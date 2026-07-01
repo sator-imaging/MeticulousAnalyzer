@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 {
@@ -17,6 +18,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     {
         public const string RuleId_InternalNamespaceAccess = "SMA0080";
 
+        [StructLayout(LayoutKind.Auto)]
         readonly struct OneOrMore<T>
         {
             public readonly T Element;
