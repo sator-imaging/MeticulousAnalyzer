@@ -19,25 +19,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
         readonly struct OneOrMore<T>
         {
-            readonly T element;
-            readonly ImmutableArray<T> elements;
+            public readonly T Element;
+            public readonly ImmutableArray<T> Elements;
             public readonly bool HasOnlyOne;
 
             public OneOrMore(T element)
             {
-                this.element = element;
-                this.elements = default;
+                this.Element = element;
+                this.Elements = default;
                 HasOnlyOne = true;
             }
 
             public OneOrMore(ImmutableArray<T> elements)
             {
-                this.element = default!;
-                this.elements = elements;
+                this.Element = default!;
+                this.Elements = elements;
                 HasOnlyOne = false;
             }
-
-            public ImmutableArray<T>.Enumerator GetEnumerator() => elements.IsDefault ? ImmutableArray.Create(element).GetEnumerator() : elements.GetEnumerator();
         }
 
         private static readonly DiagnosticDescriptor Rule_InternalNamespaceAccess = new(
@@ -643,7 +641,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             OneOrMore<Location> locations,
             ITypeSymbol? type)
         {
-            foreach (var loc in locations)
+            if (locations.HasOnlyOne)
+            {
+                ReportCrossNamespaceAccess(context, locations.Element, type);
+                return;
+            }
+
+            foreach (var loc in locations.Elements)
             {
                 ReportCrossNamespaceAccess(context, loc, type);
             }
@@ -656,7 +660,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             ISymbol? symbol,
             System.Action<Diagnostic> reportDiagnostic)
         {
-            foreach (var loc in locations)
+            if (locations.HasOnlyOne)
+            {
+                ReportCrossNamespaceAccess(compilation, useNamespace, locations.Element, symbol, reportDiagnostic);
+                return;
+            }
+
+            foreach (var loc in locations.Elements)
             {
                 ReportCrossNamespaceAccess(compilation, useNamespace, loc, symbol, reportDiagnostic);
             }
