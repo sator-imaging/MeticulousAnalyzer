@@ -13,7 +13,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class CatchAnalyzer : DiagnosticAnalyzer
     {
-        private const string SuppressionComment = "// Ignore exception:";
+        private const string SuppressionCommentPrefix = "Ignore exception:";
+        private const string SuppressionComment = "// " + SuppressionCommentPrefix;
 
         public const string RuleId_CatchWithoutThrow = "SMA8010";
         private static readonly DiagnosticDescriptor Rule_CatchWithoutThrow = new(
@@ -55,7 +56,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (Core.IsSuppressedByComment(catchClause, SuppressionComment))
             {
                 var comments = Core.GetPrecedingComments(catchClause);
-                if (!comments.TrimEnd().EndsWith(SuppressionComment.Substring(2), StringComparison.OrdinalIgnoreCase))
+                if (!comments.TrimEnd().EndsWith(SuppressionCommentPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
