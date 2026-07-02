@@ -367,7 +367,7 @@
     <value>Missing IDisposable Interface</value>
   </data>
   <data name="SMA8010_Description" xml:space="preserve">
-    <value>Catch block should contain a 'throw' statement or expression. Can suppress with comment "// Ignore exception: Reason"</value>
+    <value>Catch block should contain a 'throw' statement or expression. Can suppress with comment "// Ignore exception: &lt;Reason&gt;"</value>
   </data>
   <data name="SMA8010_MessageFormat" xml:space="preserve">
     <value>Catch block does not contain a 'throw' statement</value>
