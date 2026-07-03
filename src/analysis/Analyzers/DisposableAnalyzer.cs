@@ -96,39 +96,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
             context.RegisterOperationAction(AnalyzeArrayElementReference, OperationKind.ArrayElementReference);
             context.RegisterOperationAction(AnalyzeNullAssignment, OperationKind.SimpleAssignment);
-            context.RegisterOperationAction(AnalyzeCompositeExpression, OperationKind.Conditional);
-            context.RegisterOperationAction(AnalyzeCompositeExpression, OperationKind.Coalesce);
-            context.RegisterOperationAction(AnalyzeCompositeExpression, OperationKind.SwitchExpression);
         }
 
 
         /*  entry  ================================================================ */
-
-        private static bool ShouldSkipDueToDisposableParent(OperationAnalysisContext context, IOperation op)
-        {
-            var parent = op.Parent;
-            if (parent is IConversionOperation conversion)
-            {
-                parent = conversion.Parent;
-            }
-
-            if (parent is IConditionalOperation conditional && IsDisposable(context, conditional.Type)) return true;
-            if (parent is ICoalesceOperation coalesce && IsDisposable(context, coalesce.Type)) return true;
-            if (parent is ISwitchExpressionArmOperation arm && IsDisposable(context, arm.Parent?.Type)) return true;
-            return false;
-        }
-
-        private static void AnalyzeCompositeExpression(OperationAnalysisContext context)
-        {
-            var op = context.Operation;
-            if (op.Kind is not (OperationKind.Conditional or OperationKind.Coalesce or OperationKind.SwitchExpression)) return;
-
-            // Always skip if parent is also a disposable composite expression to avoid multiple diagnostics on the same expression chain.
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
-            if (!IsDisposable(context, op.Type)) return;
-
-            CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
-        }
 
         private static void AnalyzeCast(OperationAnalysisContext context)
         {
@@ -136,8 +107,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 return;
             }
-
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
 
             // Ignore conversions from null, as this is handled by AnalyzeSimpleAssignment.
             if (op.Operand.ConstantValue.HasValue && op.Operand.ConstantValue.Value == null)
@@ -165,8 +134,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
-
             var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
             if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
             {
@@ -190,8 +157,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
-
             if (!IsDisposable(context, op.Type))
             {
                 return;
@@ -206,8 +171,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 return;
             }
-
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
 
             if (!IsDisposable(context, op.Type))
             {
@@ -224,8 +187,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 return;
             }
-
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
 
             if (!IsDisposable(context, op.Type))
             {
@@ -259,8 +220,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 return;
             }
-
-            if (ShouldSkipDueToDisposableParent(context, op)) return;
 
             if (!IsDisposable(context, op.Type))
             {
@@ -557,66 +516,36 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                                                or OperationKind.DefaultValue
                                                ;
 
-            // NOTE: Unpack ternary, coalesce or switch operation.
-            //       --> condition ? Method() : new Disposable()
-            //       --> Method() ?? throw new Exception()
+            // NOTE: Unpack conversion operation.
+            //       --> Method(new Disposable())
+            //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
             ITypeSymbol? untrackedCastOperandType = null;
-            if (focusedOp.Kind is OperationKind.Conditional or OperationKind.Coalesce or OperationKind.SwitchExpression)
             {
-                // Already at the top of composite expression.
-            }
-            else
-            {
-                // NOTE: Unpack conversion operation.
-                //       --> Method(new Disposable())
-                //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
+                if (focusedOp is IConversionOperation castOp)
                 {
-                    if (focusedOp is IConversionOperation castOp)
+                    if (!TryUnwrapSafeConversion(context, castOp, out focusedOp, out focusedSymbol))
                     {
-                        if (!TryUnwrapSafeConversion(context, castOp, out focusedOp, out focusedSymbol))
+                        // Don't consider '+' or other binary operation.
+                        // It may create new IDisposable instance? haha.
+                        if (focusedOp.Parent is not IBinaryOperation
+                                            and not IIsPatternOperation)
                         {
-                            // Don't consider '+' or other binary operation.
-                            // It may create new IDisposable instance? haha.
-                            if (focusedOp.Parent is not IBinaryOperation
-                                                and not IIsPatternOperation)
-                            {
-                                // NOTE: Don't exit here.
-                                //       Need to check parent operation for:
-                                //       - using var ...
-                                //       - foreach (var item in ...
-                                untrackedCastOperandType = castOp.Operand.Type;
-                            }
+                            // NOTE: Don't exit here.
+                            //       Need to check parent operation for:
+                            //       - using var ...
+                            //       - foreach (var item in ...
+                            untrackedCastOperandType = castOp.Operand.Type;
                         }
                     }
                 }
+            }
 
-                // NOTE: Unpack ternary, coalesce or switch expression.
-                var parent = focusedOp.Parent;
-                if (parent is IConversionOperation conv) parent = conv.Parent;
-
-                if (parent is IConditionalOperation or ICoalesceOperation)
-                {
-                    focusedOp = parent;
-                }
-                else if (parent is ISwitchExpressionArmOperation arm && arm.Parent is ISwitchExpressionOperation sw)
-                {
-                    focusedOp = sw;
-                }
-
-                if (untrackedCastOperandType is not null && focusedOp is not IConversionOperation)
-                {
-                    if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
-                    {
-                        var reportType = IsDisposable(context, disposableSymbol)
-                            ? disposableSymbol
-                            : untrackedCastOperandType;
-
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
-                    }
-
-                    return;
-                }
+            // NOTE: Unpack ternary or coalesce operation.
+            //       --> condition ? Method() : new Disposable()
+            //       --> Method() ?? throw new Exception()
+            if (focusedOp.Parent is IConditionalOperation or ICoalesceOperation)
+            {
+                focusedOp = focusedOp.Parent;
             }
 
             // Unwrap '?.' operation chain.
@@ -794,6 +723,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 }
 
 
+                // NOTE: If switch arm expression found, move focus to parent expression
+                //       > var x = value switch { ... };
+                //                              ~~~~~~~ current focus
+                //       > var x = value switch { ... };
+                //                 ~~~~~~~~~~~~~~~~~~~~ moving to here
+                {
+                    if (focusedOp.Parent is ISwitchExpressionArmOperation switchArmOp &&
+                        switchArmOp.Parent is ISwitchExpressionOperation switchOp
+                    )
+                    {
+                        focusedOp = switchOp;
+                        focusedSymbol = switchOp.Type;
+
+                        syntax = switchOp.Syntax;
+                    }
+                }
 
 
                 // Return statement?

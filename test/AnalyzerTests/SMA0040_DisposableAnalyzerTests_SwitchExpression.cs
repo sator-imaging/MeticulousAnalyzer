@@ -29,11 +29,11 @@ namespace Test
 
         void Method(int value)
         {
-            _field = {|#1:{|#0:value switch
+            _field = {|#2:{|#0:{|#1:value switch
             {
                 1 => new MyDisposable(),
                 _ => throw new Exception(),
-            }|}
+            }|}|}
             as object|}
             ;
         }
@@ -42,7 +42,7 @@ namespace Test
 ";
 
             // The analyzer reports multiple diagnostics:
-            // - switch expression creating disposable
+            // - switch expression arm creating disposable (reported twice - for switch and for assignment)
             // - the cast to object also triggers
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
@@ -50,7 +50,10 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MyDisposable");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
@@ -169,7 +172,7 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected1);
         }
 
         [TestMethod]
@@ -204,7 +207,7 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected1);
         }
     }
 }

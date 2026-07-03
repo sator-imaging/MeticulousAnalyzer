@@ -97,7 +97,7 @@ namespace Test
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected, expected);
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace Test
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected, expected);
         }
 
         [TestMethod]
@@ -155,7 +155,7 @@ namespace Test
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected, expected);
         }
     }
 }
