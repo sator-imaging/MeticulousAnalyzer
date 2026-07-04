@@ -7,7 +7,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StaticMemberAnalyzer.Test
+namespace StaticMemberAnalyzer.Tests
 {
     // This verifier is a wrapper around CSharpAnalyzerVerifier to disable the automatic #pragma warning disable test.
     public static class FileHeaderCommentAnalyzerVerifier

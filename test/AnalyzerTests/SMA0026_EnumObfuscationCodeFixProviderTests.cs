@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.EnumAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.EnumObfuscationCodeFixProvider>;
 

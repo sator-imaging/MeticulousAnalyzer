@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
-using VerifyFix = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
+using VerifyFix = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ArgumentAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.NamedArgumentCodeFixProvider>;
 

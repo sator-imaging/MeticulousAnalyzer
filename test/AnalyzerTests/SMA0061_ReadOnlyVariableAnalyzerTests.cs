@@ -8,7 +8,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Linq;
 using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
 
 namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests

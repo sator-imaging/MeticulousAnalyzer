@@ -5,7 +5,7 @@ This document is the authoritative guide for developers contributing tests to th
 ## Test Setup
 
 - **Framework:** MSTest (`Microsoft.VisualStudio.TestTools.UnitTesting`)
-- **Project:** `SatorImaging.StaticMemberAnalyzer.Test.csproj`
+- **Project:** `SatorImaging.StaticMemberAnalyzer.Tests.csproj`
 - **CI Configuration:** [`.github/workflows/test.yml`](../.github/workflows/test.yml)
 - **Test Command:**
   ```bash
@@ -156,16 +156,16 @@ Declare a type alias at the top of the test file:
 
 ```csharp
 // Analyzer-only test:
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.SomeAnalyzer>;
 
 // CodeFix test:
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.SomeAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.SomeCodeFixProvider>;
 
 // Analyzer test without codefix (using EmptyCodeFixProvider):
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.SomeAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
 ```
