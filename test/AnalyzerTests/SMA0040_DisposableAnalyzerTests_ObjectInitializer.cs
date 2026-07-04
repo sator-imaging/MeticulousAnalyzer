@@ -89,15 +89,21 @@ namespace Test
     {
         void Method(bool condition)
         {
-            var d = {|#0:condition ? new MyDisposable { Value = ""without ()"" } : new MyDisposable() { Value = ""with ()"" }|};
+            var d = {|#0:condition ? new MyDisposable() { Value = ""with ()"" } : new MyDisposable() { Value = ""with ()"" }|};
+            var d2 = {|#1:condition ? new MyDisposable { Value = ""without ()"" } : new MyDisposable { Value = ""without ()"" }|};
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected, expected);
+            var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MyDisposable");
+
+            // Redundant reporting in current implementation
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected0, expected1, expected1);
         }
 
         [TestMethod]
@@ -126,6 +132,8 @@ namespace Test
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
+
+            // Redundant reporting in current implementation
             await VerifyCS.VerifyAnalyzerAsync(test, expected, expected);
         }
 
@@ -155,6 +163,8 @@ namespace Test
             var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
+
+            // Redundant reporting in current implementation
             await VerifyCS.VerifyAnalyzerAsync(test, expected, expected);
         }
     }
