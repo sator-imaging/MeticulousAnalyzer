@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.TSelfTypeParameterAnalyzer>;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA0011_TSelfTypeParameterAnalyzerTests

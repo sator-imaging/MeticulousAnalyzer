@@ -10,7 +10,7 @@ using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.LambdaAnalyzer,
     SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.LambdaStaticCodeFixProvider>;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class FixAllTest_SMA7001_LambdaStaticCodeFixProvider

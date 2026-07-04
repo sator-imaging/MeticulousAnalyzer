@@ -8,7 +8,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     using VerifyCS = global::StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<InternalNamespaceAccessAnalyzer>;
 

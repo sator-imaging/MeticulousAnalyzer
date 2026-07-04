@@ -6,7 +6,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis;
 using SatorImaging.StaticMemberAnalyzer.CodeFixes;
 using System.Linq;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests
 {
     // NOTE: This test is for adjusting test coverage numbers.
     //       Don't need to check machine-generated properties preciously.

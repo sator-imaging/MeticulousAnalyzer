@@ -6,7 +6,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     using VerifyCS = global::StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<FlakyInitializationAnalyzer>;
 
