@@ -71,21 +71,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (node is ThrowStatementSyntax) return true;
 
-            // "Wrapper" statements whose body determines whether they guarantee a throw.
-            if (node is UsingStatementSyntax usingStmt) return GuaranteesThrow(usingStmt.Statement);
-            if (node is LockStatementSyntax lockStmt) return GuaranteesThrow(lockStmt.Statement);
-            if (node is FixedStatementSyntax fixedStmt) return GuaranteesThrow(fixedStmt.Statement);
-            if (node is CheckedStatementSyntax checkedStmt) return GuaranteesThrow(checkedStmt.Block);
-            if (node is UnsafeStatementSyntax unsafeStmt) return GuaranteesThrow(unsafeStmt.Block);
-            if (node is LabeledStatementSyntax labeledStmt) return GuaranteesThrow(labeledStmt.Statement);
-
-            // Try/finally does not swallow exceptions; treat it like a wrapper, but ignore try/catch nesting.
-            if (node is TryStatementSyntax tryStmt && tryStmt.Catches.Count == 0)
-            {
-                return GuaranteesThrow(tryStmt.Block)
-                    || (tryStmt.Finally != null && GuaranteesThrow(tryStmt.Finally.Block));
-            }
-
             if (node is BlockSyntax block)
             {
                 foreach (var stmt in block.Statements)
@@ -96,12 +81,12 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (node is IfStatementSyntax ifStmt)
             {
-                return ifStmt.Else != null
-                    && GuaranteesThrow(ifStmt.Statement)
-                    && GuaranteesThrow(ifStmt.Else.Statement);
+                return ifStmt.Else != null && GuaranteesThrow(ifStmt.Statement) && GuaranteesThrow(ifStmt.Else.Statement);
             }
 
-            // Note: ThrowExpressionSyntax is intentionally ignored (e.g. `x ?? throw ...`).
+            // Note: ThrowExpressionSyntax is NOT considered as guaranteed throw to satisfy "Don't allow throw in null-coalescing operator"
+            // and because it's usually part of expressions that might not be evaluated or don't guarantee block-level throw.
+
             return false;
         }
     }
