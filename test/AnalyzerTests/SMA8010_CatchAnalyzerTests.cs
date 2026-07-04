@@ -6,7 +6,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.CatchAnalyzer>;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test.AnalyzerTests
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA8010_CatchAnalyzerTests
