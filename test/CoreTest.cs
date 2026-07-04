@@ -10,7 +10,7 @@ using SatorImaging.StaticMemberAnalyzer.Analysis;
 using System;
 using System.Collections.Generic;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests
 {
     [TestClass]
     public class CoreTest

@@ -11,7 +11,7 @@ using System.Linq;
 // affected by `#pragma`.
 using VerifyCS = StaticMemberAnalyzer.Test.FileHeaderCommentAnalyzerVerifier;
 
-namespace SatorImaging.StaticMemberAnalyzer.Test
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA0050_FileHeaderCommentAnalyzerTests
