@@ -464,10 +464,10 @@ try
     DoSomething();
 }
 catch (Exception ex)
+// ~~~~~ 報告: catch ブロックに throw 文が含まれていません
 {
     Log(ex);
 }
-// 報告: catch ブロックに throw 文が含まれていません
 ```
 
 期待されるコード:

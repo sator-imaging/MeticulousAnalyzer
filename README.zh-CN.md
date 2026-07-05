@@ -464,10 +464,10 @@ try
     DoSomething();
 }
 catch (Exception ex)
+// ~~~~~ 报告：catch 块不包含 throw 语句
 {
     Log(ex);
 }
-// 报告：catch 块不包含 throw 语句
 ```
 
 期望的代码：

@@ -464,10 +464,10 @@ try
     DoSomething();
 }
 catch (Exception ex)
+// ~~~~~ reported: catch block does not contain a throw statement
 {
     Log(ex);
 }
-// reported: catch block does not contain a throw statement
 ```
 
 Expected:
