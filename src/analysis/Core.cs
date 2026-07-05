@@ -381,7 +381,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 }
             }
 
-            return comment != default
+            // SyntaxTrivia and TextSpan are struct
+            return comment.Span.Length >= suppressionComment.Length
                 && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
         }
 
