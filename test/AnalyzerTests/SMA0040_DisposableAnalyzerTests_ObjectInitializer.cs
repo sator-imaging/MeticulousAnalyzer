@@ -8,7 +8,7 @@ using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.DisposableAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests
+namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA0040_DisposableAnalyzerTests_ObjectInitializer
