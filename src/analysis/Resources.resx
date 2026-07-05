@@ -366,15 +366,6 @@
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
   </data>
-  <data name="SMA8010_Description" xml:space="preserve">
-    <value>Catch block should contain a 'throw' statement or expression. Can suppress with comment "// Ignore exception: &lt;Reason&gt;"</value>
-  </data>
-  <data name="SMA8010_MessageFormat" xml:space="preserve">
-    <value>Catch block does not contain a 'throw' statement</value>
-  </data>
-  <data name="SMA8010_Title" xml:space="preserve">
-    <value>Catch Block Without Throw</value>
-  </data>
   <data name="SMA0050__MD_TITLE__" xml:space="preserve">
     <value>File Structure Analysis</value>
   </data>
@@ -545,6 +536,15 @@
   </data>
   <data name="SMA8002_Title" xml:space="preserve">
     <value>Null suppression operation</value>
+  </data>
+  <data name="SMA8010_Description" xml:space="preserve">
+    <value>Catch block should contain a 'throw' statement or expression. Can suppress with comment "// Ignore exception: &lt;Reason&gt;"</value>
+  </data>
+  <data name="SMA8010_MessageFormat" xml:space="preserve">
+    <value>Catch block does not contain a 'throw' statement</value>
+  </data>
+  <data name="SMA8010_Title" xml:space="preserve">
+    <value>Catch Block Without Throw</value>
   </data>
   <data name="SMA9000__MD_TITLE__" xml:space="preserve">
     <value>[Obsolete] Annotating and Underling</value>
