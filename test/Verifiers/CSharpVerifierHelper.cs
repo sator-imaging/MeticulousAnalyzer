@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Immutable;
 
-namespace StaticMemberAnalyzer.Test
+namespace StaticMemberAnalyzer.Tests
 {
     internal static class CSharpVerifierHelper
     {

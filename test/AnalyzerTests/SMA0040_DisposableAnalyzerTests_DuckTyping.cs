@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading;
 using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpCodeFixVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.DisposableAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
 

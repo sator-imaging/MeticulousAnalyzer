@@ -3,13 +3,13 @@ using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;
 using System.Threading;
-using StaticMemberAnalyzer.Test;
+using StaticMemberAnalyzer.Tests;
 using System.Linq;
 
 // The custom test runner is used because the default roslyn verifier runs a
 // `#pragma warning disable` test automatically, but this analyzer is not
 // affected by `#pragma`.
-using VerifyCS = StaticMemberAnalyzer.Test.FileHeaderCommentAnalyzerVerifier;
+using VerifyCS = StaticMemberAnalyzer.Tests.FileHeaderCommentAnalyzerVerifier;
 
 namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
 {

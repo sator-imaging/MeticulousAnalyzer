@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Testing.Verifiers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StaticMemberAnalyzer.Test
+namespace StaticMemberAnalyzer.Tests
 {
     public static partial class CSharpAnalyzerVerifier<TAnalyzer>
         where TAnalyzer : DiagnosticAnalyzer, new()

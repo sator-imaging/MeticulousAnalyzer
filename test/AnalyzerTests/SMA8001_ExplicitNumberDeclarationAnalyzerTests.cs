@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Test.CSharpAnalyzerVerifier<
+using VerifyCS = StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<
     SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ExplicitNumberDeclarationAnalyzer>;
 
 namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
