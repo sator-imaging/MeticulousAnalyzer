@@ -454,6 +454,45 @@ double floating = 1;
 > この解析は `var` 宣言のみを対象とし、暗黙的な型変換は考慮しません。
 
 
+## throw のない catch ブロック
+
+`catch` ブロックでは例外を再スローするか、例外を意図的に無視する理由を明示する必要があります。これにより、例外が暗黙的に握りつぶされることを防ぎ、レビュー時に意図を確認しやすくなります。
+
+```cs
+try
+{
+    DoSomething();
+}
+catch (Exception ex)
+{
+    Log(ex);
+}
+// 報告: catch ブロックに throw 文が含まれていません
+```
+
+期待されるコード:
+
+```cs
+try
+{
+    DoSomething();
+}
+catch (Exception ex)
+{
+    Log(ex);
+    throw;
+}
+```
+
+> [!TIP]
+> 例外を意図的に無視する場合は、理由を記載したコメントを `catch` ブロックの直前に置くことで診断を抑制できます。
+>
+> ```cs
+> // Ignore exception: Best-effort cleanup must not mask the original failure
+> catch { }
+> ```
+
+
 ## Null 抑制演算子
 
 視覚的な注意を促し、テキストベースのトレーサビリティを向上させるため、Null 抑制演算子を使用する場合は 3 つの括弧で囲む必要があります。

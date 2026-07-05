@@ -454,6 +454,45 @@ double floating = 1;
 > 此分析仅针对 `var` 声明，不考虑隐式类型转换。
 
 
+## 没有 throw 的 catch 块
+
+`catch` 块应重新抛出异常，或明确说明为什么有意忽略该异常。这样可以避免异常被静默吞掉，并让审查时的意图更加清晰。
+
+```cs
+try
+{
+    DoSomething();
+}
+catch (Exception ex)
+{
+    Log(ex);
+}
+// 报告：catch 块不包含 throw 语句
+```
+
+期望的代码：
+
+```cs
+try
+{
+    DoSomething();
+}
+catch (Exception ex)
+{
+    Log(ex);
+    throw;
+}
+```
+
+> [!TIP]
+> 如果有意忽略异常，请在 `catch` 块之前添加带有原因的注释来抑制诊断。
+>
+> ```cs
+> // Ignore exception: Best-effort cleanup must not mask the original failure
+> catch { }
+> ```
+
+
 ## Null 抑制操作
 
 为了提高视觉注意力和基于文本的可追溯性，Null 抑制操作应使用 3 层括号进行隔离。
