@@ -56,7 +56,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (Core.IsSuppressedByComment(catchClause, SuppressionComment))
             {
                 var comments = Core.GetPrecedingComments(catchClause);
-                if (!comments.TrimEnd().EndsWith(SuppressionCommentPrefix, StringComparison.OrdinalIgnoreCase))
+                if (!comments.EndsWith(SuppressionCommentPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
@@ -92,6 +92,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (node is IfStatementSyntax ifStmt)
             {
+                // Don't allow if-only statement. e.g., `if (condition) throw new...`.
+                // All code paths must throw.
                 return ifStmt.Else != null && GuaranteesThrow(ifStmt.Statement) && GuaranteesThrow(ifStmt.Else.Statement);
             }
 

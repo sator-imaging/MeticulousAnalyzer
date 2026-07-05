@@ -405,7 +405,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 }
             }
 
-            return sb.ToString();
+            int end = sb.Length - 1;
+            while (end >= 0 && char.IsWhiteSpace(sb[end]))
+            {
+                end--;
+            }
+
+            // Trimming end first, so the end index is non-whitespace or
+            // -1 if empty or whitespace only.
+            int start = 0;
+            while (start < end && char.IsWhiteSpace(sb[start]))
+            {
+                start++;
+            }
+
+            return end < 0
+                ? string.Empty
+                : sb.ToString(start, end - start + 1);
         }
 
 
