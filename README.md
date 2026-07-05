@@ -480,6 +480,62 @@ var x = (((foo)))!;
 
 &nbsp;
 
+# Project Structure Analysis
+
+## Internal cross-namespace access
+
+C# allows `internal` types and members to be accessed from any namespace in the same assembly. This analyzer enforces namespace boundaries so that `internal` symbols are only used from the namespace where they are declared.
+
+- SMA0080: Internal cross-namespace access
+    - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
+    - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
+    - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core` (hard-coded) or other namespaces specified by [configuration](#how-to-configure-analyzer).
+    - Members defined in a type named `SR` (hard-coded) or other types specified by [configuration](#how-to-configure-analyzer) are also exempt from this rule.
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
+
+
+
+
+
+&nbsp;
+
+# Struct Analysis
+
+Analyze the use of `struct` types to prevent common mistakes and performance issues.
+
+- SMA0030: Invalid Struct Constructor
+    - Constructor has declared explicitly so should not use parameter-less one.
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - Mutable struct type should not be set to `readonly` field.
+- SMA0032: Implicit Boxing Conversion
+    - Implicit conversion from struct to reference type (including interface) causes boxing. Note that explicit casts are exempt from this analysis.
+
+> [!TIP]
+> You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
+
+
+
+
+
+&nbsp;
+
 # Read-Only Variable Analysis
 
 This analyzer helps keep local values and parameters immutable by flagging write operations.  
@@ -625,56 +681,6 @@ class Demo
 
 
 
-
-&nbsp;
-
-# Project Structure Analysis
-
-## Internal cross-namespace access
-
-C# allows `internal` types and members to be accessed from any namespace in the same assembly. This analyzer enforces namespace boundaries so that `internal` symbols are only used from the namespace where they are declared.
-
-- SMA0080: Internal cross-namespace access
-    - Disallows accessing `internal` (and `protected internal`) types, members, methods, and constructors from a different namespace.
-    - Parent and sibling namespaces are treated as separate boundaries (e.g. `Foo.Bar` cannot access symbols declared in `Foo` or `Foo.Other`).
-    - **Exceptions**: Access to `internal` members is allowed if they are defined within a leaf namespace named `Core` (hard-coded) or other namespaces specified by [configuration](#how-to-configure-analyzer).
-    - Members defined in a type named `SR` (hard-coded) or other types specified by [configuration](#how-to-configure-analyzer) are also exempt from this rule.
-
-```cs
-namespace Foo
-{
-    internal class InternalType { }
-}
-
-namespace Foo.Bar
-{
-    class Consumer
-    {
-        void M()
-        {
-            var x = new Foo.InternalType(); // SMA0080
-        }
-    }
-}
-```
-
-&nbsp;
-
-# Struct Analysis
-
-Analyze the use of `struct` types to prevent common mistakes and performance issues.
-
-- SMA0030: Invalid Struct Constructor
-    - Constructor has declared explicitly so should not use parameter-less one.
-- SMA0031: Mutable Struct Field marked as Read-Only
-    - Mutable struct type should not be set to `readonly` field.
-- SMA0032: Implicit Boxing Conversion
-    - Implicit conversion from struct to reference type (including interface) causes boxing. Note that explicit casts are exempt from this analysis.
-
-> [!TIP]
-> You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
-
-
 &nbsp;
 
 # Annotating / Underlining
@@ -792,6 +798,9 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+
 
 
 &nbsp;
