@@ -420,6 +420,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 end--;
             }
 
+            // NOTE: TrimStart feature is not required.
+            //       This method trims only a whitespace at the beginning in the loop above and returns remaining as-is.
+            /*
             // Trimming end first, so the end index is non-whitespace or
             // -1 if empty or whitespace only.
             int start = 0;
@@ -427,10 +430,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             {
                 start++;
             }
+            */
 
             return end < 0
                 ? string.Empty
-                : sb.ToString(start, end - start + 1);
+                : sb.ToString(0, end + 1);
         }
 
 
