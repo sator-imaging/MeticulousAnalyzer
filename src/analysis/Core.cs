@@ -391,11 +391,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             if (node == null) return string.Empty;
 
-            var sb = new StringBuilder();
+            StringBuilder? sb = null;
             foreach (var trivia in node.GetFirstToken().LeadingTrivia)
             {
                 if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
                 {
+                    sb ??= new(capacity: 256);
+
                     var comment = trivia.ToString();
                     if (sb.Length > 0)
                     {
@@ -412,6 +414,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                         sb.Append(comment, 2, comment.Length - 2);
                     }
                 }
+            }
+
+            if (sb == null)
+            {
+                return string.Empty;
             }
 
             int end = sb.Length - 1;
