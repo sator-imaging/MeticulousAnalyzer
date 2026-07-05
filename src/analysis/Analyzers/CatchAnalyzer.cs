@@ -99,13 +99,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (GuaranteesThrow(tryStmt.Finally?.Block)) return true;
 
-                if (GuaranteesThrow(tryStmt.Block))
+                if (tryStmt.Catches.Count == 0)
                 {
-                    foreach (var catchClause in tryStmt.Catches)
-                    {
-                        if (!GuaranteesThrow(catchClause.Block)) return false;
-                    }
-                    return true;
+                    return GuaranteesThrow(tryStmt.Block);
                 }
             }
 
