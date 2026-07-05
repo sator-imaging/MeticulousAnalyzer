@@ -464,7 +464,7 @@ try
     DoSomething();
 }
 catch (Exception ex)
-// ~~~~~ 報告: catch ブロックに throw 文が含まれていません
+~~~~~ 報告: catch ブロックに throw 文が含まれていません
 {
     Log(ex);
 }
