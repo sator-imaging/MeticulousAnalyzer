@@ -905,5 +905,32 @@ class C {
             Assert.IsTrue(Core.IsSuppressedByComment(localOp, "// suppress"));
         }
 
+        [TestMethod]
+        public void GetPrecedingComments_ReturnsConcatenatedComments()
+        {
+            var source = @"
+class C {
+    void M() {
+        // First comment
+
+        //
+        // Second comment
+        //   Indentation kept
+        // Third comment
+        var x = 1;
+    }
+}";
+            var tree = CSharpSyntaxTree.ParseText(source);
+            var node = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var result = Core.GetPrecedingComments(node);
+
+            Assert.AreEqual("First comment\n\nSecond comment\n  Indentation kept\nThird comment", result);
+        }
+
+        [TestMethod]
+        public void GetPrecedingComments_NullNode_ReturnsEmpty()
+        {
+            Assert.AreEqual(string.Empty, Core.GetPrecedingComments(null));
+        }
     }
 }

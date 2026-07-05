@@ -368,6 +368,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                      or FieldDeclarationSyntax
                      // Allow suppression comment "Allow allocation" on lambda declaration
                      or LambdaExpressionSyntax
+                     // Allow suppression comment on catch clause
+                     or CatchClauseSyntax
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
@@ -386,6 +388,63 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
             Debug.Assert(suppressionComment.Length > 0);
             return comment.Span.Length >= suppressionComment.Length
                 && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal static string GetPrecedingComments(SyntaxNode? node)
+        {
+            if (node == null) return string.Empty;
+
+            StringBuilder? sb = null;
+            foreach (var trivia in node.GetFirstToken().LeadingTrivia)
+            {
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                {
+                    sb ??= new(capacity: 256);
+
+                    var comment = trivia.ToString();
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("\n");
+                    }
+
+                    // Trim first whitespace only.
+                    if (comment.Length > 2 && char.IsWhiteSpace(comment[2]))
+                    {
+                        sb.Append(comment, 3, comment.Length - 3);
+                    }
+                    else
+                    {
+                        sb.Append(comment, 2, comment.Length - 2);
+                    }
+                }
+            }
+
+            if (sb == null)
+            {
+                return string.Empty;
+            }
+
+            int end = sb.Length - 1;
+            while (end >= 0 && char.IsWhiteSpace(sb[end]))
+            {
+                end--;
+            }
+
+            // NOTE: TrimStart feature is not required.
+            //       This method trims only a whitespace at the beginning in the loop above and returns remaining as-is.
+            /*
+            // Trimming end first, so the end index is non-whitespace or
+            // -1 if empty or whitespace only.
+            int start = 0;
+            while (start < end && char.IsWhiteSpace(sb[start]))
+            {
+                start++;
+            }
+            */
+
+            return end < 0
+                ? string.Empty
+                : sb.ToString(0, end + 1);
         }
 
 
