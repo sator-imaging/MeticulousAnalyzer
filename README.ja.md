@@ -480,6 +480,62 @@ var x = (((foo)))!;
 
 &nbsp;
 
+# プロジェクト構造解析
+
+## 名前空間をまたぐ internal アクセス
+
+C# では同一アセンブリ内であれば、宣言されている名前空間と異なる名前空間からでも `internal` 型やメンバーへアクセスできます。このアナライザーは、`internal` シンボルを宣言した名前空間内からのみ使用できるように境界を強制します。
+
+- SMA0080: Internal cross-namespace access
+    - 別の名前空間から `internal`（および `protected internal`）の型・メンバー・メソッド・コンストラクターへのアクセスを禁止します。
+    - 親名前空間や兄弟名前空間も別境界として扱います（例: `Foo.Bar` から `Foo` や `Foo.Other` で宣言されたシンボルへはアクセスできません）。
+    - **例外**: `internal` メンバーが `Core` という名前のリーフ名前空間（ハードコード）または [構成](#アナライザーの設定方法) で指定された他の名前空間内に定義されている場合、アクセスが許可されます。
+    - `SR` という名前の型（ハードコード）または [構成](#アナライザーの設定方法) で指定された他の型で定義されたメンバーも、このルールの対象外です。
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
+
+
+
+
+
+&nbsp;
+
+# 構造体解析
+
+構造体（`struct`）型の使用を分析し、一般的なミスやパフォーマンスの問題を防止します。
+
+- SMA0030: Invalid Struct Constructor
+    - 明示的にコンストラクターが宣言されている場合、引数なしのコンストラクターを使用すべきではありません。
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - 可変な構造体型を `readonly` フィールドに設定すべきではありません。
+- SMA0032: Implicit Boxing Conversion
+    - 構造体から参照型（インターフェースを含む）への暗黙的な変換は、ボクシングを引き起こします。なお、明示的なキャストはこの解析の対象外です。
+
+> [!TIP]
+> 暗黙的なボクシング解析（SMA0032）は、コメント `// Allow boxing` により抑制できます。詳細は [コメントによる抑制](#コメントによる抑制) セクションを参照してください。
+
+
+
+
+
+&nbsp;
+
 # 読み取り専用変数解析
 
 このアナライザーは、書き込み操作を検出してローカル値/引数の不変性維持を支援します。
@@ -625,56 +681,6 @@ class Demo
 
 
 
-
-&nbsp;
-
-# プロジェクト構造解析
-
-## 名前空間をまたぐ internal アクセス
-
-C# では同一アセンブリ内であれば、宣言されている名前空間と異なる名前空間からでも `internal` 型やメンバーへアクセスできます。このアナライザーは、`internal` シンボルを宣言した名前空間内からのみ使用できるように境界を強制します。
-
-- SMA0080: Internal cross-namespace access
-    - 別の名前空間から `internal`（および `protected internal`）の型・メンバー・メソッド・コンストラクターへのアクセスを禁止します。
-    - 親名前空間や兄弟名前空間も別境界として扱います（例: `Foo.Bar` から `Foo` や `Foo.Other` で宣言されたシンボルへはアクセスできません）。
-    - **例外**: `internal` メンバーが `Core` という名前のリーフ名前空間（ハードコード）または [構成](#アナライザーの設定方法) で指定された他の名前空間内に定義されている場合、アクセスが許可されます。
-    - `SR` という名前の型（ハードコード）または [構成](#アナライザーの構成方法) で指定された他の型で定義されたメンバーも、このルールの対象外です。
-
-```cs
-namespace Foo
-{
-    internal class InternalType { }
-}
-
-namespace Foo.Bar
-{
-    class Consumer
-    {
-        void M()
-        {
-            var x = new Foo.InternalType(); // SMA0080
-        }
-    }
-}
-```
-
-&nbsp;
-
-# 構造体解析
-
-構造体（`struct`）型の使用を分析し、一般的なミスやパフォーマンスの問題を防止します。
-
-- SMA0030: Invalid Struct Constructor
-    - 明示的にコンストラクターが宣言されている場合、引数なしのコンストラクターを使用すべきではありません。
-- SMA0031: Mutable Struct Field marked as Read-Only
-    - 可変な構造体型を `readonly` フィールドに設定すべきではありません。
-- SMA0032: Implicit Boxing Conversion
-    - 構造体から参照型（インターフェースを含む）への暗黙的な変換は、ボクシングを引き起こします。なお、明示的なキャストはこの解析の対象外です。
-
-> [!TIP]
-> 暗黙的なボクシング解析（SMA0032）は、コメント `// Allow boxing` により抑制できます。詳細は [コメントによる抑制](#コメントによる抑制) セクションを参照してください。
-
-
 &nbsp;
 
 # 注釈 / 下線表示
@@ -792,6 +798,9 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+
 
 
 &nbsp;

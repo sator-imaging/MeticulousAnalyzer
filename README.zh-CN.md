@@ -480,6 +480,62 @@ var x = (((foo)))!;
 
 &nbsp;
 
+# 项目结构分析
+
+## 跨命名空间的 internal 访问
+
+C# 允许在同一程序集内从任意命名空间访问 `internal` 类型和成员。此分析器强制命名空间边界，使 `internal` 符号只能在其声明所在的命名空间内使用。
+
+- SMA0080: Internal cross-namespace access
+    - 禁止从其他命名空间访问 `internal`（以及 `protected internal`）的类型、成员、方法和构造函数。
+    - 父命名空间和兄弟命名空间也视为独立边界（例如 `Foo.Bar` 不能访问在 `Foo` 或 `Foo.Other` 中声明的符号）。
+    - **例外**: 如果 `internal` 成员定义在名为 `Core` 的叶命名空间（硬编码）或 [配置](#如何配置分析器) 中指定的其他命名空间内，则允许访问。
+    - 在名为 `SR` 的类型（硬编码）或 [配置](#如何配置分析器) 中指定的其他类型中定义的成员也免受此规则限制。
+
+```cs
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    class Consumer
+    {
+        void M()
+        {
+            var x = new Foo.InternalType(); // SMA0080
+        }
+    }
+}
+```
+
+
+
+
+
+&nbsp;
+
+# 结构体分析
+
+分析 `struct` 类型的使用，防止常见的错误和性能问题。
+
+- SMA0030: Invalid Struct Constructor
+    - 已经显式声明了构造函数，因此不应使用无参构造函数。
+- SMA0031: Mutable Struct Field marked as Read-Only
+    - 不应将可变结构体类型设置为 `readonly` 字段。
+- SMA0032: Implicit Boxing Conversion
+    - 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。注意，显式转换（explicit cast）不在此分析范围内。
+
+> [!TIP]
+> 可以通过注释 `// Allow boxing` 来抑制隐式装箱分析（SMA0032）；详见 [通过注释抑制](#通过注释抑制) 章节。
+
+
+
+
+
+&nbsp;
+
 # 只读变量分析
 
 该分析器通过标记写操作，帮助保持局部变量和参数的不可变性。
@@ -625,56 +681,6 @@ class Demo
 
 
 
-
-&nbsp;
-
-# 项目结构分析
-
-## 跨命名空间的 internal 访问
-
-C# 允许在同一程序集内从任意命名空间访问 `internal` 类型和成员。此分析器强制命名空间边界，使 `internal` 符号只能在其声明所在的命名空间内使用。
-
-- SMA0080: Internal cross-namespace access
-    - 禁止从其他命名空间访问 `internal`（以及 `protected internal`）的类型、成员、方法和构造函数。
-    - 父命名空间和兄弟命名空间也视为独立边界（例如 `Foo.Bar` 不能访问在 `Foo` 或 `Foo.Other` 中声明的符号）。
-    - **例外**: 如果 `internal` 成员定义在名为 `Core` 的叶命名空间（硬编码）或 [配置](#如何配置分析器) 中指定的其他命名空间内，则允许访问。
-    - 在名为 `SR` 的类型（硬编码）或 [配置](#如何配置分析器) 中指定的其他类型中定义的成员也免受此规则限制。
-
-```cs
-namespace Foo
-{
-    internal class InternalType { }
-}
-
-namespace Foo.Bar
-{
-    class Consumer
-    {
-        void M()
-        {
-            var x = new Foo.InternalType(); // SMA0080
-        }
-    }
-}
-```
-
-&nbsp;
-
-# 结构体分析
-
-分析 `struct` 类型的使用，防止常见的错误和性能问题。
-
-- SMA0030: Invalid Struct Constructor
-    - 已经显式声明了构造函数，因此不应使用无参构造函数。
-- SMA0031: Mutable Struct Field marked as Read-Only
-    - 不应将可变结构体类型设置为 `readonly` 字段。
-- SMA0032: Implicit Boxing Conversion
-    - 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。注意，显式转换（explicit cast）不在此分析范围内。
-
-> [!TIP]
-> 可以通过注释 `// Allow boxing` 来抑制隐式装箱分析（SMA0032）；详见 [通过注释抑制](#通过注释抑制) 章节。
-
-
 &nbsp;
 
 # 标注 / 下划线
@@ -792,6 +798,9 @@ var x = new MyDisposable();
 // Don't dispose because...
 var x = new MyDisposable();
 ```
+
+
+
 
 
 &nbsp;
