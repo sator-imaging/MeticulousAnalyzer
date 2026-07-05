@@ -912,6 +912,8 @@ class C {
 class C {
     void M() {
         // First comment
+
+        //
         // Second comment
         var x = 1;
     }
@@ -920,7 +922,7 @@ class C {
             var node = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
             var result = Core.GetPrecedingComments(node);
 
-            Assert.AreEqual(" First comment\n Second comment", result);
+            Assert.AreEqual(" First comment\n\n Second comment", result);
         }
 
         [TestMethod]
