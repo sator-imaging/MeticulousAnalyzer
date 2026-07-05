@@ -521,7 +521,7 @@ namespace Foo.Bar
 Analyze the use of `struct` types to prevent common mistakes and performance issues.
 
 - SMA0030: Invalid Struct Constructor
-    - Constructor has declared explicitly so should not use parameter-less one.
+    - The constructor is declared explicitly, so the parameterless constructor should not be used.
 - SMA0031: Mutable Struct Field marked as Read-Only
     - Mutable struct type should not be set to `readonly` field.
 - SMA0032: Implicit Boxing Conversion
