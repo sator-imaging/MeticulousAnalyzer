@@ -401,7 +401,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                     {
                         sb.Append("\n");
                     }
-                    sb.Append(comment, 2, comment.Length - 2);
+
+                    // Trim first whitespace only.
+                    if (comment.Length > 2 && char.IsWhiteSpace(comment[2]))
+                    {
+                        sb.Append(comment, 3, comment.Length - 3);
+                    }
+                    else
+                    {
+                        sb.Append(comment, 2, comment.Length - 2);
+                    }
                 }
             }
 

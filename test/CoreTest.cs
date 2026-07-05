@@ -915,6 +915,8 @@ class C {
 
         //
         // Second comment
+        //   Indentation kept
+        // Third comment
         var x = 1;
     }
 }";
@@ -922,7 +924,7 @@ class C {
             var node = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
             var result = Core.GetPrecedingComments(node);
 
-            Assert.AreEqual("First comment\n\n Second comment", result);
+            Assert.AreEqual("First comment\n\nSecond comment\n  Indentation kept\nThird comment", result);
         }
 
         [TestMethod]
