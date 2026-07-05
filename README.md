@@ -485,7 +485,7 @@ catch (Exception ex)
 ```
 
 > [!TIP]
-> If an exception is intentionally ignored, suppress the diagnostic with a reasoned comment immediately before the `catch` block.
+> The suppression comment must describe why the exception is ignored.
 >
 > ```cs
 > // Ignore exception: Best-effort cleanup must not mask the original failure

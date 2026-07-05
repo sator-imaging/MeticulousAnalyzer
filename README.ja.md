@@ -485,10 +485,10 @@ catch (Exception ex)
 ```
 
 > [!TIP]
-> 例外を意図的に無視する場合は、理由を記載したコメントを `catch` ブロックの直前に置くことで診断を抑制できます。
+> 抑制コメントには、例外を無視する理由を記載する必要があります。
 >
 > ```cs
-> // Ignore exception: Best-effort cleanup must not mask the original failure
+> // Ignore exception: ベストエフォートなクリーンアップは元の失敗を隠蔽してはならない
 > catch { }
 > ```
 

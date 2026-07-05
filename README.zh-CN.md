@@ -485,10 +485,10 @@ catch (Exception ex)
 ```
 
 > [!TIP]
-> 如果有意忽略异常，请在 `catch` 块之前添加带有原因的注释来抑制诊断。
+> 抑制注释必须说明忽略异常的原因。
 >
 > ```cs
-> // Ignore exception: Best-effort cleanup must not mask the original failure
+> // Ignore exception: 尽力而为的清理工作不得掩盖原始失败
 > catch { }
 > ```
 
