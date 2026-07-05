@@ -381,7 +381,10 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 }
             }
 
-            return comment != default
+            // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
+            // Checking Length is enough and efficient.
+            Debug.Assert(suppressionComment.Length > 0);
+            return comment.Span.Length >= suppressionComment.Length
                 && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
         }
 
