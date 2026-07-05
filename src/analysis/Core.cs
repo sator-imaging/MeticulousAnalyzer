@@ -397,16 +397,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
                 {
                     var comment = trivia.ToString();
-                    if (comment.StartsWith("//"))
-                    {
-                        comment = comment.Substring(2);
-                    }
-
                     if (sb.Length > 0)
                     {
                         sb.Append("\n");
                     }
-                    sb.Append(comment);
+                    sb.Append(comment, 2, comment.Length - 2);
                 }
             }
 
