@@ -54,16 +54,21 @@ class C
 {
     void M()
     {
-        try { }
-        finally
+        try
         {
             try { }
             {|#0:catch|} { }
         }
+        finally
+        {
+            try { }
+            {|#1:catch|} { }
+        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(1));
         }
 
         [TestMethod]
