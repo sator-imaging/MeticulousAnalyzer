@@ -324,7 +324,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         {
             return symbol switch
             {
-                INamespaceSymbol ns => ns.IsGlobalNamespace ? "global" : ns.ToDisplayString(),
+                INamespaceSymbol ns => ns.IsGlobalNamespace ? "global::" : ns.ToDisplayString(),
                 _ => symbol.ToDisplayString(s_diagnosticMessageFormat),
             };
         }
