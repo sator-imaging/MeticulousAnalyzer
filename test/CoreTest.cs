@@ -679,7 +679,7 @@ namespace MyNamespace {
             var model = comp.GetSemanticModel(tree);
             var classDecl = FindFirst<ClassDeclarationSyntax>(tree.GetRoot());
             var ns = model.GetDeclaredSymbol(classDecl)!.ContainingNamespace;
-            Assert.AreEqual("global", Core.ToDiagnosticMessageName(ns));
+            Assert.AreEqual("global::", Core.ToDiagnosticMessageName(ns));
         }
 
         [TestMethod]
