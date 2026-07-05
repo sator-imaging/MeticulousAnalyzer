@@ -95,14 +95,11 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return ifStmt.Else != null && GuaranteesThrow(ifStmt.Statement) && GuaranteesThrow(ifStmt.Else.Statement);
             }
 
-            if (node is TryStatementSyntax tryStmt)
+            // Try-finally (no-catch) does not swallow exceptions; treat it like a wrapper, but ignore try/catch nesting.
+            if (node is TryStatementSyntax tryStmt && tryStmt.Catches.Count == 0)
             {
-                if (GuaranteesThrow(tryStmt.Finally?.Block)) return true;
-
-                if (tryStmt.Catches.Count == 0)
-                {
-                    return GuaranteesThrow(tryStmt.Block);
-                }
+                return GuaranteesThrow(tryStmt.Block)
+                    || (tryStmt.Finally != null && GuaranteesThrow(tryStmt.Finally.Block));
             }
 
             // Note: ThrowExpressionSyntax is NOT considered as guaranteed throw to satisfy "Don't allow throw in null-coalescing operator"
