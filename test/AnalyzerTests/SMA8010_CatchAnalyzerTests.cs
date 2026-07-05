@@ -219,5 +219,67 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_ThrowInTryOfTryFinally()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        catch
+        {
+            try { throw new Exception(); }
+            finally { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_ThrowInFinallyOfTryFinally()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        catch
+        {
+            try { }
+            finally { throw new Exception(); }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Violation_ThrowInTryButSwallowedByCatch()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        {|#0:catch|}
+        {
+            try { throw new Exception(); }
+            {|#1:catch|} { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(1));
+        }
     }
 }
