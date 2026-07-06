@@ -1,5 +1,25 @@
 # Changelog
 
+## [5.0.0-rc.10](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.10) (2026-07-06)
+
+### 🚀 Features
+* Add new `catch` analyzer (SMA8010) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#420](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/420)
+### 📖 Documentation
+* docs: reorganize by [@sator-imaging](https://github.com/sator-imaging) in [#440](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/440)
+* docs: document CatchAnalyzer in Analysis for Code Review (EN/JA/ZH) by [@sator-imaging](https://github.com/sator-imaging) in [#442](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/442)
+### 📚 Other Changes
+* Update InternalNamespaceAccessAnalyzer to report on all locations by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#434](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/434)
+* refactor: test namespaces by [@sator-imaging](https://github.com/sator-imaging) in [#436](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/436)
+* Add missing disposable tests for object initializers and composite expressions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#435](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/435)
+* chore: global namespace display by [@sator-imaging](https://github.com/sator-imaging) in [#438](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/438)
+* refactor: tests by [@sator-imaging](https://github.com/sator-imaging) in [#437](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/437)
+* refactor: suppression comment detection by [@sator-imaging](https://github.com/sator-imaging) in [#439](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/439)
+* refactor: visible internal checks by [@sator-imaging](https://github.com/sator-imaging) in [#445](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/445)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.9...v5.0.0-rc.10
+
+
 ## [5.0.0-rc.9](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.9) (2026-06-30)
 
 ### 🚀 Features
