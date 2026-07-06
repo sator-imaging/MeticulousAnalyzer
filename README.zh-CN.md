@@ -462,20 +462,12 @@ double floating = 1;
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ 报告：Do not use Debug.Assert in public API surface
+//  ~~~~~~~~~~~~ 报告：请勿在公开 API 表面使用 Debug.Assert
 }
 ```
 
 > [!NOTE]
 > 此分析检查包含调用的成员（方法、属性或构造函数）的访问级别。如果它是 `public`、`protected` 或 `protected internal`，则会被报告。
-
-```cs
-long integer = 1;
-double floating = 1;
-```
-
-> [!IMPORTANT]
-> 此分析仅针对 `var` 声明，不考虑隐式类型转换。
 
 
 ## 没有 `throw` 的 `catch` 块

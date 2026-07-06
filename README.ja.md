@@ -462,20 +462,12 @@ double floating = 1;
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ 報告: Do not use Debug.Assert in public API surface
+//  ~~~~~~~~~~~~ 報告: 公開 API サーフェスで Debug.Assert を使用しないでください
 }
 ```
 
 > [!NOTE]
 > この解析は、呼び出しを含むメンバー（メソッド、プロパティ、コンストラクター）のアクセシビリティをチェックします。`public`、`protected`、または `protected internal` の場合に報告されます。
-
-```cs
-long integer = 1;
-double floating = 1;
-```
-
-> [!IMPORTANT]
-> この解析は `var` 宣言のみを対象とし、暗黙的な型変換は考慮しません。
 
 
 ## `throw` のない `catch` ブロック
