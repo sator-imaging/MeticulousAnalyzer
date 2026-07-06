@@ -454,6 +454,22 @@ double floating = 1;
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
+## `Debug.Assert` in Public API
+
+Using `Debug.Assert` in public API surface will cause undefined behavior in Release build because `Debug.Assert` is removed in Release build. Use other assertion library or throw exception instead.
+
+```cs
+public void MyPublicMethod(int value)
+{
+    Debug.Assert(value > 0);
+    // ~~~~~~~~~~~~ reported: Do not use Debug.Assert in public API surface
+}
+```
+
+> [!NOTE]
+> This analysis checks the accessibility of the containing member (method, property, or constructor). If it is `public`, `protected`, or `protected internal`, it will be reported.
+
+
 ## `catch` Block without `throw`
 
 Catch blocks should either rethrow the exception or explicitly document why the exception is intentionally ignored. This prevents exceptions from being swallowed silently and makes review intent clear.
