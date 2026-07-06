@@ -454,6 +454,40 @@ double floating = 1;
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
+## `catch` Block without `throw`
+
+Catch blocks should either rethrow the exception or explicitly document why the exception is intentionally ignored. This prevents exceptions from being swallowed silently and makes review intent clear.
+
+```cs
+try
+{
+    DoSomething();
+}
+catch (Exception ex)
+~~~~~ reported: catch block does not contain a throw statement
+{
+    Log(ex);
+}
+```
+
+If an exception is intentionally ignored, you can suppress the diagnostic by placing a comment with the reason immediately before the `catch` block.
+
+```cs
+try
+{
+    DoSomething();
+}
+// Ignore exception: Nothing to do if the resource is already closed
+catch (Exception ex)
+{
+    Log(ex);
+}
+```
+
+> [!IMPORTANT]
+> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception.
+
+
 ## Null suppression operation
 
 Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
