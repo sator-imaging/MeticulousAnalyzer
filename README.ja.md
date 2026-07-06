@@ -454,6 +454,30 @@ double floating = 1;
 > この解析は `var` 宣言のみを対象とし、暗黙的な型変換は考慮しません。
 
 
+## 公開 API での `Debug.Assert`
+
+公開 API サーフェスで `Debug.Assert` を使用すると、Release ビルドでは `Debug.Assert` が削除されるため、未定義の動作が発生します。他のアサーションライブラリを使用するか、例外をスローするようにしてください。
+
+```cs
+public void MyPublicMethod(int value)
+{
+    Debug.Assert(value > 0);
+//  ~~~~~~~~~~~~ 報告: Do not use Debug.Assert in public API surface
+}
+```
+
+> [!NOTE]
+> この解析は、呼び出しを含むメンバー（メソッド、プロパティ、コンストラクター）のアクセシビリティをチェックします。`public`、`protected`、または `protected internal` の場合に報告されます。
+
+```cs
+long integer = 1;
+double floating = 1;
+```
+
+> [!IMPORTANT]
+> この解析は `var` 宣言のみを対象とし、暗黙的な型変換は考慮しません。
+
+
 ## `throw` のない `catch` ブロック
 
 `catch` ブロックでは例外を再スローするか、例外を意図的に無視する理由を明示する必要があります。これにより、例外が暗黙的に握りつぶされることを防ぎ、レビュー時に意図を確認しやすくなります。

@@ -454,6 +454,30 @@ double floating = 1;
 > 此分析仅针对 `var` 声明，不考虑隐式类型转换。
 
 
+## 公开 API 中的 `Debug.Assert`
+
+在公开 API 表面使用 `Debug.Assert` 会导致在 Release 构建中出现未定义的行为，因为 `Debug.Assert` 在 Release 构建中会被移除。请使用其他断言库或抛出异常。
+
+```cs
+public void MyPublicMethod(int value)
+{
+    Debug.Assert(value > 0);
+//  ~~~~~~~~~~~~ 报告：Do not use Debug.Assert in public API surface
+}
+```
+
+> [!NOTE]
+> 此分析检查包含调用的成员（方法、属性或构造函数）的访问级别。如果它是 `public`、`protected` 或 `protected internal`，则会被报告。
+
+```cs
+long integer = 1;
+double floating = 1;
+```
+
+> [!IMPORTANT]
+> 此分析仅针对 `var` 声明，不考虑隐式类型转换。
+
+
 ## 没有 `throw` 的 `catch` 块
 
 `catch` 块应重新抛出异常，或明确说明为什么有意忽略该异常。这样可以避免异常被静默吞掉，并让审查时的意图更加清晰。

@@ -462,7 +462,7 @@ Using `Debug.Assert` in public API surface will cause undefined behavior in Rele
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-    // ~~~~~~~~~~~~ reported: Do not use Debug.Assert in public API surface
+//  ~~~~~~~~~~~~ reported: Do not use Debug.Assert in public API surface
 }
 ```
 
