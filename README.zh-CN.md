@@ -485,10 +485,10 @@ catch (Exception ex)
 ```
 
 > [!TIP]
-> 抑制注释必须说明忽略异常的原因。
+> 如果有意忽略异常，请在 `catch` 块之前添加带有原因的注释来抑制诊断。
 >
 > ```cs
-> // Ignore exception: 尽力而为的清理工作不得掩盖原始失败
+> // Ignore exception: 如果资源已关闭，则无需执行任何操作
 > catch { }
 > ```
 
