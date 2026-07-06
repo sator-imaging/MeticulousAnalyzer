@@ -484,7 +484,7 @@ catch (Exception ex)
 }
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > コメントは `// Ignore exception:` で始まり、例外を無視する理由を記載する必要があります。
 
 

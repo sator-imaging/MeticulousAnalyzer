@@ -484,7 +484,7 @@ catch (Exception ex)
 }
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > The comment must start with `// Ignore exception:` and include the reason for ignoring the exception.
 
 

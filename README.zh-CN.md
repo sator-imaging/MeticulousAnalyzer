@@ -484,7 +484,7 @@ catch (Exception ex)
 }
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > 注释必须以 `// Ignore exception:` 开头，并说明忽略异常的原因。
 
 
