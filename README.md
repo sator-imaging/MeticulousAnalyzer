@@ -454,7 +454,7 @@ double floating = 1;
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
-## Catch Block Without Throw
+## `catch` Block without `throw`
 
 Catch blocks should either rethrow the exception or explicitly document why the exception is intentionally ignored. This prevents exceptions from being swallowed silently and makes review intent clear.
 
