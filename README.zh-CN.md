@@ -470,27 +470,22 @@ catch (Exception ex)
 }
 ```
 
-期望的代码：
+如果故意忽略异常，可以在 `catch` 块之前添加说明原因的注释来抑制诊断。
 
 ```cs
 try
 {
     DoSomething();
 }
+// Ignore exception: 如果资源已关闭，则无需执行任何操作
 catch (Exception ex)
 {
     Log(ex);
-    throw;
 }
 ```
 
-> [!TIP]
-> 如果有意忽略异常，请在 `catch` 块之前添加带有原因的注释来抑制诊断。
->
-> ```cs
-> // Ignore exception: 如果资源已关闭，则无需执行任何操作
-> catch { }
-> ```
+> [!NOTE]
+> 必须在注释中说明忽略异常的原因。
 
 
 ## Null 抑制操作
