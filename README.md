@@ -485,7 +485,7 @@ catch (Exception ex)
 ```
 
 > [!NOTE]
-> A comment explaining the reason for ignoring the exception must be provided.
+> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception.
 
 
 ## Null suppression operation
