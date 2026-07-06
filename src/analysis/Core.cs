@@ -39,9 +39,9 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
         }
 
         static readonly char[] cache_splitCommaSeparatedValues = new char[] { ',', ' ' };
-        static readonly Dictionary<string, string[]> cache_globalArrayConfig = new();
+        static readonly Dictionary<string, string[]?> cache_globalArrayConfig = new();
 
-        public static string[] GetGlobalConfigurationArray(CompilationStartAnalysisContext context, string key)
+        public static string[]? GetGlobalConfigurationArray(CompilationStartAnalysisContext context, string key)
         {
             if (context.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(key, out var value)
                 && !string.IsNullOrWhiteSpace(value))
@@ -55,10 +55,17 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis
                 // TODO: StringSplitOptions.TrimEntries is not available in netstandard2.0
                 var result = value.Split(cache_splitCommaSeparatedValues, StringSplitOptions.RemoveEmptyEntries);
 
+                if (result.Length == 0 ||
+                    (result.Length == 1 && string.IsNullOrWhiteSpace(result[0])))
+                {
+                    result = null;
+                }
+
                 cache_globalArrayConfig[value] = result;
                 return result;
             }
-            return Array.Empty<string>();
+
+            return null;
         }
 
 

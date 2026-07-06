@@ -52,8 +52,8 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Rule_InternalNamespaceAccess);
 
-        private static string[] VisibleNamespaces = System.Array.Empty<string>();
-        private static string[] VisibleTypes = System.Array.Empty<string>();
+        private static string[]? VisibleNamespaces;
+        private static string[]? VisibleTypes;
 
         private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
 
@@ -687,17 +687,19 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (restrictedSymbol.ContainingType?.Name == "SR")
-            {
-                return;
-            }
-
-            if (VisibleTypes.Contains(restrictedSymbol.ContainingType?.Name ?? string.Empty))
-            {
-                return;
-            }
-
             if (useNamespace == null)
+            {
+                return;
+            }
+
+            var containingTypeName = restrictedSymbol.ContainingType?.Name;
+            if (containingTypeName is "SR")
+            {
+                return;
+            }
+            else if (
+                containingTypeName != null &&
+                (VisibleTypes != null && VisibleTypes.Contains(containingTypeName)))
             {
                 return;
             }
@@ -705,7 +707,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             var declarationNamespace = restrictedSymbol.ContainingNamespace;
             if (declarationNamespace == null
                 || declarationNamespace.Name == "Core"
-                || VisibleNamespaces.Contains(declarationNamespace.Name)
+                || (VisibleNamespaces != null && VisibleNamespaces.Contains(declarationNamespace.Name))
                 || SymbolEqualityComparer.Default.Equals(useNamespace, declarationNamespace))
             {
                 return;
