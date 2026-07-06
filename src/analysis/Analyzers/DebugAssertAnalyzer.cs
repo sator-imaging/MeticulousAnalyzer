@@ -40,11 +40,29 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (invocation.TargetMethod.Name != "Assert")
                 return;
 
-            var containingMember = context.ContainingSymbol;
-            if (containingMember == null)
+            var symbol = context.ContainingSymbol;
+            while (symbol != null)
+            {
+                if (symbol is IMethodSymbol method)
+                {
+                    if (method.MethodKind is MethodKind.LambdaMethod or MethodKind.LocalFunction)
+                    {
+                        symbol = symbol.ContainingSymbol;
+                        continue;
+                    }
+
+                    if (method.AssociatedSymbol != null)
+                    {
+                        symbol = method.AssociatedSymbol;
+                    }
+                }
+                break;
+            }
+
+            if (symbol == null)
                 return;
 
-            if (IsPubliclyAccessible(containingMember))
+            if (IsPubliclyAccessible(symbol))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_DebugAssertInPublicApi,

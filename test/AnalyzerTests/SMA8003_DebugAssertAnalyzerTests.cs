@@ -119,6 +119,35 @@ public class C
         }
 
         [TestMethod]
+        public async Task SMA8003_Violation_ProtectedConstructor()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    protected C()
+    {
+        {|#0:Debug.Assert(true)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_InternalConstructor()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    internal C()
+    {
+        Debug.Assert(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8003_Compliant_PrivateConstructor()
         {
             var test = @"using System.Diagnostics;
@@ -130,6 +159,67 @@ public class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_PublicEventAccessor()
+        {
+            var test = @"using System.Diagnostics;
+using System;
+public class C
+{
+    public event Action E
+    {
+        add { {|#0:Debug.Assert(true)|}; }
+        remove { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_PublicFieldInitializer()
+        {
+            var test = @"
+public class C
+{
+    public static object Assert(bool b) => null;
+    public object X = {|#0:Assert(true)|};
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_PublicMethod_Lambda()
+        {
+            var test = @"using System.Diagnostics;
+using System;
+public class C
+{
+    public void M()
+    {
+        Action a = () => {|#0:Debug.Assert(true)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_PublicMethod_LocalFunction()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public void M()
+    {
+        void Local() => {|#0:Debug.Assert(true)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
 
         [TestMethod]
