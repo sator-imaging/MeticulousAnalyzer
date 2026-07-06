@@ -470,27 +470,22 @@ catch (Exception ex)
 }
 ```
 
-Expected:
+If an exception is intentionally ignored, you can suppress the diagnostic by placing a comment with the reason immediately before the `catch` block.
 
 ```cs
 try
 {
     DoSomething();
 }
+// Ignore exception: Nothing to do if the resource is already closed
 catch (Exception ex)
 {
     Log(ex);
-    throw;
 }
 ```
 
-> [!TIP]
-> If an exception is intentionally ignored, suppress the diagnostic with a reasoned comment immediately before the `catch` block.
->
-> ```cs
-> // Ignore exception: Nothing to do if the resource is already closed
-> catch { }
-> ```
+> [!IMPORTANT]
+> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception.
 
 
 ## Null suppression operation
