@@ -488,7 +488,7 @@ catch (Exception ex)
 > If an exception is intentionally ignored, suppress the diagnostic with a reasoned comment immediately before the `catch` block.
 >
 > ```cs
-> // Ignore exception: Best-effort cleanup must not mask the original failure
+> // Ignore exception: Nothing to do if the resource is already closed
 > catch { }
 > ```
 

@@ -488,7 +488,7 @@ catch (Exception ex)
 > 例外を意図的に無視する場合は、理由を記載したコメントを `catch` ブロックの直前に置くことで診断を抑制できます。
 >
 > ```cs
-> // Ignore exception: Best-effort cleanup must not mask the original failure
+> // Ignore exception: すでにクローズされている場合は何もしなくて良いため
 > catch { }
 > ```
 
