@@ -68,8 +68,6 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          sudo apt update
-          sudo apt install ripgrep
           dotnet tool install -g dotnet-reportgenerator-globaltool
 
           generate_report () {
@@ -90,11 +88,11 @@ jobs:
               "${report_opts[@]}" \
               -targetdir:"$out_dir"
 
-            EFFECTIVE_LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
-              | xargs -r rg -v '^\s*(//|/\*|\{\s*$|\}\s*$|$)' \
+            EFFECTIVE_LINE_COUNT=$(find "$target_dir" -name '*.cs' \
+              | xargs -r grep -vE '^[[:space:]]*(//|/\*|\{[[:space:]]*$|\}[[:space:]]*$|$)' \
               | wc -l)
-            TOTAL_LINE_COUNT=$(rg --files "$target_dir" -g '*.cs' \
-              | xargs -r rg -v '^\s*$' \
+            TOTAL_LINE_COUNT=$(find "$target_dir" -name '*.cs' \
+              | xargs -r grep -vE '^[[:space:]]*$' \
               | wc -l)
             TEST_COUNT=$(find "$target_dir" -name "*.trx" -exec grep -hoE 'total="[0-9]+"' {} + \
               | sed -E 's/total="([0-9]+)"/\1/' \
