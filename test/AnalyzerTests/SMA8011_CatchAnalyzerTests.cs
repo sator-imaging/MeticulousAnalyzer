@@ -12,49 +12,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
     public class SMA8011_CatchAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA8011_Violation_NestedCatch_TryFinally()
-        {
-            var test = @"
-using System;
-class C
-{
-    void M()
-    {
-        try
-        {
-            try { }
-            {|#0:catch|} { }
-
-            try { }
-            {|#1:catch|} (Exception) { }
-
-            try { }
-            {|#2:catch|} (ArgumentException) { }
-        }
-        finally
-        {
-            try { }
-            {|#3:catch|} { }
-
-            try { }
-            {|#4:catch|} (Exception) { }
-
-            try { }
-            {|#5:catch|} (ArgumentException) { }
-        }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(3),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(4),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(5));
-        }
-
-        [TestMethod]
-        public async Task SMA8011_Violation_NoThrowInCatch()
+        public async Task SMA8011_Violation_NoThrowInCatch_CatchAll()
         {
             var test = @"
 using System;
@@ -67,19 +25,15 @@ class C
 
         try { }
         {|#1:catch|} (Exception) { }
-
-        try { }
-        {|#2:catch|} (ArgumentException) { }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
         }
 
         [TestMethod]
-        public async Task SMA8011_Violation_NestedCatch()
+        public async Task SMA8011_Violation_NestedCatch_TryFinally()
         {
             var test = @"
 using System;
@@ -95,22 +49,13 @@ class C
         finally
         {
             try { }
-            {|#1:catch|} (ArgumentException) { }
-        }
-
-        try { }
-        {|#2:catch|} (Exception)
-        {
-            try { }
-            {|#3:catch|} (ArgumentException) { }
+            {|#1:catch|} (Exception) { }
         }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(2),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(3));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
         }
 
         [TestMethod]
@@ -129,20 +74,38 @@ class C
         try { }
         // Ignore exception:
         {|#1:catch|} (Exception) { }
-
-        try { }
-        // Ignore exception:
-        {|#2:catch|} (ArgumentException) { }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
         }
 
         [TestMethod]
-        public async Task SMA8011_Violation_SuppressionByComment_NotAllowed()
+        public async Task SMA8011_Violation_Suppression_NotAllowed()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        // Ignore exception: catch-all cannot be suppressed
+        {|#0:catch|} { }
+
+        try { }
+        // Ignore exception: catch(Exception) cannot be suppressed
+        {|#1:catch|} (Exception) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
+        }
+
+        [TestMethod]
+        public async Task SMA8011_Violation_3Pair_Suppression()
         {
             var test = @"
 using System;
@@ -169,49 +132,6 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8011_Violation_VariableDeclaration()
-        {
-            var test = @"
-using System;
-class C
-{
-    void M()
-    {
-        try { }
-        {|#0:catch|} (Exception error) { }
-
-        try { }
-        {|#1:catch|} (ArgumentException argError) { }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(1));
-        }
-
-        [TestMethod]
-        public async Task SMA8011_Violation_Suppression_VariableDeclaration_NotAllowed()
-        {
-            var test = @"
-using System;
-class C
-{
-    void M()
-    {
-        try { }
-        // Ignore exception: catch(Exception error) cannot be suppressed
-        {|#0:catch|} (Exception error) { }
-
-        try { }
-        // Ignore exception: catch(ArgumentException argError) CAN be suppressed
-        catch (ArgumentException argError) { }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0));
-        }
-
-        [TestMethod]
         public async Task SMA8011_Compliant_ThrowExists()
         {
             var test = @"
@@ -225,9 +145,6 @@ class C
 
         try { }
         catch (Exception ex) { throw; }
-
-        try { }
-        catch (ArgumentException ex) { throw; }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
@@ -247,9 +164,6 @@ class C
 
         try { }
         catch (Exception ex) { throw new Exception(); }
-
-        try { }
-        catch (ArgumentException ex) { throw new Exception(); }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
@@ -275,18 +189,11 @@ class C
         {
             if (true) throw new Exception();
         }
-
-        try { }
-        {|#2:catch|} (ArgumentException)
-        {
-            if (true) throw new Exception();
-        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
         }
 
         [TestMethod]
@@ -307,13 +214,6 @@ class C
 
         try { }
         catch (Exception)
-        {
-            if (DateTime.Now.Second % 2 == 0) throw new Exception(""even"");
-            else throw new Exception(""odd"");
-        }
-
-        try { }
-        catch (ArgumentException)
         {
             if (DateTime.Now.Second % 2 == 0) throw new Exception(""even"");
             else throw new Exception(""odd"");
@@ -345,19 +245,11 @@ class C
             try { }
             catch { throw; }
         }
-
-        try { }
-        {|#2:catch|} (ArgumentException)
-        {
-            try { }
-            catch { throw; }
-        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
         }
 
         [TestMethod]
@@ -380,18 +272,11 @@ class C
         {
             return o?.ToString() ?? throw new Exception();
         }
-
-        try { return o.ToString(); }
-        {|#2:catch|} (ArgumentException)
-        {
-            return o?.ToString() ?? throw new Exception();
-        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
         }
 
         [TestMethod]
@@ -412,13 +297,6 @@ class C
 
         try { }
         catch (Exception)
-        {
-            try { throw new Exception(); }
-            finally { }
-        }
-
-        try { }
-        catch (ArgumentException)
         {
             try { throw new Exception(); }
             finally { }
@@ -450,13 +328,6 @@ class C
             try { }
             finally { throw new Exception(); }
         }
-
-        try { }
-        catch (ArgumentException)
-        {
-            try { }
-            finally { throw new Exception(); }
-        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
@@ -484,22 +355,48 @@ class C
             try { throw new Exception(); }
             {|#3:catch|} (Exception) { }
         }
-
-        try { }
-        {|#4:catch|} (ArgumentException)
-        {
-            try { throw new Exception(); }
-            {|#5:catch|} (ArgumentException) { }
-        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(2),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(3),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(4),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(5));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(3));
+        }
+
+        [TestMethod]
+        public async Task SMA8011_Violation_VariableDeclaration()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        {|#0:catch|} (Exception error) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8011_Violation_Suppression_VariableDeclaration_NotAllowed()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        // Ignore exception: catch(Exception error) cannot be suppressed
+        {|#0:catch|} (Exception error) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0));
         }
     }
 }
