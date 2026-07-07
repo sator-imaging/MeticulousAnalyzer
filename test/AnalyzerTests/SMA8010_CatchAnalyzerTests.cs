@@ -37,6 +37,48 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8010_Violation_NestedCatch_TryFinally()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try
+        {
+            try { }
+            {|#0:catch|} { }
+
+            try { }
+            {|#1:catch|} (Exception) { }
+
+            try { }
+            {|#2:catch|} (ArgumentException) { }
+        }
+        finally
+        {
+            try { }
+            {|#3:catch|} { }
+
+            try { }
+            {|#4:catch|} (Exception) { }
+
+            try { }
+            {|#5:catch|} (ArgumentException) { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(2),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(3),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(4),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(5));
+        }
+
+        [TestMethod]
         public async Task SMA8010_Violation_NestedCatch()
         {
             var test = @"
