@@ -76,7 +76,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
             else
             {
-                isCatchAll = false;
+                isCatchAll = true;
             }
 
             // 3. Catch-all blocks without a throw (SMA8011) are NOT ignorable by comment.
