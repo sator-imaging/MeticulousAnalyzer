@@ -454,15 +454,15 @@ double floating = 1;
 > 此分析仅针对 `var` 声明，不考虑隐式类型转换。
 
 
-## 公开 API 中的 `Debug.Assert`
+## 公开 API 中的调试专用 `Assert`
 
-在公开 API 表面使用 `Debug.Assert` 会导致在 Release 构建中出现未定义的行为，因为 `Debug.Assert` 在 Release 构建中会被移除。请使用其他断言库或抛出异常。
+在公开 API 表面使用 `Debug.Assert` 或其他调试专用 `Assert` 方法会导致在 Release 构建中出现未定义的行为，因为它们在 Release 构建中会被移除。请使用其他断言库或抛出异常。
 
 ```cs
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ 报告：请勿在公开 API 表面使用 Debug.Assert
+//  ~~~~~~~~~~~~ 报告：请勿在公开 API 表面使用调试专用的 'Assert'
 }
 ```
 

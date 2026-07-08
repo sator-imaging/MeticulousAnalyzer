@@ -95,7 +95,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)
 | SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
 | SMA8002 | Null suppression operation                 | Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.
-| SMA8003 | Debug.Assert in Public API                 | Using `Debug.Assert` in public API surface will cause undefined behavior in Release build.
+| SMA8003 | Debug-only Assert in Public API            | Avoid using debug-only validation in public API surfaces, as it can lead to undefined behavior in Release builds.
 | | | |
 | SMA8010 | Catch Block Without Throw                  | Catch block should contain a 'throw' statement or expression. Can suppress with comment "// Ignore exception: <Reason>"
 

@@ -454,15 +454,15 @@ double floating = 1;
 > この解析は `var` 宣言のみを対象とし、暗黙的な型変換は考慮しません。
 
 
-## 公開 API での `Debug.Assert`
+## 公開 API でのデバッグ専用 `Assert`
 
-公開 API サーフェスで `Debug.Assert` を使用すると、Release ビルドでは `Debug.Assert` が削除されるため、未定義の動作が発生します。他のアサーションライブラリを使用するか、例外をスローするようにしてください。
+公開 API サーフェスで `Debug.Assert` またはその他のデバッグ専用 `Assert` メソッドを使用すると、Release ビルドではそれらが削除されるため、未定義の動作が発生します。他のアサーションライブラリを使用するか、例外をスローするようにしてください。
 
 ```cs
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ 報告: 公開 API サーフェスで Debug.Assert を使用しないでください
+//  ~~~~~~~~~~~~ 報告: 公開 API サーフェスでデバッグ専用の 'Assert' を使用しないでください
 }
 ```
 

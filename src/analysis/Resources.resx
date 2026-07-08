@@ -538,13 +538,13 @@
     <value>Null suppression operation</value>
   </data>
   <data name="SMA8003_Description" xml:space="preserve">
-    <value>Using `Debug.Assert` in public API surface will cause undefined behavior in Release build.</value>
+    <value>Avoid using debug-only validation in public API surfaces, as it can lead to undefined behavior in Release builds.</value>
   </data>
   <data name="SMA8003_MessageFormat" xml:space="preserve">
-    <value>Do not use `Debug.Assert` in public API surface</value>
+    <value>Do not use debug-only 'Assert' in public API surface</value>
   </data>
   <data name="SMA8003_Title" xml:space="preserve">
-    <value>Debug.Assert in Public API</value>
+    <value>Debug-only Assert in Public API</value>
   </data>
   <data name="SMA8010_Description" xml:space="preserve">
     <value>Catch block should contain a `throw` statement. Can suppress with comment "// Ignore exception: &lt;Reason&gt;"</value>

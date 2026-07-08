@@ -454,15 +454,15 @@ double floating = 1;
 > This analysis only targets `var` declarations and does not consider implicit conversions.
 
 
-## `Debug.Assert` in Public API
+## Debug-only `Assert` in Public API
 
-Using `Debug.Assert` in public API surface will cause undefined behavior in Release build because `Debug.Assert` is removed in Release build. Use other assertion library or throw exception instead.
+Using `Debug.Assert` or other debug-only `Assert` methods in public API surface will cause undefined behavior in Release build because they are removed in Release build. Use another assertion library or throw exception instead.
 
 ```cs
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ reported: Do not use Debug.Assert in public API surface
+//  ~~~~~~~~~~~~ reported: Do not use debug-only 'Assert' in public API surface
 }
 ```
 
