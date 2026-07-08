@@ -67,7 +67,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             // 2. Identify "catch-all" blocks: `catch { ... }` or `catch (System.Exception ex) { ... }`.
             bool isCatchAll;
-            if (catchClause.Declaration ＝= null)
+            if (catchClause.Declaration == null)
             {
                 isCatchAll = true;
             }
