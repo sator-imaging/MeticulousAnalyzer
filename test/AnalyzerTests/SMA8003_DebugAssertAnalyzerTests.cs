@@ -223,6 +223,35 @@ public class C
         }
 
         [TestMethod]
+        public async Task SMA8003_Violation_PublicInterfaceDefaultMethod()
+        {
+            var test = @"using System.Diagnostics;
+public interface I
+{
+    void M()
+    {
+        {|#0:Debug.Assert(true)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_DefaultClassMethod()
+        {
+            var test = @"using System.Diagnostics;
+class C
+{
+    void M()
+    {
+        Debug.Assert(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8003_Violation_OtherAssertCall()
         {
             var test = @"
