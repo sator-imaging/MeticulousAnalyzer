@@ -50,6 +50,31 @@ public class C
         }
 
         [TestMethod]
+        public async Task SMA8003_Violation_PublicFieldInitializer()
+        {
+            var test = @"
+public class C
+{
+    public static bool Assert(bool b) => b;
+    public readonly bool X = {|#0:Assert(true)|};
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_InternalFieldInitializer()
+        {
+            var test = @"
+public class C
+{
+    public static bool Assert(bool b) => b;
+    internal readonly bool X = Assert(true);
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8003_Violation_PublicExpressionBodiedProperty()
         {
             var test = @"using System.Diagnostics;
