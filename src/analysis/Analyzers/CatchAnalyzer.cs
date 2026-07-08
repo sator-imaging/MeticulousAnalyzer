@@ -77,7 +77,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 isCatchAll = typeSymbol != null && typeSymbol.Name == "Exception" &&
                              typeSymbol.ContainingNamespace is INamespaceSymbol
                              {
-                                 Name: "System", ContainingNamespace is INamespaceSymbol
+                                 Name: "System", ContainingNamespace: INamespaceSymbol
                                  {
                                      IsGlobalNamespace: true
                                  }
