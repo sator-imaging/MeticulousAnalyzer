@@ -66,13 +66,22 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             }
 
             // 2. Identify "catch-all" blocks: `catch { ... }` or `catch (System.Exception ex) { ... }`.
-            var isCatchAll = catchClause.Declaration == null;
-            if (catchClause.Declaration != null)
+            bool isCatchAll;
+            if (catchClause.Declaration == null)
+            {
+                isCatchAll = true;
+            }
+            else
             {
                 var typeSymbol = context.SemanticModel.GetTypeInfo(catchClause.Declaration.Type).Type;
                 isCatchAll = typeSymbol != null && typeSymbol.Name == "Exception" &&
-                             typeSymbol.ContainingNamespace is { Name: "System" } &&
-                             typeSymbol.ContainingNamespace.ContainingNamespace is { IsGlobalNamespace: true };
+                             typeSymbol.ContainingNamespace is INamespaceSymbol
+                             {
+                                 Name: "System", ContainingNamespace: INamespaceSymbol
+                                 {
+                                     IsGlobalNamespace: true
+                                 }
+                             };
             }
 
             // 3. Catch-all blocks without a throw (SMA8011) are NOT ignorable by comment.
