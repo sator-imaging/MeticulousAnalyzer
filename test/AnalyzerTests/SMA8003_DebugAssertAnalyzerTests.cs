@@ -27,6 +27,31 @@ public class C
         }
 
         [TestMethod]
+        public async Task SMA8003_Violation_PublicExpressionBodiedProperty()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public static bool Assert(bool b) => b;
+    public bool P => {|#0:Assert(true)|};
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_InternalExpressionBodiedProperty()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public static bool Assert(bool b) => b;
+    internal bool P => Assert(true);
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8003_Violation_ProtectedMethod()
         {
             var test = @"using System.Diagnostics;
