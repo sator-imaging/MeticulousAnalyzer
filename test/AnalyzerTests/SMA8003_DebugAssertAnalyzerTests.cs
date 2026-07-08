@@ -27,13 +27,35 @@ public class C
         }
 
         [TestMethod]
+        public async Task SMA8003_Violation_PublicExpressionBodiedMethod()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public void M() => {|#0:Debug.Assert(true)|};
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_InternalExpressionBodiedMethod()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    internal void M() => Debug.Assert(true);
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8003_Violation_PublicExpressionBodiedProperty()
         {
             var test = @"using System.Diagnostics;
 public class C
 {
-    public static bool Assert(bool b) => b;
-    public bool P => {|#0:Assert(true)|};
+    public int P { set => {|#0:Debug.Assert(value > 0)|}; }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
@@ -45,8 +67,7 @@ public class C
             var test = @"using System.Diagnostics;
 public class C
 {
-    public static bool Assert(bool b) => b;
-    internal bool P => Assert(true);
+    internal int P { set => Debug.Assert(value > 0); }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
@@ -198,19 +219,6 @@ public class C
         add { {|#0:Debug.Assert(true)|}; }
         remove { }
     }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
-        }
-
-        [TestMethod]
-        public async Task SMA8003_Violation_PublicFieldInitializer()
-        {
-            var test = @"
-public class C
-{
-    public static object Assert(bool b) => null;
-    public object X = {|#0:Assert(true)|};
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
