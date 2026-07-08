@@ -463,7 +463,7 @@ try
 {
     DoSomething();
 }
-catch (Exception ex)
+catch (System.IO.IOException ex)
 ~~~~~ 报告：catch 块不包含 throw 语句
 {
     Log(ex);
@@ -478,14 +478,14 @@ try
     DoSomething();
 }
 // Ignore exception: 如果资源已关闭，则无需执行任何操作
-catch (Exception ex)
+catch (System.IO.IOException ex)
 {
     Log(ex);
 }
 ```
 
 > [!IMPORTANT]
-> 注释必须以 `// Ignore exception:` 开头，并说明忽略异常的原因。
+> 注释必须以 `// Ignore exception:` 开头，并说明忽略异常的原因。Catch-all 块（`catch { ... }` 或 `catch (Exception ex) { ... }`）必须始终包含 `throw` 语句，并且不能通过注释抑制。
 
 
 ## Null 抑制操作

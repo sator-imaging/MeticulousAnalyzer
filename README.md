@@ -463,7 +463,7 @@ try
 {
     DoSomething();
 }
-catch (Exception ex)
+catch (System.IO.IOException ex)
 ~~~~~ reported: catch block does not contain a throw statement
 {
     Log(ex);
@@ -478,14 +478,14 @@ try
     DoSomething();
 }
 // Ignore exception: Nothing to do if the resource is already closed
-catch (Exception ex)
+catch (System.IO.IOException ex)
 {
     Log(ex);
 }
 ```
 
 > [!IMPORTANT]
-> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception.
+> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) must always contain a `throw` statement and cannot be suppressed by comments.
 
 
 ## Null suppression operation

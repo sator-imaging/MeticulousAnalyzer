@@ -463,7 +463,7 @@ try
 {
     DoSomething();
 }
-catch (Exception ex)
+catch (System.IO.IOException ex)
 ~~~~~ 報告: catch ブロックに throw 文が含まれていません
 {
     Log(ex);
@@ -478,14 +478,14 @@ try
     DoSomething();
 }
 // Ignore exception: すでにクローズされている場合は何もしなくて良いため
-catch (Exception ex)
+catch (System.IO.IOException ex)
 {
     Log(ex);
 }
 ```
 
 > [!IMPORTANT]
-> コメントは `// Ignore exception:` で始まり、例外を無視する理由を記載する必要があります。
+> コメントは `// Ignore exception:` で始まり、例外を無視する理由を記載する必要があります。キャッチオールブロック (`catch { ... }` または `catch (Exception ex) { ... }`) は常に `throw` 文を含む必要があり、コメントで抑制することはできません。
 
 
 ## Null 抑制演算子
