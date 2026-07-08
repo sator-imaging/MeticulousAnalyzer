@@ -21,7 +21,7 @@ class C
     void M()
     {
         try { }
-        {|#0:catch|} (InvalidOperationException) { }
+        {|#0:catch|} (ArgumentException) { }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
@@ -29,24 +29,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8010_Violation_NoThrowInCatch_WithoutType()
-        {
-            var test = @"
-using System;
-class C
-{
-    void M()
-    {
-        try { }
-        {|#0:catch|} { }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
-        }
-
-        [TestMethod]
-        public async Task SMA8010_Violation_NestedCatch()
+        public async Task SMA8010_Violation_NestedCatch_TryFinally()
         {
             var test = @"
 using System;
@@ -57,12 +40,12 @@ class C
         try
         {
             try { }
-            {|#0:catch|} { }
+            {|#0:catch|} (ArgumentException) { }
         }
         finally
         {
             try { }
-            {|#1:catch|} { }
+            {|#1:catch|} (ArgumentException) { }
         }
     }
 }";
@@ -82,11 +65,28 @@ class C
     {
         try { }
         // Ignore exception:
-        {|#0:catch|} { }
+        {|#0:catch|} (ArgumentException) { }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_SuppressionWithReason()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        // Ignore exception: Reason here
+        catch (ArgumentException) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@ class C
     void M()
     {
         try { }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             throw;
         }
@@ -118,27 +118,10 @@ class C
     void M()
     {
         try { }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             throw new Exception();
         }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8010_Compliant_SuppressionWithReason()
-        {
-            var test = @"
-using System;
-class C
-{
-    void M()
-    {
-        try { }
-        // Ignore exception: Reason here
-        catch { }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
@@ -154,7 +137,7 @@ class C
     void M()
     {
         try { }
-        {|#0:catch|}
+        {|#0:catch|} (ArgumentException)
         {
             if (true) throw new Exception();
         }
@@ -174,7 +157,7 @@ class C
     void M()
     {
         try { }
-        catch
+        catch (ArgumentException)
         {
             if (DateTime.Now.Second % 2 == 0) throw new Exception(""even"");
             else throw new Exception(""odd"");
@@ -194,10 +177,10 @@ class C
     void M()
     {
         try { }
-        {|#0:catch|}
+        {|#0:catch|} (ArgumentException)
         {
             try { }
-            catch { throw; }
+            catch (ArgumentException) { throw; }
         }
     }
 }";
@@ -215,7 +198,7 @@ class C
     string M(object o)
     {
         try { return o.ToString(); }
-        {|#0:catch|}
+        {|#0:catch|} (ArgumentException)
         {
             return o?.ToString() ?? throw new Exception();
         }
@@ -235,7 +218,7 @@ class C
     void M()
     {
         try { }
-        catch
+        catch (ArgumentException)
         {
             try { throw new Exception(); }
             finally { }
@@ -255,7 +238,7 @@ class C
     void M()
     {
         try { }
-        catch
+        catch (ArgumentException)
         {
             try { }
             finally { throw new Exception(); }
@@ -275,16 +258,50 @@ class C
     void M()
     {
         try { }
-        {|#0:catch|}
+        {|#0:catch|} (ArgumentException)
         {
             try { throw new Exception(); }
-            {|#1:catch|} { }
+            {|#1:catch|} (ArgumentException) { }
         }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0),
                 VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(1));
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Violation_VariableDeclaration()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        {|#0:catch|} (ArgumentException argError) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_Suppression_VariableDeclaration()
+        {
+            var test = @"
+using System;
+class C
+{
+    void M()
+    {
+        try { }
+        // Ignore exception: Reason here
+        catch (ArgumentException argError) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

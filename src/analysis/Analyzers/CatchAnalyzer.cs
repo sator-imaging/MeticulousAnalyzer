@@ -26,12 +26,23 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8010_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_CatchAll = "SMA8011";
+        private static readonly DiagnosticDescriptor Rule_CatchAll = new(
+            RuleId_CatchAll,
+            new LocalizableResourceString(nameof(Resources.SMA8011_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8011_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA8011_Description), Resources.ResourceManager, typeof(Resources)));
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
             Core.Rule_DebugError,
             Core.Rule_DebugWarn,
 #endif
-            Rule_CatchWithoutThrow);
+            Rule_CatchWithoutThrow,
+            Rule_CatchAll);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -48,11 +59,30 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            // 1. If the catch block re-throws or guarantees a throw, it's compliant regardless of the exception type.
             if (GuaranteesThrow(catchClause.Block))
             {
                 return;
             }
 
+            // 2. Identify "catch-all" blocks: `catch { ... }` or `catch (System.Exception ex) { ... }`.
+            var isCatchAll = catchClause.Declaration == null;
+            if (catchClause.Declaration != null)
+            {
+                var typeSymbol = context.SemanticModel.GetTypeInfo(catchClause.Declaration.Type).Type;
+                isCatchAll = typeSymbol != null && typeSymbol.Name == "Exception" &&
+                             typeSymbol.ContainingNamespace is { Name: "System" } &&
+                             typeSymbol.ContainingNamespace.ContainingNamespace is { IsGlobalNamespace: true };
+            }
+
+            // 3. Catch-all blocks without a throw (SMA8011) are NOT ignorable by comment.
+            if (isCatchAll)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule_CatchAll, catchClause.CatchKeyword.GetLocation()));
+                return;
+            }
+
+            // 4. Other catch blocks without a throw (SMA8010) CAN be suppressed by a specific comment.
             if (Core.IsSuppressedByComment(catchClause, SuppressionComment))
             {
                 var comments = Core.GetPrecedingComments(catchClause);
