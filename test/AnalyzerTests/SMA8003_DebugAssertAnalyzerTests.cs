@@ -50,40 +50,16 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA8003_Violation_PublicFieldInitializer()
-        {
-            var test = @"
-public class C
-{
-    public static bool Assert(bool b) => b;
-    public readonly bool X = {|#0:Assert(true)|};
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
-        }
-
-        [TestMethod]
-        public async Task SMA8003_Compliant_InternalFieldInitializer()
-        {
-            var test = @"
-public class C
-{
-    public static bool Assert(bool b) => b;
-    internal readonly bool X = Assert(true);
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
         public async Task SMA8003_Violation_PublicExpressionBodiedProperty()
         {
             var test = @"using System.Diagnostics;
 public class C
 {
-    public int P { set => {|#0:Debug.Assert(value > 0)|}; }
+    public bool P => {|#0:Debug.Assert(true)|} == null;
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0),
+                DiagnosticResult.CompilerError("CS0019").WithSpan(4, 22, 4, 48).WithArguments("==", "void", "<null>"));
         }
 
         [TestMethod]
@@ -92,9 +68,35 @@ public class C
             var test = @"using System.Diagnostics;
 public class C
 {
-    internal int P { set => Debug.Assert(value > 0); }
+    internal bool P => Debug.Assert(true) == null;
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                DiagnosticResult.CompilerError("CS0019").WithSpan(4, 24, 4, 50).WithArguments("==", "void", "<null>"));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_PublicFieldInitializer()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public readonly object X = {|#0:Debug.Assert(true)|};
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0),
+                DiagnosticResult.CompilerError("CS0029").WithSpan(4, 32, 4, 50).WithArguments("void", "object"));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_InternalFieldInitializer()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    internal readonly object X = Debug.Assert(true);
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                DiagnosticResult.CompilerError("CS0029").WithSpan(4, 34, 4, 52).WithArguments("void", "object"));
         }
 
         [TestMethod]
@@ -307,23 +309,6 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8003_Violation_OtherAssertCall()
-        {
-            var test = @"
-public class C
-{
-    public void Assert(bool b) {}
-    public void M()
-    {
-        {|#0:Assert(true)|};
-    }
-}";
-            // Analysis logic: If method call of Debug.Assert found (no argument check; no namespace check; just check the name)
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
     }
 }
