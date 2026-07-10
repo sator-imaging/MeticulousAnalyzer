@@ -547,7 +547,7 @@
     <value>Catch Block Without Throw</value>
   </data>
   <data name="SMA8011_Description" xml:space="preserve">
-    <value>Catch-all block suppresses all exceptions and should contain a throw statement, or catch only specific exceptions.</value>
+    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.</value>
   </data>
   <data name="SMA8011_MessageFormat" xml:space="preserve">
     <value>Catch-all block does not contain a `throw` statement</value>
