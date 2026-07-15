@@ -37,7 +37,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation invocation)
                 return;
 
-            if (invocation.TargetMethod.Name != "Assert")
+            if (!invocation.TargetMethod.Name.StartsWith("Assert", System.StringComparison.Ordinal))
                 return;
 
             var symbol = context.ContainingSymbol;
