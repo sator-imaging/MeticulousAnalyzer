@@ -311,4 +311,21 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_OtherAssertCall()
+        {
+            var test = @"
+public class C
+{
+    private void Assert(bool b) {}
+    public void M()
+    {
+        {|#0:Assert(true)|};
+    }
+}";
+            // Analysis logic: If method call of Debug.Assert found (no argument check; no namespace check; just check the name)
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
 }
