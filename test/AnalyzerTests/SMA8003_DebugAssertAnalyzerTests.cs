@@ -323,7 +323,7 @@ public class C
         {|#0:Assert(true)|};
     }
 }";
-            // Analysis logic: If method call of Debug.Assert found (no argument check; no namespace check; just check the name)
+            // Analysis logic: If method call of Assert found (no argument check; no namespace check; just check the name)
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
