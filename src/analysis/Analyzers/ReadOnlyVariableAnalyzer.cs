@@ -88,10 +88,6 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            // TODO: As roslyn triggers compilation start only on file is saved (Ctrl+S is pressed).
-            //       Registering action in compilation start action is **correct but not ideal** because
-            //       the analyzer feedback is not reported until Ctrl+S is pressed.
-            //       For now, basic best-effort configuration support is sufficient.
             context.RegisterCompilationStartAction(ctx =>
             {
                 if (Core.GetGlobalConfigurationBoolean(ctx, Core.Config_EnableImmutableVariable))
