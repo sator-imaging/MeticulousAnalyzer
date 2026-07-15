@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.0.0-rc.11](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.11) (2026-07-15)
+
+### 🚀 Features
+* Add new debug assertion analyzer SMA8003 by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#448](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/448)
+### 📚 Other Changes
+* Remove ripgrep dependency from test-coverage workflow by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#450](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/450)
+* Implement SMA8011: Catch-All Block Without Throw Analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#449](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/449)
+* chore: catch analyzer by [@sator-imaging](https://github.com/sator-imaging) in [#451](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/451)
+* Update CatchAnalyzer documentation for catch-all restrictions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#452](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/452)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.10...v5.0.0-rc.11
+
+
 ## [5.0.0-rc.10](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.10) (2026-07-06)
 
 ### 🚀 Features
