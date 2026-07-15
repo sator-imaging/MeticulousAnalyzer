@@ -310,7 +310,6 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
-    }
 
         [TestMethod]
         public async Task SMA8003_Violation_OtherAssertCall()
@@ -328,4 +327,5 @@ public class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
+    }
 }
