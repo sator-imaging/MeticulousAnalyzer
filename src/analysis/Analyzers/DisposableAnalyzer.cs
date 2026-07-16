@@ -96,10 +96,26 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzePropertyReference, OperationKind.PropertyReference);
             context.RegisterOperationAction(AnalyzeArrayElementReference, OperationKind.ArrayElementReference);
             context.RegisterOperationAction(AnalyzeNullAssignment, OperationKind.SimpleAssignment);
+            context.RegisterOperationAction(AnalyzeAwait, OperationKind.Await);
         }
 
 
         /*  entry  ================================================================ */
+
+        private static void AnalyzeAwait(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IAwaitOperation op)
+            {
+                return;
+            }
+
+            if (!IsDisposable(context, op.Type))
+            {
+                return;
+            }
+
+            CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
+        }
 
         private static void AnalyzeCast(OperationAnalysisContext context)
         {
