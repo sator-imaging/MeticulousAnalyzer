@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.0.0-rc.12](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.12) (2026-07-16)
+
+### 🚀 Features
+* Update DebugAssertAnalyzer to check for method names starting with Assert by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#456](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/456)
+### ✨ Bug Fixes
+* Support await operations in DisposableAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#457](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/457)
+### 📚 Other Changes
+* test: add custom assert method by [@sator-imaging](https://github.com/sator-imaging) in [#455](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/455)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.11...v5.0.0-rc.12
+
+
 ## [5.0.0-rc.11](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.11) (2026-07-15)
 
 ### 🚀 Features
