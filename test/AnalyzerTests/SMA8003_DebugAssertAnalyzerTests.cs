@@ -327,5 +327,41 @@ public class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_StartsWithAssertCall()
+        {
+            var test = @"
+public class C
+{
+    private void AssertTrue(bool b) {}
+    private void AssertEqual(int a, int b) {}
+    public void M()
+    {
+        {|#0:AssertTrue(true)|};
+        {|#1:AssertEqual(1, 1)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0),
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(1));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_ContainsAssertButNotStartsWith()
+        {
+            var test = @"
+public class C
+{
+    private void MyAssert(bool b) {}
+    private void CheckAssert(bool b) {}
+    public void M()
+    {
+        MyAssert(true);
+        CheckAssert(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
