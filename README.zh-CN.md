@@ -438,9 +438,9 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 
 ```cs
 var integer = 1;
-//  ~~~~~~~
+//  ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
 var floating = 1;
-//  ~~~~~~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
+//  ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
 ```
 
 期望的代码：

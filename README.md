@@ -438,9 +438,9 @@ All system primitive numbers, from `sbyte` to `decimal`, should be declared with
 
 ```cs
 var integer = 1;
-//  ~~~~~~~
+//  ~~~ reported: variable should be declared with an explicit number type
 var floating = 1;
-//  ~~~~~~~~ reported: variable should be declared with an explicit number type
+//  ~~~ reported: variable should be declared with an explicit number type
 ```
 
 Expected:

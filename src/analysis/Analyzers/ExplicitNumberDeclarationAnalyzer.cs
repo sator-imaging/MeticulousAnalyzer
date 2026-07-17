@@ -47,7 +47,7 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
             {
                 if (context.SemanticModel.GetDeclaredSymbol(variable) is ILocalSymbol local)
                 {
-                    ReportIfPrimitiveNumber(context, variable.Identifier, local.Type);
+                    ReportIfPrimitiveNumber(context, declaration.Type, variable.Identifier, local.Type);
                 }
             }
         }
@@ -59,16 +59,16 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeVariableDesignation(context, declaration.Designation);
+            AnalyzeVariableDesignation(context, declaration.Type, declaration.Designation);
         }
 
-        private static void AnalyzeVariableDesignation(SyntaxNodeAnalysisContext context, VariableDesignationSyntax designation)
+        private static void AnalyzeVariableDesignation(SyntaxNodeAnalysisContext context, TypeSyntax varType, VariableDesignationSyntax designation)
         {
             if (designation is SingleVariableDesignationSyntax single)
             {
                 if (context.SemanticModel.GetDeclaredSymbol(single) is ILocalSymbol local)
                 {
-                    ReportIfPrimitiveNumber(context, single.Identifier, local.Type);
+                    ReportIfPrimitiveNumber(context, varType, single.Identifier, local.Type);
                 }
             }
             else if (designation is DiscardDesignationSyntax discard)
@@ -84,13 +84,13 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
                     type = context.SemanticModel.GetTypeInfo(decl).ConvertedType;
                 }
 
-                ReportIfPrimitiveNumber(context, discard.UnderscoreToken, type);
+                ReportIfPrimitiveNumber(context, varType, discard.UnderscoreToken, type);
             }
             else if (designation is ParenthesizedVariableDesignationSyntax tuple)
             {
                 foreach (var variable in tuple.Variables)
                 {
-                    AnalyzeVariableDesignation(context, variable);
+                    AnalyzeVariableDesignation(context, varType, variable);
                 }
             }
         }
@@ -104,18 +104,18 @@ namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
 
             if (context.SemanticModel.GetDeclaredSymbol(forEach) is ILocalSymbol local)
             {
-                ReportIfPrimitiveNumber(context, forEach.Identifier, local.Type);
+                ReportIfPrimitiveNumber(context, forEach.Type, forEach.Identifier, local.Type);
             }
         }
 
 
-        private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, SyntaxToken identifier, ITypeSymbol? type)
+        private static void ReportIfPrimitiveNumber(SyntaxNodeAnalysisContext context, TypeSyntax typeNode, SyntaxToken identifier, ITypeSymbol? type)
         {
             if (type != null && IsSystemPrimitiveNumber(type))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ExplicitNumber,
-                    identifier.GetLocation(),
+                    typeNode.GetLocation(),
                     identifier.Text));
             }
         }
