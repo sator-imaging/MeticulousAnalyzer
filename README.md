@@ -165,10 +165,6 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 > To check flags, use the following method to avoid conversion warnings instead of `.HasFlag` or `!= 0`.
 >
 > ```cs
-> if (flag.HasFlag(E.Some))  // reported
-> ```
->
-> ```cs
 > if ((flag & E.Some) != E.None)  // Note: != 0 will cause conversion warning
 > ```
 
