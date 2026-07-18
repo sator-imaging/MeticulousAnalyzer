@@ -415,11 +415,10 @@ Literal arguments can be difficult to understand without IDE assistance, especia
 
 ```cs
 Foo(true, 0);
-//  ~~~~  ~ literal arguments are difficult to understand
+    ~~~~  ~ // Literal arguments are difficult to understand
 
 Foo(ignoreErrors: true, timeoutSeconds: 0);
-//  ^^^^^^^^^^^^        ^^^^^^^^^^^^^^
-//  Now arguments are self-explanatory!
+    // Now arguments are self-explanatory!
 ```
 
 > [!NOTE]

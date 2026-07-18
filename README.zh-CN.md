@@ -415,11 +415,10 @@ async Task Method()
 
 ```cs
 Foo(true, 0);
-//  ~~~~  ~ 字面量参数难以理解其含义
+    ~~~~  ~ // 字面量参数难以理解其含义
 
 Foo(ignoreErrors: true, timeoutSeconds: 0);
-//  ^^^^^^^^^^^^        ^^^^^^^^^^^^^^
-//  现在参数含义一目了然！
+    // 现在参数含义一目了然！
 ```
 
 > [!NOTE]
