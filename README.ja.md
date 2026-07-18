@@ -195,8 +195,8 @@ Enum ライク型の要件:
 
 ```cs
 public class EnumLike
-//           ~~~~~~~~ 警告: sealed 修飾子がなく、公開コンストラクターが存在する
-//                          * この警告は 'Entries' メンバーを持つ場合にのみ表示される
+             ~~~~~~~~ // 警告: sealed 修飾子がなく、公開コンストラクターが存在する
+                      //      * この警告は 'Entries' メンバーを持つ場合にのみ表示される
 {
     public static readonly EnumLike A = new("A");
     public static readonly EnumLike B = new("B");
@@ -205,7 +205,7 @@ public class EnumLike
 
     // 'Entries' はすべての 'public static readonly' フィールドを宣言順に保持する必要がある
     static readonly EnumLike[] _entries = new[] { B, A };
-    //                                    ~~~~~~~~~~~~~~ 順序が正しくない!!
+                                          ~~~~~~~~~~~~~~ // 順序が正しくない!!
 
     // 配列の代わりに 'ReadOnlyMemory<T>' も使用可能
     public static readonly ReadOnlyMemory<EnumLike> EntriesAsMemory = new(new[] { A, B });
@@ -299,10 +299,10 @@ switch (val)
 
 ```cs
 var d = new Disposable();
-//      ~~~~~~~~~~~~~~~~ using 文が見つからない
+        ~~~~~~~~~~~~~~~~ // using 文が見つからない
 
 d = (new object()) as IDisposable;
-//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Disposable 型への/からのキャスト
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ // Disposable 型への/からのキャスト
 ```
 
 > [!TIP]
@@ -347,7 +347,7 @@ d = (new object()) as IDisposable;
 class Test : IDisposable
 {
     private MyDisposable _field = new();
-//          ~~~~~~~~~~~~ 警告: 破棄されていないメンバー
+            ~~~~~~~~~~~~ // 警告: 破棄されていないメンバー
 
     public void Dispose()
     {
@@ -393,7 +393,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 async Task Method()
 {
     var t = Task.Run(...);
-    //      ~~~~~~~~~~~~ Task が await または return されていない
+            ~~~~~~~~~~~~~ // Task が await または return されていない
 }
 ```
 
@@ -438,15 +438,15 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 
 ```cs
 var integer = 1;
-//  ~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
+~~~
 var (foo, bar) = (1, 4.2);
-//  ~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
+~~~ // 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
 ```
 
 期待されるコード:
 
 ```cs
-long integer = 1;
+int integer = 1;
 (long foo, double bar) = (1, 4.2);
 ```
 
@@ -462,7 +462,7 @@ long integer = 1;
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ 報告: 公開 API サーフェスでデバッグ専用の 'Assert' を使用しないでください
+    ~~~~~~~~~~~~ // 報告: 公開 API サーフェスでデバッグ専用の 'Assert' を使用しないでください
 }
 ```
 
@@ -480,7 +480,7 @@ try
     DoSomething();
 }
 catch (System.IO.IOException ex)
-~~~~~ 報告: catch ブロックに throw 文が含まれていません
+~~~~~ // 報告: catch ブロックに throw 文が含まれていません
 {
     Log(ex);
 }
@@ -510,7 +510,7 @@ catch (System.IO.IOException ex)
 
 ```cs
 var x = foo!;
-//      ~~~~ 報告: Null 抑制演算子を使用する場合は 3 つの括弧で囲む必要があります
+        ~~~~ // 報告: Null 抑制演算子を使用する場合は 3 つの括弧で囲む必要があります
 ```
 
 期待されるコード:
@@ -554,7 +554,8 @@ namespace Foo.Bar
     {
         void M()
         {
-            var x = new Foo.InternalType(); // SMA0080
+            var x = new Foo.InternalType();
+                    ~~~~~~~~~~~~~~~~~~~~~~ // SMA0080
         }
     }
 }
