@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0-rc.13](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.13) (2026-07-18)
+
+### 📣 Breaking Changes ⚠
+* Update ExplicitNumberDeclarationAnalyzer to report diagnostics on 'var' by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#460](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/460)
+### 📖 Documentation
+* docs: styling by [@sator-imaging](https://github.com/sator-imaging) in [#461](https://github.com/sator-imaging/StaticMemberAnalyzer/pull/461)
+
+
+**Full Changelog**: https://github.com/sator-imaging/StaticMemberAnalyzer/compare/v5.0.0-rc.12...v5.0.0-rc.13
+
+
 ## [5.0.0-rc.12](https://github.com/sator-imaging/StaticMemberAnalyzer/releases/tag/v5.0.0-rc.12) (2026-07-16)
 
 ### 🚀 Features
