@@ -161,6 +161,18 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
+> [!IMPORTANT]
+> As special handling for `enum.HasFlag` is removed, the workaround is required.
+>
+> ```cs
+> if (flag.HasFlag(E.Some))  // reported
+> ```
+>
+> ```cs
+> if ((flag & E.Some) != E.None)  // Note: != 0 will cause conversion warning
+> ```
+
+
 > [!TIP]
 > You can suppress by comment `// Allow enum conversion`; See [Suppression Comment](#suppression-comment) section for detail.
 

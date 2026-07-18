@@ -161,6 +161,18 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 ![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
 
 
+> [!IMPORTANT]
+> 由于对 `enum.HasFlag` 的特殊处理已被移除，因此需要使用以下替代方案（工作区/Workaround）。
+>
+> ```cs
+> if (flag.HasFlag(E.Some))  // 会被报告/警告
+> ```
+>
+> ```cs
+> if ((flag & E.Some) != E.None)  // 注意：使用 != 0 会触发类型转换警告
+> ```
+
+
 > [!TIP]
 > 可以通过注释 `// Allow enum conversion` 来抑制；详见 [通过注释抑制](#通过注释抑制) 章节
 
