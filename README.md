@@ -439,7 +439,7 @@ All system primitive numbers, from `sbyte` to `decimal`, should be declared with
 ```cs
 var integer = 1;
 //  ~~~ reported: variable should be declared with an explicit number type
-var floating = 1;
+var (foo, bar) = (1, 4.2);
 //  ~~~ reported: variable should be declared with an explicit number type
 ```
 
@@ -447,7 +447,7 @@ Expected:
 
 ```cs
 long integer = 1;
-double floating = 1;
+(long foo, double bar) = (1, 4.2);
 ```
 
 > [!IMPORTANT]

@@ -439,7 +439,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```cs
 var integer = 1;
 //  ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
-var floating = 1;
+var (foo, bar) = (1, 4.2);
 //  ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
 ```
 
@@ -447,7 +447,7 @@ var floating = 1;
 
 ```cs
 long integer = 1;
-double floating = 1;
+(long foo, double bar) = (1, 4.2);
 ```
 
 > [!IMPORTANT]
