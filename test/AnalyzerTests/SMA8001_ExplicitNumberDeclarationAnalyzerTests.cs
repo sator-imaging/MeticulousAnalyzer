@@ -19,19 +19,19 @@ namespace Test
     {
         public void M()
         {
-            var {|#0:v_sbyte|} = (sbyte)1;
-            var {|#1:v_byte|} = (byte)1;
-            var {|#2:v_short|} = (short)1;
-            var {|#3:v_ushort|} = (ushort)1;
-            var {|#4:v_int|} = 1;
-            var {|#5:v_uint|} = 1u;
-            var {|#6:v_long|} = 1L;
-            var {|#7:v_ulong|} = 1UL;
-            var {|#8:v_float|} = 1.0f;
-            var {|#9:v_double|} = 1.0;
-            var {|#10:v_decimal|} = 1.0m;
-            var {|#11:v_nint|} = (nint)1;
-            var {|#12:v_nuint|} = (nuint)1;
+            {|#0:var|} v_sbyte = (sbyte)1;
+            {|#1:var|} v_byte = (byte)1;
+            {|#2:var|} v_short = (short)1;
+            {|#3:var|} v_ushort = (ushort)1;
+            {|#4:var|} v_int = 1;
+            {|#5:var|} v_uint = 1u;
+            {|#6:var|} v_long = 1L;
+            {|#7:var|} v_ulong = 1UL;
+            {|#8:var|} v_float = 1.0f;
+            {|#9:var|} v_double = 1.0;
+            {|#10:var|} v_decimal = 1.0m;
+            {|#11:var|} v_nint = (nint)1;
+            {|#12:var|} v_nuint = (nuint)1;
         }
     }
 }
@@ -164,9 +164,9 @@ namespace Test
     {
         public void M(Some some)
         {
-            var {|#0:foo|} = some.intField;
-            var {|#1:bar|} = some.floatProperty;
-            var {|#2:baz|} = some.MethodReturnsDecimal();
+            {|#0:var|} foo = some.intField;
+            {|#1:var|} bar = some.floatProperty;
+            {|#2:var|} baz = some.MethodReturnsDecimal();
         }
     }
 }
@@ -190,7 +190,7 @@ namespace Test
     {
         public void M(Dictionary<string, int> dict)
         {
-            if (dict.TryGetValue(""key"", out var {|#0:value|}))
+            if (dict.TryGetValue(""key"", out {|#0:var|} value))
             {
             }
         }
@@ -212,7 +212,7 @@ namespace Test
     {
         public void M()
         {
-            foreach (var {|#0:item|} in new int[] { 1, 2, 3 })
+            foreach ({|#0:var|} item in new int[] { 1, 2, 3 })
             {
             }
         }
@@ -234,14 +234,14 @@ namespace Test
     {
         public void M()
         {
-            var ({|#0:a|}, {|#1:b|}) = (1, 2.0);
+            {|#0:var|} (a, b) = (1, 2.0);
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("a"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("b")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b")
             );
         }
 
@@ -255,7 +255,7 @@ namespace Test
     {
         public void M()
         {
-            foreach (var ({|#0:x|}, {|#1:y|}) in new (int, int)[] { (1, 2) })
+            foreach ({|#0:var|} (x, y) in new (int, int)[] { (1, 2) })
             {
             }
         }
@@ -264,7 +264,7 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("y")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("y")
             );
         }
 
@@ -278,7 +278,7 @@ namespace Test
     {
         public void M()
         {
-            foreach ((_, var {|#0:x|}) in new (int, int)[] { (1, 2) })
+            foreach ((_, {|#0:var|} x) in new (int, int)[] { (1, 2) })
             {
             }
         }
@@ -300,7 +300,7 @@ namespace Test
     {
         public void M()
         {
-            foreach ((var {|#0:_|}, var {|#1:x|}) in new (int, int)[] { (1, 2) })
+            foreach (({|#0:var|} _, {|#1:var|} x) in new (int, int)[] { (1, 2) })
             {
             }
         }
@@ -323,14 +323,14 @@ namespace Test
     {
         public void M()
         {
-            var ({|#0:_|}, {|#1:b|}) = (1, 2);
+            {|#0:var|} (_, b) = (1, 2);
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("b")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b")
             );
         }
 
@@ -346,7 +346,7 @@ namespace Test
     {
         public void M(Dictionary<string, int> dict)
         {
-            if (dict.TryGetValue(""key"", out var {|#0:_|}))
+            if (dict.TryGetValue(""key"", out {|#0:var|} _))
             {
             }
         }
@@ -368,7 +368,7 @@ namespace Test
     {
         public void M()
         {
-            foreach (var {|#0:_|} in new int[] { 1, 2, 3 })
+            foreach ({|#0:var|} _ in new int[] { 1, 2, 3 })
             {
             }
         }
@@ -390,7 +390,7 @@ namespace Test
     {
         public void M()
         {
-            var {|#0:_|} = 1;
+            {|#0:var|} _ = 1;
         }
     }
 }
@@ -410,7 +410,7 @@ namespace Test
     {
         public void M()
         {
-            (_, var {|#0:x|}) = (1, 2);
+            (_, {|#0:var|} x) = (1, 2);
         }
     }
 }

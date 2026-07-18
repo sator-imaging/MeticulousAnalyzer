@@ -438,16 +438,16 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 
 ```cs
 var integer = 1;
-//  ~~~~~~~
-var floating = 1;
-//  ~~~~~~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
+//  ~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
+var (foo, bar) = (1, 4.2);
+//  ~~~ 報告: 変数は var ではなく明示的な数値型で宣言する必要があります
 ```
 
 期待されるコード:
 
 ```cs
 long integer = 1;
-double floating = 1;
+(long foo, double bar) = (1, 4.2);
 ```
 
 > [!IMPORTANT]
