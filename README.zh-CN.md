@@ -195,8 +195,8 @@ enum 的处理很容易变得混乱。通常应避免在业务代码中直接做
 
 ```cs
 public class EnumLike
-//           ~~~~~~~~ 警告：类型缺少 sealed 修饰符且存在公开构造函数
-//                          * 此警告仅在类型包含名为 'Entries' 的成员时出现
+             ~~~~~~~~ // 警告：类型缺少 sealed 修饰符且存在公开构造函数
+                      //      * 此警告仅在类型包含名为 'Entries' 的成员时出现
 {
     public static readonly EnumLike A = new("A");
     public static readonly EnumLike B = new("B");
@@ -205,7 +205,7 @@ public class EnumLike
 
     // 'Entries' 必须按声明顺序包含所有 'public static readonly' 字段
     static readonly EnumLike[] _entries = new[] { B, A };
-    //                                    ~~~~~~~~~~~~~~ 顺序错误!!
+                                          ~~~~~~~~~~~~~~ // 顺序错误!!
 
     // 可以使用 'ReadOnlyMemory<T>' 代替数组
     public static readonly ReadOnlyMemory<EnumLike> EntriesAsMemory = new(new[] { A, B });
@@ -299,10 +299,10 @@ switch (val)
 
 ```cs
 var d = new Disposable();
-//      ~~~~~~~~~~~~~~~~ 未找到 using 语句
+        ~~~~~~~~~~~~~~~~ // 未找到 using 语句
 
 d = (new object()) as IDisposable;
-//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 在可释放类型之间转换
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ // 在可释放类型之间转换
 ```
 
 > [!TIP]
@@ -347,7 +347,7 @@ d = (new object()) as IDisposable;
 class Test : IDisposable
 {
     private MyDisposable _field = new();
-//          ~~~~~~~~~~~~ 警告: 未释放的成员
+            ~~~~~~~~~~~~ // 警告: 未释放的成员
 
     public void Dispose()
     {
@@ -393,7 +393,7 @@ sealed class DisposableAnalyzerSuppressor : Attribute
 async Task Method()
 {
     var t = Task.Run(...);
-    //      ~~~~~~~~~~~~ Task 未被 await 或返回
+            ~~~~~~~~~~~~~ // Task 未被 await 或返回
 }
 ```
 
@@ -438,15 +438,15 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 
 ```cs
 var integer = 1;
-//  ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
+~~~
 var (foo, bar) = (1, 4.2);
-//  ~~~ 报告：变量应使用显式数值类型声明，而不是 'var'
+~~~ // 报告：变量应使用显式数值类型声明，而不是 'var'
 ```
 
 期望的代码：
 
 ```cs
-long integer = 1;
+int integer = 1;
 (long foo, double bar) = (1, 4.2);
 ```
 
@@ -462,7 +462,7 @@ long integer = 1;
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ 报告：请勿在公开 API 表面使用调试专用的 'Assert'
+    ~~~~~~~~~~~~ // 报告：请勿在公开 API 表面使用调试专用的 'Assert'
 }
 ```
 
@@ -480,7 +480,7 @@ try
     DoSomething();
 }
 catch (System.IO.IOException ex)
-~~~~~ 报告：catch 块不包含 throw 语句
+~~~~~ // 报告：catch 块不包含 throw 语句
 {
     Log(ex);
 }
@@ -510,7 +510,7 @@ catch (System.IO.IOException ex)
 
 ```cs
 var x = foo!;
-//      ~~~~ 报告：Null 抑制操作应使用 3 层括号进行隔离
+        ~~~~ // 报告：Null 抑制操作应使用 3 层括号进行隔离
 ```
 
 期望的代码：
@@ -554,7 +554,8 @@ namespace Foo.Bar
     {
         void M()
         {
-            var x = new Foo.InternalType(); // SMA0080
+            var x = new Foo.InternalType();
+                    ~~~~~~~~~~~~~~~~~~~~~~ // SMA0080
         }
     }
 }

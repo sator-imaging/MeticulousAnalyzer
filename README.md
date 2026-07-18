@@ -195,8 +195,8 @@ Here are Enum-like type requirements:
 
 ```cs
 public class EnumLike
-//           ~~~~~~~~ WARN: no `sealed` modifier on type and public constructor exists
-//                          * this warning appears only if type has member called 'Entries'
+             ~~~~~~~~ // WARN: no `sealed` modifier on type and public constructor exists
+                      //       * this warning appears only if type has member called 'Entries'
 {
     public static readonly EnumLike A = new("A");
     public static readonly EnumLike B = new("B");
@@ -205,7 +205,7 @@ public class EnumLike
 
     // 'Entries' must have all of 'public static readonly' fields in declared order
     static readonly EnumLike[] _entries = new[] { B, A };
-    //                                    ~~~~~~~~~~~~~~ wrong order!!
+                                          ~~~~~~~~~~~~~~ // wrong order!!
 
     // 'ReadOnlyMemory<T>' can be used instead of array
     public static readonly ReadOnlyMemory<EnumLike> EntriesAsMemory = new(new[] { A, B });
@@ -299,10 +299,10 @@ switch (val)
 
 ```cs
 var d = new Disposable();
-//      ~~~~~~~~~~~~~~~~ no `using` statement found
+        ~~~~~~~~~~~~~~~~ // no `using` statement found
 
 d = (new object()) as IDisposable;
-//  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ cast from/to disposable
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ // cast from/to disposable
 ```
 
 > [!TIP]
@@ -347,7 +347,7 @@ Call the `Dispose()` method of the reported member within the class's disposal m
 class Test : IDisposable
 {
     private MyDisposable _field = new();
-//          ~~~~~~~~~~~~ WARN: undisposed member
+            ~~~~~~~~~~~~ // WARN: undisposed member
 
     public void Dispose()
     {
@@ -393,7 +393,7 @@ Analyze if `Task` or `ValueTask` (including their generic versions) local variab
 async Task Method()
 {
     var t = Task.Run(...);
-    //      ~~~~~~~~~~~~ Task is not awaited or returned
+            ~~~~~~~~~~~~~ // Task is not awaited or returned
 }
 ```
 
@@ -438,15 +438,15 @@ All system primitive numbers, from `sbyte` to `decimal`, should be declared with
 
 ```cs
 var integer = 1;
-//  ~~~ reported: variable should be declared with an explicit number type
+~~~
 var (foo, bar) = (1, 4.2);
-//  ~~~ reported: variable should be declared with an explicit number type
+~~~ // reported: variable should be declared with an explicit number type
 ```
 
 Expected:
 
 ```cs
-long integer = 1;
+int integer = 1;
 (long foo, double bar) = (1, 4.2);
 ```
 
@@ -462,7 +462,7 @@ Using `Debug.Assert` or other debug-only `Assert` methods in public API surface 
 public void MyPublicMethod(int value)
 {
     Debug.Assert(value > 0);
-//  ~~~~~~~~~~~~ reported: Do not use debug-only 'Assert' in public API surface
+    ~~~~~~~~~~~~ // reported: Do not use debug-only 'Assert' in public API surface
 }
 ```
 
@@ -480,7 +480,7 @@ try
     DoSomething();
 }
 catch (System.IO.IOException ex)
-~~~~~ reported: catch block does not contain a throw statement
+~~~~~ // reported: catch block does not contain a throw statement
 {
     Log(ex);
 }
@@ -510,7 +510,7 @@ Null suppression operation should be fenced with 3 parentheses to improve visual
 
 ```cs
 var x = foo!;
-//      ~~~~ reported: null suppression operation should be fenced with 3 parentheses
+        ~~~~ // reported: null suppression operation should be fenced with 3 parentheses
 ```
 
 Expected:
@@ -554,7 +554,8 @@ namespace Foo.Bar
     {
         void M()
         {
-            var x = new Foo.InternalType(); // SMA0080
+            var x = new Foo.InternalType();
+                    ~~~~~~~~~~~~~~~~~~~~~~ // SMA0080
         }
     }
 }
