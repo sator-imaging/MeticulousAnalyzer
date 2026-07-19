@@ -162,15 +162,15 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 
 
 > [!TIP]
+> You can suppress by comment `// Allow enum conversion`; See [Suppression Comment](#suppression-comment) section for detail.
+
+
+> [!TIP]
 > To check flags, use the following method to avoid conversion warnings instead of `.HasFlag` or `!= 0`.
 >
 > ```cs
 > if ((flag & E.Some) != E.None)  // Note: != 0 will cause conversion warning
 > ```
-
-
-> [!TIP]
-> You can suppress by comment `// Allow enum conversion`; See [Suppression Comment](#suppression-comment) section for detail.
 
 
 ## Excluding Enum Type from Obfuscation
