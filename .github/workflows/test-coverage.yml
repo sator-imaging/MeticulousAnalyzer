@@ -143,6 +143,7 @@ jobs:
         if: ${{ github.event.pull_request.number }}
         id: find-comment
         with:
+          repository: ACTION_BRANCH
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: "<!-- ${{ github.workflow }} -->"
@@ -150,6 +151,7 @@ jobs:
       - uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9  # v5.0.0
         if: ${{ github.event.pull_request.number }}
         with:
+          repository: ACTION_BRANCH
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           edit-mode: replace
