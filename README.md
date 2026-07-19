@@ -12,7 +12,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 
 - [Flaky Initialization Analysis](#flaky-initialization-analysis) detects flaky initialization
     - [Cross-Referencing Problem](#cross-referencing-problem) of static field across type
-- [`Enum` Type Analysis](#enum-type-analysis) and [Code Fix Provider](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
+- [`Enum` Type Analysis and Code Fix Provider](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement and more
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
@@ -576,7 +576,7 @@ namespace Foo.Bar
 
 # Struct Analysis
 
-Analyze the use of `struct` types to prevent common mistakes and performance issues.
+Analyze the use of `struct` types to prevent common mistakes and performance pitfalls.
 
 - SMA0030: Invalid Struct Constructor
     - The constructor is declared explicitly, so the parameterless constructor should not be used.
