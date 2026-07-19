@@ -16,8 +16,10 @@ env:
 jobs:
   coverage:
 
+    # Post summary as PR comment
     permissions:
-      issues: write  # Post summary as PR comment
+      issues: write
+      pull-requests: write
 
     runs-on: ubuntu-latest
     steps:
