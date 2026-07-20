@@ -4,7 +4,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
-using VerifyCs = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.CatchAnalyzer>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.CatchAnalyzer>;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
