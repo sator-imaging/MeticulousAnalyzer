@@ -19,7 +19,7 @@
 
 `BurstLinq` (`src/analysis/BurstLinq.cs`) provides allocation-free, indirection-less extension methods that are API-compatible with `System.Linq`.
 
-Its namespace is `SatorImaging.StaticMemberAnalyzer` (no `.Analysis`), shared by both the Analyzer and CodeFix projects. To migrate a file:
+Its namespace is `SatorImaging.MeticulousAnalyzer` (no `.Analysis`), shared by both the Analyzer and CodeFix projects. To migrate a file:
 
 1. Remove `using System.Linq;`
 2. BurstLinq methods resolve automatically via the shared namespace

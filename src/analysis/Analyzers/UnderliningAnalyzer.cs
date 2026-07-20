@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
@@ -25,7 +25,7 @@ using System.Threading;
 
 #pragma warning disable RS1001 // Missing diagnostic analyzer attribute.
 
-namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
+namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class UnderliningAnalyzer : DiagnosticAnalyzer

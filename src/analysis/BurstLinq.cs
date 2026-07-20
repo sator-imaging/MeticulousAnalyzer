@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
 using System;
@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE0130  // NOTE: No '.Analysis' namespace to use this in both Analyzer and Codefix
-namespace SatorImaging.StaticMemberAnalyzer
+namespace SatorImaging.MeticulousAnalyzer
 #pragma warning restore IDE0130
 {
     public static class BurstLinq

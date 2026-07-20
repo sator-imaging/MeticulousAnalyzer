@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
@@ -18,12 +18,12 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace SatorImaging.StaticMemberAnalyzer.Analysis
+namespace SatorImaging.MeticulousAnalyzer.Analysis
 {
     public static class Core
     {
         // https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Utilities/Compiler/DiagnosticCategoryAndIdRanges.txt
-        internal const string Category = nameof(StaticMemberAnalyzer);
+        internal const string Category = nameof(MeticulousAnalyzer);
 
         const string ConfigPrefix = "sator_imaging.";
         public const string Config_EnableImmutableVariable = ConfigPrefix + "immutable_variable";

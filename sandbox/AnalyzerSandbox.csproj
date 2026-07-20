@@ -10,7 +10,7 @@
 
   <ItemGroup Condition=" true ">
 
-    <ProjectReference Include="../src/analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj">
+    <ProjectReference Include="../src/analysis/SatorImaging.MeticulousAnalyzer.Analysis.csproj">
 		  <OutputItemType>Analyzer</OutputItemType>
 		  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
 	  </ProjectReference>

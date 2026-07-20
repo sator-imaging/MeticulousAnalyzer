@@ -14,7 +14,7 @@
   <ItemGroup Condition=" '$(DontReferenceItself)' != 'true'
                      AND '$(MSBuildProjectFile)' != 'AnalyzerSandbox.csproj'
   ">
-    <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
+    <PackageReference Include="SatorImaging.MeticulousAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -44,20 +44,20 @@
 
   <PropertyGroup Label="UserMacros">
     <GlobalPackageVersion>5.0.0-rc.13</GlobalPackageVersion>
-    <GlobalPackageID>SatorImaging.StaticMemberAnalyzer</GlobalPackageID>
-    <GlobalPackageTitle>Static Member Analyzer</GlobalPackageTitle>
+    <GlobalPackageID>SatorImaging.MeticulousAnalyzer</GlobalPackageID>
+    <GlobalPackageTitle>Meticulous Analyzer</GlobalPackageTitle>
     <GlobalPackageProduct>$(GlobalPackageTitle)</GlobalPackageProduct>
     <GlobalPackageOwner>Sator Imaging</GlobalPackageOwner>
     <GlobalPackageCompany>$(GlobalPackageOwner)</GlobalPackageCompany>
     <GlobalPackageCopyright>(c) 2024-2026 $(GlobalPackageOwner)</GlobalPackageCopyright>
-    <GlobalPackageDescription>Roslyn-based analyzer to diagnose static fields and properties initialization.</GlobalPackageDescription>
-    <GlobalPackageTags>StaticMemberAnalyzer, Roslyn, analyzer, analyzers, static, field, property, initialization</GlobalPackageTags>
+    <GlobalPackageDescription>A Roslyn-based C# analyzer for detecting runtime bugs, unsafe patterns, common pitfalls, and maintainability issues.</GlobalPackageDescription>
+    <GlobalPackageTags>Roslyn, C#, analyzer, runtime, bugs, unsafe, patterns, common, pitfalls, maintainability, StaticMemberAnalyzer, static, member, field, property</GlobalPackageTags>
     <GlobalPackageWebsite>https://x.com/sator_imaging</GlobalPackageWebsite>
-    <GlobalPackageRepository>https://github.com/sator-imaging/StaticMemberAnalyzer</GlobalPackageRepository>
-    <GlobalPackageReleaseNote>https://github.com/sator-imaging/StaticMemberAnalyzer</GlobalPackageReleaseNote>
-    <GlobalPackageLicenseUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/blob/main/LICENSE.md</GlobalPackageLicenseUrl>
+    <GlobalPackageRepository>https://github.com/sator-imaging/MeticulousAnalyzer</GlobalPackageRepository>
+    <GlobalPackageReleaseNote>https://github.com/sator-imaging/MeticulousAnalyzer</GlobalPackageReleaseNote>
+    <GlobalPackageLicenseUrl>https://github.com/sator-imaging/MeticulousAnalyzer/blob/main/LICENSE.md</GlobalPackageLicenseUrl>
     <GlobalPackageLicenseSPDX>MIT</GlobalPackageLicenseSPDX>
-    <GlobalPackageIconUrl>https://github.com/sator-imaging/StaticMemberAnalyzer/raw/main/icon-128px.png</GlobalPackageIconUrl>
+    <GlobalPackageIconUrl>https://github.com/sator-imaging/MeticulousAnalyzer/raw/main/icon-128px.png</GlobalPackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup>

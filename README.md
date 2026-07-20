@@ -1,4 +1,4 @@
-[![NuGet](https://img.shields.io/nuget/vpre/SatorImaging.StaticMemberAnalyzer)](https://www.nuget.org/packages/SatorImaging.StaticMemberAnalyzer)
+[![NuGet](https://img.shields.io/nuget/vpre/SatorImaging.MeticulousAnalyzer)](https://www.nuget.org/packages/SatorImaging.MeticulousAnalyzer)
 &nbsp;
 [![🇯🇵](https://img.shields.io/badge/🇯🇵-日本語-789)](./README.ja.md)
 [![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文-789)](./README.zh-CN.md)
@@ -26,19 +26,19 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 
 ## Flaky Initialization Analysis
 
-![Analyzer in Action](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/InAction.gif)
+![Analyzer in Action](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/InAction.gif)
 
 ## Enum Type Analysis
 
 Restrict both cast from/to integer number! Disallow user-level enum value conversion completely!!
 
-![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
+![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/EnumAnalyzer.png)
 
 ## `TSelf` Type Argument Analysis
 
 Analyze `TSelf` type argument mismatch for Curiously Recurring Template Pattern (CRTP).
 
-![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/GenericTypeArgTSelf.png)
+![TSelf Type Argument](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/GenericTypeArgTSelf.png)
 
 
 
@@ -54,7 +54,7 @@ There is fancy extra feature to take your attention while coding in Visual Studi
 See [the following section](#annotating--underlining) for details.
 
 
-![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
+![Draw Underline](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/DrawUnderline.png)
 
 </details>
 
@@ -67,9 +67,9 @@ See [the following section](#annotating--underlining) for details.
 # Installation
 
 - NuGet
-	- https://www.nuget.org/packages/SatorImaging.StaticMemberAnalyzer
+	- https://www.nuget.org/packages/SatorImaging.MeticulousAnalyzer
     - ```
-      PM> Install-Package SatorImaging.StaticMemberAnalyzer
+      PM> Install-Package SatorImaging.MeticulousAnalyzer
       ```
 
 
@@ -158,7 +158,7 @@ Enum type handling is really headaching. To make enum operation under control, g
 
 This analyzer will help centerizing and encapsulating enum handling in app's central enum utility.
 
-![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumAnalyzer.png)
+![Enum Analyzer](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/EnumAnalyzer.png)
 
 
 > [!TIP]
@@ -177,7 +177,7 @@ This analyzer will help centerizing and encapsulating enum handling in app's cen
 
 Helpful annotation and code fix for enum types which prevents modification of string representation by obfuscation tool.
 
-![Enum Code Fix](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/EnumCodeFix.png)
+![Enum Code Fix](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/EnumCodeFix.png)
 
 > [!NOTE]
 > `Obfuscation` attribute is from C# base library and it does NOT provide feature to obfuscate compiled assembly. It just provides configuration option to obfuscation tools which recognizing this attribute.
@@ -753,7 +753,7 @@ There is optional feature to draw underline on selected types, fields, propertie
 As of Visual Studio's UX design, `Info` severity diagnostic underlines are drawn only on a few leading chars, not drawn whole marked area. So for workaround, underline on keyword is dashed.
 
 
-![Draw Underline](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/DrawUnderline.png)
+![Draw Underline](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/DrawUnderline.png)
 
 > [!TIP]
 > `!`-starting message will add warning annotation on keyword instead of info diagnostic annotation.
@@ -807,7 +807,7 @@ By default, static field analyzer will draw most verbose underline.
 You can omit specific type of underline by using `#pragma` preprocessor directive or adding `SuppressMessage` attribute or etc.
 
 
-![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/StaticMemberAnalyzer/main/assets/VerbosityControl.png)
+![Verbosity Control](https://raw.githubusercontent.com/sator-imaging/MeticulousAnalyzer/main/assets/VerbosityControl.png)
 
 
 

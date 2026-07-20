@@ -48,8 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../codefix/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
-    <ProjectReference Include="../analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+    <ProjectReference Include="../codefix/SatorImaging.MeticulousAnalyzer.CodeFixes.csproj" />
+    <ProjectReference Include="../analysis/SatorImaging.MeticulousAnalyzer.Analysis.csproj" />
   </ItemGroup>
 
   <!-- Generate .pdb on debug build -->
@@ -63,8 +63,8 @@
 
   <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)/SatorImaging.StaticMemberAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />
-      <TfmSpecificPackageFile Include="$(OutputPath)/SatorImaging.StaticMemberAnalyzer.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)/SatorImaging.MeticulousAnalyzer.Analysis.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)/SatorImaging.MeticulousAnalyzer.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>
 
