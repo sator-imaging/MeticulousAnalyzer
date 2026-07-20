@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCs = CSharpCodeFixVerifier<LambdaAnalyzer, LambdaStaticCodeFixProvider>;
+    using VerifyCs = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LambdaAnalyzer, LambdaStaticCodeFixProvider>;
 
     [TestClass]
     public class SMA7001_LambdaStaticCodeFixProviderTests

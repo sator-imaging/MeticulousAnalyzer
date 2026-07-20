@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCs = CSharpAnalyzerVerifier<InternalNamespaceAccessAnalyzer>;
+    using VerifyCs = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<InternalNamespaceAccessAnalyzer>;
 
     [TestClass]
     public class SMA0080_InternalNamespaceAccessAnalyzerTests_Declarations

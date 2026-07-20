@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
-using VerifyCs = CSharpCodeFixVerifier<
+using VerifyCs = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.NullSuppressionAnalyzer,
     SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.NullSuppressionCodeFixProvider>;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCs = CSharpAnalyzerVerifier<LambdaAnalyzer>;
+    using VerifyCs = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<LambdaAnalyzer>;
 
     [TestClass]
     public class SMA7000_LambdaAnalyzerTests
