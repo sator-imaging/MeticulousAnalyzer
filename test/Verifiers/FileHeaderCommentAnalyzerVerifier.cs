@@ -3,11 +3,11 @@ using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StaticMemberAnalyzer.Tests
+namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     // This verifier is a wrapper around CSharpAnalyzerVerifier to disable the automatic #pragma warning disable test.
     public static class FileHeaderCommentAnalyzerVerifier

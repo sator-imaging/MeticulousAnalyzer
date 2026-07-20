@@ -1,12 +1,12 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Immutable;
 
-namespace StaticMemberAnalyzer.Tests
+namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     internal static class CSharpVerifierHelper
     {

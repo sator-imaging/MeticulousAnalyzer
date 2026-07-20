@@ -1,14 +1,17 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/MeticulousAnalyzer
+
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.NullSuppressionAnalyzer,
-    SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.NullSuppressionCodeFixProvider>;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
-using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.NullSuppressionAnalyzer,
+    SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.NullSuppressionCodeFixProvider>;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.CodeFixes.Providers;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA8002_NullSuppressionCodeFixProviderTests

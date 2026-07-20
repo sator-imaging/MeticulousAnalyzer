@@ -1,17 +1,17 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.Analysis;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Linq;
 using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.ReadOnlyVariableAnalyzer>;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA0064_ReadOnlyVariableAnalyzerTests

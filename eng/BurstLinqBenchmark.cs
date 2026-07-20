@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 #:package BenchmarkDotNet@0.15.8
 #:property LangVersion=latest
@@ -19,7 +19,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
-using SatorImaging.StaticMemberAnalyzer;
+using SatorImaging.MeticulousAnalyzer;
 
 
 var config = ManualConfig.Create(DefaultConfig.Instance)

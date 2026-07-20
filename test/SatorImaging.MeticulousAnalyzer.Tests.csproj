@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../src/codefix/SatorImaging.StaticMemberAnalyzer.CodeFixes.csproj" />
-    <ProjectReference Include="../src/analysis/SatorImaging.StaticMemberAnalyzer.Analysis.csproj" />
+    <ProjectReference Include="../src/codefix/SatorImaging.MeticulousAnalyzer.CodeFixes.csproj" />
+    <ProjectReference Include="../src/analysis/SatorImaging.MeticulousAnalyzer.Analysis.csproj" />
   </ItemGroup>
 
 </Project>

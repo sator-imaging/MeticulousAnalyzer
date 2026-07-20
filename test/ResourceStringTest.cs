@@ -1,12 +1,12 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis;
-using SatorImaging.StaticMemberAnalyzer.CodeFixes;
+using SatorImaging.MeticulousAnalyzer.Analysis;
+using SatorImaging.MeticulousAnalyzer.CodeFixes;
 using System.Linq;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests
+namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     // NOTE: This test is for adjusting test coverage numbers.
     //       Don't need to check machine-generated properties preciously.

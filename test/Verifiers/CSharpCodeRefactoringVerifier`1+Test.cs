@@ -1,11 +1,11 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 
-namespace StaticMemberAnalyzer.Tests
+namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     public static partial class CSharpCodeRefactoringVerifier<TCodeRefactoring>
         where TCodeRefactoring : CodeRefactoringProvider, new()

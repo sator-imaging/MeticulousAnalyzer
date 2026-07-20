@@ -1,9 +1,9 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA8002_NullSuppressionAnalyzerTests_BranchCoverage

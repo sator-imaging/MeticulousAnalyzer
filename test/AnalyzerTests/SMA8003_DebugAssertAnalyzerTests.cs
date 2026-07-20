@@ -1,12 +1,15 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/MeticulousAnalyzer
+
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis.Testing;
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.DebugAssertAnalyzer,
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.DebugAssertAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA8003_DebugAssertAnalyzerTests

@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
@@ -16,7 +16,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
+namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposableAnalyzer : DiagnosticAnalyzer

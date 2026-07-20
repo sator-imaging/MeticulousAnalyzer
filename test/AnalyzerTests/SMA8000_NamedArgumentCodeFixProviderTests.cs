@@ -1,12 +1,15 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
-using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
-using System.Threading.Tasks;
-using VerifyFix = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ArgumentAnalyzer,
-    SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.NamedArgumentCodeFixProvider>;
+// Licensed under the MIT License
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.CodeFixes.Providers;
+using System.Threading.Tasks;
+using VerifyFix = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.ArgumentAnalyzer,
+    SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.NamedArgumentCodeFixProvider>;
+
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA8000_NamedArgumentCodeFixProviderTests

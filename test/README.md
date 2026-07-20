@@ -1,11 +1,11 @@
 # Test Conventions
 
-This document is the authoritative guide for developers contributing tests to the StaticMemberAnalyzer project. Follow these conventions to maintain consistency across the test suite.
+This document is the authoritative guide for developers contributing tests to the MeticulousAnalyzer project. Follow these conventions to maintain consistency across the test suite.
 
 ## Test Setup
 
 - **Framework:** MSTest (`Microsoft.VisualStudio.TestTools.UnitTesting`)
-- **Project:** `SatorImaging.StaticMemberAnalyzer.Tests.csproj`
+- **Project:** `SatorImaging.MeticulousAnalyzer.Tests.csproj`
 - **CI Configuration:** [`.github/workflows/test.yml`](../.github/workflows/test.yml)
 - **Test Command:**
   ```bash
@@ -156,16 +156,16 @@ Declare a type alias at the top of the test file:
 
 ```csharp
 // Analyzer-only test:
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.SomeAnalyzer>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.SomeAnalyzer>;
 
 // CodeFix test:
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.SomeAnalyzer,
-    SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.SomeCodeFixProvider>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.SomeAnalyzer,
+    SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.SomeCodeFixProvider>;
 
 // Analyzer test without codefix (using EmptyCodeFixProvider):
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.SomeAnalyzer,
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.SomeAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
 ```

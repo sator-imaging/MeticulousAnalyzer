@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 //#define STMG_ENABLE_KOTLIN_ENUM
 
@@ -22,7 +22,7 @@ using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
+namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EnumAnalyzer : DiagnosticAnalyzer

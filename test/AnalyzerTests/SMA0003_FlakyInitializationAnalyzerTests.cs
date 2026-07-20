@@ -1,14 +1,14 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCS = global::StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<FlakyInitializationAnalyzer>;
+    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<FlakyInitializationAnalyzer>;
 
     [TestClass]
     public class SMA0003_FlakyInitializationAnalyzerTests

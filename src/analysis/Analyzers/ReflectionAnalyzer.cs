@@ -1,12 +1,12 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
 
-namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
+namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     // TODO: Latest .NET already includes a Trimmer Analyzer.
     //       Consider disable this analyzer by default for latest environment.

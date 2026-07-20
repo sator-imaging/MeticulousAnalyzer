@@ -1,16 +1,16 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
-using SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.EnumAnalyzer,
-    SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers.EnumObfuscationCodeFixProvider>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.EnumAnalyzer,
+    SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.EnumObfuscationCodeFixProvider>;
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class FixAllTest_SMA0026_EnumObfuscationCodeFixProvider

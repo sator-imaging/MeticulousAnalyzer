@@ -1,10 +1,13 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
-using System.Threading.Tasks;
-using VerifyCS = StaticMemberAnalyzer.Tests.CSharpAnalyzerVerifier<
-    SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers.ReflectionAnalyzer>;
+// Licensed under the MIT License
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
-namespace SatorImaging.StaticMemberAnalyzer.Tests.AnalyzerTests
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using System.Threading.Tasks;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.ReflectionAnalyzer>;
+
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
     public class SMA7010_ReflectionAnalyzerTests

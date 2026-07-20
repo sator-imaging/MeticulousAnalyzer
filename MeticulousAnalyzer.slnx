@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="./src/analysis/SatorImaging.MeticulousAnalyzer.Analysis.csproj" />
+  <Project Path="./src/codefix/SatorImaging.MeticulousAnalyzer.CodeFixes.csproj" />
+  <Project Path="./src/packaging/SatorImaging.MeticulousAnalyzer.Package.csproj" />
+  <Project Path="./test/SatorImaging.MeticulousAnalyzer.Tests.csproj" />
+</Solution>

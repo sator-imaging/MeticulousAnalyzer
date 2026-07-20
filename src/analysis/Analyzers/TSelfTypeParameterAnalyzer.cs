@@ -1,5 +1,5 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 #define STMG_DEBUG_MESSAGE
 #if DEBUG == false
@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
-namespace SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers
+namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TSelfTypeParameterAnalyzer : DiagnosticAnalyzer

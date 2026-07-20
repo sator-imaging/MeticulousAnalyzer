@@ -1,18 +1,18 @@
 // Licensed under the MIT License
-// https://github.com/sator-imaging/StaticMemberAnalyzer
+// https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SatorImaging.StaticMemberAnalyzer.Analysis.Analyzers;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SatorImaging.StaticMemberAnalyzer.CodeFixes.Providers
+namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(NullSuppressionCodeFixProvider)), Shared]
     public sealed class NullSuppressionCodeFixProvider : CodeFixProvider
