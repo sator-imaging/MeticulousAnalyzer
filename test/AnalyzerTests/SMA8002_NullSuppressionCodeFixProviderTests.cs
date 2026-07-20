@@ -1,4 +1,7 @@
 using System.Threading.Tasks;
+// Licensed under the MIT License
+// https://github.com/sator-imaging/MeticulousAnalyzer
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;

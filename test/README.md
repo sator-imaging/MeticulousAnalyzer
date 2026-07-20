@@ -156,16 +156,16 @@ Declare a type alias at the top of the test file:
 
 ```csharp
 // Analyzer-only test:
-using VerifyCS = MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
     SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.SomeAnalyzer>;
 
 // CodeFix test:
-using VerifyCS = MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.SomeAnalyzer,
     SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.SomeCodeFixProvider>;
 
 // Analyzer test without codefix (using EmptyCodeFixProvider):
-using VerifyCS = MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.SomeAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
 ```

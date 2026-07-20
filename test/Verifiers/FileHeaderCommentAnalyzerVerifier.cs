@@ -7,7 +7,7 @@ using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MeticulousAnalyzer.Tests
+namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     // This verifier is a wrapper around CSharpAnalyzerVerifier to disable the automatic #pragma warning disable test.
     public static class FileHeaderCommentAnalyzerVerifier

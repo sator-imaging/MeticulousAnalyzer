@@ -14,7 +14,7 @@
   <ItemGroup Condition=" '$(DontReferenceItself)' != 'true'
                      AND '$(MSBuildProjectFile)' != 'AnalyzerSandbox.csproj'
   ">
-    <PackageReference Include="SatorImaging.MeticulousAnalyzer" Version="*-*">
+    <PackageReference Include="SatorImaging.StaticMemberAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

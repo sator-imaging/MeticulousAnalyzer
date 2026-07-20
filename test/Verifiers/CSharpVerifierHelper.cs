@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Immutable;
 
-namespace MeticulousAnalyzer.Tests
+namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     internal static class CSharpVerifierHelper
     {
