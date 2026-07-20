@@ -51,7 +51,7 @@
     <GlobalPackageCompany>$(GlobalPackageOwner)</GlobalPackageCompany>
     <GlobalPackageCopyright>(c) 2024-2026 $(GlobalPackageOwner)</GlobalPackageCopyright>
     <GlobalPackageDescription>A Roslyn-based C# analyzer for detecting runtime bugs, unsafe patterns, common pitfalls, and maintainability issues.</GlobalPackageDescription>
-    <GlobalPackageTags>Roslyn, C#, analyzer, runtime, bugs, unsafe, patterns, common, pitfalls, maintainability, StaticMemberAnalyzer, static, member, field, property</GlobalPackageTags>
+    <GlobalPackageTags>MeticulousAnalyzer, Meticulous, Roslyn, C#, analyzer, runtime, bugs, unsafe, patterns, common, pitfalls, maintainability, StaticMemberAnalyzer, static, member, field, property</GlobalPackageTags>
     <GlobalPackageWebsite>https://x.com/sator_imaging</GlobalPackageWebsite>
     <GlobalPackageRepository>https://github.com/sator-imaging/MeticulousAnalyzer</GlobalPackageRepository>
     <GlobalPackageReleaseNote>https://github.com/sator-imaging/MeticulousAnalyzer</GlobalPackageReleaseNote>
