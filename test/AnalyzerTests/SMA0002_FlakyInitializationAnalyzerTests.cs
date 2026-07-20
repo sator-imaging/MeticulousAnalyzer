@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCS = global::MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<FlakyInitializationAnalyzer>;
+    using VerifyCS = CSharpAnalyzerVerifier<FlakyInitializationAnalyzer>;
 
     [TestClass]
     public class SMA0002_FlakyInitializationAnalyzerTests
