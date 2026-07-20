@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.0.0-rc.14](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.0.0-rc.14) (2026-07-20)
+
+### 📣 Breaking Changes ⚠
+* feat!: StaticMemberAnalyzer (SMA) is now `SatorImaging.MeticulousAnalyzer` (SMA) by [@sator-imaging](https://github.com/sator-imaging) in [#466](https://github.com/sator-imaging/MeticulousAnalyzer/pull/466)
+### 📖 Documentation
+* Add enum.HasFlag workaround documentation to READMEs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#464](https://github.com/sator-imaging/MeticulousAnalyzer/pull/464)
+### 📚 Other Changes
+* ci: post coverage as PR comment by [@sator-imaging](https://github.com/sator-imaging) in [#465](https://github.com/sator-imaging/MeticulousAnalyzer/pull/465)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.0.0-rc.13...v5.0.0-rc.14
+
+
 ## [5.0.0-rc.13](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.0.0-rc.13) (2026-07-18)
 
 ### 📣 Breaking Changes ⚠
