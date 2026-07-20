@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using SatorImaging.MeticulousAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
-using VerifyFix = MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
+using VerifyFix = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
     SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.ArgumentAnalyzer,
     SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.NamedArgumentCodeFixProvider>;
 

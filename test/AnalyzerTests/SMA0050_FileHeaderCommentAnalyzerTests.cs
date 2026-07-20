@@ -6,7 +6,6 @@ using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;
 using System.Threading;
-using MeticulousAnalyzer.Tests;
 using System.Linq;
 
 // The custom test runner is used because the default roslyn verifier runs a
