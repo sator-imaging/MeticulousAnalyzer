@@ -75,5 +75,68 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_AwaitTask_Disposable_PassedAsArgument()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        private MyDisposable _field = new MyDisposable();
+        Task<MyDisposable> GetDisposableAsync() => Task.FromResult(_field);
+
+        void Foo(MyDisposable d) { }
+
+        async Task Method()
+        {
+            Foo(await GetDisposableAsync());
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_AwaitTask_Disposable_WithSuppressionComment()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        private MyDisposable _field = new MyDisposable();
+        Task<MyDisposable> GetDisposableAsync() => Task.FromResult(_field);
+
+        async Task Method()
+        {
+            // Don't dispose
+            var d = await GetDisposableAsync();
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
