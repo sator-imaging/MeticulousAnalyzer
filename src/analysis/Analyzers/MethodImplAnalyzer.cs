@@ -40,23 +40,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (method.DeclaredAccessibility != Accessibility.Public)
                 return;
 
-            if (!HasAggressiveInlining(method))
-                return;
-
-            // Report diagnostic on the identifier/keyword location
-            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
-            {
-                var syntax = syntaxRef.GetSyntax();
-                var location = GetIdentifierLocation(syntax);
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_AggressiveInliningOnPublicMember,
-                    location,
-                    method.ToDiagnosticMessageName()));
-            }
-        }
-
-        private static bool HasAggressiveInlining(IMethodSymbol method)
-        {
+            // Find the MethodImplAttribute that has AggressiveInlining
+            AttributeData? methodImplAttr = null;
             foreach (var attribute in method.GetAttributes())
             {
                 if (attribute.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.MethodImplAttribute")
@@ -71,7 +56,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                 var val = System.Convert.ToInt32(arg.Value);
                                 if ((val & 256) != 0) // 256 is AggressiveInlining
                                 {
-                                    return true;
+                                    methodImplAttr = attribute;
+                                    break;
                                 }
                             }
                             catch
@@ -81,7 +67,31 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
                 }
             }
-            return false;
+
+            if (methodImplAttr == null)
+                return;
+
+            // Report diagnostic on the attribute syntax if available, otherwise fallback to method identifier
+            var attributeSyntax = methodImplAttr.ApplicationSyntaxReference?.GetSyntax();
+            if (attributeSyntax != null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_AggressiveInliningOnPublicMember,
+                    attributeSyntax.GetLocation(),
+                    method.ToDiagnosticMessageName()));
+            }
+            else
+            {
+                foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+                {
+                    var syntax = syntaxRef.GetSyntax();
+                    var location = GetIdentifierLocation(syntax);
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_AggressiveInliningOnPublicMember,
+                        location,
+                        method.ToDiagnosticMessageName()));
+                }
+            }
         }
 
         private static Location GetIdentifierLocation(SyntaxNode syntax)

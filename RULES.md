@@ -85,7 +85,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA7000 | Lambda can be static                       | Lambda declaration should add `static` keyword for clarity.
 | SMA7001 | Inefficient delegate declaration           | Older runtime inefficiently handle direct passing of method.
 | SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation.
-| SMA7003 | Aggressive inlining to public member       | Aggressive inlining to public members may cause code size bloat on the consumer side.
+| SMA7003 | `AggressiveInlining` to public member      | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side.
 | | | |
 | SMA7010 | Reflection Access                          | Access to members of types from `System.Reflection` is not NativeAOT-friendly.
 | SMA7011 | Reflection Type Variable                   | Local variables declared with types from `System.Reflection` are not NativeAOT-friendly.

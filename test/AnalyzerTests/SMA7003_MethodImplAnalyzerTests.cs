@@ -20,8 +20,8 @@ using System.Runtime.CompilerServices;
 
 public class TestClass
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void {|#0:MyMethod|}()
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+    public void MyMethod()
     {
     }
 }
@@ -40,8 +40,8 @@ using System.Runtime.CompilerServices;
 
 public class TestClass
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public {|#0:TestClass|}()
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+    public TestClass()
     {
     }
 }
@@ -62,8 +62,8 @@ public class TestClass
 {
     public int MyProp
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        {|#0:get|} => 42;
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        get => 42;
     }
 }
 ";
@@ -83,14 +83,34 @@ public class TestClass
 {
     public int this[int index]
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        {|#0:get|} => index;
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        get => index;
     }
 }
 ";
             var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
                 .WithLocation(markupKey: 0)
                 .WithArguments("this.get");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Violation_Method_WithCombinedInliningFlags()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.NoOptimization)|}]
+    public void MyMethod()
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyMethod");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
