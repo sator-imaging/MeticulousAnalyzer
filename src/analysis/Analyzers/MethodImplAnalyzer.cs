@@ -51,23 +51,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             foreach (var attribute in method.GetAttributes())
             {
-                if (attribute.AttributeClass?.Name == "MethodImplAttribute" &&
-                    attribute.AttributeClass.ToString() == "System.Runtime.CompilerServices.MethodImplAttribute")
+                if (IsMethodImplAttribute(attribute.AttributeClass))
                 {
                     if (attribute.ConstructorArguments.Length > 0)
                     {
                         var arg = attribute.ConstructorArguments[0];
-                        var valObj = arg.Value;
-                        if (valObj is int intVal)
+                        if (arg.Value is int intVal)
                         {
                             if ((intVal & 256) != 0) // 256 is AggressiveInlining
-                            {
-                                return attribute;
-                            }
-                        }
-                        else if (valObj is short shortVal)
-                        {
-                            if ((shortVal & 256) != 0)
                             {
                                 return attribute;
                             }
@@ -76,6 +67,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
             return null;
+        }
+
+        private static bool IsMethodImplAttribute(INamedTypeSymbol? typeClass)
+        {
+            return typeClass?.Name == "MethodImplAttribute"
+                && typeClass.ContainingNamespace is INamespaceSymbol compilerServices
+                && compilerServices.Name == "CompilerServices"
+                && compilerServices.ContainingNamespace is INamespaceSymbol runtime
+                && runtime.Name == "Runtime"
+                && runtime.ContainingNamespace is INamespaceSymbol system
+                && system.Name == "System"
+                && system.ContainingNamespace is INamespaceSymbol global
+                && global.IsGlobalNamespace;
         }
 
         private static void ReportWithFallback(SymbolAnalysisContext context, IMethodSymbol method, AttributeData methodImplAttr)
@@ -108,21 +112,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static Location GetIdentifierLocation(SyntaxNode syntax)
         {
-            if (syntax is AccessorDeclarationSyntax accessorDecl)
-                return accessorDecl.Keyword.GetLocation();
-            if (syntax is IndexerDeclarationSyntax indexerDecl)
-                return indexerDecl.ThisKeyword.GetLocation();
-            if (syntax is MemberDeclarationSyntax memberDecl)
+            return syntax switch
             {
-                if (memberDecl is MethodDeclarationSyntax methodDecl)
-                    return methodDecl.Identifier.GetLocation();
-                if (memberDecl is ConstructorDeclarationSyntax ctorDecl)
-                    return ctorDecl.Identifier.GetLocation();
-                if (memberDecl is PropertyDeclarationSyntax propDecl)
-                    return propDecl.Identifier.GetLocation();
-            }
-
-            return syntax.GetLocation();
+                AccessorDeclarationSyntax accessorDecl => accessorDecl.Keyword.GetLocation(),
+                IndexerDeclarationSyntax indexerDecl => indexerDecl.ThisKeyword.GetLocation(),
+                MethodDeclarationSyntax methodDecl => methodDecl.Identifier.GetLocation(),
+                ConstructorDeclarationSyntax ctorDecl => ctorDecl.Identifier.GetLocation(),
+                PropertyDeclarationSyntax propDecl => propDecl.Identifier.GetLocation(),
+                _ => syntax.GetLocation()
+            };
         }
     }
 }
