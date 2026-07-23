@@ -40,38 +40,46 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (method.DeclaredAccessibility != Accessibility.Public)
                 return;
 
-            // Find the MethodImplAttribute that has AggressiveInlining
-            AttributeData? methodImplAttr = null;
+            var methodImplAttr = GetMethodImplAttributeWithAggressiveInlining(method);
+            if (methodImplAttr == null)
+                return;
+
+            ReportWithFallback(context, method, methodImplAttr);
+        }
+
+        private static AttributeData? GetMethodImplAttributeWithAggressiveInlining(IMethodSymbol method)
+        {
             foreach (var attribute in method.GetAttributes())
             {
-                if (attribute.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.MethodImplAttribute")
+                if (attribute.AttributeClass?.Name == "MethodImplAttribute" &&
+                    attribute.AttributeClass.ToString() == "System.Runtime.CompilerServices.MethodImplAttribute")
                 {
                     if (attribute.ConstructorArguments.Length > 0)
                     {
                         var arg = attribute.ConstructorArguments[0];
-                        if (arg.Value != null)
+                        var valObj = arg.Value;
+                        if (valObj is int intVal)
                         {
-                            try
+                            if ((intVal & 256) != 0) // 256 is AggressiveInlining
                             {
-                                var val = System.Convert.ToInt32(arg.Value);
-                                if ((val & 256) != 0) // 256 is AggressiveInlining
-                                {
-                                    methodImplAttr = attribute;
-                                    break;
-                                }
+                                return attribute;
                             }
-                            catch
+                        }
+                        else if (valObj is short shortVal)
+                        {
+                            if ((shortVal & 256) != 0)
                             {
+                                return attribute;
                             }
                         }
                     }
                 }
             }
+            return null;
+        }
 
-            if (methodImplAttr == null)
-                return;
-
-            // Report diagnostic on the attribute syntax if available, otherwise fallback to method identifier
+        private static void ReportWithFallback(SymbolAnalysisContext context, IMethodSymbol method, AttributeData methodImplAttr)
+        {
             var attributeSyntax = methodImplAttr.ApplicationSyntaxReference?.GetSyntax();
             if (attributeSyntax != null)
             {
@@ -79,33 +87,40 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     Rule_AggressiveInliningOnPublicMember,
                     attributeSyntax.GetLocation(),
                     method.ToDiagnosticMessageName()));
+                return;
             }
-            else
+
+            ReportFallback(context, method);
+        }
+
+        private static void ReportFallback(SymbolAnalysisContext context, IMethodSymbol method)
+        {
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
-                foreach (var syntaxRef in method.DeclaringSyntaxReferences)
-                {
-                    var syntax = syntaxRef.GetSyntax();
-                    var location = GetIdentifierLocation(syntax);
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_AggressiveInliningOnPublicMember,
-                        location,
-                        method.ToDiagnosticMessageName()));
-                }
+                var syntax = syntaxRef.GetSyntax();
+                var location = GetIdentifierLocation(syntax);
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_AggressiveInliningOnPublicMember,
+                    location,
+                    method.ToDiagnosticMessageName()));
             }
         }
 
         private static Location GetIdentifierLocation(SyntaxNode syntax)
         {
-            if (syntax is MethodDeclarationSyntax methodDecl)
-                return methodDecl.Identifier.GetLocation();
-            if (syntax is ConstructorDeclarationSyntax ctorDecl)
-                return ctorDecl.Identifier.GetLocation();
             if (syntax is AccessorDeclarationSyntax accessorDecl)
                 return accessorDecl.Keyword.GetLocation();
-            if (syntax is PropertyDeclarationSyntax propDecl)
-                return propDecl.Identifier.GetLocation();
             if (syntax is IndexerDeclarationSyntax indexerDecl)
                 return indexerDecl.ThisKeyword.GetLocation();
+            if (syntax is MemberDeclarationSyntax memberDecl)
+            {
+                if (memberDecl is MethodDeclarationSyntax methodDecl)
+                    return methodDecl.Identifier.GetLocation();
+                if (memberDecl is ConstructorDeclarationSyntax ctorDecl)
+                    return ctorDecl.Identifier.GetLocation();
+                if (memberDecl is PropertyDeclarationSyntax propDecl)
+                    return propDecl.Identifier.GetLocation();
+            }
 
             return syntax.GetLocation();
         }
