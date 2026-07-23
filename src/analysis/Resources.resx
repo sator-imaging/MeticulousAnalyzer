@@ -489,6 +489,15 @@
   <data name="SMA7002_Title" xml:space="preserve">
     <value>Lambda allocation</value>
   </data>
+  <data name="SMA7003_Description" xml:space="preserve">
+    <value>Aggressive inlining to public members may cause code size bloat on the consumer side.</value>
+  </data>
+  <data name="SMA7003_MessageFormat" xml:space="preserve">
+    <value>Avoid applying AggressiveInlining to public member '{0}'</value>
+  </data>
+  <data name="SMA7003_Title" xml:space="preserve">
+    <value>Aggressive inlining to public member</value>
+  </data>
   <data name="SMA7010_Description" xml:space="preserve">
     <value>Access to members of types from `System.Reflection` is not NativeAOT-friendly.</value>
   </data>

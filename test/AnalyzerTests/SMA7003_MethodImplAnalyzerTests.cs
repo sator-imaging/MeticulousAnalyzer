@@ -1,0 +1,131 @@
+// Licensed under the MIT License
+// https://github.com/sator-imaging/MeticulousAnalyzer
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using System.Threading.Tasks;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MethodImplAnalyzer>;
+
+namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
+{
+    [TestClass]
+    public class SMA7003_MethodImplAnalyzerTests
+    {
+        [TestMethod]
+        public async Task SMA7003_Violation_Method_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void {|#0:MyMethod|}()
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyMethod");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Violation_Constructor_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public {|#0:TestClass|}()
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Violation_PropertyAccessor_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    public int MyProp
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        {|#0:get|} => 42;
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyProp.get");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Violation_IndexerAccessor_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    public int this[int index]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        {|#0:get|} => index;
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("this.get");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Compliant_Method_WithoutAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void MyMethod()
+    {
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Compliant_InternalMethod_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+internal class TestClass
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void MyMethod()
+    {
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+    }
+}
