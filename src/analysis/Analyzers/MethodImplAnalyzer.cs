@@ -59,9 +59,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             var val = Convert.ToInt32(arg.Value);
                             if ((val & 256) != 0) // MethodImplOptions.AggressiveInlining
                             {
-                                var location = methodSymbol.Locations.Length > 0
-                                    ? methodSymbol.Locations[0]
-                                    : Location.None;
+                                var location = attribute.ApplicationSyntaxReference?.GetSyntax()?.GetLocation()
+                                    ?? (methodSymbol.Locations.Length > 0 ? methodSymbol.Locations[0] : Location.None);
 
                                 context.ReportDiagnostic(Diagnostic.Create(
                                     Rule_MethodImplAggressiveInlining,

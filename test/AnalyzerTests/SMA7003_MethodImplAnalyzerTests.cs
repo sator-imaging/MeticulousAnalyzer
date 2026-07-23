@@ -83,8 +83,8 @@ public class C
 using System.Runtime.CompilerServices;
 public class C
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void {|#0:M|}()
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+    public void M()
     {
     }
 }
@@ -102,8 +102,8 @@ public class C
 using System.Runtime.CompilerServices;
 public class C
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public {|#0:C|}()
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+    public C()
     {
     }
 }
@@ -123,11 +123,11 @@ public class C
 {
     public string Prop
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        {|#0:get|} => null;
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        get => null;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        {|#1:set|} { }
+        [{|#1:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        set { }
     }
 }
 ";
@@ -149,11 +149,11 @@ public class C
 {
     public string this[int index]
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        {|#0:get|} => null;
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        get => null;
 
-        [MethodImpl(256)]
-        {|#1:set|} { }
+        [{|#1:MethodImpl(256)|}]
+        set { }
     }
 }
 ";
@@ -164,6 +164,25 @@ public class C
                 .WithLocation(markupKey: 1)
                 .WithArguments("this.set");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA7003_Violation_Method_MultipleFlags()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+public class C
+{
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.NoOptimization)|}]
+    public void M()
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_MethodImplAggressiveInlining)
+                .WithLocation(markupKey: 0)
+                .WithArguments("M");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }
