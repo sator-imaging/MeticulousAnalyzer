@@ -103,25 +103,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
-                var location = GetIdentifierLocation(syntax);
+                var location = syntax switch
+                {
+                    AccessorDeclarationSyntax accessorDecl => accessorDecl.Keyword.GetLocation(),
+                    IndexerDeclarationSyntax indexerDecl => indexerDecl.ThisKeyword.GetLocation(),
+                    MethodDeclarationSyntax methodDecl => methodDecl.Identifier.GetLocation(),
+                    ConstructorDeclarationSyntax ctorDecl => ctorDecl.Identifier.GetLocation(),
+                    PropertyDeclarationSyntax propDecl => propDecl.Identifier.GetLocation(),
+                    _ => syntax.GetLocation()
+                };
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_AggressiveInliningOnPublicMember,
                     location,
                     method.ToDiagnosticMessageName()));
             }
-        }
-
-        private static Location GetIdentifierLocation(SyntaxNode syntax)
-        {
-            return syntax switch
-            {
-                AccessorDeclarationSyntax accessorDecl => accessorDecl.Keyword.GetLocation(),
-                IndexerDeclarationSyntax indexerDecl => indexerDecl.ThisKeyword.GetLocation(),
-                MethodDeclarationSyntax methodDecl => methodDecl.Identifier.GetLocation(),
-                ConstructorDeclarationSyntax ctorDecl => ctorDecl.Identifier.GetLocation(),
-                PropertyDeclarationSyntax propDecl => propDecl.Identifier.GetLocation(),
-                _ => syntax.GetLocation()
-            };
         }
     }
 }

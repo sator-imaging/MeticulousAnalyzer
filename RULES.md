@@ -89,7 +89,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | SMA7010 | Reflection Access                          | Access to members of types from `System.Reflection` is not NativeAOT-friendly.
 | SMA7011 | Reflection Type Variable                   | Local variables declared with types from `System.Reflection` are not NativeAOT-friendly.
 | | | |
-| SMA7020 | `AggressiveInlining` to public member      | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side.
+| SMA7020 | `AggressiveInlining` to public member      | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, and performance gains limited to microbenchmarks.
 
 ## Readability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
