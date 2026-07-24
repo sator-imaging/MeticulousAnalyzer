@@ -51,7 +51,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             foreach (var attribute in method.GetAttributes())
             {
-                if (IsMethodImplAttribute(attribute.AttributeClass))
+                var attrSymbol = attribute.AttributeClass;
+                if (attrSymbol?.Name == "MethodImplAttribute" &&
+                    attrSymbol.ContainingNamespace is INamespaceSymbol
+                    {
+                        Name: "CompilerServices", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "Runtime", ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: "System", ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true,
+                                }
+                            }
+                        }
+                    })
                 {
                     if (attribute.ConstructorArguments.Length > 0)
                     {
@@ -67,24 +81,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
             return null;
-        }
-
-        private static bool IsMethodImplAttribute(INamedTypeSymbol? typeClass)
-        {
-            return typeClass?.Name == "MethodImplAttribute"
-                && typeClass.ContainingNamespace is INamespaceSymbol
-                {
-                    Name: "CompilerServices", ContainingNamespace: INamespaceSymbol
-                    {
-                        Name: "Runtime", ContainingNamespace: INamespaceSymbol
-                        {
-                            Name: "System", ContainingNamespace: INamespaceSymbol
-                            {
-                                IsGlobalNamespace: true,
-                            }
-                        }
-                    }
-                };
         }
 
         private static void ReportWithFallback(SymbolAnalysisContext context, IMethodSymbol method, AttributeData methodImplAttr)
