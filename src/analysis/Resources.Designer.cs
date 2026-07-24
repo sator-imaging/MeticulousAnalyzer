@@ -1039,21 +1039,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
-        internal static string SMA7003_Description {
+        internal static string SMA7020_Description {
             get {
-                return ResourceManager.GetString("SMA7003_Description", resourceCulture);
+                return ResourceManager.GetString("SMA7020_Description", resourceCulture);
             }
         }
 
-        internal static string SMA7003_MessageFormat {
+        internal static string SMA7020_MessageFormat {
             get {
-                return ResourceManager.GetString("SMA7003_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("SMA7020_MessageFormat", resourceCulture);
             }
         }
 
-        internal static string SMA7003_Title {
+        internal static string SMA7020_Title {
             get {
-                return ResourceManager.GetString("SMA7003_Title", resourceCulture);
+                return ResourceManager.GetString("SMA7020_Title", resourceCulture);
             }
         }
 

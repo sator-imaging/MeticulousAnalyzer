@@ -10,10 +10,10 @@ using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
-    public class SMA7003_MethodImplAnalyzerTests
+    public class SMA7020_MethodImplAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA7003_Violation_Method_WithAggressiveInlining()
+        public async Task SMA7020_Violation_Method_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -33,7 +33,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_Constructor_WithAggressiveInlining()
+        public async Task SMA7020_Violation_Constructor_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -53,7 +53,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_PropertyAccessor_WithAggressiveInlining()
+        public async Task SMA7020_Violation_PropertyAccessor_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -74,7 +74,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_IndexerAccessor_WithAggressiveInlining()
+        public async Task SMA7020_Violation_IndexerAccessor_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -95,7 +95,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7003_Violation_Method_WithCombinedInliningFlags()
+        public async Task SMA7020_Violation_Method_WithCombinedInliningFlags()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -115,7 +115,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_Method_WithoutAggressiveInlining()
+        public async Task SMA7020_Compliant_Method_WithoutAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -132,7 +132,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7003_Compliant_InternalMethod_WithAggressiveInlining()
+        public async Task SMA7020_Compliant_InternalMethod_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
