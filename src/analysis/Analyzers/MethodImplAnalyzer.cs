@@ -72,14 +72,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static bool IsMethodImplAttribute(INamedTypeSymbol? typeClass)
         {
             return typeClass?.Name == "MethodImplAttribute"
-                && typeClass.ContainingNamespace is INamespaceSymbol compilerServices
-                && compilerServices.Name == "CompilerServices"
-                && compilerServices.ContainingNamespace is INamespaceSymbol runtime
-                && runtime.Name == "Runtime"
-                && runtime.ContainingNamespace is INamespaceSymbol system
-                && system.Name == "System"
-                && system.ContainingNamespace is INamespaceSymbol global
-                && global.IsGlobalNamespace;
+                && typeClass.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "CompilerServices", ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: "Runtime", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "System", ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
+                        }
+                    }
+                };
         }
 
         private static void ReportWithFallback(SymbolAnalysisContext context, IMethodSymbol method, AttributeData methodImplAttr)
