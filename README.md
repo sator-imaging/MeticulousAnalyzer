@@ -19,7 +19,6 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
-- [MethodImpl AggressiveInlining Analysis](#methodimpl-aggressiveinlining-analysis) warns when public members are aggressively inlined
 - [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
 - [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [**RULES.md**](RULES.md): All diagnostic rules, including [File Header Comment Enforcement](RULES.md#file-structure-analysis) and [Coding Assistance](RULES.md#coding-assistance)
@@ -532,20 +531,6 @@ var x = (((foo)))!;
 > Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
 >
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
-
-
-
-
-
-&nbsp;
-
-# MethodImpl AggressiveInlining Analysis
-
-## AggressiveInlining on Public Members
-
-Using `[MethodImpl(MethodImplOptions.AggressiveInlining)]` on public members (methods, constructors, property getters/setters, indexers, etc.) can cause unpredictable side effects on the consumer side. Potential downsides include code size bloat at consumer call sites, increased instruction cache misses, reduced branch prediction accuracy, and performance gains that are often limited only to microbenchmarks.
-
-- SMA7020: `AggressiveInlining` to public member
 
 
 
