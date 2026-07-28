@@ -1,1 +1,1 @@
-[Read the instructions](./AGENTS.md)
+@AGENTS.md
