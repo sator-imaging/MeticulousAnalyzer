@@ -98,5 +98,38 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_EnumAndConstants()
+        {
+            var test = @"
+namespace Test
+{
+    public enum MyEnum { Value1, Value2 }
+
+    public class C
+    {
+        private const int MyConstInt = 100;
+        private const string MyConstString = ""ConstText"";
+
+        public void M(MyEnum e, int i, string s)
+        {
+            if (e == MyEnum.Value1)
+            {
+            }
+
+            if (i == MyConstInt)
+            {
+            }
+
+            if (s == MyConstString)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
