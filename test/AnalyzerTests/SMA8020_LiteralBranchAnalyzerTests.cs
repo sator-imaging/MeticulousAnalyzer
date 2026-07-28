@@ -164,6 +164,50 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8020_Violation_ConstantPattern_NotString()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(string some)
+        {
+            if (some is not {|#0:""Text""|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "\"Text\"")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_ConstantPattern_IsNumber()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int some)
+        {
+            if (some is {|#0:100|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "100")
+            );
+        }
+
+        [TestMethod]
         public async Task SMA8020_Compliant_VariableInitializer_IntegerLiteral()
         {
             var test = @"
