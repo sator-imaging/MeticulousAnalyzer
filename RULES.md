@@ -77,7 +77,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 ## Project Structure Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
-| SMA0080 | Internal cross-namespace access            | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: "Core" leaf namespace and "SR" type)
+| SMA0080 | Internal cross-namespace access            | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)
 
 ## Coding Assistance
 | ID      | Diagnostic                                 | Description
@@ -99,6 +99,9 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | | | |
 | SMA8010 | Catch Block Without Throw                  | Catch block should contain a `throw` statement.
 | SMA8011 | Catch-All Block Without Throw              | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.
+| | | |
+| SMA8020 | Literal branch                             | Avoid hardcoded literals in comparison or branch conditions for better maintainability.
+| SMA8021 | Literal branch zero                        | Avoid hardcoded zero in comparison or branch conditions for better maintainability.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
