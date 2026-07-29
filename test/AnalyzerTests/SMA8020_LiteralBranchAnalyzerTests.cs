@@ -208,6 +208,96 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8020_Compliant_EnumAndConstants()
+        {
+            var test = @"
+namespace Test
+{
+    public enum MyEnum { Value1 = 1, Value2 = 2 }
+
+    public class C
+    {
+        private const int MyConstInt = 100;
+        private const string MyConstString = ""ConstText"";
+
+        public void M(MyEnum e, int i, string s)
+        {
+            if (e == MyEnum.Value1)
+            {
+            }
+
+            if (i == MyConstInt)
+            {
+            }
+
+            if (s == MyConstString)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Compliant_SwitchArmCase_EnumAndConstants()
+        {
+            var test = @"
+namespace Test
+{
+    public enum MyEnum { Value1 = 1, Value2 = 2 }
+
+    public class C
+    {
+        private const int MyConstInt = 100;
+        private const string MyConstString = ""ConstText"";
+
+        public void M(MyEnum e, int i, string s)
+        {
+            switch (e)
+            {
+                case MyEnum.Value1:
+                    break;
+            }
+
+            switch (i)
+            {
+                case MyConstInt:
+                    break;
+            }
+
+            switch (s)
+            {
+                case MyConstString:
+                    break;
+            }
+
+            var res1 = e switch
+            {
+                MyEnum.Value1 => 1,
+                _ => 2
+            };
+
+            var res2 = i switch
+            {
+                MyConstInt => 1,
+                _ => 2
+            };
+
+            var res3 = s switch
+            {
+                MyConstString => 1,
+                _ => 2
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8020_Compliant_VariableInitializer_IntegerLiteral()
         {
             var test = @"

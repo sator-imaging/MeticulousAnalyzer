@@ -78,7 +78,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 outermostSyntax = prefix;
             }
 
-            if (IsNumericZero(val))
+            if (IsNumericZero(literalOp))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_LiteralBranchZero,
@@ -161,9 +161,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsNumericZero(object? val)
+        private static bool IsNumericZero(ILiteralOperation literalOp)
         {
+            if (!literalOp.ConstantValue.HasValue) return false;
+            var val = literalOp.ConstantValue.Value;
             if (val == null || val is bool || val is char) return false;
+
+            if (literalOp.Syntax.Span.Length <= 2)
+            {
+                var text = literalOp.Syntax.ToString();
+                if (int.TryParse(text, out var parsed) && parsed == 0)
+                {
+                    return true;
+                }
+            }
+
             try
             {
                 return Convert.ToDecimal(val) == 0m;

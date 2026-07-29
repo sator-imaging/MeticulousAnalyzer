@@ -105,14 +105,13 @@ namespace Test
             var test = @"
 namespace Test
 {
-    public enum MyEnum { Value1, Value2 }
+    public enum MyEnum { Value1 = 0, Value2 = 1 }
 
     public class C
     {
-        private const int MyConstInt = 100;
-        private const string MyConstString = ""ConstText"";
+        private const int MyConstInt = 0;
 
-        public void M(MyEnum e, int i, string s)
+        public void M(MyEnum e, int i)
         {
             if (e == MyEnum.Value1)
             {
@@ -121,10 +120,50 @@ namespace Test
             if (i == MyConstInt)
             {
             }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
 
-            if (s == MyConstString)
+        [TestMethod]
+        public async Task SMA8021_Compliant_SwitchArmCase_EnumAndConstants()
+        {
+            var test = @"
+namespace Test
+{
+    public enum MyEnum { Value1 = 0, Value2 = 1 }
+
+    public class C
+    {
+        private const int MyConstInt = 0;
+
+        public void M(MyEnum e, int i)
+        {
+            switch (e)
             {
+                case MyEnum.Value1:
+                    break;
             }
+
+            switch (i)
+            {
+                case MyConstInt:
+                    break;
+            }
+
+            var res1 = e switch
+            {
+                MyEnum.Value1 => 1,
+                _ => 2
+            };
+
+            var res2 = i switch
+            {
+                MyConstInt => 1,
+                _ => 2
+            };
         }
     }
 }
