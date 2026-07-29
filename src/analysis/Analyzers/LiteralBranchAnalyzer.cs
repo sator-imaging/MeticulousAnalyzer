@@ -165,7 +165,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             if (!literalOp.ConstantValue.HasValue) return false;
             var val = literalOp.ConstantValue.Value;
-            if (val == null || val is bool || val is char) return false;
+            if (val == null) return false;
 
             if (literalOp.Syntax.Span.Length <= 2)
             {
@@ -176,14 +176,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            try
+            return val switch
             {
-                return Convert.ToDecimal(val) == 0m;
-            }
-            catch
-            {
-                return false;
-            }
+                int i => i == 0,
+                long l => l == 0,
+                uint u => u == 0,
+                ulong ul => ul == 0,
+                double d => d == 0.0,
+                float f => f == 0.0f,
+                decimal m => m == 0m,
+                short s => s == 0,
+                ushort us => us == 0,
+                byte b => b == 0,
+                sbyte sb => sb == 0,
+                _ => false
+            };
         }
     }
 }
