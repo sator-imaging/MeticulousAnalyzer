@@ -74,6 +74,29 @@ public class TestClass
         }
 
         [TestMethod]
+        public async Task SMA7020_Violation_PropertySetterAccessor_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    private int _val;
+    public int MyProp
+    {
+        get => _val;
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        set => _val = value;
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyProp.set");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA7020_Violation_IndexerAccessor_WithAggressiveInlining()
         {
             var test = @"
@@ -92,6 +115,56 @@ public class TestClass
                 .WithLocation(markupKey: 0)
                 .WithArguments("this.get");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7020_Violation_IndexerSetterAccessor_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    public int this[int index]
+    {
+        get => index;
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        set { }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("this.set");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7020_Violation_EventAccessors_WithAggressiveInlining()
+        {
+            var test = @"
+using System;
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    private EventHandler _myEvent;
+    public event EventHandler MyEvent
+    {
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        add => _myEvent += value;
+        [{|#1:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        remove => _myEvent -= value;
+    }
+}
+";
+            var expectedAdd = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyEvent.add");
+            var expectedRemove = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MyEvent.remove");
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedAdd, expectedRemove);
         }
 
         [TestMethod]
