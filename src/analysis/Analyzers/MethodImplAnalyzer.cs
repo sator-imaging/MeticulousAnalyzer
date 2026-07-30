@@ -106,10 +106,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 var location = syntax switch
                 {
                     AccessorDeclarationSyntax accessorDecl => accessorDecl.Keyword.GetLocation(),
-                    IndexerDeclarationSyntax indexerDecl => indexerDecl.ThisKeyword.GetLocation(),
                     MethodDeclarationSyntax methodDecl => methodDecl.Identifier.GetLocation(),
                     ConstructorDeclarationSyntax ctorDecl => ctorDecl.Identifier.GetLocation(),
-                    PropertyDeclarationSyntax propDecl => propDecl.Identifier.GetLocation(),
                     _ => syntax.GetLocation()
                 };
 
