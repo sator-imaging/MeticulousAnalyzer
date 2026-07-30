@@ -53,28 +53,7 @@ public class TestClass
         }
 
         [TestMethod]
-        public async Task SMA7020_Violation_PropertyAccessor_WithAggressiveInlining()
-        {
-            var test = @"
-using System.Runtime.CompilerServices;
-
-public class TestClass
-{
-    public int MyProp
-    {
-        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
-        get => 42;
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyProp.get");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA7020_Violation_PropertySetterAccessor_WithAggressiveInlining()
+        public async Task SMA7020_Violation_PropertyAccessors_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -84,20 +63,24 @@ public class TestClass
     private int _val;
     public int MyProp
     {
-        get => _val;
         [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        get => _val;
+        [{|#1:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
         set => _val = value;
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+            var expectedGet = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
                 .WithLocation(markupKey: 0)
+                .WithArguments("MyProp.get");
+            var expectedSet = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 1)
                 .WithArguments("MyProp.set");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedGet, expectedSet);
         }
 
         [TestMethod]
-        public async Task SMA7020_Violation_IndexerAccessor_WithAggressiveInlining()
+        public async Task SMA7020_Violation_IndexerAccessors_WithAggressiveInlining()
         {
             var test = @"
 using System.Runtime.CompilerServices;
@@ -108,35 +91,18 @@ public class TestClass
     {
         [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
         get => index;
-    }
-}
-";
-            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
-                .WithLocation(markupKey: 0)
-                .WithArguments("this.get");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA7020_Violation_IndexerSetterAccessor_WithAggressiveInlining()
-        {
-            var test = @"
-using System.Runtime.CompilerServices;
-
-public class TestClass
-{
-    public int this[int index]
-    {
-        get => index;
-        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        [{|#1:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
         set { }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+            var expectedGet = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
                 .WithLocation(markupKey: 0)
+                .WithArguments("this.get");
+            var expectedSet = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 1)
                 .WithArguments("this.set");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedGet, expectedSet);
         }
 
         [TestMethod]
