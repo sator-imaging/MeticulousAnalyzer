@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.1.0-rc.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.1) (2026-07-30)
+
+### 🚀 Features
+* feat: Implement `SMA7020` analyzer for AggressiveInlining of public members by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#473](https://github.com/sator-imaging/MeticulousAnalyzer/pull/473)
+### 📚 Other Changes
+* Add test for disposableAnalyzer compliant await task as argument by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#471](https://github.com/sator-imaging/MeticulousAnalyzer/pull/471)
+* Add missing SMA8011 resource properties to ResourceStringTest by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#475](https://github.com/sator-imaging/MeticulousAnalyzer/pull/475)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.0.0...v5.1.0-rc.1
+
+
 ## [5.0.0](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.0.0) (2026-07-20)
 
 ### 📣 Breaking Changes ⚠
