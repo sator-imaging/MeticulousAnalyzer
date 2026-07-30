@@ -239,5 +239,24 @@ public class TestClass
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA7020_Compliant_PublicProperty_WithInternalSetter()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    public int MyProp
+    {
+        get => 42;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal set { }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
