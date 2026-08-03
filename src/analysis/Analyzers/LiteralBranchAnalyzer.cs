@@ -167,28 +167,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var val = literalOp.ConstantValue.Value;
             if (val == null) return false;
 
-            if (literalOp.Syntax.Span.Length <= 2)
-            {
-                var text = literalOp.Syntax.ToString();
-                if (int.TryParse(text, out var parsed) && parsed == 0)
-                {
-                    return true;
-                }
-            }
-
             return val switch
             {
                 int i => i == 0,
+                float f => f == 0.0f,
+                double d => d == 0.0,
                 long l => l == 0,
+                short s => s == 0,
+                byte b => b == 0,
                 uint u => u == 0,
                 ulong ul => ul == 0,
-                double d => d == 0.0,
-                float f => f == 0.0f,
-                decimal m => m == 0m,
-                short s => s == 0,
                 ushort us => us == 0,
-                byte b => b == 0,
                 sbyte sb => sb == 0,
+                decimal m => m == 0m,
                 _ => false
             };
         }
