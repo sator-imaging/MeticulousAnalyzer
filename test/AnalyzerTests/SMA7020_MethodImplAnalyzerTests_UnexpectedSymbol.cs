@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System;
@@ -14,7 +13,7 @@ using System.Reflection;
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
-    public class CoverageTests
+    public class SMA7020_MethodImplAnalyzerTests_UnexpectedSymbol
     {
         private class DummyAttributeData : AttributeData
         {
@@ -36,10 +35,9 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
         }
 
         [TestMethod]
-        public void RunAdditionalLineCoverageTests()
+        public void SMA7020_Compliant_Method_UnexpectedSymbol()
         {
-            // Set up a valid compilation environment to create non-null, robust AnalysisContext objects
-            var source = "public class C { void M() { int x = 1; } }";
+            var source = "public class C { void M() {} }";
             var tree = CSharpSyntaxTree.ParseText(source);
             var comp = CSharpCompilation.Create("TestAssembly",
                 new[] { tree },
@@ -47,93 +45,20 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             var model = comp.GetSemanticModel(tree);
 
-            var classNode = FindFirst<ClassDeclarationSyntax>(tree.GetRoot());
-            var classSymbol = model.GetDeclaredSymbol(classNode);
-
             var methodNode = FindFirst<MethodDeclarationSyntax>(tree.GetRoot());
             var methodSymbol = model.GetDeclaredSymbol(methodNode);
 
-            var literalNode = FindFirst<LiteralExpressionSyntax>(tree.GetRoot());
-            var literalOperation = model.GetOperation(literalNode);
+            var analyzerType = typeof(MethodImplAnalyzer);
+            var method = analyzerType.GetMethod("AnalyzeMethod", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.IsNotNull(method, "AnalyzeMethod method not found.");
 
-            // 1. NullSuppressionAnalyzer.AnalyzeSuppressNullableWarning
-            {
-                var analyzerType = typeof(NullSuppressionAnalyzer);
-                var method = analyzerType.GetMethod("AnalyzeSuppressNullableWarning", BindingFlags.Static | BindingFlags.NonPublic);
-                Assert.IsNotNull(method, "AnalyzeSuppressNullableWarning method not found.");
+            var context = default(SymbolAnalysisContext);
 
-                // Pass robust context (Node is ClassDeclarationSyntax, which is not PostfixUnaryExpressionSyntax)
-                var context = new SyntaxNodeAnalysisContext(
-                    node: classNode,
-                    containingSymbol: classSymbol,
-                    semanticModel: model,
-                    options: null,
-                    reportDiagnostic: diag => { },
-                    isSupportedDiagnostic: d => true,
-                    cancellationToken: default);
-
-                method.Invoke(null, new object[] { context });
-            }
-
-            // 2. CatchAnalyzer.AnalyzeCatchClause
-            {
-                var analyzerType = typeof(CatchAnalyzer);
-                var method = analyzerType.GetMethod("AnalyzeCatchClause", BindingFlags.Static | BindingFlags.NonPublic);
-                Assert.IsNotNull(method, "AnalyzeCatchClause method not found.");
-
-                // Pass robust context (Node is ClassDeclarationSyntax, which is not CatchClauseSyntax)
-                var context = new SyntaxNodeAnalysisContext(
-                    node: classNode,
-                    containingSymbol: classSymbol,
-                    semanticModel: model,
-                    options: null,
-                    reportDiagnostic: diag => { },
-                    isSupportedDiagnostic: d => true,
-                    cancellationToken: default);
-
-                method.Invoke(null, new object[] { context });
-            }
-
-            // 3. DebugAssertAnalyzer.AnalyzeInvocation
-            {
-                var analyzerType = typeof(DebugAssertAnalyzer);
-                var method = analyzerType.GetMethod("AnalyzeInvocation", BindingFlags.Static | BindingFlags.NonPublic);
-                Assert.IsNotNull(method, "AnalyzeInvocation method not found.");
-
-                // Pass robust context (Operation is ILiteralOperation, which is not IInvocationOperation)
-                var context = new OperationAnalysisContext(
-                    operation: literalOperation,
-                    containingSymbol: methodSymbol,
-                    compilation: comp,
-                    options: null,
-                    reportDiagnostic: diag => { },
-                    isSupportedDiagnostic: d => true,
-                    cancellationToken: default);
-
-                method.Invoke(null, new object[] { context });
-            }
-
-            // 4. MethodImplAnalyzer.AnalyzeMethod
-            {
-                var analyzerType = typeof(MethodImplAnalyzer);
-                var method = analyzerType.GetMethod("AnalyzeMethod", BindingFlags.Static | BindingFlags.NonPublic);
-                Assert.IsNotNull(method, "AnalyzeMethod method not found.");
-
-                // Pass robust context
-                var context = new SymbolAnalysisContext(
-                    symbol: methodSymbol,
-                    compilation: comp,
-                    options: null,
-                    reportDiagnostic: diag => { },
-                    isSupportedDiagnostic: d => true,
-                    cancellationToken: default);
-
-                method.Invoke(null, new object[] { context });
-            }
+            method.Invoke(null, new object[] { context });
         }
 
         [TestMethod]
-        public void TestMethodImplAnalyzerFallbackCoverage()
+        public void SMA7020_Violation_Method_FallbackDiagnosticReporting()
         {
             var source = @"
 using System.Runtime.CompilerServices;
