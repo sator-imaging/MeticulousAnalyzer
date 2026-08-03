@@ -88,6 +88,15 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             }
         }
 
+        private class CustomReadOnlyCollection<T> : IReadOnlyCollection<T>
+        {
+            private readonly T[] items;
+            public CustomReadOnlyCollection(params T[] items) { this.items = items; }
+            public int Count => items.Length;
+            public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)items).GetEnumerator();
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
         #endregion
 
         #region ElementAtOrDefault
@@ -96,6 +105,27 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         public void ElementAtOrDefault_ReturnsItem_ValidIndexOnList()
         {
             List<int> list = new() { 10, 20, 30 };
+            Assert.AreEqual(20, list.ElementAtOrDefault(1));
+        }
+
+        [TestMethod]
+        public void ElementAtOrDefault_ReturnsDefault_NegativeIndexOnIReadOnlyList()
+        {
+            IReadOnlyList<int> list = new List<int> { 10, 20 };
+            Assert.AreEqual(0, list.ElementAtOrDefault(-1));
+        }
+
+        [TestMethod]
+        public void ElementAtOrDefault_ReturnsDefault_OutOfRangeOnIReadOnlyCollection()
+        {
+            IEnumerable<int> col = new CustomReadOnlyCollection<int>(1, 2, 3);
+            Assert.AreEqual(0, col.ElementAtOrDefault(5));
+        }
+
+        [TestMethod]
+        public void ElementAtOrDefault_ReturnsItem_IReadOnlyListCastPath()
+        {
+            IEnumerable<int> list = new List<int> { 10, 20, 30 };
             Assert.AreEqual(20, list.ElementAtOrDefault(1));
         }
 
@@ -451,6 +481,42 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             Assert.IsNull(result);
         }
 
+        [TestMethod]
+        public void OfTypeFirstOrDefault_ImmutableArrayGeneric_ReturnsMatch_DefaultAndEmpty()
+        {
+            var defaultArr = default(ImmutableArray<object>);
+            Assert.AreEqual(0, defaultArr.OfType_FirstOrDefault<object, int>());
+
+            var emptyArr = ImmutableArray<object>.Empty;
+            Assert.AreEqual(0, emptyArr.OfType_FirstOrDefault<object, int>());
+
+            var source = ImmutableArray.Create<object>("hello", 42);
+            Assert.AreEqual(42, source.OfType_FirstOrDefault<object, int>());
+        }
+
+        [TestMethod]
+        public void OfTypeFirstOrDefault_ImmutableArraySymbol_ReturnsMatch_DefaultAndEmpty()
+        {
+            var defaultArr = default(ImmutableArray<ISymbol>);
+            Assert.IsNull(defaultArr.OfType_FirstOrDefault<INamedTypeSymbol>());
+
+            var emptyArr = ImmutableArray<ISymbol>.Empty;
+            Assert.IsNull(emptyArr.OfType_FirstOrDefault<INamedTypeSymbol>());
+
+            var symbols = GetSymbolsFromCompilation("class Foo { }");
+            Assert.IsNotNull(symbols.OfType_FirstOrDefault<INamedTypeSymbol>());
+        }
+
+        [TestMethod]
+        public void OfTypeFirstOrDefault_ImmutableArrayOperation_ReturnsMatch_DefaultAndEmpty()
+        {
+            var defaultArr = default(ImmutableArray<IOperation>);
+            Assert.IsNull(defaultArr.OfType_FirstOrDefault<IOperation>());
+
+            var emptyArr = ImmutableArray<IOperation>.Empty;
+            Assert.IsNull(emptyArr.OfType_FirstOrDefault<IOperation>());
+        }
+
         #endregion
 
         #region OfType_Any
@@ -474,6 +540,42 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             List<object> source = new();
             Assert.IsFalse(source.OfType_Any<int>());
+        }
+
+        [TestMethod]
+        public void OfTypeAny_ImmutableArrayGeneric_ReturnsTrue_MatchExists()
+        {
+            var defaultArr = default(ImmutableArray<object>);
+            Assert.IsFalse(defaultArr.OfType_Any<object, int>());
+
+            var emptyArr = ImmutableArray<object>.Empty;
+            Assert.IsFalse(emptyArr.OfType_Any<object, int>());
+
+            var source = ImmutableArray.Create<object>("hello", 42);
+            Assert.IsTrue(source.OfType_Any<object, int>());
+        }
+
+        [TestMethod]
+        public void OfTypeAny_ImmutableArraySymbol_ReturnsTrue_MatchExists()
+        {
+            var defaultArr = default(ImmutableArray<ISymbol>);
+            Assert.IsFalse(defaultArr.OfType_Any<INamedTypeSymbol>());
+
+            var emptyArr = ImmutableArray<ISymbol>.Empty;
+            Assert.IsFalse(emptyArr.OfType_Any<INamedTypeSymbol>());
+
+            var symbols = GetSymbolsFromCompilation("class Foo { }");
+            Assert.IsTrue(symbols.OfType_Any<INamedTypeSymbol>());
+        }
+
+        [TestMethod]
+        public void OfTypeAny_ImmutableArrayOperation_ReturnsTrue_MatchExists()
+        {
+            var defaultArr = default(ImmutableArray<IOperation>);
+            Assert.IsFalse(defaultArr.OfType_Any<IOperation>());
+
+            var emptyArr = ImmutableArray<IOperation>.Empty;
+            Assert.IsFalse(emptyArr.OfType_Any<IOperation>());
         }
 
         #endregion
@@ -976,6 +1078,157 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
 
         #endregion
 
+        #region Select
+
+        [TestMethod]
+        public void Select_ImmutableArray_ReturnsMappedArray()
+        {
+            var defaultArr = default(ImmutableArray<int>);
+            var mappedDefault = defaultArr.Select(x => x * 2);
+            Assert.AreEqual(0, mappedDefault.Length);
+
+            var emptyArr = ImmutableArray<int>.Empty;
+            var mappedEmpty = emptyArr.Select(x => x * 2);
+            Assert.AreEqual(0, mappedEmpty.Length);
+
+            var source = ImmutableArray.Create(1, 2, 3);
+            var mapped = source.Select(x => x * 2);
+            Assert.AreEqual(3, mapped.Length);
+            Assert.AreEqual(2, mapped[0]);
+            Assert.AreEqual(4, mapped[1]);
+            Assert.AreEqual(6, mapped[2]);
+        }
+
+        #endregion
+
+        #region FirstOrDefault (IEnumerable and other edge cases)
+
+        [TestMethod]
+        public void FirstOrDefault_IEnumerable_ReturnsFirst_NonEmptyAndEmpty()
+        {
+            IEnumerable<int> emptySource = AsEnumerableOnly(Array.Empty<int>());
+            Assert.AreEqual(0, emptySource.FirstOrDefault());
+
+            IEnumerable<int> nonEmptySource = AsEnumerableOnly(new[] { 42 });
+            Assert.AreEqual(42, nonEmptySource.FirstOrDefault());
+        }
+
+        #endregion
+
+        #region Any (IReadOnlyCollection and IEnumerable)
+
+        [TestMethod]
+        public void Any_IReadOnlyCollection_ReturnsTrue_NonEmptyAndEmpty()
+        {
+            IReadOnlyCollection<int> emptyCol = new CustomReadOnlyCollection<int>();
+            Assert.IsFalse(emptyCol.Any());
+
+            IReadOnlyCollection<int> nonEmptyCol = new CustomReadOnlyCollection<int>(1, 2);
+            Assert.IsTrue(nonEmptyCol.Any());
+        }
+
+        [TestMethod]
+        public void Any_IEnumerable_ReturnsTrue_NonEmptyAndEmpty()
+        {
+            IEnumerable<int> emptyEnumerable = AsEnumerableOnly(Array.Empty<int>());
+            Assert.IsFalse(emptyEnumerable.Any());
+
+            IEnumerable<int> nonEmptyEnumerable = AsEnumerableOnly(new[] { 42 });
+            Assert.IsTrue(nonEmptyEnumerable.Any());
+
+            IEnumerable<int> emptyColCast = new CustomReadOnlyCollection<int>();
+            Assert.IsFalse(emptyColCast.Any());
+
+            IEnumerable<int> nonEmptyColCast = new CustomReadOnlyCollection<int>(1, 2);
+            Assert.IsTrue(nonEmptyColCast.Any());
+        }
+
+        #endregion
+
+        #region ToArray
+
+        [TestMethod]
+        public void ToArray_ImmutableArray_ReturnsArray()
+        {
+            var defaultArr = default(ImmutableArray<int>);
+            Assert.AreEqual(0, defaultArr.ToArray().Length);
+
+            var emptyArr = ImmutableArray<int>.Empty;
+            Assert.AreEqual(0, emptyArr.ToArray().Length);
+
+            var source = ImmutableArray.Create(1, 2);
+            var arr = source.ToArray();
+            Assert.AreEqual(2, arr.Length);
+            Assert.AreEqual(1, arr[0]);
+            Assert.AreEqual(2, arr[1]);
+        }
+
+        [TestMethod]
+        public void ToArray_ICollection_ReturnsArray()
+        {
+            ICollection<int> emptyCol = new List<int>();
+            Assert.AreEqual(0, emptyCol.ToArray().Length);
+
+            ICollection<int> nonEmptyCol = new List<int> { 10, 20 };
+            var arr = nonEmptyCol.ToArray();
+            Assert.AreEqual(2, arr.Length);
+            Assert.AreEqual(10, arr[0]);
+            Assert.AreEqual(20, arr[1]);
+        }
+
+        [TestMethod]
+        public void ToArray_IEnumerable_ReturnsArray()
+        {
+            IEnumerable<int> emptyColCast = new List<int>();
+            Assert.AreEqual(0, emptyColCast.ToArray().Length);
+
+            IEnumerable<int> nonEmptyColCast = new List<int> { 10, 20 };
+            var arr = nonEmptyColCast.ToArray();
+            Assert.AreEqual(2, arr.Length);
+            Assert.AreEqual(10, arr[0]);
+            Assert.AreEqual(20, arr[1]);
+        }
+
+        #endregion
+
+        #region Contains (ICollection and ImmutableArray)
+
+        [TestMethod]
+        public void Contains_ImmutableArray_ReturnsTrue_ValueFound()
+        {
+            var defaultArr = default(ImmutableArray<int>);
+            Assert.IsFalse(BurstLinq.Contains(defaultArr, 42));
+
+            var emptyArr = ImmutableArray<int>.Empty;
+            Assert.IsFalse(BurstLinq.Contains(emptyArr, 42));
+
+            var source = ImmutableArray.Create(1, 2, 3);
+            Assert.IsTrue(BurstLinq.Contains(source, 2));
+            Assert.IsFalse(BurstLinq.Contains(source, 42));
+        }
+
+        [TestMethod]
+        public void Contains_ICollection_ReturnsTrue_ValueFound()
+        {
+            ICollection<int> source = new List<int> { 1, 2, 3 };
+            Assert.IsTrue(source.Contains(2));
+            Assert.IsFalse(source.Contains(42));
+        }
+
+        [TestMethod]
+        public void Contains_IEnumerable_ReturnsTrue_ValueFound()
+        {
+            IEnumerable<int> colSource = new List<int> { 1, 2, 3 };
+            Assert.IsTrue(colSource.Contains(2));
+            Assert.IsFalse(colSource.Contains(42));
+
+            IEnumerable<int> enumSource = AsEnumerableOnly(new[] { 1, 2, 3 });
+            Assert.IsTrue(enumSource.Contains(2));
+            Assert.IsFalse(enumSource.Contains(42));
+        }
+
+        #endregion
+
         #region SelectMany_FirstOrDefault
 
         [TestMethod]
@@ -1003,6 +1256,20 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                     ? method.ParameterList.Parameters
                     : default,
                 p => p.Identifier.Text == "nonexistent"
+            );
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public void SelectManyFirstOrDefault_ReturnsDefault_EmptySyntaxList()
+        {
+            string code = "class C { }";
+            var members = GetClassMembers(code);
+            var result = members.SelectMany_FirstOrDefault(
+                m => m is MethodDeclarationSyntax method
+                    ? method.ParameterList.Parameters
+                    : default,
+                p => true
             );
             Assert.IsNull(result);
         }
