@@ -65,6 +65,29 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA7030_Violation_ParamsImplicitAllocation_WithPrecedingNormalArgs()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Foo(int x, params int[] values) {}
+
+        public void Test()
+        {
+            Foo(42, {|#0:1, 2, 3|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ParamsArgumentAnalyzer.RuleId_ImplicitParamsAllocation)
+                .WithLocation(markupKey: 0)
+                .WithArguments("values");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA7030_Violation_ParamsImplicitAllocation_Constructor()
         {
             var test = @"
