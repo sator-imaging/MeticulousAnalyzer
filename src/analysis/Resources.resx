@@ -516,6 +516,15 @@
   <data name="SMA7020_Title" xml:space="preserve">
     <value>`AggressiveInlining` to public member</value>
   </data>
+  <data name="SMA7030_Description" xml:space="preserve">
+    <value>Implicit params array allocation causes overhead. Use explicit array allocation.</value>
+  </data>
+  <data name="SMA7030_MessageFormat" xml:space="preserve">
+    <value>Implicit params array allocation for '{0}'</value>
+  </data>
+  <data name="SMA7030_Title" xml:space="preserve">
+    <value>Implicit params array allocation</value>
+  </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Readability and Maintainability Analysis</value>
   </data>
