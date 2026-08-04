@@ -15,7 +15,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     [TestClass]
     public class ConfigTest_InternalNamespaceAccessAnalyzer
     {
-        private static async Task VerifyWithConfigAsync(string source, string namespaces = "", string types = "", params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        private static async Task VerifyWithConfigAsync(string source, string namespaces, string types, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
             var test = new VerifyCS.Test
             {
@@ -32,6 +32,21 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 
             test.ExpectedDiagnostics.AddRange(expected);
             await test.RunAsync();
+        }
+
+        private static Task VerifyWithConfigAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        {
+            return VerifyWithConfigAsync(source, namespaces: "", types: "", expected: expected);
+        }
+
+        private static Task VerifyWithConfigAsync(string source, string namespaces, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        {
+            return VerifyWithConfigAsync(source, namespaces: namespaces, types: "", expected: expected);
+        }
+
+        private static Task VerifyWithConfigAsync(string source, string types)
+        {
+            return VerifyWithConfigAsync(source, namespaces: "", types: types);
         }
 
         [TestMethod]
