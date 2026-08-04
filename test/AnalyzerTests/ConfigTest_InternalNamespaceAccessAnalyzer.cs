@@ -15,7 +15,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     [TestClass]
     public class ConfigTest_InternalNamespaceAccessAnalyzer
     {
-        private static async Task VerifyWithConfigAsync(string source, string namespaces = "", string types = "", params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        private static async Task VerifyWithConfigAsync(string source, string namespaces, string types, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
             var test = new VerifyCS.Test
             {
@@ -32,6 +32,21 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 
             test.ExpectedDiagnostics.AddRange(expected);
             await test.RunAsync();
+        }
+
+        private static Task VerifyWithConfigAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        {
+            return VerifyWithConfigAsync(source, namespaces: "", types: "", expected: expected);
+        }
+
+        private static Task VerifyWithConfigAsync(string source, string namespaces, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        {
+            return VerifyWithConfigAsync(source, namespaces: namespaces, types: "", expected: expected);
+        }
+
+        private static Task VerifyWithConfigAsync(string source, string types)
+        {
+            return VerifyWithConfigAsync(source, namespaces: "", types: types);
         }
 
         [TestMethod]
@@ -126,7 +141,8 @@ namespace Foo.Bar
     }
 }
 ";
-            await VerifyWithConfigAsync(test, expected: VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Common"));
+            var expected = VerifyCS.Diagnostic().WithLocation(markupKey: 0).WithArguments("Value", "Foo.Bar", "Foo.Common");
+            await VerifyWithConfigAsync(test, expected);
         }
 
         [TestMethod]
@@ -173,7 +189,8 @@ namespace Foo.Bar
     }
 }
 ";
-            await VerifyWithConfigAsync(test, expected: VerifyCS.Diagnostic().WithLocation(0).WithArguments("SR", "Foo.Bar", "Foo"));
+            var expected = VerifyCS.Diagnostic().WithLocation(markupKey: 0).WithArguments("SR", "Foo.Bar", "Foo");
+            await VerifyWithConfigAsync(test, expected);
         }
 
         [TestMethod]
@@ -224,7 +241,8 @@ namespace Foo.Bar
 }
 ";
             // Empty commas/whitespace value evaluates to null configuration
-            await VerifyWithConfigAsync(test, namespaces: " , ", expected: VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Common"));
+            var expected = VerifyCS.Diagnostic().WithLocation(markupKey: 0).WithArguments("Value", "Foo.Bar", "Foo.Common");
+            await VerifyWithConfigAsync(test, namespaces: " , ", expected);
         }
     }
 }
