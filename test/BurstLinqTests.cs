@@ -1275,5 +1275,40 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         }
 
         #endregion
+
+        #region Line Coverage Extra Tests
+
+        [TestMethod]
+        public void ElementAtOrDefault_ReturnsDefault_DefaultImmutableArray()
+        {
+            var source = default(ImmutableArray<int>);
+            Assert.AreEqual(0, source.ElementAtOrDefault(0));
+        }
+
+        [TestMethod]
+        public void OfTypeAny_IEnumerable_ReturnsTrue_MatchExists()
+        {
+            IEnumerable<object> source = AsEnumerableOnly(new object[] { "text", 42, 3.14 });
+            Assert.IsTrue(source.OfType_Any<int>());
+            Assert.IsFalse(source.OfType_Any<DateTime>());
+        }
+
+        [TestMethod]
+        public void OfTypeFirstOrDefault_IEnumerable_ReturnsMatch_TypeExists()
+        {
+            IEnumerable<object> source = AsEnumerableOnly(new object[] { "text", 42, 3.14 });
+            Assert.AreEqual(42, source.OfType_FirstOrDefault<int>());
+            Assert.IsNull(source.OfType_FirstOrDefault<DateTime?>());
+        }
+
+        [TestMethod]
+        public void Contains_ICollectionExtension_ReturnsTrue_ValueFound()
+        {
+            ICollection<int> source = new List<int> { 1, 2, 3 };
+            Assert.IsTrue(BurstLinq.Contains(source, 2));
+            Assert.IsFalse(BurstLinq.Contains(source, 42));
+        }
+
+        #endregion
     }
 }

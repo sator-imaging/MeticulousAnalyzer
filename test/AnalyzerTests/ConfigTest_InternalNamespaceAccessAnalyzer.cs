@@ -175,5 +175,56 @@ namespace Foo.Bar
 ";
             await VerifyWithConfigAsync(test, expected: VerifyCS.Diagnostic().WithLocation(0).WithArguments("SR", "Foo.Bar", "Foo"));
         }
+
+        [TestMethod]
+        public async Task SMA0080_Config_VisibleInternalNamespaces_CacheHit()
+        {
+            var test = @"
+namespace Foo.Common
+{
+    internal class InternalType { public static int Value; }
+}
+namespace Foo.Internal
+{
+    internal class InternalType { public static int Value; }
+}
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.Common.InternalType.Value;
+            var y = Foo.Internal.InternalType.Value;
+        }
+    }
+}
+";
+            // Uses the same "Common, Internal" namespaces to hit the TryGetValue configuration cache
+            await VerifyWithConfigAsync(test, namespaces: "Common, Internal");
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Config_VisibleInternalNamespaces_EmptyAndWhitespaceConfiguration()
+        {
+            var test = @"
+namespace Foo.Common
+{
+    internal class InternalType { public static int Value; }
+}
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.Common.InternalType.Value|};
+        }
+    }
+}
+";
+            // Empty commas/whitespace value evaluates to null configuration
+            await VerifyWithConfigAsync(test, namespaces: " , ", expected: VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo.Common"));
+        }
     }
 }
