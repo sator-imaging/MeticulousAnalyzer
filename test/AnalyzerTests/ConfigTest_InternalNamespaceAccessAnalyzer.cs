@@ -127,7 +127,7 @@ namespace Foo.Bar
 }
 ";
             var expected = VerifyCS.Diagnostic().WithLocation(markupKey: 0).WithArguments("Value", "Foo.Bar", "Foo.Common");
-            await VerifyWithConfigAsync(test, expected: expected);
+            await VerifyWithConfigAsync(test, expected);
         }
 
         [TestMethod]
@@ -175,7 +175,7 @@ namespace Foo.Bar
 }
 ";
             var expected = VerifyCS.Diagnostic().WithLocation(markupKey: 0).WithArguments("SR", "Foo.Bar", "Foo");
-            await VerifyWithConfigAsync(test, expected: expected);
+            await VerifyWithConfigAsync(test, expected);
         }
 
         [TestMethod]
@@ -227,7 +227,7 @@ namespace Foo.Bar
 ";
             // Empty commas/whitespace value evaluates to null configuration
             var expected = VerifyCS.Diagnostic().WithLocation(markupKey: 0).WithArguments("Value", "Foo.Bar", "Foo.Common");
-            await VerifyWithConfigAsync(test, namespaces: " , ", expected: expected);
+            await VerifyWithConfigAsync(test, namespaces: " , ", expected);
         }
     }
 }
