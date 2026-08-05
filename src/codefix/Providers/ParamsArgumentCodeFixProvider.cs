@@ -61,7 +61,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             if (node == null) return document;
 
             // Navigate up to find the ArgumentListSyntax.
-            var argumentList = node.AncestorsAndSelf().OfType<ArgumentListSyntax>().FirstOrDefault();
+            var argumentList = node.AncestorsAndSelf().FirstOrDefault(static n => n is ArgumentListSyntax) as ArgumentListSyntax;
             if (argumentList == null) return document;
 
             // Determine which arguments are params arguments by checking which ones fall within the diagnostic span.
