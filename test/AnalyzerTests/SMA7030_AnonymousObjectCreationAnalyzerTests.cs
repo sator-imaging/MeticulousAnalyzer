@@ -44,5 +44,23 @@ public class C
             var expected = VerifyCS.Diagnostic(AnonymousObjectCreationAnalyzer.RuleId_AnonymousObject).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA7030_Violation_AnonymousObjectAsMethodArgument()
+        {
+            var test = @"
+using System;
+public class C
+{
+    void Foo(object o) { }
+    void M()
+    {
+        Foo({|#0:new { some = ""Foo"", other = 42 }|});
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(AnonymousObjectCreationAnalyzer.RuleId_AnonymousObject).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
