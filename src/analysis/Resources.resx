@@ -517,7 +517,7 @@
     <value>`AggressiveInlining` to public member</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
-    <value>Readability and Maintainability Analysis</value>
+    <value>Reliability and Maintainability Analysis</value>
   </data>
   <data name="SMA8000_Description" xml:space="preserve">
     <value>Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)</value>
