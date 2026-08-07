@@ -93,7 +93,7 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | | | |
 | SMA7030 | Anonymous Object Creation                  | Anonymous object creation should be avoided. Use tuple instead.
 
-## Readability and Maintainability Analysis
+## Reliability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)
