@@ -40,18 +40,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Check if any ancestor is suppressed by comment
-            SyntaxNode? current = anonymousObject;
-            while (current != null)
-            {
-                if (Core.IsSuppressedByComment(current, "// Prefer tuple") ||
-                    Core.IsSuppressedByComment(current, "// Allow anonymous object"))
-                {
-                    return;
-                }
-                current = current.Parent;
-            }
-
             context.ReportDiagnostic(Diagnostic.Create(Rule_AnonymousObject, anonymousObject.GetLocation()));
         }
     }

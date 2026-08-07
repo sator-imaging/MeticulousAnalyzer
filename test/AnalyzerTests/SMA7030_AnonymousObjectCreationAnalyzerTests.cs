@@ -29,23 +29,6 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7030_Compliant_SuppressedByComment()
-        {
-            var test = @"
-using System;
-public class C
-{
-    void M()
-    {
-        // Allow anonymous object
-        var x = new { some = ""Foo"", other = 42 };
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
         public async Task SMA7030_Violation_AnonymousObject()
         {
             var test = @"
