@@ -91,9 +91,9 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | | | |
 | SMA7020 | `AggressiveInlining` to public member      | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc.
 | | | |
-| SMA7030 | Anonymous Object Creation                  | Anonymous object creation should be avoided. Use tuple instead.
+| SMA7040 | Anonymous Object Creation                  | Anonymous object creation should be avoided. Use tuple instead.
 
-## Readability and Maintainability Analysis
+## Reliability and Maintainability Analysis
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
 | SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)

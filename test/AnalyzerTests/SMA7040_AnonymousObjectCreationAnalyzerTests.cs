@@ -10,10 +10,10 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<AnonymousObjectCreationAnalyzer>;
 
     [TestClass]
-    public class SMA7030_AnonymousObjectCreationAnalyzerTests
+    public class SMA7040_AnonymousObjectCreationAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA7030_Compliant_Tuple()
+        public async Task SMA7040_Compliant_Tuple()
         {
             var test = @"
 using System;
@@ -29,7 +29,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7030_Violation_AnonymousObject()
+        public async Task SMA7040_Violation_AnonymousObject()
         {
             var test = @"
 using System;
@@ -46,7 +46,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7030_Violation_AnonymousObjectAsMethodArgument()
+        public async Task SMA7040_Violation_AnonymousObjectAsMethodArgument()
         {
             var test = @"
 using System;
