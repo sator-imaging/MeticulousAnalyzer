@@ -103,6 +103,9 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | | | |
 | SMA8010 | Catch Block Without Throw                  | Catch block should contain a `throw` statement.
 | SMA8011 | Catch-All Block Without Throw              | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.
+| | | |
+| SMA8020 | Literal branch                             | Avoid hardcoded literals in comparison or branch conditions for better maintainability.
+| SMA8021 | Literal branch zero                        | Avoid hardcoded zero in comparison or branch conditions for better maintainability.
 
 ## [Obsolete] Annotating and Underling
 | ID      | Diagnostic                                 | Description
