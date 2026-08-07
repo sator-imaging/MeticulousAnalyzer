@@ -516,13 +516,13 @@
   <data name="SMA7020_Title" xml:space="preserve">
     <value>`AggressiveInlining` to public member</value>
   </data>
-  <data name="SMA7030_Description" xml:space="preserve">
+  <data name="SMA7040_Description" xml:space="preserve">
     <value>Anonymous object creation should be avoided. Use tuple instead.</value>
   </data>
-  <data name="SMA7030_MessageFormat" xml:space="preserve">
+  <data name="SMA7040_MessageFormat" xml:space="preserve">
     <value>Prefer tuple instead of anonymous object</value>
   </data>
-  <data name="SMA7030_Title" xml:space="preserve">
+  <data name="SMA7040_Title" xml:space="preserve">
     <value>Anonymous Object Creation</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
