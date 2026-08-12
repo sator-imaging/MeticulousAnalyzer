@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.1.0-rc.4](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.4) (2026-08-12)
+
+### 🚀 Features
+* Add ParamsArgumentAnalyzer (SMA7030) and Code Fix Provider by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#480](https://github.com/sator-imaging/MeticulousAnalyzer/pull/480)
+### 📚 Other Changes
+* Eliminate Linq from ParamsArgumentAnalyzer.cs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#488](https://github.com/sator-imaging/MeticulousAnalyzer/pull/488)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.3...v5.1.0-rc.4
+
+
 ## [5.1.0-rc.3](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.3) (2026-08-07)
 
 ### 📣 Breaking Changes ⚠
