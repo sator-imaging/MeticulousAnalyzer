@@ -91,7 +91,8 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__`
 | | | |
 | SMA7020 | `AggressiveInlining` to public member      | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc.
 | | | |
-| SMA7030 | Implicit params array allocation           | Implicit params array allocation causes overhead. Use explicit array allocation.
+| SMA7030 | Implicit params array allocation           | Implicit params array allocation hides actual overhead from source code representation. Use explicit array allocation.
+| | | |
 | SMA7040 | Anonymous Object Creation                  | Anonymous object creation should be avoided. Use tuple instead.
 
 ## Reliability and Maintainability Analysis
