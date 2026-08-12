@@ -517,7 +517,7 @@
     <value>`AggressiveInlining` to public member</value>
   </data>
   <data name="SMA7030_Description" xml:space="preserve">
-    <value>Implicit params array allocation causes overhead. Use explicit array allocation.</value>
+    <value>Implicit params array allocation hides actual overhead from source code representation. Use explicit array allocation.</value>
   </data>
   <data name="SMA7030_MessageFormat" xml:space="preserve">
     <value>Implicit params array allocation for '{0}'</value>
