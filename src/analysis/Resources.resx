@@ -525,8 +525,17 @@
   <data name="SMA7030_Title" xml:space="preserve">
     <value>Implicit params array allocation</value>
   </data>
+  <data name="SMA7040_Description" xml:space="preserve">
+    <value>Anonymous object creation should be avoided. Use tuple instead.</value>
+  </data>
+  <data name="SMA7040_MessageFormat" xml:space="preserve">
+    <value>Prefer tuple instead of anonymous object</value>
+  </data>
+  <data name="SMA7040_Title" xml:space="preserve">
+    <value>Anonymous Object Creation</value>
+  </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
-    <value>Readability and Maintainability Analysis</value>
+    <value>Reliability and Maintainability Analysis</value>
   </data>
   <data name="SMA8000_Description" xml:space="preserve">
     <value>Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)</value>

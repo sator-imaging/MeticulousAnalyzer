@@ -1,5 +1,27 @@
 # Changelog
 
+## [5.1.0-rc.3](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.3) (2026-08-07)
+
+### 📣 Breaking Changes ⚠
+* Change `SMA7030` to `SMA7040` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#485](https://github.com/sator-imaging/MeticulousAnalyzer/pull/485)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.2...v5.1.0-rc.3
+
+
+## [5.1.0-rc.2](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.2) (2026-08-07)
+
+### 🚀 Features
+* Implement `SMA7030` AnonymousObjectCreationAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#482](https://github.com/sator-imaging/MeticulousAnalyzer/pull/482)
+### 📚 Other Changes
+* Increase BurstLinq Test Coverage by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#478](https://github.com/sator-imaging/MeticulousAnalyzer/pull/478)
+* Increase Analyzer Line and Branch Coverage by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#479](https://github.com/sator-imaging/MeticulousAnalyzer/pull/479)
+* test: Refactor inline expected diagnostics to local variables by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#481](https://github.com/sator-imaging/MeticulousAnalyzer/pull/481)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.1...v5.1.0-rc.2
+
+
 ## [5.1.0-rc.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.1) (2026-07-30)
 
 ### 🚀 Features
