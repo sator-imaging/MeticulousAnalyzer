@@ -47,7 +47,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("class C { string x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -57,7 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("enum E { A } class C { E x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -67,7 +67,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("readonly struct S {} class C { S x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -77,7 +77,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("class C { int x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -87,7 +87,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("using System.Collections.Generic; class C { IEnumerable<int> x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -97,7 +97,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("using System.Collections.Generic; class C { IReadOnlyList<int> x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -107,7 +107,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("using System.Collections.Generic; class C { IReadOnlyCollection<int> x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -117,7 +117,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("using System.Collections; class C { IEnumerable x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -127,7 +127,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             var comp = CreateCompilation("class MyClass {} class C { MyClass x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsFalse(Core.IsKnownImmutableType(type));
         }
@@ -146,7 +146,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 },
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             var model = comp.GetSemanticModel(tree);
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -165,7 +165,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 },
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             var model = comp.GetSemanticModel(tree);
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -184,7 +184,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 },
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             var model = comp.GetSemanticModel(tree);
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsTrue(Core.IsKnownImmutableType(type));
         }
@@ -202,7 +202,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         public void GetMemberNamePrefix_InClass_ReturnsClassName()
         {
             var tree = CSharpSyntaxTree.ParseText("class MyClass { int x; }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var result = Core.GetMemberNamePrefix(field);
             Assert.AreEqual("MyClass", result);
         }
@@ -211,7 +211,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         public void GetMemberNamePrefix_InNamespaceAndClass_ReturnsBoth()
         {
             var tree = CSharpSyntaxTree.ParseText("namespace MyNs { class MyClass { int x; } }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var result = Core.GetMemberNamePrefix(field);
             Assert.IsTrue(result.Contains("MyNs"));
             Assert.IsTrue(result.Contains("MyClass"));
@@ -221,7 +221,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         public void GetMemberNamePrefix_NestedClass_ReturnsBothClassNames()
         {
             var tree = CSharpSyntaxTree.ParseText("class Outer { class Inner { int x; } }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var result = Core.GetMemberNamePrefix(field);
             Assert.IsTrue(result.Contains("Outer"));
             Assert.IsTrue(result.Contains("Inner"));
@@ -294,7 +294,7 @@ class C {
     // suppress
     int x = 1;
 }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             Assert.IsTrue(Core.IsSuppressedByComment(field, "// suppress"));
         }
 
@@ -305,7 +305,7 @@ class C {
 class C {
     int x = 1;
 }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             Assert.IsFalse(Core.IsSuppressedByComment(field, "// suppress"));
         }
 
@@ -380,7 +380,7 @@ class C {
     // suppress
     void M() {}
 }");
-            var method = FindFirst<MethodDeclarationSyntax>(tree.GetRoot());
+            var method = FindFirst<BaseMethodDeclarationSyntax>(tree.GetRoot());
             Assert.IsFalse(Core.IsSuppressedByComment(method, "// suppress"));
         }
 
@@ -498,7 +498,7 @@ class C {
 
     int x = 1;
 }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             Assert.IsTrue(Core.IsSuppressedByComment(field, "// suppress"));
         }
 
@@ -511,7 +511,7 @@ class C {
     // suppress
     int x = 1;
 }");
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             Assert.IsFalse(Core.IsSuppressedByComment(field, "// suppress"));
         }
 
@@ -585,7 +585,7 @@ class C {
             var comp = CreateCompilation("class C { void M(params int[] values) { } }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
-            var method = FindFirst<MethodDeclarationSyntax>(tree.GetRoot());
+            var method = FindFirst<BaseMethodDeclarationSyntax>(tree.GetRoot());
             var methodSymbol = model.GetDeclaredSymbol(method)!;
             Assert.AreEqual("values", Core.ToDiagnosticMessageName(methodSymbol.Parameters[0]));
         }
@@ -595,7 +595,7 @@ class C {
         {
             var comp = CreateCompilation("class MyClass {} class C { MyClass x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type!;
             Assert.AreEqual("MyClass", Core.ToDiagnosticMessageName(type));
         }
@@ -605,7 +605,7 @@ class C {
         {
             var comp = CreateCompilation("using System.Collections.Generic; class C { List<int> x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type!;
             Assert.AreEqual("List<int>", Core.ToDiagnosticMessageName(type));
         }
@@ -615,7 +615,7 @@ class C {
         {
             var comp = CreateCompilation("struct MyStruct<T> {} class C { MyStruct<int> x; }");
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var field = FindFirst<FieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type!;
             Assert.AreEqual("MyStruct<int>", Core.ToDiagnosticMessageName(type));
         }
@@ -633,7 +633,7 @@ namespace MyNamespace {
 }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type!;
             Assert.AreEqual("Outer<T>.Inner<U>", Core.ToDiagnosticMessageName(type));
         }
@@ -644,7 +644,7 @@ namespace MyNamespace {
             var comp = CreateCompilation("class C { int _field; }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
-            var field = FindFirst<FieldDeclarationSyntax>(tree.GetRoot());
+            var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var fieldSymbol = model.GetDeclaredSymbol(field.Declaration.Variables[0])!;
             Assert.AreEqual("_field", Core.ToDiagnosticMessageName(fieldSymbol));
         }
@@ -655,7 +655,7 @@ namespace MyNamespace {
             var comp = CreateCompilation("class C { void Foo<T>(int value) { } }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
-            var method = FindFirst<MethodDeclarationSyntax>(tree.GetRoot());
+            var method = FindFirst<BaseMethodDeclarationSyntax>(tree.GetRoot());
             var methodSymbol = model.GetDeclaredSymbol(method)!;
             Assert.AreEqual("Foo<T>", Core.ToDiagnosticMessageName(methodSymbol));
         }
@@ -666,7 +666,7 @@ namespace MyNamespace {
             var comp = CreateCompilation("class C { float Bar { get; set; } }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
-            var property = FindFirst<PropertyDeclarationSyntax>(tree.GetRoot());
+            var property = FindFirst<BasePropertyDeclarationSyntax>(tree.GetRoot());
             var propertySymbol = model.GetDeclaredSymbol(property)!;
             Assert.AreEqual("Bar", Core.ToDiagnosticMessageName(propertySymbol));
         }
@@ -703,10 +703,10 @@ namespace MyNamespace {
             var source = "class C { System.Exception e; System.Uri u; System.Collections.IEnumerable i; }";
             var comp = CreateCompilation(source);
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
-            var fieldNodes = new System.Collections.Generic.List<FieldDeclarationSyntax>();
+            var fieldNodes = new System.Collections.Generic.List<BaseFieldDeclarationSyntax>();
             foreach (var node in comp.SyntaxTrees[0].GetRoot().DescendantNodes())
             {
-                if (node is FieldDeclarationSyntax f) fieldNodes.Add(f);
+                if (node is BaseFieldDeclarationSyntax f) fieldNodes.Add(f);
             }
 
             var typeE = model.GetTypeInfo(fieldNodes[0].Declaration.Type).Type;
@@ -723,10 +723,10 @@ namespace MyNamespace {
         public void GetMemberNamePrefix_Additional_Coverage()
         {
             var tree = CSharpSyntaxTree.ParseText("namespace A.B { class C { int x; } }");
-            FieldDeclarationSyntax field = null;
+            BaseFieldDeclarationSyntax field = null;
             foreach (var node in tree.GetRoot().DescendantNodes())
             {
-                if (node is FieldDeclarationSyntax f) { field = f; break; }
+                if (node is BaseFieldDeclarationSyntax f) { field = f; break; }
             }
             var result = Core.GetMemberNamePrefix(field);
             Assert.IsTrue(result.Contains("A.B"));
@@ -781,8 +781,8 @@ namespace MyNamespace {
             var comp = CreateCompilation("class C { int x; }");
             var tree = comp.SyntaxTrees[0];
             var model = comp.GetSemanticModel(tree);
-            FieldDeclarationSyntax field = null;
-            foreach (var node in tree.GetRoot().DescendantNodes()) if (node is FieldDeclarationSyntax f) { field = f; break; }
+            BaseFieldDeclarationSyntax field = null;
+            foreach (var node in tree.GetRoot().DescendantNodes()) if (node is BaseFieldDeclarationSyntax f) { field = f; break; }
             var symbol = model.GetDeclaredSymbol(field.Declaration.Variables[0])!;
             var called = false;
 
@@ -883,13 +883,13 @@ class C {
             var model = comp.GetSemanticModel(tree);
             var root = tree.GetRoot();
 
-            FieldDeclarationSyntax field = null;
+            BaseFieldDeclarationSyntax field = null;
             AssignmentExpressionSyntax assign = null;
             LocalDeclarationStatementSyntax local = null;
 
             foreach (var node in root.DescendantNodes())
             {
-                if (node is FieldDeclarationSyntax f && field == null) field = f;
+                if (node is BaseFieldDeclarationSyntax f && field == null) field = f;
                 if (node is AssignmentExpressionSyntax a && assign == null) assign = a;
                 if (node is LocalDeclarationStatementSyntax l && local == null) local = l;
             }

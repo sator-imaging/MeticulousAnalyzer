@@ -913,7 +913,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             inAllCodePaths = false;
 
-            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax);
+            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax);
             if (enclosingMember == null)
             {
                 return false;
@@ -934,7 +934,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             SyntaxNode? body = null;
             ArrowExpressionClauseSyntax? expressionBody = null;
 
-            if (enclosingMember is MethodDeclarationSyntax method)
+            if (enclosingMember is BaseMethodDeclarationSyntax method)
             {
                 body = method.Body;
                 expressionBody = method.ExpressionBody;

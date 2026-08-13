@@ -369,7 +369,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
-                if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
+                if (syntax is BaseMethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
                     return new OneOrMore<Location>(methodDecl.ReturnType.GetLocation());
                 }
@@ -446,7 +446,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
-                if (syntax is PropertyDeclarationSyntax propertyDeclaration)
+                if (syntax is BasePropertyDeclarationSyntax propertyDeclaration)
                 {
                     return new OneOrMore<Location>(propertyDeclaration.Type.GetLocation());
                 }
@@ -488,7 +488,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
+                if (syntaxRef.GetSyntax() is not BaseTypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
                 {
                     continue;
                 }
@@ -538,7 +538,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 var syntax = syntaxRef.GetSyntax();
                 TypeParameterConstraintClauseSyntax? constraintClause = null;
-                if (syntax is TypeDeclarationSyntax typeDecl)
+                if (syntax is BaseTypeDeclarationSyntax typeDecl)
                 {
                     foreach (var clause in typeDecl.ConstraintClauses)
                     {
@@ -549,7 +549,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         }
                     }
                 }
-                else if (syntax is MethodDeclarationSyntax methodDecl)
+                else if (syntax is BaseMethodDeclarationSyntax methodDecl)
                 {
                     foreach (var clause in methodDecl.ConstraintClauses)
                     {

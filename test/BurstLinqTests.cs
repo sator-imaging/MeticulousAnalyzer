@@ -30,7 +30,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             var tree = CSharpSyntaxTree.ParseText(code);
             var root = tree.GetCompilationUnitRoot();
             var classDecl = (ClassDeclarationSyntax)root.Members[0];
-            var method = (MethodDeclarationSyntax)classDecl.Members[0];
+            var method = (BaseMethodDeclarationSyntax)classDecl.Members[0];
             return method.ParameterList.Parameters;
         }
 
@@ -248,12 +248,12 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             string code = "class C { void M() {} int X; }";
             var members = GetClassMembers(code);
             var results = new List<MemberDeclarationSyntax>();
-            foreach (var item in members.Where(m => m is MethodDeclarationSyntax))
+            foreach (var item in members.Where(m => m is BaseMethodDeclarationSyntax))
             {
                 results.Add(item);
             }
             Assert.AreEqual(1, results.Count);
-            Assert.IsTrue(results[0] is MethodDeclarationSyntax);
+            Assert.IsTrue(results[0] is BaseMethodDeclarationSyntax);
         }
 
         [TestMethod]
@@ -262,7 +262,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             string code = "class C { int X; int Y; }";
             var members = GetClassMembers(code);
             var results = new List<MemberDeclarationSyntax>();
-            foreach (var item in members.Where(m => m is MethodDeclarationSyntax))
+            foreach (var item in members.Where(m => m is BaseMethodDeclarationSyntax))
             {
                 results.Add(item);
             }
@@ -935,7 +935,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             string code = "class C { void M() {} int X; }";
             var members = GetClassMembers(code);
-            Assert.IsTrue(members.Any(m => m is MethodDeclarationSyntax));
+            Assert.IsTrue(members.Any(m => m is BaseMethodDeclarationSyntax));
         }
 
         [TestMethod]
@@ -943,7 +943,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         {
             string code = "class C { int X; int Y; }";
             var members = GetClassMembers(code);
-            Assert.IsFalse(members.Any(m => m is MethodDeclarationSyntax));
+            Assert.IsFalse(members.Any(m => m is BaseMethodDeclarationSyntax));
         }
 
         #endregion
@@ -1237,7 +1237,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             string code = "class C { void M(int target, string other) {} void N(double x) {} }";
             var members = GetClassMembers(code);
             var result = members.SelectMany_FirstOrDefault(
-                m => m is MethodDeclarationSyntax method
+                m => m is BaseMethodDeclarationSyntax method
                     ? method.ParameterList.Parameters
                     : default,
                 p => p.Identifier.Text == "target"
@@ -1252,7 +1252,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             string code = "class C { void M(int a, string b) {} }";
             var members = GetClassMembers(code);
             var result = members.SelectMany_FirstOrDefault(
-                m => m is MethodDeclarationSyntax method
+                m => m is BaseMethodDeclarationSyntax method
                     ? method.ParameterList.Parameters
                     : default,
                 p => p.Identifier.Text == "nonexistent"
@@ -1266,7 +1266,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             string code = "class C { }";
             var members = GetClassMembers(code);
             var result = members.SelectMany_FirstOrDefault(
-                m => m is MethodDeclarationSyntax method
+                m => m is BaseMethodDeclarationSyntax method
                     ? method.ParameterList.Parameters
                     : default,
                 p => true

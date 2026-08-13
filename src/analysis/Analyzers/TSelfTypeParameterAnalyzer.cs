@@ -103,7 +103,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private void AnalyzeTSelf(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is not TypeDeclarationSyntax targetTypeDeclStx)
+            if (context.Node is not BaseTypeDeclarationSyntax targetTypeDeclStx)
                 return;
 
             var baseTypeList = targetTypeDeclStx.DescendantNodes().OfType_FirstOrDefault<BaseListSyntax>();
@@ -115,7 +115,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
 
         private void AnalyzeTSelf_Impl(SyntaxNodeAnalysisContext context,
-                                       TypeDeclarationSyntax targetTypeDeclStx,
+                                       BaseTypeDeclarationSyntax targetTypeDeclStx,
                                        BaseListSyntax baseTypeList
             )
         {
@@ -149,7 +149,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 int tselfTypeArgPosition = -1;
                 foreach (var baseDeclareRef in baseSymbol.DeclaringSyntaxReferences)
                 {
-                    if (baseDeclareRef.GetSyntax() is not TypeDeclarationSyntax baseDeclare)
+                    if (baseDeclareRef.GetSyntax() is not BaseTypeDeclarationSyntax baseDeclare)
                         continue;
 
                     var baseTypeParamList = baseDeclare.DescendantNodes().OfType_FirstOrDefault<TypeParameterListSyntax>();

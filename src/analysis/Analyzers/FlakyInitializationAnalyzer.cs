@@ -102,7 +102,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         [ThreadStatic, DescriptionAttribute] static List<IMemberReferenceOperation>? ts_initializerRefOperatorList;
         [ThreadStatic, DescriptionAttribute] static List<IMemberReferenceOperation>? ts_crossRefOperatorList;
         [ThreadStatic, DescriptionAttribute] static HashSet<IMemberReferenceOperation>? ts_crossRefReportedSet;
-        [ThreadStatic, DescriptionAttribute] static List<FieldDeclarationSyntax>? ts_crossFDSyntaxList;
+        [ThreadStatic, DescriptionAttribute] static List<BaseFieldDeclarationSyntax>? ts_crossFDSyntaxList;
         [ThreadStatic, DescriptionAttribute] static Dictionary<string, SemanticModel>? ts_filePathToModel;
 #pragma warning restore RS1008
 
@@ -136,7 +136,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var root = context.SemanticModel.SyntaxTree.GetRoot(token);
             foreach (var memberDeclStx in root.DescendantNodes().OfType<MemberDeclarationSyntax>())
             {
-                if (memberDeclStx is not FieldDeclarationSyntax and not PropertyDeclarationSyntax)
+                if (memberDeclStx is not BaseFieldDeclarationSyntax and not BasePropertyDeclarationSyntax)
                     continue;
 
                 ClearAndCollectFieldInfo(
@@ -197,7 +197,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         foreach (var dsr in refOpMemberContainingTypeDeclares)
                         {
                             var s = dsr.GetSyntax(token);
-                            foreach (var fieldStx in s.DescendantNodes().OfType<FieldDeclarationSyntax>())
+                            foreach (var fieldStx in s.DescendantNodes().OfType<BaseFieldDeclarationSyntax>())
                             {
                                 crossFDSyntaxList.Add(fieldStx);
                             }
