@@ -88,15 +88,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand)
         {
-            // Unwrap conversions and unary +/-
+            // Unwrap interleaved conversions and unary +/- to reach the literal
             var current = operand;
-            while (current is IConversionOperation conv)
-                current = conv.Operand;
-
-            while (current is IUnaryOperation unary &&
-                   (unary.OperatorKind == UnaryOperatorKind.Minus || unary.OperatorKind == UnaryOperatorKind.Plus))
+            while (true)
             {
-                current = unary.Operand;
+                if (current is IConversionOperation conv)
+                    current = conv.Operand;
+                else if (current is IUnaryOperation unary &&
+                         (unary.OperatorKind == UnaryOperatorKind.Minus || unary.OperatorKind == UnaryOperatorKind.Plus))
+                    current = unary.Operand;
+                else
+                    break;
             }
 
             if (current is not ILiteralOperation literalOp)
@@ -112,7 +114,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             // Find outermost syntax to report on (e.g. including unary minus for -1)
-            var outermostSyntax = operand.Syntax;
+            // Start from the literal's own syntax and walk up through any unary +/- wrappers
+            var outermostSyntax = literalOp.Syntax;
             while (outermostSyntax.Parent is PrefixUnaryExpressionSyntax prefix &&
                    (prefix.IsKind(SyntaxKind.UnaryMinusExpression) || prefix.IsKind(SyntaxKind.UnaryPlusExpression)))
             {
