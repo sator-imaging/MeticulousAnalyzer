@@ -549,7 +549,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         }
                     }
                 }
-                else if (syntax is BaseMethodDeclarationSyntax methodDecl)
+                else if (syntax is MethodDeclarationSyntax methodDecl)
                 {
                     foreach (var clause in methodDecl.ConstraintClauses)
                     {
