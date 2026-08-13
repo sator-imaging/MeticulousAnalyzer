@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -42,36 +41,78 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterOperationAction(AnalyzeLiteral, OperationKind.Literal);
+            context.RegisterOperationAction(AnalyzeBinary, OperationKind.Binary);
+            context.RegisterOperationAction(AnalyzeConstantPattern, OperationKind.ConstantPattern);
+            context.RegisterOperationAction(AnalyzeSwitchCase, OperationKind.SwitchCase);
         }
 
-        private static void AnalyzeLiteral(OperationAnalysisContext context)
+        private static void AnalyzeBinary(OperationAnalysisContext context)
         {
-            if (context.Operation is not ILiteralOperation literalOp)
+            if (context.Operation is not IBinaryOperation binary)
+                return;
+
+            if (binary.OperatorKind is not (
+                BinaryOperatorKind.Equals or
+                BinaryOperatorKind.NotEquals or
+                BinaryOperatorKind.LessThan or
+                BinaryOperatorKind.LessThanOrEqual or
+                BinaryOperatorKind.GreaterThan or
+                BinaryOperatorKind.GreaterThanOrEqual))
             {
                 return;
             }
 
-            if (!IsInBranchContext(literalOp, out _, out bool isNegative))
-            {
+            AnalyzeOperandForLiteral(context, binary.LeftOperand);
+            AnalyzeOperandForLiteral(context, binary.RightOperand);
+        }
+
+        private static void AnalyzeConstantPattern(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IConstantPatternOperation pattern)
                 return;
+
+            AnalyzeOperandForLiteral(context, pattern.Value);
+        }
+
+        private static void AnalyzeSwitchCase(OperationAnalysisContext context)
+        {
+            if (context.Operation is not ISwitchCaseOperation switchCase)
+                return;
+
+            foreach (var clause in switchCase.Clauses)
+            {
+                if (clause is ISingleValueCaseClauseOperation singleValue)
+                    AnalyzeOperandForLiteral(context, singleValue.Value);
             }
+        }
+
+        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand)
+        {
+            // Unwrap conversions and unary +/-
+            var current = operand;
+            while (current is IConversionOperation conv)
+                current = conv.Operand;
+
+            while (current is IUnaryOperation unary &&
+                   (unary.OperatorKind == UnaryOperatorKind.Minus || unary.OperatorKind == UnaryOperatorKind.Plus))
+            {
+                current = unary.Operand;
+            }
+
+            if (current is not ILiteralOperation literalOp)
+                return;
 
             if (!literalOp.ConstantValue.HasValue)
-            {
                 return;
-            }
 
             var val = literalOp.ConstantValue.Value;
 
             // Allow true/false/null
             if (val == null || val is bool)
-            {
                 return;
-            }
 
             // Find outermost syntax to report on (e.g. including unary minus for -1)
-            var outermostSyntax = literalOp.Syntax;
+            var outermostSyntax = operand.Syntax;
             while (outermostSyntax.Parent is PrefixUnaryExpressionSyntax prefix &&
                    (prefix.IsKind(SyntaxKind.UnaryMinusExpression) || prefix.IsKind(SyntaxKind.UnaryPlusExpression)))
             {
@@ -92,73 +133,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     outermostSyntax.GetLocation(),
                     outermostSyntax.ToString()));
             }
-        }
-
-        private static bool IsInBranchContext(ILiteralOperation literalOp, out IOperation? branchContextOp, out bool isNegative)
-        {
-            branchContextOp = null;
-            isNegative = false;
-
-            var current = literalOp.Parent;
-            while (current != null)
-            {
-                if (current is IConversionOperation)
-                {
-                    current = current.Parent;
-                }
-                else if (current is IUnaryOperation unary)
-                {
-                    if (unary.OperatorKind == UnaryOperatorKind.Minus)
-                    {
-                        isNegative = !isNegative;
-                        current = current.Parent;
-                    }
-                    else if (unary.OperatorKind == UnaryOperatorKind.Plus)
-                    {
-                        current = current.Parent;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (current == null)
-            {
-                return false;
-            }
-
-            if (current is IBinaryOperation binary)
-            {
-                if (binary.OperatorKind is
-                    BinaryOperatorKind.Equals or
-                    BinaryOperatorKind.NotEquals or
-                    BinaryOperatorKind.LessThan or
-                    BinaryOperatorKind.LessThanOrEqual or
-                    BinaryOperatorKind.GreaterThan or
-                    BinaryOperatorKind.GreaterThanOrEqual)
-                {
-                    branchContextOp = binary;
-                    return true;
-                }
-            }
-            else if (current is IConstantPatternOperation pattern)
-            {
-                branchContextOp = pattern;
-                return true;
-            }
-            else if (current is ISingleValueCaseClauseOperation caseClause)
-            {
-                branchContextOp = caseClause;
-                return true;
-            }
-
-            return false;
         }
 
         private static bool IsNumericZero(ILiteralOperation literalOp)
