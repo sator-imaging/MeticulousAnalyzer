@@ -102,8 +102,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         [ThreadStatic, DescriptionAttribute] static List<IMemberReferenceOperation>? ts_initializerRefOperatorList;
         [ThreadStatic, DescriptionAttribute] static List<IMemberReferenceOperation>? ts_crossRefOperatorList;
         [ThreadStatic, DescriptionAttribute] static HashSet<IMemberReferenceOperation>? ts_crossRefReportedSet;
-        [ThreadStatic, DescriptionAttribute] static Dictionary<SyntaxTree, SemanticModel>? ts_syntaxTreeToModel;
-        [ThreadStatic, DescriptionAttribute] static Dictionary<INamedTypeSymbol, HashSet<INamedTypeSymbol>>? ts_crossReferencedTypeCache;
+        [ThreadStatic, DescriptionAttribute] static List<FieldDeclarationSyntax>? ts_crossFDSyntaxList;
+        [ThreadStatic, DescriptionAttribute] static Dictionary<string, SemanticModel>? ts_filePathToModel;
 #pragma warning restore RS1008
 
 
@@ -116,6 +116,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var initializerRefOperatorList = (ts_initializerRefOperatorList ??= new(capacity: DEFAULT_LIST_CAPACITY));
             var crossRefOperatorList = (ts_crossRefOperatorList ??= new(capacity: DEFAULT_LIST_CAPACITY));
             var crossRefReportedSet = (ts_crossRefReportedSet ??= new());
+            var crossFDSyntaxList = (ts_crossFDSyntaxList ??= new(capacity: DEFAULT_LIST_CAPACITY));
 
             declaringOrderCheckSymbolSet.Clear();
             declaredSymbolSet.Clear();
@@ -123,20 +124,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             initializerRefOperatorList.Clear();
             crossRefOperatorList.Clear();
             crossRefReportedSet.Clear();
+            crossFDSyntaxList.Clear();
 
             // it seems that model cannot be reusable. all reports are gone after opening other file in VisualStudio
-            var syntaxTreeToModel = (ts_syntaxTreeToModel ??= new());
-            syntaxTreeToModel.Clear();
-            syntaxTreeToModel[context.SemanticModel.SyntaxTree] = context.SemanticModel;
-
-            var crossReferencedTypeCache = (ts_crossReferencedTypeCache ??= new(SymbolEqualityComparer.Default));
-            crossReferencedTypeCache.Clear();
+            var filePathToModel = (ts_filePathToModel ??= new());
+            filePathToModel.Clear();
+            filePathToModel[context.SemanticModel.SyntaxTree.FilePath] = context.SemanticModel;
 
             var token = context.CancellationToken;
 
             var root = context.SemanticModel.SyntaxTree.GetRoot(token);
-            foreach (var memberDeclStx in root.DescendantNodes(static node =>
-                node is CompilationUnitSyntax or NamespaceDeclarationSyntax or TypeDeclarationSyntax))
+            foreach (var memberDeclStx in root.DescendantNodes(ShouldDescendIntoMemberDeclaration).OfType<MemberDeclarationSyntax>())
             {
                 if (memberDeclStx is not FieldDeclarationSyntax and not PropertyDeclarationSyntax)
                     continue;
@@ -195,49 +193,59 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         if (crossRefReportedSet.Contains(refOp))
                             continue;
 
-                        if (!crossReferencedTypeCache.TryGetValue(refOp.Member.ContainingType, out var referencedTypes))
+                        crossFDSyntaxList.Clear();
+                        foreach (var dsr in refOpMemberContainingTypeDeclares)
                         {
-                            referencedTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-                            crossReferencedTypeCache.Add(refOp.Member.ContainingType, referencedTypes);
-
-                            foreach (var dsr in refOpMemberContainingTypeDeclares)
+                            var s = dsr.GetSyntax(token);
+                            foreach (var fieldStx in s.DescendantNodes(ShouldDescendIntoTypeDeclaration).OfType<FieldDeclarationSyntax>())
                             {
-                                if (dsr.GetSyntax(token) is not TypeDeclarationSyntax typeDeclaration)
-                                    continue;
-
-                                foreach (var member in typeDeclaration.DescendantNodes(static node => node is TypeDeclarationSyntax))
-                                {
-                                    if (member is not FieldDeclarationSyntax crossField)
-                                        continue;
-
-                                    if (!syntaxTreeToModel.TryGetValue(crossField.SyntaxTree, out var crossModel))
-                                    {
-                                        crossModel = context.SemanticModel.Compilation.GetSemanticModel(crossField.SyntaxTree);
-                                        syntaxTreeToModel[crossField.SyntaxTree] = crossModel;
-                                    }
-
-                                    ClearAndCollectFieldInfo(crossField, crossModel, declaredSymbolSet: null, declaredWithInitializerSymbolList: null, crossRefOperatorList, token);
-                                    for (int c = 0; c < crossRefOperatorList.Count; c++)
-                                    {
-                                        referencedTypes.Add(crossRefOperatorList[c].Member.ContainingType);
-                                    }
-                                }
+                                crossFDSyntaxList.Add(fieldStx);
                             }
                         }
 
-                        if (referencedTypes.Contains(declaredWithInitializerSymbolList[i].ContainingType))
+                        foreach (var crossField in crossFDSyntaxList)
                         {
-                            context.ReportDiagnostic(
-                                Diagnostic.Create(Rule_CrossRef, refOp.Syntax.GetLocation(),
-                                refOp.Member.ContainingType.ToDiagnosticMessageName(), declaredWithInitializerSymbolList[i].ContainingType.ToDiagnosticMessageName()));
+                            if (!filePathToModel.TryGetValue(crossField.SyntaxTree.FilePath, out var crossModel))
+                            {
+                                crossModel = context.SemanticModel.Compilation.GetSemanticModel(crossField.SyntaxTree);
+                                filePathToModel[crossField.SyntaxTree.FilePath] = crossModel;
+                            }
 
-                            crossRefReportedSet.Add(refOp);
+                            ClearAndCollectFieldInfo(crossField, crossModel, declaredSymbolSet: null, declaredWithInitializerSymbolList: null, crossRefOperatorList, token);
+
+                            for (int c = 0; c < crossRefOperatorList.Count; c++)
+                            {
+                                if (!SymbolEqualityComparer.Default.Equals(crossRefOperatorList[c].Member.ContainingType, declaredWithInitializerSymbolList[i].ContainingType))
+                                    continue;
+
+                                context.ReportDiagnostic(
+                                    Diagnostic.Create(Rule_CrossRef, refOp.Syntax.GetLocation(),
+                                    refOp.Member.ContainingType.ToDiagnosticMessageName(), declaredWithInitializerSymbolList[i].ContainingType.ToDiagnosticMessageName()));
+
+                                crossRefReportedSet.Add(refOp);
+
+                                break;
+                            }
                         }
                     }
                 }
 
                 declaringOrderCheckSymbolSet.UnionWith(declaredSymbolSet);
             }
+        }
+
+
+        private static bool ShouldDescendIntoMemberDeclaration(SyntaxNode node)
+        {
+            return node is CompilationUnitSyntax
+                or NamespaceDeclarationSyntax
+                or TypeDeclarationSyntax;
+        }
+
+
+        private static bool ShouldDescendIntoTypeDeclaration(SyntaxNode node)
+        {
+            return node is TypeDeclarationSyntax;
         }
 
 
@@ -253,73 +261,63 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             initializerRefOperatorList.Clear();
 
             // GetOperation must run on EqualsValueClauseSyntax, otherwise returns null
-            if (memberStx is FieldDeclarationSyntax fieldDeclaration)
+            foreach (var equalsStx in memberStx.DescendantNodes().OfType<EqualsValueClauseSyntax>())
             {
-                foreach (var variable in fieldDeclaration.Declaration.Variables)
+                if (model.GetOperation(equalsStx, token) is not ISymbolInitializerOperation { IsImplicit: false } initOp)
+                    continue;
+
+                //lambda??
+                if (initOp.Children.FirstOrDefault() is IDelegateCreationOperation)
+                    continue;
+
+                ISymbol? declaredSymbol = null;
+                if (initOp is IFieldInitializerOperation fieldInitOp)
                 {
-                    if (variable.Initializer != null)
-                        CollectFieldInfo(variable.Initializer, model, declaredSymbolSet, declaredWithInitializerSymbolList, initializerRefOperatorList, token);
+                    var fieldSymbol = fieldInitOp.InitializedFields.FirstOrDefault();  // check first one --> static int FIRST, SECOND = 10;
+                    if (fieldSymbol == null || fieldSymbol.IsConst || !fieldSymbol.IsStatic || fieldSymbol.IsImplicitlyDeclared)
+                        continue;
+
+                    declaredSymbolSet?.UnionWith(fieldInitOp.InitializedFields);  // for declaring order check
+                    declaredSymbol = fieldSymbol;
                 }
-            }
-            else if (memberStx is PropertyDeclarationSyntax { Initializer: { } initializer })
-            {
-                CollectFieldInfo(initializer, model, declaredSymbolSet, declaredWithInitializerSymbolList, initializerRefOperatorList, token);
-            }
-        }
-
-
-        private static void CollectFieldInfo(EqualsValueClauseSyntax equalsStx,
-                                             SemanticModel model,
-                                             HashSet<ISymbol>? declaredSymbolSet,
-                                             List<ISymbol>? declaredWithInitializerSymbolList,
-                                             List<IMemberReferenceOperation> initializerRefOperatorList,
-                                             CancellationToken token)
-        {
-            if (model.GetOperation(equalsStx, token) is not ISymbolInitializerOperation { IsImplicit: false } initOp)
-                return;
-
-            //lambda??
-            if (initOp.Children.FirstOrDefault() is IDelegateCreationOperation)
-                return;
-
-            ISymbol? declaredSymbol = null;
-            if (initOp is IFieldInitializerOperation fieldInitOp)
-            {
-                var fieldSymbol = fieldInitOp.InitializedFields.FirstOrDefault();
-                if (fieldSymbol == null || fieldSymbol.IsConst || !fieldSymbol.IsStatic || fieldSymbol.IsImplicitlyDeclared)
-                    return;
-
-                declaredSymbolSet?.UnionWith(fieldInitOp.InitializedFields);
-                declaredSymbol = fieldSymbol;
-            }
-            else if (initOp is IPropertyInitializerOperation propInitOp)
-            {
-                var propSymbol = propInitOp.InitializedProperties.FirstOrDefault();
-                if (propSymbol == null || !propSymbol.IsStatic || propSymbol.IsImplicitlyDeclared)
+                else if (initOp is IPropertyInitializerOperation propInitOp)
                 {
-                    return;
+                    var propSymbol = propInitOp.InitializedProperties.FirstOrDefault();
+                    if (propSymbol == null || !propSymbol.IsStatic || propSymbol.IsImplicitlyDeclared)
+                    {
+                        continue;
+                    }
+
+                    declaredSymbolSet?.UnionWith(propInitOp.InitializedProperties);  // for declaring order check
+                    declaredSymbol = propSymbol;
                 }
 
-                declaredSymbolSet?.UnionWith(propInitOp.InitializedProperties);
-                declaredSymbol = propSymbol;
-            }
 
-            if (declaredSymbol == null)
-                return;
-
-            foreach (var refOp in initOp.Descendants().OfType<IMemberReferenceOperation>())
-            {
-                if (!refOp.Member.IsStatic || refOp.Member.IsImplicitlyDeclared)
+                if (declaredSymbol == null)
+                {
                     continue;
+                }
 
-                if (refOp.Member is IFieldSymbol { IsConst: true })
-                    continue;
+                foreach (var refOp in initOp.Descendants().OfType<IMemberReferenceOperation>())
+                {
+                    if (!refOp.Member.IsStatic || refOp.Member.IsImplicitlyDeclared)
+                        continue;
 
-                if (refOp.Parent is INameOfOperation)
-                    continue;
+                    //const??
+                    if (refOp.Member is IFieldSymbol { IsConst: true })
+                        continue;
 
-                declaredWithInitializerSymbolList?.Add(declaredSymbol);
-                initializerRefOperatorList.Add(refOp);
+                    ////method??
+                    //if (refOp.Member is IMethodSymbol)
+                    //    continue;
+
+                    //nameof/typeof??
+                    if (refOp.Parent is INameOfOperation)// or ITypeOfOperation)
+                        continue;
+
+                    declaredWithInitializerSymbolList?.Add(declaredSymbol);  // allow duplicate entry to simplify logic
+                    initializerRefOperatorList.Add(refOp);
+                }
             }
         }
 
