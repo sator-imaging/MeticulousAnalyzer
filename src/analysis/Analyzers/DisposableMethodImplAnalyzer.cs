@@ -178,7 +178,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 var location = syntaxRef.GetSyntax() switch
                 {
-                    TypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
+                    BaseTypeDeclarationSyntax typeDecl => typeDecl.Identifier.GetLocation(),
                     var syntax => syntax.GetLocation()
                 };
 

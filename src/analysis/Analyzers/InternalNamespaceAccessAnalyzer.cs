@@ -446,7 +446,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
-                if (syntax is PropertyDeclarationSyntax propertyDeclaration)
+                if (syntax is BasePropertyDeclarationSyntax propertyDeclaration)
                 {
                     return new OneOrMore<Location>(propertyDeclaration.Type.GetLocation());
                 }
@@ -488,7 +488,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
             {
-                if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
+                if (syntaxRef.GetSyntax() is not BaseTypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
                 {
                     continue;
                 }

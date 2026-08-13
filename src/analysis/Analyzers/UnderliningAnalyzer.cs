@@ -546,8 +546,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                     description ??= attrValue.ToString();
 
                                     //identifierToken = memberDecl.Identifier;//(memberDecl as BaseTypeDeclarationSyntax)?.Identifier;
-                                    //identifierToken ??= (memberDecl as MethodDeclarationSyntax)?.Identifier;
-                                    //identifierToken ??= (memberDecl as PropertyDeclarationSyntax)?.Identifier;
+                                    //identifierToken ??= (memberDecl as BaseMethodDeclarationSyntax)?.Identifier;
+                                    //identifierToken ??= (memberDecl as BasePropertyDeclarationSyntax)?.Identifier;
 
                                     goto EXIT;
                                 }
@@ -922,7 +922,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             var par = declareSyntax.Parent;
                             if (par is VariableDeclarationSyntax)
                             {
-                                if (par.Parent is MemberDeclarationSyntax)//FieldDeclarationSyntax or EventFieldDeclarationSyntax)
+                                if (par.Parent is MemberDeclarationSyntax)//BaseFieldDeclarationSyntax or EventFieldDeclarationSyntax)
                                 {
                                     declareSyntax = par.Parent;
                                     goto RESTART_SWITCH;  //tricky!!

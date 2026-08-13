@@ -295,9 +295,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             {
                 switch (parent)
                 {
-                    case TypeDeclarationSyntax type:
+                    case BaseTypeDeclarationSyntax type:
                         sb.Insert(index: 0, type.Identifier.Text);
                         break;
+                    // TODO: Use BaseNamespaceDeclarationSyntax in future version of Roslyn
                     case NamespaceDeclarationSyntax ns:
                         sb.Insert(index: 0, ns.Name.ToString());
                         break;
@@ -372,7 +373,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 
             if (node is LocalDeclarationStatementSyntax
                      // Allow suppression comment "Don't dispose" on field declaration
-                     or FieldDeclarationSyntax
+                     or BaseFieldDeclarationSyntax
                      // Allow suppression comment "Allow allocation" on lambda declaration
                      or LambdaExpressionSyntax
                      // Allow suppression comment on catch clause

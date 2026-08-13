@@ -138,7 +138,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             inAllCodePaths = false;
 
-            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is MethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
+            var enclosingMember = variableDeclarator.Ancestors().FirstOrDefault(static x => x is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax or AnonymousFunctionExpressionSyntax);
             if (enclosingMember == null)
             {
                 return false;
