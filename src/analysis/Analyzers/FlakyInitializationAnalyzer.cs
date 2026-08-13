@@ -134,7 +134,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var token = context.CancellationToken;
 
             var root = context.SemanticModel.SyntaxTree.GetRoot(token);
-            foreach (var memberDeclStx in root.DescendantNodes().OfType<MemberDeclarationSyntax>())
+            foreach (var memberDeclStx in root.DescendantNodes(ShouldDescendIntoMemberDeclaration).OfType<MemberDeclarationSyntax>())
             {
                 if (memberDeclStx is not FieldDeclarationSyntax and not PropertyDeclarationSyntax)
                     continue;
@@ -197,7 +197,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         foreach (var dsr in refOpMemberContainingTypeDeclares)
                         {
                             var s = dsr.GetSyntax(token);
-                            foreach (var fieldStx in s.DescendantNodes().OfType<FieldDeclarationSyntax>())
+                            foreach (var fieldStx in s.DescendantNodes(ShouldDescendIntoTypeDeclaration).OfType<FieldDeclarationSyntax>())
                             {
                                 crossFDSyntaxList.Add(fieldStx);
                             }
@@ -232,6 +232,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 declaringOrderCheckSymbolSet.UnionWith(declaredSymbolSet);
             }
+        }
+
+
+        private static bool ShouldDescendIntoMemberDeclaration(SyntaxNode node)
+        {
+            return node
+                is CompilationUnitSyntax
+                // TODO: Use BaseNamespaceDeclarationSyntax in future version of Roslyn
+                or NamespaceDeclarationSyntax
+                or BaseTypeDeclarationSyntax;
+        }
+
+
+        private static bool ShouldDescendIntoTypeDeclaration(SyntaxNode node)
+        {
+            return node is BaseTypeDeclarationSyntax;
         }
 
 
