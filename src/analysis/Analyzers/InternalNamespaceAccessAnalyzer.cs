@@ -538,7 +538,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 var syntax = syntaxRef.GetSyntax();
                 TypeParameterConstraintClauseSyntax? constraintClause = null;
-                if (syntax is BaseTypeDeclarationSyntax typeDecl)
+                if (syntax is TypeDeclarationSyntax typeDecl)
                 {
                     foreach (var clause in typeDecl.ConstraintClauses)
                     {
