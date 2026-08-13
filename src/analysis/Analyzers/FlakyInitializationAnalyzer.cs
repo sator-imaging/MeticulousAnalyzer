@@ -237,9 +237,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ShouldDescendIntoMemberDeclaration(SyntaxNode node)
         {
-            return node is CompilationUnitSyntax
+            return node
+                is CompilationUnitSyntax
                 or BaseNamespaceDeclarationSyntax
-                or TypeDeclarationSyntax;
+                or BaseTypeDeclarationSyntax;
         }
 
 
