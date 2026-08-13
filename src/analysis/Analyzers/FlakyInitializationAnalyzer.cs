@@ -246,7 +246,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ShouldDescendIntoTypeDeclaration(SyntaxNode node)
         {
-            return node is TypeDeclarationSyntax;
+            return node is BaseTypeDeclarationSyntax;
         }
 
 
