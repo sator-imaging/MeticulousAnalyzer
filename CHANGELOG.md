@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.1.0-rc.6](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.6) (2026-08-13)
+
+### 🚀 Features
+* Refactor FlakyInitializationAnalyzer: cross-file caching and initializer collection by [@sator-imaging](https://github.com/sator-imaging) in [#493](https://github.com/sator-imaging/MeticulousAnalyzer/pull/493)
+### 📚 Other Changes
+* refactor: prefer base syntax type by [@sator-imaging](https://github.com/sator-imaging) in [#494](https://github.com/sator-imaging/MeticulousAnalyzer/pull/494)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.5...v5.1.0-rc.6
+
+
 ## [5.1.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.5) (2026-08-13)
 
 ### 🚀 Features
