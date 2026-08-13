@@ -369,7 +369,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
-                if (syntax is BaseMethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
+                if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
                     return new OneOrMore<Location>(methodDecl.ReturnType.GetLocation());
                 }
