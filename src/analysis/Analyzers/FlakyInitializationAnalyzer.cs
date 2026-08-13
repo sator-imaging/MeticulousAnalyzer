@@ -239,7 +239,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             return node
                 is CompilationUnitSyntax
-                or BaseNamespaceDeclarationSyntax
+                // TODO: Use BaseNamespaceDeclarationSyntax in future version of Roslyn
+                or NamespaceDeclarationSyntax
                 or BaseTypeDeclarationSyntax;
         }
 
