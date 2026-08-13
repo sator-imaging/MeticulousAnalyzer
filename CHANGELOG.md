@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.1.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.5) (2026-08-13)
+
+### 🚀 Features
+* implement `SMA8020` and `SMA8021` literal branch analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#474](https://github.com/sator-imaging/MeticulousAnalyzer/pull/474)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.4...v5.1.0-rc.5
+
+
 ## [5.1.0-rc.4](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.4) (2026-08-12)
 
 ### 🚀 Features
