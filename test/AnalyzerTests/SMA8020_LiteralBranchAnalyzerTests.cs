@@ -316,6 +316,28 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8020_Violation_BinaryEquals_CharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some == {|#0:'a'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'")
+            );
+        }
+
+        [TestMethod]
         public async Task SMA8020_Violation_ConstantPattern_CharLiteral()
         {
             var test = @"
