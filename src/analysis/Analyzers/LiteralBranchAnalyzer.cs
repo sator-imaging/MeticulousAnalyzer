@@ -43,6 +43,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             context.RegisterOperationAction(AnalyzeBinary, OperationKind.Binary);
             context.RegisterOperationAction(AnalyzeConstantPattern, OperationKind.ConstantPattern);
+            context.RegisterOperationAction(AnalyzeRelationalPattern, OperationKind.RelationalPattern);
             context.RegisterOperationAction(AnalyzeSwitchCase, OperationKind.SwitchCase);
         }
 
@@ -69,6 +70,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void AnalyzeConstantPattern(OperationAnalysisContext context)
         {
             if (context.Operation is not IConstantPatternOperation pattern)
+                return;
+
+            AnalyzeOperandForLiteral(context, pattern.Value);
+        }
+
+        private static void AnalyzeRelationalPattern(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IRelationalPatternOperation pattern)
                 return;
 
             AnalyzeOperandForLiteral(context, pattern.Value);
@@ -157,6 +166,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 ushort us => us == 0,
                 sbyte sb => sb == 0,
                 decimal m => m == 0m,
+                char c => c == '\0',
                 _ => false
             };
         }

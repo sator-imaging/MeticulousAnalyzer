@@ -314,5 +314,95 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_BinaryEquals_CharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some == {|#0:'a'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_ConstantPattern_CharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some is {|#0:'a'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_BinaryAnd_CharLiterals()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some >= {|#0:'a'|} && some <= {|#1:'z'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "'z'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_RelationalPattern_CharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some is >= {|#0:'a'|} and <= {|#1:'z'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "'z'")
+            );
+        }
     }
 }

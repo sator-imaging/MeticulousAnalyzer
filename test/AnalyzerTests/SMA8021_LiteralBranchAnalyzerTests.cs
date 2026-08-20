@@ -170,5 +170,93 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_BinaryGreaterThan_NullCharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some > {|#0:'\0'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_BinaryEquals_NullCharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some == {|#0:'\0'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_ConstantPattern_NullCharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some is {|#0:'\0'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_RelationalPattern_NullCharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some is > {|#0:'\0'|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
+            );
+        }
     }
 }
