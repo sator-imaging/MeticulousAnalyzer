@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.1.0-rc.8](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.8) (2026-08-20)
+
+### 📚 Other Changes
+* chore: remove unnecessary attributes by [@sator-imaging](https://github.com/sator-imaging) in [#500](https://github.com/sator-imaging/MeticulousAnalyzer/pull/500)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.7...v5.1.0-rc.8
+
+
 ## [5.1.0-rc.7](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.7) (2026-08-20)
 
 ### 🚀 Features
