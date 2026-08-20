@@ -171,6 +171,23 @@ public class TestClass
         }
 
         [TestMethod]
+        public async Task SMA7020_Compliant_PublicMethod_InInternalClass_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+internal class TestClass
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MyMethod()
+    {
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA7020_Compliant_InternalMethod_WithAggressiveInlining()
         {
             var test = @"

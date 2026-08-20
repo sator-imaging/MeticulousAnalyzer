@@ -40,6 +40,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (method.DeclaredAccessibility != Accessibility.Public)
                 return;
 
+            if (method.ContainingType != null && method.ContainingType.DeclaredAccessibility != Accessibility.Public)
+                return;
+
             var methodImplAttr = GetMethodImplAttributeWithAggressiveInlining(method);
             if (methodImplAttr == null)
                 return;
