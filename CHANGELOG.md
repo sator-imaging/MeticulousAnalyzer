@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.1.0-rc.7](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.7) (2026-08-20)
+
+### 🚀 Features
+* Update LiteralBranchAnalyzer to support char literals in pattern expressions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#497](https://github.com/sator-imaging/MeticulousAnalyzer/pull/497)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.6...v5.1.0-rc.7
+
+
 ## [5.1.0-rc.6](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.6) (2026-08-13)
 
 ### 🚀 Features
