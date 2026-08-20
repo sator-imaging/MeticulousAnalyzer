@@ -37,7 +37,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Symbol is not IMethodSymbol method)
                 return;
 
-            if (method.DeclaredAccessibility != Accessibility.Public)
+            if (method.ContainingType != null && method.ContainingType.DeclaredAccessibility != Accessibility.Public)
+                return;
+
+            if (method.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal))
                 return;
 
             var methodImplAttr = GetMethodImplAttributeWithAggressiveInlining(method);

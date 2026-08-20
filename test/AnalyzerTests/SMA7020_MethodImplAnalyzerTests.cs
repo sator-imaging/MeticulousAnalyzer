@@ -134,6 +134,46 @@ public class TestClass
         }
 
         [TestMethod]
+        public async Task SMA7020_Violation_ProtectedMethod_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+    protected void MyMethod()
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyMethod");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7020_Violation_ProtectedInternalMethod_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+    protected internal void MyMethod()
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyMethod");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA7020_Violation_Method_WithCombinedInliningFlags()
         {
             var test = @"
@@ -162,6 +202,23 @@ using System.Runtime.CompilerServices;
 public class TestClass
 {
     [MethodImpl(MethodImplOptions.NoInlining)]
+    public void MyMethod()
+    {
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA7020_Compliant_PublicMethod_InInternalClass_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+internal class TestClass
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MyMethod()
     {
     }
