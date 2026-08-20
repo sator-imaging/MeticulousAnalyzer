@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.1.0-rc.9](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.9) (2026-08-20)
+
+### 🚀 Features
+* Consider containing type visibility in `MethodImplAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#503](https://github.com/sator-imaging/MeticulousAnalyzer/pull/503)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.8...v5.1.0-rc.9
+
+
 ## [5.1.0-rc.8](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.8) (2026-08-20)
 
 ### 📚 Other Changes
