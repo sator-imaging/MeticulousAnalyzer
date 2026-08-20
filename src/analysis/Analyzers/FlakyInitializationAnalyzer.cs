@@ -96,14 +96,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         const int DEFAULT_LIST_CAPACITY = 4;
 
 #pragma warning disable RS1008  // OK: always clear on method startup
-        [ThreadStatic, DescriptionAttribute] static HashSet<ISymbol>? ts_declaringOrderCheckSymbolSet;
-        [ThreadStatic, DescriptionAttribute] static HashSet<ISymbol>? ts_declaredSymbolSet;
-        [ThreadStatic, DescriptionAttribute] static List<ISymbol>? ts_declaredWithInitializerSymbolList;
-        [ThreadStatic, DescriptionAttribute] static List<IMemberReferenceOperation>? ts_initializerRefOperatorList;
-        [ThreadStatic, DescriptionAttribute] static List<IMemberReferenceOperation>? ts_crossRefOperatorList;
-        [ThreadStatic, DescriptionAttribute] static HashSet<IMemberReferenceOperation>? ts_crossRefReportedSet;
-        [ThreadStatic, DescriptionAttribute] static List<BaseFieldDeclarationSyntax>? ts_crossFDSyntaxList;
-        [ThreadStatic, DescriptionAttribute] static Dictionary<string, SemanticModel>? ts_filePathToModel;
+        [ThreadStatic] static HashSet<ISymbol>? ts_declaringOrderCheckSymbolSet;
+        [ThreadStatic] static HashSet<ISymbol>? ts_declaredSymbolSet;
+        [ThreadStatic] static List<ISymbol>? ts_declaredWithInitializerSymbolList;
+        [ThreadStatic] static List<IMemberReferenceOperation>? ts_initializerRefOperatorList;
+        [ThreadStatic] static List<IMemberReferenceOperation>? ts_crossRefOperatorList;
+        [ThreadStatic] static HashSet<IMemberReferenceOperation>? ts_crossRefReportedSet;
+        [ThreadStatic] static List<BaseFieldDeclarationSyntax>? ts_crossFDSyntaxList;
+        [ThreadStatic] static Dictionary<string, SemanticModel>? ts_filePathToModel;
 #pragma warning restore RS1008
 
 
