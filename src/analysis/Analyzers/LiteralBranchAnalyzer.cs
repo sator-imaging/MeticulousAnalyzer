@@ -135,12 +135,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
                 {
-                    var text = trivia.ToString();
-                    if (text.StartsWith("/*") && text.EndsWith("*/"))
-                    {
-                        text = text.Substring(2, text.Length - 4);
-                    }
-                    if (!string.IsNullOrWhiteSpace(text))
+                    var text = trivia.ToString().Trim('/', '*', ' ', '\t');
+                    if (text.Length > 0)
                         return;
                 }
             }
