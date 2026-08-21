@@ -133,7 +133,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             foreach (var trivia in outermostSyntax.GetTrailingTrivia())
             {
-                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
+                if (trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
                     return;
             }
 
