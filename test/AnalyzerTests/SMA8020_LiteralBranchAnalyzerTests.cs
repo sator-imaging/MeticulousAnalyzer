@@ -406,6 +406,33 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8020_Violation_CannotSuppressByOtherComments()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int some)
+        {
+            if (some == /* cannot suppress */ {|#0:42|}) /* cannot suppress */
+            {
+            }
+
+            if (some == {|#1:42|} /**/)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "42"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "42")
+            );
+        }
+
+        [TestMethod]
         public async Task SMA8020_Compliant_TrailingTriviaComment_Constructs()
         {
             var test = @"
@@ -433,7 +460,7 @@ namespace Test
 
             switch (some)
             {
-                case 5 /**/:
+                case 5 /* suppression */:
                     break;
             }
 

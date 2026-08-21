@@ -134,7 +134,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             foreach (var trivia in outermostSyntax.GetTrailingTrivia())
             {
                 if (trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
-                    return;
+                {
+                    var text = trivia.ToString();
+                    if (text.StartsWith("/*") && text.EndsWith("*/"))
+                    {
+                        text = text.Substring(2, text.Length - 4);
+                    }
+                    if (!string.IsNullOrWhiteSpace(text))
+                        return;
+                }
             }
 
             if (IsNumericZero(literalOp))
