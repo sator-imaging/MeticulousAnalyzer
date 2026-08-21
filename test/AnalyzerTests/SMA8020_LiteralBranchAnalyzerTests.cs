@@ -404,5 +404,49 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "'z'")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8020_Compliant_TrailingTriviaComment_Constructs()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M(int some)
+        {
+            if (some == 5 /* this is suppression comment */)
+            {
+            }
+            else if (some < -1 /* suppression for else-if */)
+            {
+            }
+
+            while (some is > 5 /* suppression */) { }
+
+            do { }
+            while (some > 5 /* suppression */);
+
+            for (int i = 0; i < 5 /* suppression */; i++) { }
+
+            var ternary = some < 5 /* suppression */ ? ""Foo"" : ""Bar"";
+
+            switch (some)
+            {
+                case 5 /**/:
+                    break;
+            }
+
+            return some switch
+            {
+                5 /* suppression */ => ""Ok"",
+                _ => ""Default""
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

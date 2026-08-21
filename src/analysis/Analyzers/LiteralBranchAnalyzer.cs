@@ -131,6 +131,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 outermostSyntax = prefix;
             }
 
+            foreach (var trivia in outermostSyntax.GetTrailingTrivia())
+            {
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
+                    return;
+            }
+
             if (IsNumericZero(literalOp))
             {
                 context.ReportDiagnostic(Diagnostic.Create(

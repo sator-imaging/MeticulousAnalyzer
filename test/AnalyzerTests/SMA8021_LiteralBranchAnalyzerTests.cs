@@ -258,5 +258,49 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_TrailingTriviaComment_ZeroLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M(int some)
+        {
+            if (some == 0 /* this is suppression comment */)
+            {
+            }
+            else if (some < 0 /* suppression for else-if */)
+            {
+            }
+
+            while (some is > 0 /* suppression */) { }
+
+            do { }
+            while (some > 0 /* suppression */);
+
+            for (int i = 0; i < 0 /* suppression */; i++) { }
+
+            var ternary = some < 0 /* suppression */ ? ""Foo"" : ""Bar"";
+
+            switch (some)
+            {
+                case 0 /**/:
+                    break;
+            }
+
+            return some switch
+            {
+                0 /* suppression */ => ""Ok"",
+                _ => ""Default""
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
