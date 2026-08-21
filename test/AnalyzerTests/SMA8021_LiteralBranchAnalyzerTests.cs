@@ -419,5 +419,48 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
             );
         }
+
+
+        [TestMethod]
+        public async Task SMA8021_Violation_ForStatement_ZeroLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            for (int i = 10; i > {|#0:0|}; i--)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_TernaryCondition_ZeroLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public int M(int some)
+        {
+            return some == {|#0:0|} ? 1 : 0;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
     }
 }

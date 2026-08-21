@@ -565,5 +565,90 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "5")
             );
         }
+
+
+        [TestMethod]
+        public async Task SMA8020_Violation_ForStatement_IntegerLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M()
+        {
+            for (int i = 0; i < {|#0:10|}; i++)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "10")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_TernaryCondition_IntegerLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public int M(int some)
+        {
+            return some == {|#0:5|} ? 1 : 0;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "5")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Compliant_ForStatement_Constant()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        private const int MaxCount = 10;
+
+        public void M()
+        {
+            for (int i = 0; i < MaxCount; i++)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Compliant_TernaryCondition_Constant()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        private const int Target = 5;
+
+        public int M(int some)
+        {
+            return some == Target ? 1 : 0;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
