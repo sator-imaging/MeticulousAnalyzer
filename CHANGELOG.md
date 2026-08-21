@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.1.0-rc.10](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.10) (2026-08-21)
+
+### 📖 Documentation
+* docs: update Disposable Analysis description in README by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#506](https://github.com/sator-imaging/MeticulousAnalyzer/pull/506)
+### 📚 Other Changes
+* Update DocsGen and populate __MD_DESC__ section descriptions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#507](https://github.com/sator-imaging/MeticulousAnalyzer/pull/507)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.9...v5.1.0-rc.10
+
+
 ## [5.1.0-rc.9](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.9) (2026-08-20)
 
 ### 🚀 Features
