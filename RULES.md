@@ -32,7 +32,8 @@ Analyzes `TSelf` generic type arguments and constraints to ensure self-referenci
 
 ## Enum Type Analysis
 
-Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns (Suppression comment: `// Allow enum conversion [Reason(optional)]`).
+Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.
+> Suppression comment: `// Allow enum conversion [Reason(optional)]`
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
@@ -48,7 +49,8 @@ Analyzes enum casts, string conversions, obfuscation settings, and enum-like pat
 
 ## Struct Analysis
 
-Analyzes struct constructors, readonly field assignments, and implicit boxing conversions (Suppression comment: `// Allow boxing [Reason(optional)]`).
+Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.
+> Suppression comment: `// Allow boxing [Reason(optional)]`
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
@@ -58,7 +60,8 @@ Analyzes struct constructors, readonly field assignments, and implicit boxing co
 
 ## Disposable Analysis
 
-Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal  (Suppression comment: `// Don't dispose [Reason(optional)]`).
+Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.
+> Suppression comment: `// Don't dispose [Reason(optional)]`
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
@@ -91,7 +94,8 @@ Analyzes local variables and parameters to enforce immutability and prevent unin
 
 ## Async Context Analysis
 
-Analyzes asynchronous task usage to ensure tasks are properly awaited or returned  (Suppression comment: `// Don't await [Reason(optional)]`).
+Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.
+> Suppression comment: `// Don't await [Reason(optional)]`
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
@@ -108,7 +112,8 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 
 ## Coding Assistance
 
-Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility  (Suppression comment: `// Allow allocation [Reason(optional)]`).
+Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.
+> Suppression comment: `// Allow allocation [Reason(optional)]`
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
@@ -127,7 +132,8 @@ Provides rules and assistance to improve runtime efficiency, avoid delegate allo
 
 ## Reliability and Maintainability Analysis
 
-Provides rules for argument readability, explicit typing, exception handling, and branch condition safety  (Suppression comment: `// Ignore exception: <Reason(required)>`).
+Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
+> Suppression comment: `// Ignore exception: <Reason(required)>`
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------
