@@ -17,7 +17,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement and more
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
-- [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern
+- [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern (CRTP)
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
 - [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
 - [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
