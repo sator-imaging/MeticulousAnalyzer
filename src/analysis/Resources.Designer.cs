@@ -37,6 +37,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA0001__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0001__MD_DESC__", resourceCulture);
+            }
+        }
+
         internal static string SMA0001__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA0001__MD_TITLE__", resourceCulture);
@@ -115,6 +121,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
         
+        internal static string SMA0010__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0010__MD_DESC__", resourceCulture);
+            }
+        }
+
         internal static string SMA0010__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA0010__MD_TITLE__", resourceCulture);
@@ -193,6 +205,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
         
+        internal static string SMA0020__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0020__MD_DESC__", resourceCulture);
+            }
+        }
+
         internal static string SMA0020__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA0020__MD_TITLE__", resourceCulture);
@@ -361,6 +379,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
         
+        internal static string SMA0030__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0030__MD_DESC__", resourceCulture);
+            }
+        }
+
         internal static string SMA0030__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA0030__MD_TITLE__", resourceCulture);
@@ -418,6 +442,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
         internal static string SMA0032_Title {
             get {
                 return ResourceManager.GetString("SMA0032_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA0040__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0040__MD_DESC__", resourceCulture);
             }
         }
 
@@ -574,6 +604,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
         internal static string SMA0042_Title {
             get {
                 return ResourceManager.GetString("SMA0042_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA0050__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0050__MD_DESC__", resourceCulture);
+            }
+        }
+
+        internal static string SMA0060__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0060__MD_DESC__", resourceCulture);
             }
         }
 
@@ -901,6 +943,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA0070__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0070__MD_DESC__", resourceCulture);
+            }
+        }
+
         internal static string SMA0070__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA0070__MD_TITLE__", resourceCulture);
@@ -943,6 +991,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA0080__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0080__MD_DESC__", resourceCulture);
+            }
+        }
+
         internal static string SMA0080__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA0080__MD_TITLE__", resourceCulture);
@@ -964,6 +1018,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
         internal static string SMA0080_Title {
             get {
                 return ResourceManager.GetString("SMA0080_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA7000__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA7000__MD_DESC__", resourceCulture);
+            }
+        }
+
+        internal static string SMA8000__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA8000__MD_DESC__", resourceCulture);
+            }
+        }
+
+        internal static string SMA9000__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA9000__MD_DESC__", resourceCulture);
             }
         }
 

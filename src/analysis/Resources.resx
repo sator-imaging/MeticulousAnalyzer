@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="SMA0001__MD_DESC__" xml:space="preserve">
+    <value>Analyzes static field declarations and initialization order to prevent reading uninitialized or cross-referenced static values.</value>
+  </data>
   <data name="SMA0001__MD_TITLE__" xml:space="preserve">
     <value>Static Field Analysis</value>
   </data>
@@ -156,6 +159,9 @@
   <data name="SMA0004_Title" xml:space="preserve">
     <value>Late Declaration</value>
   </data>
+  <data name="SMA0010__MD_DESC__" xml:space="preserve">
+    <value>Analyzes `TSelf` generic type arguments and constraints to ensure self-referencing type parameters are correctly declared.</value>
+  </data>
   <data name="SMA0010__MD_TITLE__" xml:space="preserve">
     <value>`TSelf` Type Arg Analysis</value>
   </data>
@@ -194,6 +200,9 @@
   </data>
   <data name="SMA0015_Title" xml:space="preserve">
     <value>TSelf Constraint is Not Self</value>
+  </data>
+  <data name="SMA0020__MD_DESC__" xml:space="preserve">
+    <value>Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.</value>
   </data>
   <data name="SMA0020__MD_TITLE__" xml:space="preserve">
     <value>Enum Type Analysis</value>
@@ -279,6 +288,9 @@
   <data name="SMA0028_Title" xml:space="preserve">
     <value>Invalid Enum-like Pattern</value>
   </data>
+  <data name="SMA0030__MD_DESC__" xml:space="preserve">
+    <value>Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.</value>
+  </data>
   <data name="SMA0030__MD_TITLE__" xml:space="preserve">
     <value>Struct Analysis</value>
   </data>
@@ -308,6 +320,9 @@
   </data>
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
+  </data>
+  <data name="SMA0040__MD_DESC__" xml:space="preserve">
+    <value>Analyzes IDisposable implementation and usage patterns to ensure proper resource management and disposal.</value>
   </data>
   <data name="SMA0040__MD_TITLE__" xml:space="preserve">
     <value>Disposable Analysis</value>
@@ -366,6 +381,9 @@
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
   </data>
+  <data name="SMA0050__MD_DESC__" xml:space="preserve">
+    <value>Analyzes source file headers and file structural conventions.</value>
+  </data>
   <data name="SMA0050__MD_TITLE__" xml:space="preserve">
     <value>File Structure Analysis</value>
   </data>
@@ -377,6 +395,9 @@
   </data>
   <data name="SMA0050_Title" xml:space="preserve">
     <value>Missing File Header Comment</value>
+  </data>
+  <data name="SMA0060__MD_DESC__" xml:space="preserve">
+    <value>Analyzes local variables and parameters to enforce immutability and prevent unintentional reassignments or mutations.</value>
   </data>
   <data name="SMA0060__MD_TITLE__" xml:space="preserve">
     <value>Read-Only Variable Analysis</value>
@@ -426,6 +447,9 @@
   <data name="SMA0064_Title" xml:space="preserve">
     <value>Method Call Can Change State</value>
   </data>
+  <data name="SMA0070__MD_DESC__" xml:space="preserve">
+    <value>Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.</value>
+  </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Async Context Analysis</value>
   </data>
@@ -447,6 +471,9 @@
   <data name="SMA0071_Title" xml:space="preserve">
     <value>Task Not Awaited on All Paths</value>
   </data>
+  <data name="SMA0080__MD_DESC__" xml:space="preserve">
+    <value>Analyzes cross-namespace access restrictions to enforce internal architecture boundaries.</value>
+  </data>
   <data name="SMA0080__MD_TITLE__" xml:space="preserve">
     <value>Project Structure Analysis</value>
   </data>
@@ -458,6 +485,9 @@
   </data>
   <data name="SMA0080_Title" xml:space="preserve">
     <value>Internal cross-namespace access</value>
+  </data>
+  <data name="SMA7000__MD_DESC__" xml:space="preserve">
+    <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.</value>
   </data>
   <data name="SMA7000__MD_TITLE__" xml:space="preserve">
     <value>Coding Assistance</value>
@@ -534,6 +564,9 @@
   <data name="SMA7040_Title" xml:space="preserve">
     <value>Anonymous Object Creation</value>
   </data>
+  <data name="SMA8000__MD_DESC__" xml:space="preserve">
+    <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.</value>
+  </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Reliability and Maintainability Analysis</value>
   </data>
@@ -608,6 +641,9 @@
   </data>
   <data name="SMA8021_Title" xml:space="preserve">
     <value>Literal branch zero</value>
+  </data>
+  <data name="SMA9000__MD_DESC__" xml:space="preserve">
+    <value>Obsolete analyzers for IDE underlining and visual annotations.</value>
   </data>
   <data name="SMA9000__MD_TITLE__" xml:space="preserve">
     <value>[Obsolete] Annotating and Underling</value>
