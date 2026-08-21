@@ -258,5 +258,166 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchStatement_RelationalPatternZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int value)
+        {
+            switch (value)
+            {
+                case > {|#0:0|}:
+                    break;
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchStatement_PropertyPatternZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class Person { public int Age { get; set; } }
+
+    public class C
+    {
+        public void M(Person person)
+        {
+            switch (person)
+            {
+                case { Age: {|#0:0|} }:
+                    break;
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchStatement_WhenClauseZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(object obj, int count)
+        {
+            switch (obj)
+            {
+                case string s when count == {|#0:0|}:
+                    break;
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchExpression_RelationalPatternZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M(int value) => value switch
+        {
+            > {|#0:0|} => ""positive"",
+            _ => ""other""
+        };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchExpression_PropertyPatternZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class Person { public int Age { get; set; } }
+
+    public class C
+    {
+        public string M(Person person) => person switch
+        {
+            { Age: {|#0:0|} } => ""baby"",
+            _ => ""other""
+        };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchExpression_PositionalPatternZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M((int X, int Y) point) => point switch
+        {
+            ({|#0:0|}, {|#1:0|}) => ""origin"",
+            _ => ""other""
+        };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_SwitchExpression_WhenClauseZero()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M(object obj, int count) => obj switch
+        {
+            string s when count == {|#0:0|} => ""zero"",
+            _ => ""other""
+        };
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
     }
 }
