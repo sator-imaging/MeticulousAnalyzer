@@ -202,7 +202,7 @@
     <value>TSelf Constraint is Not Self</value>
   </data>
   <data name="SMA0020__MD_DESC__" xml:space="preserve">
-    <value>Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.\n&gt; Suppression comment: `// Allow enum conversion [Reason(optional)]`</value>
+    <value>Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.&#xA;&gt; Suppression comment: `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0020__MD_TITLE__" xml:space="preserve">
     <value>Enum Type Analysis</value>
@@ -289,7 +289,7 @@
     <value>Invalid Enum-like Pattern</value>
   </data>
   <data name="SMA0030__MD_DESC__" xml:space="preserve">
-    <value>Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.\n&gt; Suppression comment: `// Allow boxing [Reason(optional)]`</value>
+    <value>Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.&#xA;&gt; Suppression comment: `// Allow boxing [Reason(optional)]`</value>
   </data>
   <data name="SMA0030__MD_TITLE__" xml:space="preserve">
     <value>Struct Analysis</value>
@@ -322,7 +322,7 @@
     <value>Implicit Boxing Conversion</value>
   </data>
   <data name="SMA0040__MD_DESC__" xml:space="preserve">
-    <value>Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.\n&gt; Suppression comment: `// Don't dispose [Reason(optional)]`</value>
+    <value>Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.&#xA;&gt; Suppression comment: `// Don't dispose [Reason(optional)]`</value>
   </data>
   <data name="SMA0040__MD_TITLE__" xml:space="preserve">
     <value>Disposable Analysis</value>
@@ -448,7 +448,7 @@
     <value>Method Call Can Change State</value>
   </data>
   <data name="SMA0070__MD_DESC__" xml:space="preserve">
-    <value>Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.\n&gt; Suppression comment: `// Don't await [Reason(optional)]`</value>
+    <value>Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.&#xA;&gt; Suppression comment: `// Don't await [Reason(optional)]`</value>
   </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Async Context Analysis</value>
@@ -487,7 +487,7 @@
     <value>Internal cross-namespace access</value>
   </data>
   <data name="SMA7000__MD_DESC__" xml:space="preserve">
-    <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.\n&gt; Suppression comment: `// Allow allocation [Reason(optional)]`</value>
+    <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.&#xA;&gt; Suppression comment: `// Allow allocation [Reason(optional)]`</value>
   </data>
   <data name="SMA7000__MD_TITLE__" xml:space="preserve">
     <value>Coding Assistance</value>
@@ -565,7 +565,7 @@
     <value>Anonymous Object Creation</value>
   </data>
   <data name="SMA8000__MD_DESC__" xml:space="preserve">
-    <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.\n&gt; Suppression comment: `// Ignore exception: &lt;Reason(required)&gt;`</value>
+    <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.&#xA;&gt; Suppression comment: `// Ignore exception: &lt;Reason(required)&gt;`</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Reliability and Maintainability Analysis</value>
