@@ -127,10 +127,11 @@ foreach (var data in analyzerInfo.Values.OrderBy(static x => x.diagnosticId).The
         sb.AppendLine($"## {data.title}");
         if (!string.IsNullOrWhiteSpace(data.description))
         {
+            sb.AppendLine();
             sb.AppendLine(data.description);
         }
 
-        //sb.AppendLine();
+        sb.AppendLine();
         sb.AppendLine($"| ID      | {"Diagnostic".PadRight(maxTitleLength)} | Description");
         sb.AppendLine($"|---------|-{"-----".PadRight(maxTitleLength, paddingChar: '-')}-|-------------");
 
