@@ -14,7 +14,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Flaky Initialization Analysis](#flaky-initialization-analysis) detects flaky initialization
     - [Cross-Referencing Problem](#cross-referencing-problem) of static field across type
 - [`Enum` Type Analysis and Code Fix Provider](#enum-analyzer-and-code-fix-provider) to prevent user-level value conversion & [more](#kotlin-like-enum-pattern)
-- [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement and more
+- [`Disposable` Analysis](#disposable-analyzer) to detect missing using statement, disposable type declaration mistakes and more
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern (CRTP)
