@@ -34,7 +34,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8021_Description), Resources.ResourceManager, typeof(Resources)));
 
-        private static readonly char[] TrimCommentChars = new[] { '/', '*', ' ', '\t' };
+        private static readonly char[] TrimCommentChars = new[] { '/', '*', ' ' };  // Ignore TAB, CR, LF, etc.
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_LiteralBranch, Rule_LiteralBranchZero);
 
