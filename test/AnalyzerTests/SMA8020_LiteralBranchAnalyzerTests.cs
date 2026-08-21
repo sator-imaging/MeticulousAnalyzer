@@ -415,7 +415,7 @@ namespace Test
     {
         public void M(int some)
         {
-            if (some == /* cannot suppress */ {|#0:42|}) /* cannot suppress */
+            if (some == /* cannot suppress by leading comment */ {|#0:42|}) /* cannot suppress by outside comment */
             {
             }
 
