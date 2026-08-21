@@ -34,6 +34,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8021_Description), Resources.ResourceManager, typeof(Resources)));
 
+        private static readonly char[] TrimCommentChars = new[] { '/', '*', ' ', '\t' };
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_LiteralBranch, Rule_LiteralBranchZero);
 
         public override void Initialize(AnalysisContext context)
@@ -135,7 +137,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
                 {
-                    var text = trivia.ToString().Trim('/', '*', ' ', '\t');
+                    var text = trivia.ToString().Trim(TrimCommentChars);
                     if (text.Length > 0)
                         return;
                 }
