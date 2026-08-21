@@ -142,9 +142,9 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | SMA8020 | Literal branch                             | Avoid hardcoded literals in comparison or branch conditions for better maintainability.
 | SMA8021 | Literal branch zero                        | Avoid hardcoded zero in comparison or branch conditions for better maintainability.
 
-## [Obsolete] Annotating and Underling
+## `Obsolete` Annotating and Underling
 
-Obsolete analyzers for IDE underlining and visual annotations.
+Analyzes for IDE underlining and visual annotations.
 
 | ID      | Diagnostic                                 | Description
 |---------|--------------------------------------------|-------------

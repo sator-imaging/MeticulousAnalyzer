@@ -643,10 +643,10 @@
     <value>Literal branch zero</value>
   </data>
   <data name="SMA9000__MD_DESC__" xml:space="preserve">
-    <value>Obsolete analyzers for IDE underlining and visual annotations.</value>
+    <value>Analyzes for IDE underlining and visual annotations.</value>
   </data>
   <data name="SMA9000__MD_TITLE__" xml:space="preserve">
-    <value>[Obsolete] Annotating and Underling</value>
+    <value>`Obsolete` Annotating and Underling</value>
   </data>
   <data name="SMA9000_Description" xml:space="preserve">
     <value>Draw underline in IDE.</value>
