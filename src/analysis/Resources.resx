@@ -202,7 +202,7 @@
     <value>TSelf Constraint is Not Self</value>
   </data>
   <data name="SMA0020__MD_DESC__" xml:space="preserve">
-    <value>Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.</value>
+    <value>Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns (Suppression comment: `// Allow enum conversion [Reason(optional)]`).</value>
   </data>
   <data name="SMA0020__MD_TITLE__" xml:space="preserve">
     <value>Enum Type Analysis</value>
@@ -211,7 +211,7 @@
     <value>Unchecked value cast to enum type.</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to enum '{0}'. Centralize and verify in a utility method. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
+    <value>Unchecked value cast to enum '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0020_Title" xml:space="preserve">
     <value>Unchecked Cast to Enum Type</value>
@@ -220,7 +220,7 @@
     <value>Casting enum type to another type.</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
-    <value>Casting enum '{0}' to another type. Centralize in a utility method. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
+    <value>Casting enum '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
@@ -229,7 +229,7 @@
     <value>Unchecked value cast to generic enum type.</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to generic enum '{0}'. Centralize and verify in a utility method. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
+    <value>Unchecked value cast to generic enum '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0022_Title" xml:space="preserve">
     <value>Unchecked Cast to Generic Enum Type</value>
@@ -238,7 +238,7 @@
     <value>Casting generic enum type to another type.</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
-    <value>Casting generic enum '{0}' to another type. Centralize in a utility method. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
+    <value>Casting generic enum '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0023_Title" xml:space="preserve">
     <value>Cast from Generic Enum Type to Other</value>
@@ -247,7 +247,7 @@
     <value>Enum string representation may break after obfuscation.</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
-    <value>'{0}' string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
+    <value>'{0}' string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0024_Title" xml:space="preserve">
     <value>Enum to String</value>
@@ -256,7 +256,7 @@
     <value>Enum system method call should be centralized.</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
-    <value>Centralize enum system method calls in a utility class. Can suppress with comment "// Allow enum conversion [Reason(optional)]"</value>
+    <value>Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
   </data>
   <data name="SMA0025_Title" xml:space="preserve">
     <value>Enum System Method</value>
@@ -289,7 +289,7 @@
     <value>Invalid Enum-like Pattern</value>
   </data>
   <data name="SMA0030__MD_DESC__" xml:space="preserve">
-    <value>Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.</value>
+    <value>Analyzes struct constructors, readonly field assignments, and implicit boxing conversions (Suppression comment: `// Allow boxing [Reason(optional)]`).</value>
   </data>
   <data name="SMA0030__MD_TITLE__" xml:space="preserve">
     <value>Struct Analysis</value>
@@ -316,13 +316,13 @@
     <value>Implicit conversion from struct to reference type (including interface) causes boxing.</value>
   </data>
   <data name="SMA0032_MessageFormat" xml:space="preserve">
-    <value>Implicit boxing from '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment "// Allow boxing [Reason(optional)]"</value>
+    <value>Implicit boxing from '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [Reason(optional)]`</value>
   </data>
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
   </data>
   <data name="SMA0040__MD_DESC__" xml:space="preserve">
-    <value>Analyzes IDisposable implementation and usage patterns to ensure proper resource management and disposal.</value>
+    <value>Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal  (Suppression comment: `// Don't dispose [Reason(optional)]`).</value>
   </data>
   <data name="SMA0040__MD_TITLE__" xml:space="preserve">
     <value>Disposable Analysis</value>
@@ -331,7 +331,7 @@
     <value>Instance that implements IDisposable pattern should be wrapped with `using` statement.</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>'{0}' implements IDisposable pattern. Wrap with `using` statement. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
+    <value>'{0}' implements IDisposable pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [Reason(optional)]`</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
@@ -349,7 +349,7 @@
     <value>A locally declared disposable object must be returned on all code paths.</value>
   </data>
   <data name="SMA0042_MessageFormat" xml:space="preserve">
-    <value>Disposable '{0}' is not returned on all code paths. May leak. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
+    <value>Disposable '{0}' is not returned on all code paths. May leak. Can suppress with comment `// Don't dispose [Reason(optional)]`</value>
   </data>
   <data name="SMA0042_Title" xml:space="preserve">
     <value>Not All Code Paths Return a Value</value>
@@ -358,7 +358,7 @@
     <value>Disposable field is not disposed in the Dispose method.</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not disposed. Add disposal in Dispose method. Can suppress with comment "// Don't dispose [Reason(optional)]"</value>
+    <value>'{0}' is not disposed. Add disposal in Dispose method. Can suppress with comment `// Don't dispose [Reason(optional)]`</value>
   </data>
   <data name="SMA0043_Title" xml:space="preserve">
     <value>Undisposed Member</value>
@@ -448,7 +448,7 @@
     <value>Method Call Can Change State</value>
   </data>
   <data name="SMA0070__MD_DESC__" xml:space="preserve">
-    <value>Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.</value>
+    <value>Analyzes asynchronous task usage to ensure tasks are properly awaited or returned  (Suppression comment: `// Don't await [Reason(optional)]`).</value>
   </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Async Context Analysis</value>
@@ -457,7 +457,7 @@
     <value>Task local variable should be awaited or returned.</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited. Add `await` or return it. Can suppress with comment "// Don't await [Reason(optional)]"</value>
+    <value>Task '{0}' is not awaited. Add `await` or return it. Can suppress with comment `// Don't await [Reason(optional)]`</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
@@ -466,7 +466,7 @@
     <value>Task local variable should be awaited or returned on all code paths.</value>
   </data>
   <data name="SMA0071_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited on all code paths. May fire-and-forget. Can suppress with comment "// Don't await [Reason(optional)]"</value>
+    <value>Task '{0}' is not awaited on all code paths. May fire-and-forget. Can suppress with comment `// Don't await [Reason(optional)]`</value>
   </data>
   <data name="SMA0071_Title" xml:space="preserve">
     <value>Task Not Awaited on All Paths</value>
@@ -487,7 +487,7 @@
     <value>Internal cross-namespace access</value>
   </data>
   <data name="SMA7000__MD_DESC__" xml:space="preserve">
-    <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.</value>
+    <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility  (Suppression comment: `// Allow allocation [Reason(optional)]`).</value>
   </data>
   <data name="SMA7000__MD_TITLE__" xml:space="preserve">
     <value>Coding Assistance</value>
@@ -514,7 +514,7 @@
     <value>Non-static lambda declaration and implicit conversion causes allocation.</value>
   </data>
   <data name="SMA7002_MessageFormat" xml:space="preserve">
-    <value>Non-static lambda causes allocation. Make it static or cache. Can suppress with comment "// Allow allocation [Reason(optional)]"</value>
+    <value>Non-static lambda causes allocation. Make it static or cache. Can suppress with comment `// Allow allocation [Reason(optional)]`</value>
   </data>
   <data name="SMA7002_Title" xml:space="preserve">
     <value>Lambda allocation</value>
@@ -565,7 +565,7 @@
     <value>Anonymous Object Creation</value>
   </data>
   <data name="SMA8000__MD_DESC__" xml:space="preserve">
-    <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.</value>
+    <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety  (Suppression comment: `// Ignore exception: &lt;Reason(required)&gt;`).</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Reliability and Maintainability Analysis</value>
@@ -610,7 +610,7 @@
     <value>Catch block should contain a `throw` statement.</value>
   </data>
   <data name="SMA8010_MessageFormat" xml:space="preserve">
-    <value>Catch block does not contain a `throw` statement. Can suppress with comment "// Ignore exception: &lt;Reason(required)&gt;"</value>
+    <value>Catch block does not contain a `throw` statement. Can suppress with comment `// Ignore exception: &lt;Reason(required)&gt;`</value>
   </data>
   <data name="SMA8010_Title" xml:space="preserve">
     <value>Catch Block Without Throw</value>
