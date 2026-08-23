@@ -650,5 +650,76 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8020_Violation_CannotSuppressByOtherComments()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int some)
+        {
+            if (some == /* cannot suppress by leading comment */ {|#0:42|}) /* cannot suppress by outside comment */
+            {
+            }
+
+            if (some == {|#1:42|} /**/)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "42"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "42")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8020_Compliant_TrailingTriviaComment_Constructs()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M(int some)
+        {
+            if (some == 5 /* this is suppression comment */)
+            {
+            }
+            else if (some < -1 /* suppression for else-if */)
+            {
+            }
+
+            while (some is > 5 /* suppression */) { }
+
+            do { }
+            while (some > 5 /* suppression */);
+
+            for (int i = 0; i < 5 /* suppression */; i++) { }
+
+            var ternary = some < 5 /* suppression */ ? ""Foo"" : ""Bar"";
+
+            switch (some)
+            {
+                case 5 /* suppression */:
+                    break;
+            }
+
+            return some switch
+            {
+                5 /* suppression */ => ""Ok"",
+                _ => ""Default""
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

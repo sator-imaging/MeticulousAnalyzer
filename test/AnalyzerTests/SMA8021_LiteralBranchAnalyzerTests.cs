@@ -462,5 +462,76 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_CannotSuppressByOtherComments()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int some)
+        {
+            if (some == /* cannot suppress by leading comment */ {|#0:0|}) /* cannot suppress by outside comment */
+            {
+            }
+
+            if (some == {|#1:0|} /**/)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_TrailingTriviaComment_ZeroLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public string M(int some)
+        {
+            if (some == 0 /* this is suppression comment */)
+            {
+            }
+            else if (some < 0 /* suppression for else-if */)
+            {
+            }
+
+            while (some is > 0 /* suppression */) { }
+
+            do { }
+            while (some > 0 /* suppression */);
+
+            for (int i = 0; i < 0 /* suppression */; i++) { }
+
+            var ternary = some < 0 /* suppression */ ? ""Foo"" : ""Bar"";
+
+            switch (some)
+            {
+                case 0 /* suppression */:
+                    break;
+            }
+
+            return some switch
+            {
+                0 /* suppression */ => ""Ok"",
+                _ => ""Default""
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
