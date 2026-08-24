@@ -249,12 +249,17 @@ namespace Test
             if (some == {|#0:'\0'|} /* Why: */)
             {
             }
+
+            if (some == {|#1:'a'|} /*Why: missing leading space is not allowed */)
+            {
+            }
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchChar).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchChar).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchChar).WithLocation(markupKey: 1).WithArguments(arguments: "'a'")
             );
         }
 

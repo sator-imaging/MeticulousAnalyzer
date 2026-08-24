@@ -400,6 +400,10 @@ namespace Test
             if (some == {|#3:0|} /* Why: */)
             {
             }
+
+            if (some == {|#4:0|} /*Why: missing leading space is not allowed */)
+            {
+            }
         }
     }
 }
@@ -408,7 +412,8 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0"),
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 2).WithArguments(arguments: "0"),
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 3).WithArguments(arguments: "0")
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 3).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 4).WithArguments(arguments: "0")
             );
         }
 

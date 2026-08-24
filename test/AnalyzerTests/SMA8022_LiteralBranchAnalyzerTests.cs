@@ -136,12 +136,17 @@ namespace Test
             if (some == {|#0:""hello""|} /* Why: */)
             {
             }
+
+            if (some == {|#1:""world""|} /*Why: missing leading space is not allowed */)
+            {
+            }
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchString).WithLocation(markupKey: 0).WithArguments(arguments: "\"hello\"")
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchString).WithLocation(markupKey: 0).WithArguments(arguments: "\"hello\""),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchString).WithLocation(markupKey: 1).WithArguments(arguments: "\"world\"")
             );
         }
 
