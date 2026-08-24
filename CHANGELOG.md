@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.1.0-rc.13](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.13) (2026-08-24)
+
+### 🚀 Features
+* Require `/* Why: ` prefix for `LiteralBranchAnalyzer` suppression comment by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#521](https://github.com/sator-imaging/MeticulousAnalyzer/pull/521)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.12...v5.1.0-rc.13
+
+
 ## [5.1.0-rc.12](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.12) (2026-08-24)
 
 ### 🚀 Features
