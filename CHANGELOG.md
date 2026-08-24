@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.1.0-rc.11](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.11) (2026-08-24)
+
+### 🚀 Features
+* Add suppression comment support for LiteralBranchAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#514](https://github.com/sator-imaging/MeticulousAnalyzer/pull/514)
+### 📚 Other Changes
+* Add LiteralBranchAnalyzer tests for statement and ternary condition by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#515](https://github.com/sator-imaging/MeticulousAnalyzer/pull/515)
+* Add LiteralBranchAnalyzer pattern match tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#513](https://github.com/sator-imaging/MeticulousAnalyzer/pull/513)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.10...v5.1.0-rc.11
+
+
 ## [5.1.0-rc.10](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.10) (2026-08-21)
 
 ### 📖 Documentation
