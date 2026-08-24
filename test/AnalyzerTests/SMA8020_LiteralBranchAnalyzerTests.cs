@@ -513,6 +513,10 @@ namespace Test
             if (some == {|#2:42|} /* missing why prefix */)
             {
             }
+
+            if (some == {|#3:42|} /* Why: */)
+            {
+            }
         }
     }
 }
@@ -520,7 +524,8 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "42"),
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "42"),
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 2).WithArguments(arguments: "42")
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 2).WithArguments(arguments: "42"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 3).WithArguments(arguments: "42")
             );
         }
 
