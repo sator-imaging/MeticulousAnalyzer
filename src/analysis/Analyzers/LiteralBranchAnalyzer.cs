@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -158,7 +159,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
                 {
                     var text = trivia.ToString().Trim(TrimCommentChars);
-                    if (text.Length > 0)
+                    if (text.StartsWith("Why: ", StringComparison.Ordinal))
                         return;
                 }
             }

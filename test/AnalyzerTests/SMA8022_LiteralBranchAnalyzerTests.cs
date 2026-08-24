@@ -133,7 +133,7 @@ namespace Test
     {
         public void M(string some)
         {
-            if (some == ""hello"" /* suppression */)
+            if (some == ""hello"" /* Why: suppression */)
             {
             }
         }

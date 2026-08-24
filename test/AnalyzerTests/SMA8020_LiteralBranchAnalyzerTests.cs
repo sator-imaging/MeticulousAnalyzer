@@ -509,13 +509,18 @@ namespace Test
             if (some == {|#1:42|} /**/)
             {
             }
+
+            if (some == {|#2:42|} /* missing why prefix */)
+            {
+            }
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "42"),
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "42")
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "42"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 2).WithArguments(arguments: "42")
             );
         }
 
@@ -529,31 +534,31 @@ namespace Test
     {
         public string M(int some)
         {
-            if (some == 5 /* this is suppression comment */)
+            if (some == 5 /* Why: this is suppression comment */)
             {
             }
-            else if (some < -1 /* suppression for else-if */)
+            else if (some < -1 /* Why: suppression for else-if */)
             {
             }
 
-            while (some is > 5 /* suppression */) { }
+            while (some is > 5 /* Why: suppression */) { }
 
             do { }
-            while (some > 5 /* suppression */);
+            while (some > 5 /* Why: suppression */);
 
-            for (int i = 0; i < 5 /* suppression */; i++) { }
+            for (int i = 0; i < 5 /* Why: suppression */; i++) { }
 
-            var ternary = some < 5 /* suppression */ ? ""Foo"" : ""Bar"";
+            var ternary = some < 5 /* Why: suppression */ ? ""Foo"" : ""Bar"";
 
             switch (some)
             {
-                case 5 /* suppression */:
+                case 5 /* Why: suppression */:
                     break;
             }
 
             return some switch
             {
-                5 /* suppression */ => ""Ok"",
+                5 /* Why: suppression */ => ""Ok"",
                 _ => ""Default""
             };
         }

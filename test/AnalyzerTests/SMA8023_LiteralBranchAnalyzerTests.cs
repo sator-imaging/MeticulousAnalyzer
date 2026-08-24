@@ -246,7 +246,7 @@ namespace Test
     {
         public void M(char some)
         {
-            if (some == '\0' /* suppression */)
+            if (some == '\0' /* Why: suppression */)
             {
             }
         }
