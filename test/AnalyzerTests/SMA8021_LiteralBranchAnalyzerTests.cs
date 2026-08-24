@@ -422,7 +422,7 @@ namespace Test
     {
         public string M(int some)
         {
-            if (some == 0 /* Why: this is suppression comment */)
+            if (some == 0 /* why: this is lower case suppression comment */)
             {
             }
             else if (some < 0 /* Why: suppression for else-if */)
