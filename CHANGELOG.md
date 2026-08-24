@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.1.0-rc.12](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.12) (2026-08-24)
+
+### 🚀 Features
+* Distinguish string and char literal branch diagnostics (SMA8022 / SMA8023) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#518](https://github.com/sator-imaging/MeticulousAnalyzer/pull/518)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.1.0-rc.11...v5.1.0-rc.12
+
+
 ## [5.1.0-rc.11](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.11) (2026-08-24)
 
 ### 🚀 Features
