@@ -145,7 +145,7 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | SMA8010 | Catch Block Without Throw                  | Catch block should contain a `throw` statement.
 | SMA8011 | Catch-All Block Without Throw              | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.
 | | | |
-| SMA8020 | Literal branch                             | Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why */`).
+| SMA8020 | Literal branch                             | Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why */`).
 | SMA8021 | Literal branch zero                        | Avoid hardcoded zero in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why */`).
 | SMA8022 | Literal branch string                      | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why */`).
 | SMA8023 | Literal branch char                        | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why */`).

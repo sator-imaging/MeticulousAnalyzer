@@ -631,10 +631,10 @@
     <value>Catch-All Block Without Throw</value>
   </data>
   <data name="SMA8020_Description" xml:space="preserve">
-    <value>Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why */`).</value>
+    <value>Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why */`).</value>
   </data>
   <data name="SMA8020_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why */`).</value>
   </data>
   <data name="SMA8020_Title" xml:space="preserve">
     <value>Literal branch</value>
