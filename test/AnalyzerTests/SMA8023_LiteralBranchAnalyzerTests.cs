@@ -237,6 +237,28 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8023_Violation_EmptyWhyPrefix()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(char some)
+        {
+            if (some == {|#0:'\0'|} /* Why: */)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchChar).WithLocation(markupKey: 0).WithArguments(arguments: "'\\0'")
+            );
+        }
+
+        [TestMethod]
         public async Task SMA8023_Compliant_TrailingTriviaComment_CharLiteral()
         {
             var test = @"
@@ -246,7 +268,7 @@ namespace Test
     {
         public void M(char some)
         {
-            if (some == '\0' /* Why: suppression */)
+            if (some == '\0' /* why: lower case suppression */)
             {
             }
         }
