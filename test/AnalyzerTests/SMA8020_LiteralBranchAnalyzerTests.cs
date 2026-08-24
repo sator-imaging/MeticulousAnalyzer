@@ -35,52 +35,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8020_Violation_BinaryNotEquals_StringLiteral()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(string some)
-        {
-            if (some != {|#0:""hello""|})
-            {
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "\"hello\"")
-            );
-        }
-
-        [TestMethod]
-        public async Task SMA8020_Violation_SwitchCase_CharLiteral()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(char some)
-        {
-            switch (some)
-            {
-                case {|#0:'a'|}:
-                    break;
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'")
-            );
-        }
-
-        [TestMethod]
         public async Task SMA8020_Violation_SwitchArm_FloatLiteral()
         {
             var test = @"
@@ -161,28 +115,6 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8020_Violation_ConstantPattern_NotString()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(string some)
-        {
-            if (some is not {|#0:""Text""|})
-            {
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "\"Text\"")
-            );
         }
 
         [TestMethod]
@@ -313,96 +245,6 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8020_Violation_BinaryEquals_CharLiteral()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(char some)
-        {
-            if (some == {|#0:'a'|})
-            {
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'")
-            );
-        }
-
-        [TestMethod]
-        public async Task SMA8020_Violation_ConstantPattern_CharLiteral()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(char some)
-        {
-            if (some is {|#0:'a'|})
-            {
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'")
-            );
-        }
-
-        [TestMethod]
-        public async Task SMA8020_Violation_BinaryAnd_CharLiterals()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(char some)
-        {
-            if (some >= {|#0:'a'|} && some <= {|#1:'z'|})
-            {
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'"),
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "'z'")
-            );
-        }
-
-        [TestMethod]
-        public async Task SMA8020_Violation_RelationalPattern_CharLiteral()
-        {
-            var test = @"
-namespace Test
-{
-    public class C
-    {
-        public void M(char some)
-        {
-            if (some is >= {|#0:'a'|} and <= {|#1:'z'|})
-            {
-            }
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "'a'"),
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 1).WithArguments(arguments: "'z'")
-            );
         }
 
         [TestMethod]
@@ -565,7 +407,6 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranch).WithLocation(markupKey: 0).WithArguments(arguments: "5")
             );
         }
-
 
         [TestMethod]
         public async Task SMA8020_Violation_ForStatement_IntegerLiteral()

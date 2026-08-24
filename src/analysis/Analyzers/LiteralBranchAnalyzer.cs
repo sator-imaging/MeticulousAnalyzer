@@ -15,6 +15,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     {
         public const string RuleId_LiteralBranch = "SMA8020";
         public const string RuleId_LiteralBranchZero = "SMA8021";
+        public const string RuleId_LiteralBranchString = "SMA8022";
+        public const string RuleId_LiteralBranchChar = "SMA8023";
 
         private static readonly DiagnosticDescriptor Rule_LiteralBranch = new(
             RuleId_LiteralBranch,
@@ -34,9 +36,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8021_Description), Resources.ResourceManager, typeof(Resources)));
 
+        private static readonly DiagnosticDescriptor Rule_LiteralBranchString = new(
+            RuleId_LiteralBranchString,
+            new LocalizableResourceString(nameof(Resources.SMA8022_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8022_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA8022_Description), Resources.ResourceManager, typeof(Resources)));
+
+        private static readonly DiagnosticDescriptor Rule_LiteralBranchChar = new(
+            RuleId_LiteralBranchChar,
+            new LocalizableResourceString(nameof(Resources.SMA8023_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8023_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA8023_Description), Resources.ResourceManager, typeof(Resources)));
+
         private static readonly char[] TrimCommentChars = new[] { '/', '*', ' ' };  // Ignore TAB, CR, LF, etc.
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_LiteralBranch, Rule_LiteralBranchZero);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_LiteralBranch, Rule_LiteralBranchZero, Rule_LiteralBranchString, Rule_LiteralBranchChar);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -143,7 +163,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (IsNumericZero(literalOp))
+            if (val is string)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_LiteralBranchString,
+                    outermostSyntax.GetLocation(),
+                    outermostSyntax.ToString()));
+            }
+            else if (val is char)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_LiteralBranchChar,
+                    outermostSyntax.GetLocation(),
+                    outermostSyntax.ToString()));
+            }
+            else if (IsNumericZero(literalOp))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_LiteralBranchZero,
@@ -178,7 +212,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 ushort us => us == 0,
                 sbyte sb => sb == 0,
                 decimal m => m == 0m,
-                char c => c == '\0',
                 _ => false
             };
         }

@@ -648,6 +648,24 @@
   <data name="SMA8021_Title" xml:space="preserve">
     <value>Literal branch zero</value>
   </data>
+  <data name="SMA8022_Description" xml:space="preserve">
+    <value>Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why */`).</value>
+  </data>
+  <data name="SMA8022_MessageFormat" xml:space="preserve">
+    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why */`).</value>
+  </data>
+  <data name="SMA8022_Title" xml:space="preserve">
+    <value>Literal branch string</value>
+  </data>
+  <data name="SMA8023_Description" xml:space="preserve">
+    <value>Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why */`).</value>
+  </data>
+  <data name="SMA8023_MessageFormat" xml:space="preserve">
+    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why */`).</value>
+  </data>
+  <data name="SMA8023_Title" xml:space="preserve">
+    <value>Literal branch char</value>
+  </data>
   <data name="SMA9000__MD_DESC__" xml:space="preserve">
     <value>Analyzes for IDE underlining and visual annotations.</value>
   </data>
