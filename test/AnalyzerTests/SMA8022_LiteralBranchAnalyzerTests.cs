@@ -155,7 +155,11 @@ namespace Test
     {
         public void M(string some)
         {
-            if (some == ""hello"" /* why: lower case suppression */)
+            if (some == ""hello"" /* Why: suppression */)
+            {
+            }
+
+            if (some == ""world"" /* why: lower case suppression */)
             {
             }
         }

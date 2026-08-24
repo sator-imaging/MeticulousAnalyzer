@@ -268,7 +268,11 @@ namespace Test
     {
         public void M(char some)
         {
-            if (some == '\0' /* why: lower case suppression */)
+            if (some == '\0' /* Why: suppression */)
+            {
+            }
+
+            if (some == 'a' /* why: lower case suppression */)
             {
             }
         }
