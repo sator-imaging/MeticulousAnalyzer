@@ -19,6 +19,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         public const string RuleId_LiteralBranchString = "SMA8022";
         public const string RuleId_LiteralBranchChar = "SMA8023";
 
+        private const string SuppressionCommentPrefix = "Why: ";
+
         private static readonly DiagnosticDescriptor Rule_LiteralBranch = new(
             RuleId_LiteralBranch,
             new LocalizableResourceString(nameof(Resources.SMA8020_Title), Resources.ResourceManager, typeof(Resources)),
@@ -159,7 +161,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
                 {
                     var text = trivia.ToString().Trim(TrimCommentChars);
-                    if (text.StartsWith("Why: ", StringComparison.Ordinal))
+                    if (text.StartsWith(SuppressionCommentPrefix, StringComparison.OrdinalIgnoreCase))
                         return;
                 }
             }
