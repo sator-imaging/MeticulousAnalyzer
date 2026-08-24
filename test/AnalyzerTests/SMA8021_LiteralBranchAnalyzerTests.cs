@@ -392,13 +392,28 @@ namespace Test
             if (some == {|#1:0|} /**/)
             {
             }
+
+            if (some == {|#2:0|} /* missing why prefix */)
+            {
+            }
+
+            if (some == {|#3:0|} /* Why: */)
+            {
+            }
+
+            if (some == {|#4:0|} /*Why: missing leading space is not allowed */)
+            {
+            }
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0")
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 2).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 3).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 4).WithArguments(arguments: "0")
             );
         }
 
@@ -412,31 +427,34 @@ namespace Test
     {
         public string M(int some)
         {
-            if (some == 0 /* this is suppression comment */)
+            if (some == 0 /* Why: this is suppression comment */)
             {
             }
-            else if (some < 0 /* suppression for else-if */)
+            else if (some == 00 /* why: lower case suppression */)
+            {
+            }
+            else if (some < 0 /* Why: suppression for else-if */)
             {
             }
 
-            while (some is > 0 /* suppression */) { }
+            while (some is > 0 /* Why: suppression */) { }
 
             do { }
-            while (some > 0 /* suppression */);
+            while (some > 0 /* Why: suppression */);
 
-            for (int i = 0; i < 0 /* suppression */; i++) { }
+            for (int i = 0; i < 0 /* Why: suppression */; i++) { }
 
-            var ternary = some < 0 /* suppression */ ? ""Foo"" : ""Bar"";
+            var ternary = some < 0 /* Why: suppression */ ? ""Foo"" : ""Bar"";
 
             switch (some)
             {
-                case 0 /* suppression */:
+                case 0 /* Why: suppression */:
                     break;
             }
 
             return some switch
             {
-                0 /* suppression */ => ""Ok"",
+                0 /* Why: suppression */ => ""Ok"",
                 _ => ""Default""
             };
         }

@@ -124,6 +124,33 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8022_Violation_EmptyWhyPrefix()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(string some)
+        {
+            if (some == {|#0:""hello""|} /* Why: */)
+            {
+            }
+
+            if (some == {|#1:""world""|} /*Why: missing leading space is not allowed */)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchString).WithLocation(markupKey: 0).WithArguments(arguments: "\"hello\""),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchString).WithLocation(markupKey: 1).WithArguments(arguments: "\"world\"")
+            );
+        }
+
+        [TestMethod]
         public async Task SMA8022_Compliant_TrailingTriviaComment_StringLiteral()
         {
             var test = @"
@@ -133,7 +160,11 @@ namespace Test
     {
         public void M(string some)
         {
-            if (some == ""hello"" /* suppression */)
+            if (some == ""hello"" /* Why: suppression */)
+            {
+            }
+
+            if (some == ""world"" /* why: lower case suppression */)
             {
             }
         }
