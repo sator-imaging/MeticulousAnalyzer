@@ -463,5 +463,163 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_MethodInvocation_IndexOf()
+        {
+            var test = @"
+namespace Test
+{
+    public class Custom
+    {
+        public int IndexOfSomething() => 0;
+        public int LastIndexOfSomething() => 0;
+    }
+
+    public class C
+    {
+        public void M(string text, Custom custom)
+        {
+            if (text.IndexOf(""a"") == 0) { }
+            if (text.LastIndexOf(""b"") >= 0) { }
+            if (0 == custom.IndexOfSomething()) { }
+            if (0 < custom.LastIndexOfSomething()) { }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PropertyAccess_LengthAndCount()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class Custom
+    {
+        public int Length { get; set; }
+        public int Count => 0;
+    }
+
+    public class C
+    {
+        public void M(string text, List<int> list, Custom custom)
+        {
+            if (text.Length == 0) { }
+            if (0 == list.Count) { }
+            if (custom.Length > 0) { }
+            if (0 < custom.Count) { }
+
+            switch (text.Length)
+            {
+                case 0:
+                    break;
+            }
+
+            var res = list.Count switch
+            {
+                0 => ""empty"",
+                _ => ""items""
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_LocalVariable_ExemptedMethodOrProperty()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class C
+    {
+        public void M(string text, List<int> list)
+        {
+            int idx = text.IndexOf(""a"");
+            if (idx == 0) { }
+
+            int len;
+            len = text.Length;
+            if (0 == len) { }
+
+            int cnt = list.Count;
+            switch (cnt)
+            {
+                case 0:
+                    break;
+            }
+
+            int lastIdx;
+            lastIdx = text.LastIndexOf(""b"");
+            var res = lastIdx switch
+            {
+                0 => ""first"",
+                _ => ""other""
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_MethodInvocation_NonExemptName()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public int FindIndex() => 0;
+        public int indexOf() => 0;
+
+        public void M()
+        {
+            if (FindIndex() == {|#0:0|}) { }
+            if (indexOf() == {|#1:0|}) { }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_PropertyAccess_NonExemptName()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public int Size => 0;
+        public int length => 0;
+
+        public void M()
+        {
+            if (Size == {|#0:0|}) { }
+            if (length == {|#1:0|}) { }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0")
+            );
+        }
     }
 }
