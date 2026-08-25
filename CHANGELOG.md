@@ -1,5 +1,39 @@
 # Changelog
 
+## [5.1.0](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0) (2026-08-25)
+
+### 📣 Breaking Changes ⚠
+* Change `SMA7030` (AnonymousObjectCreationAnalyzer) to `SMA7040` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#485](https://github.com/sator-imaging/MeticulousAnalyzer/pull/485)
+### 🚀 Features
+* feat: Implement `SMA7020` analyzer for `AggressiveInlining` of public members by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#473](https://github.com/sator-imaging/MeticulousAnalyzer/pull/473)
+* Implement `AnonymousObjectCreationAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#482](https://github.com/sator-imaging/MeticulousAnalyzer/pull/482)
+* Add `ParamsArgumentAnalyzer` (SMA7030) and Code Fix Provider by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#480](https://github.com/sator-imaging/MeticulousAnalyzer/pull/480)
+* implement `SMA8020` and `SMA8021` literal branch analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#474](https://github.com/sator-imaging/MeticulousAnalyzer/pull/474)
+* perf: Refactor `FlakyInitializationAnalyzer`: cross-file caching and initializer collection by [@sator-imaging](https://github.com/sator-imaging) in [#493](https://github.com/sator-imaging/MeticulousAnalyzer/pull/493)
+* Update `LiteralBranchAnalyzer` to support `char` literals in pattern expressions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#497](https://github.com/sator-imaging/MeticulousAnalyzer/pull/497)
+* Consider containing type visibility in `MethodImplAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#503](https://github.com/sator-imaging/MeticulousAnalyzer/pull/503)
+* Add suppression comment support for `LiteralBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#514](https://github.com/sator-imaging/MeticulousAnalyzer/pull/514)
+* Distinguish `string` and `char` literal branch diagnostics (`SMA8022` / `SMA8023`) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#518](https://github.com/sator-imaging/MeticulousAnalyzer/pull/518)
+* Require `/* Why: ` prefix for `LiteralBranchAnalyzer` suppression comment by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#521](https://github.com/sator-imaging/MeticulousAnalyzer/pull/521)
+### 📖 Documentation
+* docs: update Disposable Analysis description in README by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#506](https://github.com/sator-imaging/MeticulousAnalyzer/pull/506)
+* Update DocsGen and populate `__MD_DESC__` section descriptions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#507](https://github.com/sator-imaging/MeticulousAnalyzer/pull/507)
+### 📚 Other Changes
+* Add test for disposableAnalyzer compliant await task as argument by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#471](https://github.com/sator-imaging/MeticulousAnalyzer/pull/471)
+* Add missing SMA8011 resource properties to ResourceStringTest by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#475](https://github.com/sator-imaging/MeticulousAnalyzer/pull/475)
+* Increase BurstLinq Test Coverage by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#478](https://github.com/sator-imaging/MeticulousAnalyzer/pull/478)
+* Increase Analyzer Line and Branch Coverage by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#479](https://github.com/sator-imaging/MeticulousAnalyzer/pull/479)
+* test: Refactor inline expected diagnostics to local variables by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#481](https://github.com/sator-imaging/MeticulousAnalyzer/pull/481)
+* Eliminate Linq from ParamsArgumentAnalyzer.cs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#488](https://github.com/sator-imaging/MeticulousAnalyzer/pull/488)
+* refactor: prefer base syntax type by [@sator-imaging](https://github.com/sator-imaging) in [#494](https://github.com/sator-imaging/MeticulousAnalyzer/pull/494)
+* chore: remove unnecessary attributes by [@sator-imaging](https://github.com/sator-imaging) in [#500](https://github.com/sator-imaging/MeticulousAnalyzer/pull/500)
+* Add LiteralBranchAnalyzer tests for statement and ternary condition by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#515](https://github.com/sator-imaging/MeticulousAnalyzer/pull/515)
+* Add LiteralBranchAnalyzer pattern match tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#513](https://github.com/sator-imaging/MeticulousAnalyzer/pull/513)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.0.0...v5.1.0
+
+
 ## [5.1.0-rc.13](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.1.0-rc.13) (2026-08-24)
 
 ### 🚀 Features
