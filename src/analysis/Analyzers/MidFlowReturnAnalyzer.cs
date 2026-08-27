@@ -87,7 +87,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (node is ReturnStatementSyntax or YieldStatementSyntax)
                 return true;
 
-            foreach (var descendant in node.DescendantNodes(n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
+            foreach (var descendant in node.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
             {
                 if (descendant is ReturnStatementSyntax or YieldStatementSyntax)
                 {
@@ -136,7 +136,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void ReportReturnsInStatement(SyntaxNodeAnalysisContext context, StatementSyntax branchStatement)
         {
             CheckAndReportNode(context, branchStatement);
-            foreach (var node in branchStatement.DescendantNodes(n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
+            foreach (var node in branchStatement.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
             {
                 CheckAndReportNode(context, node);
             }
