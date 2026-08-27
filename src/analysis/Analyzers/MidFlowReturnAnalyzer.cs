@@ -38,11 +38,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Node is not BlockSyntax block)
                 return;
 
-            AnalyzeBlockStatements(context, block);
-        }
-
-        private static void AnalyzeBlockStatements(SyntaxNodeAnalysisContext context, BlockSyntax block)
-        {
             bool isMainFlowStarted = block.Parent is not (MethodDeclarationSyntax
                 or LocalFunctionStatementSyntax
                 or AnonymousMethodExpressionSyntax
@@ -54,7 +49,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 or OperatorDeclarationSyntax
                 or ConversionOperatorDeclarationSyntax);
 
-            foreach (var statement in block.Statements)
+            AnalyzeStatements(context, block.Statements, isMainFlowStarted);
+        }
+
+        private static void AnalyzeStatements(SyntaxNodeAnalysisContext context, SyntaxList<StatementSyntax> statements, bool isMainFlowStarted)
+        {
+            foreach (var statement in statements)
             {
                 if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax))
