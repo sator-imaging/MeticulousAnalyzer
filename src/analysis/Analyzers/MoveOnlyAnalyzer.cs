@@ -229,8 +229,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (IsInAsyncContext(context.ContainingSymbol))
                 {
-                    bool isAllowed = argOp.Parent is IObjectCreationOperation ||
-                        (argOp.Parent is IInvocationOperation invocationOp && invocationOp.Parent is IAwaitOperation);
+                    bool isCtor = argOp.Parent is IObjectCreationOperation;
+                    bool isAllowed = isCtor || (argOp.Parent is IInvocationOperation invocationOp && invocationOp.Parent is IAwaitOperation);
 
                     if (!isAllowed)
                     {

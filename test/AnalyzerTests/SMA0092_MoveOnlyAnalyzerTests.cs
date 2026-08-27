@@ -40,7 +40,6 @@ namespace Test
 
         async Task MethodAsync(MoveOnlyStruct moveOnly)
         {
-            // Allowed: constructor and awaited method call
             var c = new ConsumerClass(in moveOnly);
             await AsyncFoo(ref moveOnly);
         }
