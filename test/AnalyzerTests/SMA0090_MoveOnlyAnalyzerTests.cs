@@ -228,7 +228,154 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0092_Violation_RefOutInAsyncMethod()
+        public async Task SMA0091_Compliant_PassingToConstructor_ClassAndStruct()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class ConsumerClass
+    {
+        public ConsumerClass(MoveOnlyStruct item) { }
+    }
+
+    struct ConsumerStruct
+    {
+        public ConsumerStruct(MoveOnlyStruct item) { }
+    }
+
+    class Program
+    {
+        void Method(MoveOnlyStruct moveOnly)
+        {
+            var c = new ConsumerClass(moveOnly.Move());
+            var s = new ConsumerStruct(moveOnly.Move());
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_FieldAndPropertyAssignmentInStructConstructor()
+        {
+            var test = @"
+namespace Test
+{
+    struct OtherStruct { }
+
+    struct MoveOnlyStruct
+    {
+        private OtherStruct _field;
+        public OtherStruct Prop { get; set; }
+
+        public MoveOnlyStruct(OtherStruct item)
+        {
+            _field = item;
+            Prop = item;
+        }
+
+        public MoveOnlyStruct Move() => this;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_GenericMethodTests()
+        {
+            var test = @"
+namespace Test
+{
+    public interface IFoo { }
+
+    struct MoveOnlyStruct : IFoo
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        void GenericNoConstraint<T>(T value) { }
+        void GenericStructConstraint<T>(T value) where T : struct { }
+        void GenericInterfaceConstraint<T>(T value) where T : IFoo { }
+        void GenericBothConstraints<T>(T value) where T : struct, IFoo { }
+
+        void Method(MoveOnlyStruct moveOnly)
+        {
+            GenericNoConstraint({|#0:moveOnly|});
+            GenericStructConstraint({|#1:moveOnly|});
+            GenericInterfaceConstraint({|#2:moveOnly|});
+            GenericBothConstraints({|#3:moveOnly|});
+
+            GenericNoConstraint(moveOnly.Move());
+            GenericStructConstraint(moveOnly.Move());
+            GenericInterfaceConstraint(moveOnly.Move());
+            GenericBothConstraints(moveOnly.Move());
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 0).WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 1).WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 2).WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 3).WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0092_Compliant_InRefOutInAsyncMethod_AllowedConditions()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class ConsumerClass
+    {
+        public ConsumerClass(in MoveOnlyStruct item) { }
+    }
+
+    class Program
+    {
+        void SyncFoo(ref MoveOnlyStruct item) { }
+
+        Task AsyncFoo(ref MoveOnlyStruct item)
+        {
+            return Task.CompletedTask;
+        }
+
+        async Task MethodAsync(MoveOnlyStruct moveOnly)
+        {
+            // Allowed 1: passing to constructor
+            var c = new ConsumerClass(in moveOnly);
+
+            // Allowed 2: passing to sync method
+            SyncFoo(ref moveOnly);
+
+            // Allowed 3: passing to async method that is awaited
+            await AsyncFoo(ref moveOnly);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0092_Violation_RefOutInAsyncMethod_UnawaitedAsyncMethod()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -242,14 +389,14 @@ namespace Test
 
     class Program
     {
-        void Foo(ref MoveOnlyStruct item, out MoveOnlyStruct result)
+        Task AsyncFoo(ref MoveOnlyStruct item)
         {
-            result = default;
+            return Task.CompletedTask;
         }
 
-        async Task BarAsync(MoveOnlyStruct moveOnly, MoveOnlyStruct moveOnlyResult)
+        async Task MethodAsync(MoveOnlyStruct moveOnly)
         {
-            Foo({|#0:ref moveOnly|}, {|#1:out moveOnlyResult|});
+            AsyncFoo({|#0:ref moveOnly|});
             await Task.CompletedTask;
         }
     }
@@ -258,39 +405,8 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
-            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
-                .WithLocation(markupKey: 1)
-                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
-        }
-
-        [TestMethod]
-        public async Task SMA0092_Compliant_PassByIn_InAsyncMethod()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-namespace Test
-{
-    struct MoveOnlyStruct
-    {
-        public MoveOnlyStruct Move() => this;
-    }
-
-    class Program
-    {
-        void Foo(in MoveOnlyStruct input) { }
-
-        async Task BarAsync(MoveOnlyStruct moveOnly)
-        {
-            Foo(in moveOnly);
-            await Task.CompletedTask;
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
     }
 }

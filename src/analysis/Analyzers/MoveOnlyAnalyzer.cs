@@ -100,6 +100,42 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        private static bool IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(IOperation? target, ISymbol? containingSymbol)
+        {
+            if (containingSymbol is IMethodSymbol methodSymbol &&
+                methodSymbol.MethodKind == MethodKind.Constructor &&
+                methodSymbol.ContainingType != null &&
+                methodSymbol.ContainingType.IsValueType &&
+                IsMoveOnlyType(methodSymbol.ContainingType))
+            {
+                if (target is IFieldReferenceOperation || target is IPropertyReferenceOperation)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsAwaited(IOperation operation)
+        {
+            var p = operation.Parent;
+            while (p != null)
+            {
+                if (p is IAwaitOperation)
+                {
+                    return true;
+                }
+                if (p is IBlockOperation)
+                {
+                    break;
+                }
+                p = p.Parent;
+            }
+
+            return false;
+        }
+
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
             foreach (var member in type.GetMembers("Move"))
@@ -127,10 +163,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Warn on type identifier if not struct (record or record struct is allowed)
             // Error if missing public Move() method
-            bool isStructOrRecord = namedType.IsValueType || namedType.TypeKind == TypeKind.Struct;
+            bool isStructOrRecordStruct = namedType.IsValueType;
             bool hasMove = HasPublicMoveMethod(namedType);
 
-            if (!isStructOrRecord || !hasMove)
+            if (!isStructOrRecordStruct || !hasMove)
             {
                 Location location = namedType.Locations.Length > 0 ? namedType.Locations[0] : Location.None;
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -202,23 +238,47 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
                 return;
 
-            if (argOp.Parameter != null)
+            bool isRefOutIn = argOp.Parameter != null &&
+                (argOp.Parameter.RefKind == RefKind.Ref ||
+                 argOp.Parameter.RefKind == RefKind.Out ||
+                 argOp.Parameter.RefKind == RefKind.In);
+
+            if (isRefOutIn)
             {
-                if (argOp.Parameter.RefKind == RefKind.Ref || argOp.Parameter.RefKind == RefKind.Out)
+                if (IsInAsyncContext(context.ContainingSymbol))
                 {
-                    if (IsInAsyncContext(context.ContainingSymbol))
+                    // Allow passing with in/ref/out in async method ONLY WHEN:
+                    // 1) passing to constructor (argOp.Parent is IObjectCreationOperation)
+                    // 2) passing to sync method (returns non-Task)
+                    // 3) passing to async method (returns Task/ValueTask) that has `await`
+                    bool isCtor = argOp.Parent is IObjectCreationOperation;
+                    bool isAllowed = isCtor;
+
+                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod != null)
+                    {
+                        var targetMethod = invocationOp.TargetMethod;
+                        string returnTypeName = targetMethod.ReturnType?.Name ?? "";
+                        bool isTaskReturning = targetMethod.IsAsync || returnTypeName == "Task" || returnTypeName == "ValueTask";
+
+                        if (!isTaskReturning)
+                        {
+                            isAllowed = true; // passing to sync method
+                        }
+                        else if (IsAwaited(invocationOp))
+                        {
+                            isAllowed = true; // passing to async method that has await
+                        }
+                    }
+
+                    if (!isAllowed)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
                             Rule_ProhibitedRefOutInAsync,
                             argOp.Syntax.GetLocation(),
                             argOp.Value.Type.ToDiagnosticMessageName()));
                     }
-                    return;
                 }
-                else if (argOp.Parameter.RefKind == RefKind.In)
-                {
-                    return;
-                }
+                return;
             }
 
             // Pass-by-value argument
@@ -272,6 +332,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            // Exclude object creation (new ...) and default expressions (default / default(...))
+            if (unwrapped is IObjectCreationOperation || unwrapped is IDefaultValueOperation)
+            {
+                return;
+            }
+
             if (unwrapped.Type != null && IsMoveOnlyType(unwrapped.Type))
             {
                 if (!IsCallingMove(unwrapped))
@@ -296,6 +362,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             if (IsOutParameterOrReturn(assignOp.Target, assignOp))
+                return;
+
+            if (IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(assignOp.Target, context.ContainingSymbol))
                 return;
 
             CheckAndReportMoveOnlyCopy(context, assignOp.Value);
