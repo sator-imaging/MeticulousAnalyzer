@@ -57,9 +57,6 @@ Analyzes struct constructors, readonly field assignments, and implicit boxing co
 | SMA0030 | Invalid Struct Constructor                                    | Constructor has declared explicitly so should not use parameter-less one.
 | SMA0031 | Mutable Struct Field marked as Read-Only                      | Mutable struct type should not be set to `readonly` field.
 | SMA0032 | Implicit Boxing Conversion                                    | Implicit conversion from struct to reference type (including interface) causes boxing.
-| SMA0033 | Invalid MoveOnly Type                                         | MoveOnly type requires public Move() method, and reference types are not allowed.
-| SMA0034 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without Move().
-| SMA0035 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by ref or out in async methods.
 
 ## Disposable Analysis
 
@@ -112,6 +109,10 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 | ID      | Diagnostic                                                    | Description
 |---------|---------------------------------------------------------------|-------------
 | SMA0080 | Internal cross-namespace access                               | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)
+| | | |
+| SMA0090 | Invalid MoveOnly Type                                         | MoveOnly type requires public Move() method, and reference types are not allowed.
+| SMA0091 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without Move().
+| SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by ref or out in async methods.
 
 ## Coding Assistance
 

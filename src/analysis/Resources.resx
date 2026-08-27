@@ -323,33 +323,6 @@
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
   </data>
-  <data name="SMA0033_Description" xml:space="preserve">
-    <value>MoveOnly type requires public Move() method, and reference types are not allowed.</value>
-  </data>
-  <data name="SMA0033_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' is invalid.</value>
-  </data>
-  <data name="SMA0033_Title" xml:space="preserve">
-    <value>Invalid MoveOnly Type</value>
-  </data>
-  <data name="SMA0034_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be copied or assigned without Move().</value>
-  </data>
-  <data name="SMA0034_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be copied or assigned without calling Move().</value>
-  </data>
-  <data name="SMA0034_Title" xml:space="preserve">
-    <value>Prohibited Copy of MoveOnly Type</value>
-  </data>
-  <data name="SMA0035_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be passed by ref or out in async methods.</value>
-  </data>
-  <data name="SMA0035_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be passed by ref or out in async methods.</value>
-  </data>
-  <data name="SMA0035_Title" xml:space="preserve">
-    <value>Prohibited Ref/Out Parameter of MoveOnly Type in Async Method</value>
-  </data>
   <data name="SMA0040__MD_DESC__" xml:space="preserve">
     <value>Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.
 &gt; Suppression comment: `// Don't dispose [Reason(optional)]`</value>
@@ -516,6 +489,33 @@
   </data>
   <data name="SMA0080_Title" xml:space="preserve">
     <value>Internal cross-namespace access</value>
+  </data>
+  <data name="SMA0090_Description" xml:space="preserve">
+    <value>MoveOnly type requires public Move() method, and reference types are not allowed.</value>
+  </data>
+  <data name="SMA0090_MessageFormat" xml:space="preserve">
+    <value>MoveOnly type '{0}' is invalid.</value>
+  </data>
+  <data name="SMA0090_Title" xml:space="preserve">
+    <value>Invalid MoveOnly Type</value>
+  </data>
+  <data name="SMA0091_Description" xml:space="preserve">
+    <value>MoveOnly type cannot be copied or assigned without Move().</value>
+  </data>
+  <data name="SMA0091_MessageFormat" xml:space="preserve">
+    <value>MoveOnly type '{0}' cannot be copied or assigned without calling Move().</value>
+  </data>
+  <data name="SMA0091_Title" xml:space="preserve">
+    <value>Prohibited Copy of MoveOnly Type</value>
+  </data>
+  <data name="SMA0092_Description" xml:space="preserve">
+    <value>MoveOnly type cannot be passed by ref or out in async methods.</value>
+  </data>
+  <data name="SMA0092_MessageFormat" xml:space="preserve">
+    <value>MoveOnly type '{0}' cannot be passed by ref or out in async methods.</value>
+  </data>
+  <data name="SMA0092_Title" xml:space="preserve">
+    <value>Prohibited Ref/Out Parameter of MoveOnly Type in Async Method</value>
   </data>
   <data name="SMA7000__MD_DESC__" xml:space="preserve">
     <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.

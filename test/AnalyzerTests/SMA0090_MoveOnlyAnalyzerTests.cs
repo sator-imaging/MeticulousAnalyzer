@@ -5,16 +5,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
 using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.StructAnalyzer,
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MoveOnlyAnalyzer,
     Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
-    public class SMA0033_StructAnalyzerTests
+    public class SMA0090_MoveOnlyAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA0033_Violation_MissingMoveMethod_OrReferenceType()
+        public async Task SMA0090_Violation_MissingMoveMethod_OrReferenceType()
         {
             var test = @"
 namespace Test
@@ -33,13 +33,13 @@ namespace Test
 }
 ";
 
-            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_MissingMoveMethod)
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
-            var expected1 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_MissingMoveMethod)
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyClass");
-            var expected2 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_MissingMoveMethod)
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MoveOnlyRecord");
 
@@ -47,7 +47,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0033_Compliant_WithValidMoveMethod()
+        public async Task SMA0090_Compliant_WithValidMoveMethod()
         {
             var test = @"
 namespace Test
@@ -67,7 +67,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0034_Violation_TupleDeconstructionAssignment()
+        public async Task SMA0091_Violation_TupleDeconstructionAssignment()
         {
             var test = @"
 namespace Test
@@ -87,7 +87,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedCopy)
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
 
@@ -95,7 +95,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0034_Violation_FieldPropertyLocalAndTupleAssignment()
+        public async Task SMA0091_Violation_FieldPropertyLocalAndTupleAssignment()
         {
             var test = @"
 namespace Test
@@ -120,16 +120,16 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedCopy)
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
-            var expected1 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedCopy)
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyStruct");
-            var expected2 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedCopy)
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MoveOnlyStruct");
-            var expected3 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedCopy)
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 3)
                 .WithArguments("MoveOnlyStruct");
 
@@ -137,7 +137,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0034_Violation_PassByValueWithoutMove()
+        public async Task SMA0091_Violation_PassByValueWithoutMove()
         {
             var test = @"
 namespace Test
@@ -158,7 +158,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedCopy)
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
 
@@ -166,7 +166,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0034_Compliant_PassByValueWithMove_ReturnCopy_OutParam()
+        public async Task SMA0091_Compliant_PassByValueWithMove_ReturnCopy_OutParam()
         {
             var test = @"
 namespace Test
@@ -200,7 +200,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0034_Compliant_PassByRef_SyncMethod()
+        public async Task SMA0091_Compliant_PassByRef_SyncMethod()
         {
             var test = @"
 namespace Test
@@ -228,7 +228,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0035_Violation_RefOutInAsyncMethod()
+        public async Task SMA0092_Violation_RefOutInAsyncMethod()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -255,10 +255,10 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedRefOutInAsync)
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
-            var expected1 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_ProhibitedRefOutInAsync)
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyStruct");
 
@@ -266,7 +266,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0035_Compliant_PassByIn_InAsyncMethod()
+        public async Task SMA0092_Compliant_PassByIn_InAsyncMethod()
         {
             var test = @"
 using System.Threading.Tasks;

@@ -445,57 +445,57 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
-        internal static string SMA0033_Description {
+        internal static string SMA0090_Description {
             get {
-                return ResourceManager.GetString("SMA0033_Description", resourceCulture);
+                return ResourceManager.GetString("SMA0090_Description", resourceCulture);
             }
         }
 
-        internal static string SMA0033_MessageFormat {
+        internal static string SMA0090_MessageFormat {
             get {
-                return ResourceManager.GetString("SMA0033_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("SMA0090_MessageFormat", resourceCulture);
             }
         }
 
-        internal static string SMA0033_Title {
+        internal static string SMA0090_Title {
             get {
-                return ResourceManager.GetString("SMA0033_Title", resourceCulture);
+                return ResourceManager.GetString("SMA0090_Title", resourceCulture);
             }
         }
 
-        internal static string SMA0034_Description {
+        internal static string SMA0091_Description {
             get {
-                return ResourceManager.GetString("SMA0034_Description", resourceCulture);
+                return ResourceManager.GetString("SMA0091_Description", resourceCulture);
             }
         }
 
-        internal static string SMA0034_MessageFormat {
+        internal static string SMA0091_MessageFormat {
             get {
-                return ResourceManager.GetString("SMA0034_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("SMA0091_MessageFormat", resourceCulture);
             }
         }
 
-        internal static string SMA0034_Title {
+        internal static string SMA0091_Title {
             get {
-                return ResourceManager.GetString("SMA0034_Title", resourceCulture);
+                return ResourceManager.GetString("SMA0091_Title", resourceCulture);
             }
         }
 
-        internal static string SMA0035_Description {
+        internal static string SMA0092_Description {
             get {
-                return ResourceManager.GetString("SMA0035_Description", resourceCulture);
+                return ResourceManager.GetString("SMA0092_Description", resourceCulture);
             }
         }
 
-        internal static string SMA0035_MessageFormat {
+        internal static string SMA0092_MessageFormat {
             get {
-                return ResourceManager.GetString("SMA0035_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("SMA0092_MessageFormat", resourceCulture);
             }
         }
 
-        internal static string SMA0035_Title {
+        internal static string SMA0092_Title {
             get {
-                return ResourceManager.GetString("SMA0035_Title", resourceCulture);
+                return ResourceManager.GetString("SMA0092_Title", resourceCulture);
             }
         }
 
