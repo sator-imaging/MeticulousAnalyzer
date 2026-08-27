@@ -42,7 +42,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             foreach (var statement in block.Statements)
             {
-                if (IsLocalDeclarationOrDeconstruction(statement))
+                if (IsLocalDeclarationOrAssignment(statement))
                 {
                     continue;
                 }
@@ -68,26 +68,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsLocalDeclarationOrDeconstruction(StatementSyntax statement)
+        private static bool IsLocalDeclarationOrAssignment(StatementSyntax statement)
         {
             if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax)
                 return true;
 
             if (statement is ExpressionStatementSyntax exprStmt &&
-                exprStmt.Expression is AssignmentExpressionSyntax assignment)
+                exprStmt.Expression is AssignmentExpressionSyntax)
             {
-                if (assignment.Left is TupleExpressionSyntax tupleExpr)
-                {
-                    foreach (var argument in tupleExpr.Arguments)
-                    {
-                        if (argument.Expression is DeclarationExpressionSyntax)
-                            return true;
-                    }
-                }
-                else if (assignment.Left is DeclarationExpressionSyntax)
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;

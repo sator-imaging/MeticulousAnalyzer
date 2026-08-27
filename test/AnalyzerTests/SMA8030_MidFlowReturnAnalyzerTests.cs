@@ -40,6 +40,7 @@ class C
     {
         var (a, b) = (31, 42);
         (var x, var y) = (31, 42);
+        (b, _) = (31, 42);
 
         if (foo)
         {
