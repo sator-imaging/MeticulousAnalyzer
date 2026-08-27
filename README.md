@@ -535,19 +535,47 @@ var x = (((foo)))!;
 
 ## Mid-flow return analyzer
 
-Avoid mid-flow returns. Early returns are fine, but don't introduce a new long control-flow branch in the middle of the main flow.
-
-To avoid error, use `return` OR `yield return` in `if`-`else if`-`else` statements (don't use early return style exit in mid-flow).
+Avoid mid-flow returns. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
 
 ```cs
-if (foo) {
-    ... 20 lines ...
-    return A;
-} else if (bar) {
-    ... 20 lines ...
-    return B;
-} else {
-    return C;
+if (!IsValid()) return;  // Early return is allowed.
+
+// Some operations after early return...
+// ...
+// ...
+
+if (foo)
+{
+    Alpha();
+    Bravo();
+    Charlie();
+    return;
+    ~~~~~~ // Error: Exiting on middle of the main control flow.
+}
+
+Bar();
+Baz();
+Qux();
+DoSomething();
+```
+
+To avoid errors, use complete `if-else` statement () to clarify the code flow.
+
+```cs
+// Use return, yield return or throw in all code paths,
+// or avoid exiting in main control flow.
+if (foo)
+{
+    Alpha();
+    Bravo();
+    Charlie();
+}
+else
+{
+    Bar();
+    Baz();
+    Qux();
+    DoSomething();
 }
 ```
 

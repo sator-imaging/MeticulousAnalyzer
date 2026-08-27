@@ -139,5 +139,84 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_VoidReturningMethod()
+        {
+            var test = @"
+class C
+{
+    void M(bool invalid, bool foo)
+    {
+        if (invalid) return;
+
+        int x = 1;
+        x++;
+
+        if (foo)
+        {
+            {|#0:return|};
+        }
+
+        x++;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_EarlyThrowInsteadOfReturn()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int M(bool invalid, bool foo)
+    {
+        if (invalid) throw new InvalidOperationException();
+
+        int x = 1;
+        x++;
+
+        if (foo)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ThrowInMidFlowBranch()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int M(bool foo)
+    {
+        int x = 1;
+        x++;
+
+        if (foo)
+        {
+            throw new InvalidOperationException();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

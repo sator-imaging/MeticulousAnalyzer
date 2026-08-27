@@ -84,12 +84,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ContainsReturn(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax or YieldStatementSyntax)
+            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax)
                 return true;
 
             foreach (var descendant in node.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
             {
-                if (descendant is ReturnStatementSyntax or YieldStatementSyntax)
+                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax)
                 {
                     return true;
                 }
