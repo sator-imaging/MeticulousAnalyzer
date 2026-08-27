@@ -182,6 +182,39 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0035_Compliant_PassByIn_InAsyncMethod()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+[AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
+public class NoCopyAttribute : Attribute { }
+
+namespace Test
+{
+    [NoCopy]
+    struct MoveOnly
+    {
+        public MoveOnly Move() => this;
+    }
+
+    class Program
+    {
+        void Foo(in MoveOnly input) { }
+
+        async Task MethodAsync(MoveOnly moveOnly)
+        {
+            Foo(in moveOnly);
+            await Task.CompletedTask;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA0035_Violation_RefOrOutInAsyncMethod()
         {
             var test = @"
