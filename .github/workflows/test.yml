@@ -3,9 +3,9 @@ name: Test
 on:
   push:
     branches: [ main ]
-    paths-ignore: [ '.github/**', 'assets/**' ]
+    paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   #pull_request:
-  #  paths-ignore: [ '.github/**', 'assets/**' ]
+  #  paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   workflow_dispatch:
   # github.event_name, or other context data are propagated from caller.
   # No way to detect whether or not this workflow is called by other.

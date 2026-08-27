@@ -3,9 +3,9 @@ name: 'Test and Coverage Report'
 on:
   push:
     branches: [ main ]
-    paths-ignore: [ '.github/**', 'assets/**' ]
+    paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   pull_request:
-    paths-ignore: [ '.github/**', 'assets/**' ]
+    paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   workflow_dispatch:
 
 env:
