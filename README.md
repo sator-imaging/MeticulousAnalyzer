@@ -556,7 +556,7 @@ Bravo();
 Charlie();
 ```
 
-To avoid errors, use a complete `if-else` statement to clarify the control flow.
+To avoid errors, use a complete `if-else` statement or extract methods to clarify the control flow.
 
 ```cs
 // Use return, yield return or throw in all code paths,

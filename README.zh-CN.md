@@ -556,7 +556,7 @@ Bravo();
 Charlie();
 ```
 
-为避免错误，请使用完整的 `if-else` 语句来明确控制流。
+为避免错误，请使用完整的 `if-else` 语句或拆分方法来明确控制流。
 
 ```cs
 // 在所有代码路径中使用 return、yield return 或 throw，
