@@ -38,11 +38,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Node is not BlockSyntax block)
                 return;
 
-            bool isMainFlowStarted = !IsFunctionBodyBlock(block);
+            AnalyzeBlockStatements(context, block);
+        }
+
+        private static void AnalyzeBlockStatements(SyntaxNodeAnalysisContext context, BlockSyntax block)
+        {
+            bool isMainFlowStarted = block.Parent is not (MethodDeclarationSyntax
+                or LocalFunctionStatementSyntax
+                or AnonymousMethodExpressionSyntax
+                or SimpleLambdaExpressionSyntax
+                or ParenthesizedLambdaExpressionSyntax
+                or AccessorDeclarationSyntax
+                or ConstructorDeclarationSyntax
+                or DestructorDeclarationSyntax
+                or OperatorDeclarationSyntax
+                or ConversionOperatorDeclarationSyntax);
 
             foreach (var statement in block.Statements)
             {
-                if (IsLocalDeclarationOrAssignment(statement))
+                if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax ||
+                    (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax))
                 {
                     continue;
                 }
@@ -66,34 +81,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     isMainFlowStarted = true;
                 }
             }
-        }
-
-        private static bool IsLocalDeclarationOrAssignment(StatementSyntax statement)
-        {
-            if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax)
-                return true;
-
-            if (statement is ExpressionStatementSyntax exprStmt &&
-                exprStmt.Expression is AssignmentExpressionSyntax)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool IsFunctionBodyBlock(BlockSyntax block)
-        {
-            return block.Parent is MethodDeclarationSyntax
-                or LocalFunctionStatementSyntax
-                or AnonymousMethodExpressionSyntax
-                or SimpleLambdaExpressionSyntax
-                or ParenthesizedLambdaExpressionSyntax
-                or AccessorDeclarationSyntax
-                or ConstructorDeclarationSyntax
-                or DestructorDeclarationSyntax
-                or OperatorDeclarationSyntax
-                or ConversionOperatorDeclarationSyntax;
         }
 
         private static bool ContainsReturn(SyntaxNode node)
