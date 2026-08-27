@@ -239,12 +239,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod != null)
                     {
                         var targetMethod = invocationOp.TargetMethod;
-                        string returnTypeName = targetMethod.ReturnType?.Name ?? "";
-                        bool isTaskReturning = targetMethod.IsAsync || returnTypeName == "Task" || returnTypeName == "ValueTask";
-
-                        if (!isTaskReturning)
+                        if (!targetMethod.IsAsync)
                         {
-                            isAllowed = true; // passing to sync method
+                            var returnType = targetMethod.ReturnType;
+                            bool isTaskReturning = returnType is INamedTypeSymbol { Name: "Task" or "ValueTask", ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } } } };
+
+                            if (!isTaskReturning)
+                            {
+                                isAllowed = true; // passing to sync method
+                            }
+                            else if (invocationOp.Parent is IAwaitOperation)
+                            {
+                                isAllowed = true; // passing to async method that has await
+                            }
                         }
                         else if (invocationOp.Parent is IAwaitOperation)
                         {
