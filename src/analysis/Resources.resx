@@ -333,7 +333,7 @@
     <value>Missing Move Method on [NoCopy] Type</value>
   </data>
   <data name="SMA0034_Description" xml:space="preserve">
-    <value>[NoCopy] type cannot be copied. Pass by value or assignment to local requires calling .Move().</value>
+    <value>[NoCopy] type cannot be copied or boxed. Pass by value, local assignment, or field assignment requires calling .Move().</value>
   </data>
   <data name="SMA0034_MessageFormat" xml:space="preserve">
     <value>'{0}' is a [NoCopy] type and cannot be copied without calling .Move()</value>

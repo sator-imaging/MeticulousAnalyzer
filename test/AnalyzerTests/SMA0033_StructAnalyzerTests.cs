@@ -21,7 +21,7 @@ public class NoCopyAttribute : Attribute { }
 ";
 
         [TestMethod]
-        public async Task SMA0033_Violation_MissingMoveMethod()
+        public async Task SMA0033_Violation_MissingMoveMethod_OrReferenceType()
         {
             var test = NoCopyAttributeDef + @"
 namespace Test
@@ -30,10 +30,16 @@ namespace Test
     struct {|#0:MoveOnlyStruct|} { }
 
     [NoCopy]
-    class {|#1:MoveOnlyClass|} { }
+    class {|#1:MoveOnlyClass|}
+    {
+        public MoveOnlyClass Move() => this;
+    }
 
     [NoCopy]
-    record {|#2:MoveOnlyRecord|} { }
+    record {|#2:MoveOnlyRecord|}
+    {
+        public MoveOnlyRecord Move() => this;
+    }
 }
 ";
 
@@ -53,7 +59,12 @@ namespace Test
         [TestMethod]
         public async Task SMA0033_Compliant_WithValidMoveMethod()
         {
-            var test = NoCopyAttributeDef + @"
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
+public class NoCopyAttribute : Attribute { }
+
 namespace Test
 {
     [NoCopy]
@@ -61,21 +72,40 @@ namespace Test
     {
         public MoveOnlyStruct Move() => this;
     }
-
-    [NoCopy]
-    class MoveOnlyClass
-    {
-        public MoveOnlyClass Move() => this;
-    }
-
-    [NoCopy]
-    record MoveOnlyRecord
-    {
-        public MoveOnlyRecord Move() => this;
-    }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0034_Violation_FieldAssignment()
+        {
+            var test = NoCopyAttributeDef + @"
+namespace Test
+{
+    [NoCopy]
+    struct MoveOnly
+    {
+        public MoveOnly Move() => this;
+    }
+
+    class Program
+    {
+        private MoveOnly _field;
+
+        void Method(MoveOnly moveOnly)
+        {
+            _field = {|#0:moveOnly|};
+        }
+    }
+}
+";
+
+            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_NoCopyValueCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnly");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]

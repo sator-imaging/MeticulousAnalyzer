@@ -122,6 +122,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeNoCopyVariableDeclarator, OperationKind.VariableDeclarator);
             context.RegisterOperationAction(AnalyzeNoCopyAssignment, OperationKind.SimpleAssignment);
             context.RegisterOperationAction(AnalyzeNoCopyDeconstruction, OperationKind.DeconstructionAssignment);
+            context.RegisterOperationAction(AnalyzeNoCopyFieldInitializer, OperationKind.FieldInitializer);
+            context.RegisterOperationAction(AnalyzeNoCopyPropertyInitializer, OperationKind.PropertyInitializer);
         }
 
 
@@ -284,6 +286,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!IsNoCopyType(namedType))
                 return;
 
+            if (namedType.IsReferenceType)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_MissingMoveMethod,
+                    namedType.Locations[0],
+                    namedType.ToDiagnosticMessageName()));
+                return;
+            }
+
             var hasValidMoveMethod = false;
             foreach (var member in namedType.GetMembers("Move"))
             {
@@ -393,6 +404,28 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             CheckNoCopyCopy(context, deconstruction.Value);
+        }
+
+        private static void AnalyzeNoCopyFieldInitializer(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IFieldInitializerOperation initializer)
+                return;
+
+            if (initializer.Value != null)
+            {
+                CheckNoCopyCopy(context, initializer.Value);
+            }
+        }
+
+        private static void AnalyzeNoCopyPropertyInitializer(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IPropertyInitializerOperation initializer)
+                return;
+
+            if (initializer.Value != null)
+            {
+                CheckNoCopyCopy(context, initializer.Value);
+            }
         }
 
         private static void CheckNoCopyCopy(OperationAnalysisContext context, IOperation valueOperation)
