@@ -109,6 +109,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
             foreach (var member in type.GetMembers(MoveMethodName))
@@ -138,10 +139,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // Error if missing public Move() method
             Location location = namedType.Locations.Length > 0 ? namedType.Locations[0] : Location.None;
 
-            bool isRecord = namedType.DeclaringSyntaxReferences.Length > 0 &&
-                namedType.DeclaringSyntaxReferences[0].GetSyntax().GetType().Name.Contains("Record");
-
-            if (!namedType.IsValueType && !isRecord)
+            if (!namedType.IsValueType)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_InvalidTypeDeclaration,
