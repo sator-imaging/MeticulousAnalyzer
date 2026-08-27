@@ -1314,5 +1314,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
                 return ResourceManager.GetString("SMA8023_Title", resourceCulture);
             }
         }
+
+        internal static string SMA8030_Description {
+            get {
+                return ResourceManager.GetString("SMA8030_Description", resourceCulture);
+            }
+        }
+
+        internal static string SMA8030_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA8030_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA8030_Title {
+            get {
+                return ResourceManager.GetString("SMA8030_Title", resourceCulture);
+            }
+        }
     }
 }
