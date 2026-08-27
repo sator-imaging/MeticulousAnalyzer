@@ -277,27 +277,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             argOp.Value.Type.ToDiagnosticMessageName()));
                     }
                 }
-                return;
             }
-
-            // Pass-by-value argument
-            if (!IsCallingMove(argOp.Value))
+            else
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_ProhibitedCopy,
-                    argOp.Value.Syntax.GetLocation(),
-                    argOp.Value.Type.ToDiagnosticMessageName()));
+                // Pass-by-value argument
+                if (!IsCallingMove(argOp.Value))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_ProhibitedCopy,
+                        argOp.Value.Syntax.GetLocation(),
+                        argOp.Value.Type.ToDiagnosticMessageName()));
+                }
             }
-        }
-
-        private static bool IsOutParameter(IOperation? target)
-        {
-            if (target is IParameterReferenceOperation paramRef && paramRef.Parameter.RefKind == RefKind.Out)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private static void CheckAndReportMoveOnlyCopy(OperationAnalysisContext context, IOperation value)
@@ -346,7 +337,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
                 return;
 
-            if (IsOutParameter(assignOp.Target))
+            if (assignOp.Target is IParameterReferenceOperation paramRef && paramRef.Parameter.RefKind == RefKind.Out)
                 return;
 
             if (IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(assignOp.Target, context.ContainingSymbol))
