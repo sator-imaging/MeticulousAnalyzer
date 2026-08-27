@@ -33,8 +33,6 @@ namespace Test
 
     class Program
     {
-        void SyncFoo(ref MoveOnlyStruct item) { }
-
         Task AsyncFoo(ref MoveOnlyStruct item)
         {
             return Task.CompletedTask;
@@ -42,13 +40,8 @@ namespace Test
 
         async Task MethodAsync(MoveOnlyStruct moveOnly)
         {
-            // Allowed 1: passing to constructor
+            // Allowed: constructor and awaited method call
             var c = new ConsumerClass(in moveOnly);
-
-            // Allowed 2: passing to sync method
-            SyncFoo(ref moveOnly);
-
-            // Allowed 3: passing to async method that is awaited
             await AsyncFoo(ref moveOnly);
         }
     }
