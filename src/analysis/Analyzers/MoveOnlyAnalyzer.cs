@@ -15,6 +15,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     {
         private const string MoveMethodName = "Move";
         private static readonly ConditionalWeakTable<ITypeSymbol, StrongBox<bool>> _moveOnlyTypeCache = new();
+        private static readonly ConditionalWeakTable<INamedTypeSymbol, StrongBox<bool>> _hasPublicMoveMethodCache = new();
+        private static readonly ConditionalWeakTable<IMethodSymbol, StrongBox<bool>> _insidePublicMoveMethodCache = new();
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -111,6 +113,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
+            return _hasPublicMoveMethodCache.GetValue(type, static t => new StrongBox<bool>(ComputeHasPublicMoveMethod(t))).Value;
+        }
+
+        private static bool ComputeHasPublicMoveMethod(INamedTypeSymbol type)
+        {
             foreach (var member in type.GetMembers(MoveMethodName))
             {
                 if (member is IMethodSymbol method &&
@@ -162,11 +169,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsInsidePublicMoveMethod(ISymbol? containingSymbol)
         {
-            return containingSymbol is IMethodSymbol methodSymbol &&
-                methodSymbol.ContainingType is INamedTypeSymbol type &&
+            if (containingSymbol is not IMethodSymbol methodSymbol)
+                return false;
+
+            return _insidePublicMoveMethodCache.GetValue(methodSymbol, static m => new StrongBox<bool>(
+                m.ContainingType is INamedTypeSymbol type &&
                 IsMoveOnlyType(type) &&
                 HasPublicMoveMethod(type) &&
-                methodSymbol.Name == MoveMethodName;
+                m.Name == MoveMethodName
+            )).Value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
