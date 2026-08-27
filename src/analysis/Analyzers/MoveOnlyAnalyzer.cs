@@ -122,12 +122,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsAwaited(IOperation operation)
-        {
-            return operation.Parent is IAwaitOperation;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
             foreach (var member in type.GetMembers(MoveMethodName))
@@ -177,31 +171,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         /*  MoveOnly usage operations (SMA0091 / SMA0092)  ==================== */
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsInsidePublicMoveMethod(ISymbol? containingSymbol)
         {
-            if (containingSymbol is IMethodSymbol methodSymbol)
-            {
-                if (methodSymbol.Name == MoveMethodName &&
-                    methodSymbol.DeclaredAccessibility == Accessibility.Public &&
-                    !methodSymbol.IsStatic &&
-                    methodSymbol.Parameters.Length == 0 &&
-                    IsMoveOnlyType(methodSymbol.ContainingType))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return containingSymbol is IMethodSymbol methodSymbol &&
+                methodSymbol.ContainingType is INamedTypeSymbol type &&
+                IsMoveOnlyType(type) &&
+                HasPublicMoveMethod(type) &&
+                methodSymbol.Name == MoveMethodName;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsInAsyncContext(ISymbol? containingSymbol)
         {
-            if (containingSymbol is IMethodSymbol methodSymbol)
-            {
-                return methodSymbol.IsAsync;
-            }
-
-            return false;
+            return containingSymbol is IMethodSymbol methodSymbol && methodSymbol.IsAsync;
         }
 
         private static bool IsCallingMove(IOperation? expression)
@@ -263,7 +246,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         {
                             isAllowed = true; // passing to sync method
                         }
-                        else if (IsAwaited(invocationOp))
+                        else if (invocationOp.Parent is IAwaitOperation)
                         {
                             isAllowed = true; // passing to async method that has await
                         }
