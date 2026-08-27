@@ -109,7 +109,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
             foreach (var member in type.GetMembers(MoveMethodName))
