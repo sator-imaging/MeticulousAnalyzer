@@ -236,40 +236,39 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     bool isCtor = argOp.Parent is IObjectCreationOperation;
                     bool isAllowed = isCtor;
 
-                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
+                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp)
                     {
-                        if (!targetMethod.IsAsync)
+                        if (invocationOp.Parent is IAwaitOperation)
                         {
-                            var returnType = targetMethod.ReturnType;
-                            bool isTaskReturning = returnType is INamedTypeSymbol
+                            isAllowed = true;
+                        }
+                        else if (invocationOp.TargetMethod is IMethodSymbol targetMethod)
+                        {
+                            if (!targetMethod.IsAsync)
                             {
-                                Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
+                                var returnType = targetMethod.ReturnType;
+                                bool isTaskReturning = returnType is INamedTypeSymbol
                                 {
-                                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
+                                    Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
                                     {
-                                        Name: "Threading", ContainingNamespace: INamespaceSymbol
+                                        Name: "Tasks", ContainingNamespace: INamespaceSymbol
                                         {
-                                            Name: "System", ContainingNamespace: INamespaceSymbol
+                                            Name: "Threading", ContainingNamespace: INamespaceSymbol
                                             {
-                                                IsGlobalNamespace: true
+                                                Name: "System", ContainingNamespace: INamespaceSymbol
+                                                {
+                                                    IsGlobalNamespace: true
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            };
+                                };
 
-                            if (!isTaskReturning)
-                            {
-                                isAllowed = true; // passing to sync method
+                                if (!isTaskReturning)
+                                {
+                                    isAllowed = true; // passing to non-async, non-Task-returning sync method
+                                }
                             }
-                            else if (invocationOp.Parent is IAwaitOperation)
-                            {
-                                isAllowed = true; // passing to async method that has await
-                            }
-                        }
-                        else if (invocationOp.Parent is IAwaitOperation)
-                        {
-                            isAllowed = true; // passing to async method that has await
                         }
                     }
 
