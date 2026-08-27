@@ -150,7 +150,7 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | SMA8022 | Literal branch string                      | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).
 | SMA8023 | Literal branch char                        | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).
 | | | |
-| SMA8030 | Mid-flow Return                            | Avoid mid-flow returns. Early returns are fine, but don't introduce a new long control-flow branch in the middle of the main flow.
+| SMA8030 | Mid-flow Return                            | Avoid mid-flow returns. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
 
 ## `Obsolete` Annotating and Underling
 

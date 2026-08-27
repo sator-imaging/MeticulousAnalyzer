@@ -547,19 +547,15 @@ if (!IsValid()) return;  // Early return is allowed.
 if (foo)
 {
     Alpha();
-    Bravo();
-    Charlie();
     return;
-    ~~~~~~ // Error: Exiting on middle of the main control flow.
+    ~~~~~~ // Error: Exiting in the middle of the main flow.
 }
 
 Bar();
 Baz();
-Qux();
-DoSomething();
 ```
 
-To avoid errors, use complete `if-else` statement () to clarify the code flow.
+To avoid errors, use a complete `if-else` statement to clarify the control flow.
 
 ```cs
 // Use return, yield return or throw in all code paths,
@@ -567,15 +563,11 @@ To avoid errors, use complete `if-else` statement () to clarify the code flow.
 if (foo)
 {
     Alpha();
-    Bravo();
-    Charlie();
 }
 else
 {
     Bar();
     Baz();
-    Qux();
-    DoSomething();
 }
 ```
 

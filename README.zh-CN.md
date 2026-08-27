@@ -535,19 +535,39 @@ var x = (((foo)))!;
 
 ## 主流程中途 return 分析器
 
-避免在主流程中途 return。早期 return 是允许的，但不要在主流程中间引入新的长控制流分支。
-
-为避免错误，请在 `if`-`else if`-`else` 语句中使用 `return` 或 `yield return`（不要在流程中途使用早期 return 风格的退出）。
+避免在主流程中途 return。早期 return 是允许的，但不要在主流程中间引入新的控制流分支。
 
 ```cs
-if (foo) {
-    ... 20 lines ...
-    return A;
-} else if (bar) {
-    ... 20 lines ...
-    return B;
-} else {
-    return C;
+if (!IsValid()) return;  // 允许早期 return。
+
+// 早期 return 之后的处理...
+// ...
+// ...
+
+if (foo)
+{
+    Alpha();
+    return;
+    ~~~~~~ // 错误：在主流程中途退出。
+}
+
+Bar();
+Baz();
+```
+
+为避免错误，请使用完整的 `if-else` 语句来明确控制流。
+
+```cs
+// 在所有代码路径中使用 return、yield return 或 throw，
+// 或避免在主控制流中退出。
+if (foo)
+{
+    Alpha();
+}
+else
+{
+    Bar();
+    Baz();
 }
 ```
 

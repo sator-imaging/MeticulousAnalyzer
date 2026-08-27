@@ -535,19 +535,39 @@ var x = (((foo)))!;
 
 ## 処理途中の return アナライザー
 
-処理途中での return を回避します。早期 return は問題ありませんが、メインフローの途中で新たな長い制御フロー分岐を持ち込まないでください。
-
-エラーを回避するには、`if`-`else if`-`else` 文の中で `return` または `yield return` を使用します（処理途中で早期 return スタイルの脱出を使用しないでください）。
+処理途中での return を回避します。早期 return は問題ありませんが、メインフローの途中で新たな制御フロー分岐を持ち込まないでください。
 
 ```cs
-if (foo) {
-    ... 20 lines ...
-    return A;
-} else if (bar) {
-    ... 20 lines ...
-    return B;
-} else {
-    return C;
+if (!IsValid()) return;  // 早期 return は許可されます。
+
+// 早期 return 後の処理...
+// ...
+// ...
+
+if (foo)
+{
+    Alpha();
+    return;
+    ~~~~~~ // エラー: メインフローの途中で脱出しています。
+}
+
+Bar();
+Baz();
+```
+
+エラーを回避するには、完全な `if-else` 文を使用して制御フローを明確にします。
+
+```cs
+// すべてのコードパスで return、yield return、または throw を使用するか、
+// メイン制御フローでの脱出を回避します。
+if (foo)
+{
+    Alpha();
+}
+else
+{
+    Bar();
+    Baz();
 }
 ```
 
