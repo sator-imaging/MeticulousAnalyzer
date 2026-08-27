@@ -546,13 +546,14 @@ if (!IsValid()) return;  // 早期 return は許可されます。
 
 if (foo)
 {
-    Alpha();
+    Foo();
     return;
     ~~~~~~ // エラー: メインフローの途中で脱出しています。
 }
 
-Bar();
-Baz();
+Alpha();
+Bravo();
+Charlie();
 ```
 
 エラーを回避するには、完全な `if-else` 文を使用して制御フローを明確にします。
@@ -562,12 +563,13 @@ Baz();
 // メイン制御フローでの脱出を回避します。
 if (foo)
 {
-    Alpha();
+    Foo();
 }
 else
 {
-    Bar();
-    Baz();
+    Alpha();
+    Bravo();
+    Charlie();
 }
 ```
 

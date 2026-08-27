@@ -141,6 +141,32 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_VoidReturningMethod()
+        {
+            var test = @"
+class C
+{
+    void M(bool invalid, bool foo)
+    {
+        if (invalid) return;
+
+        int x = 1;
+        x++;
+
+        if (foo)
+        {
+            x++;
+        }
+        else
+        {
+            x--;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Violation_VoidReturningMethod()
         {
             var test = @"

@@ -546,13 +546,14 @@ if (!IsValid()) return;  // 允许早期 return。
 
 if (foo)
 {
-    Alpha();
+    Foo();
     return;
     ~~~~~~ // 错误：在主流程中途退出。
 }
 
-Bar();
-Baz();
+Alpha();
+Bravo();
+Charlie();
 ```
 
 为避免错误，请使用完整的 `if-else` 语句来明确控制流。
@@ -562,12 +563,13 @@ Baz();
 // 或避免在主控制流中退出。
 if (foo)
 {
-    Alpha();
+    Foo();
 }
 else
 {
-    Bar();
-    Baz();
+    Alpha();
+    Bravo();
+    Charlie();
 }
 ```
 

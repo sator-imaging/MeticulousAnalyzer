@@ -546,13 +546,14 @@ if (!IsValid()) return;  // Early return is allowed.
 
 if (foo)
 {
-    Alpha();
+    Foo();
     return;
     ~~~~~~ // Error: Exiting in the middle of the main flow.
 }
 
-Bar();
-Baz();
+Alpha();
+Bravo();
+Charlie();
 ```
 
 To avoid errors, use a complete `if-else` statement to clarify the control flow.
@@ -562,12 +563,13 @@ To avoid errors, use a complete `if-else` statement to clarify the control flow.
 // or avoid exiting in main control flow.
 if (foo)
 {
-    Alpha();
+    Foo();
 }
 else
 {
-    Bar();
-    Baz();
+    Alpha();
+    Bravo();
+    Charlie();
 }
 ```
 
