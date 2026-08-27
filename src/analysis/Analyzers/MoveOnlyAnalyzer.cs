@@ -1,11 +1,6 @@
 // Licensed under the MIT License
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
-#define STMG_DEBUG_MESSAGE
-#if DEBUG == false
-#undef STMG_DEBUG_MESSAGE
-#endif
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -19,6 +14,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     public sealed class MoveOnlyAnalyzer : DiagnosticAnalyzer
     {
         private const string MoveMethodName = "Move";
+        private static readonly ConditionalWeakTable<ITypeSymbol, StrongBox<bool>> _moveOnlyTypeCache = new();
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -67,10 +63,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-#if STMG_DEBUG_MESSAGE
-            Core.Rule_DebugError,
-            Core.Rule_DebugWarn,
-#endif
             Rule_MissingMoveMethod,
             Rule_InvalidTypeDeclaration,
             Rule_ProhibitedCopy,
@@ -91,17 +83,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         /*  MoveOnly helpers & type analysis  ======================================== */
 
-        internal static bool IsMoveOnlyType(ITypeSymbol? type)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsMoveOnlyType(ITypeSymbol? type)
         {
             if (type == null)
                 return false;
 
-            if (type.Name.StartsWith("MoveOnly", StringComparison.Ordinal))
-            {
-                return true;
-            }
-
-            return false;
+            return _moveOnlyTypeCache.GetValue(type, static t => new StrongBox<bool>(t.Name.StartsWith("MoveOnly", StringComparison.Ordinal))).Value;
         }
 
         private static bool IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(IOperation? target, ISymbol? containingSymbol)
@@ -157,15 +145,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     Rule_InvalidTypeDeclaration,
                     location,
                     namedType.ToDiagnosticMessageName()));
-                return;
             }
-
-            if (!HasPublicMoveMethod(namedType))
+            else
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_MissingMoveMethod,
-                    location,
-                    namedType.ToDiagnosticMessageName()));
+                if (!HasPublicMoveMethod(namedType))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_MissingMoveMethod,
+                        location,
+                        namedType.ToDiagnosticMessageName()));
+                }
             }
         }
 
