@@ -26,7 +26,10 @@ namespace Test
         public MoveOnlyClass Move() => this;
     }
 
-    record {|#2:MoveOnlyRecord|} { }
+    record {|#2:MoveOnlyRecord|}
+    {
+        public MoveOnlyRecord Move() => this;
+    }
 }
 ";
 
