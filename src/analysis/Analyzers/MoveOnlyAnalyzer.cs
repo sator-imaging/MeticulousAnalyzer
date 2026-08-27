@@ -236,13 +236,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     bool isCtor = argOp.Parent is IObjectCreationOperation;
                     bool isAllowed = isCtor;
 
-                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod != null)
+                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
                     {
-                        var targetMethod = invocationOp.TargetMethod;
                         if (!targetMethod.IsAsync)
                         {
                             var returnType = targetMethod.ReturnType;
-                            bool isTaskReturning = returnType is INamedTypeSymbol { Name: "Task" or "ValueTask", ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } } } };
+                            bool isTaskReturning = returnType is INamedTypeSymbol
+                            {
+                                Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
+                                {
+                                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
+                                    {
+                                        Name: "Threading", ContainingNamespace: INamespaceSymbol
+                                        {
+                                            Name: "System", ContainingNamespace: INamespaceSymbol
+                                            {
+                                                IsGlobalNamespace: true
+                                            }
+                                        }
+                                    }
+                                }
+                            };
 
                             if (!isTaskReturning)
                             {
