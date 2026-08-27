@@ -111,6 +111,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
             return _hasPublicMoveMethodCache.GetValue(type, static t => new StrongBox<bool>(ComputeHasPublicMoveMethod(t))).Value;
