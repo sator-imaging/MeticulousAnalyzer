@@ -18,7 +18,12 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             {
                 SolutionTransforms.Add((solution, projectId) =>
                 {
-                    var compilationOptions = solution.GetProject(projectId).CompilationOptions;
+                    var project = solution.GetProject(projectId);
+                    var parseOptions = ((Microsoft.CodeAnalysis.CSharp.CSharpParseOptions)project.ParseOptions)
+                        .WithLanguageVersion(Microsoft.CodeAnalysis.CSharp.LanguageVersion.Preview);
+                    solution = solution.WithProjectParseOptions(projectId, parseOptions);
+
+                    var compilationOptions = project.CompilationOptions;
                     compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(
                         compilationOptions.SpecificDiagnosticOptions.SetItems(CSharpVerifierHelper.NullableWarnings));
                     solution = solution.WithProjectCompilationOptions(projectId, compilationOptions);

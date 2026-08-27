@@ -323,6 +323,33 @@
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
   </data>
+  <data name="SMA0033_Description" xml:space="preserve">
+    <value>Types decorated with [NoCopy] must define a public parameterless Move() method returning the type itself.</value>
+  </data>
+  <data name="SMA0033_MessageFormat" xml:space="preserve">
+    <value>Type '{0}' marked with [NoCopy] must have a public '{0} Move()' method</value>
+  </data>
+  <data name="SMA0033_Title" xml:space="preserve">
+    <value>Missing Move Method on [NoCopy] Type</value>
+  </data>
+  <data name="SMA0034_Description" xml:space="preserve">
+    <value>[NoCopy] type cannot be copied. Pass by value or assignment to local requires calling .Move().</value>
+  </data>
+  <data name="SMA0034_MessageFormat" xml:space="preserve">
+    <value>'{0}' is a [NoCopy] type and cannot be copied without calling .Move()</value>
+  </data>
+  <data name="SMA0034_Title" xml:space="preserve">
+    <value>Copying [NoCopy] Type Disallowed</value>
+  </data>
+  <data name="SMA0035_Description" xml:space="preserve">
+    <value>Passing [NoCopy] type by ref or out is not allowed in async methods.</value>
+  </data>
+  <data name="SMA0035_MessageFormat" xml:space="preserve">
+    <value>Cannot pass [NoCopy] type '{0}' by ref or out in async method</value>
+  </data>
+  <data name="SMA0035_Title" xml:space="preserve">
+    <value>Ref/Out [NoCopy] Parameter in Async Method</value>
+  </data>
   <data name="SMA0040__MD_DESC__" xml:space="preserve">
     <value>Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.
 &gt; Suppression comment: `// Don't dispose [Reason(optional)]`</value>

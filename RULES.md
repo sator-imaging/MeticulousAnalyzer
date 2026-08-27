@@ -57,6 +57,9 @@ Analyzes struct constructors, readonly field assignments, and implicit boxing co
 | SMA0030 | Invalid Struct Constructor                 | Constructor has declared explicitly so should not use parameter-less one.
 | SMA0031 | Mutable Struct Field marked as Read-Only   | Mutable struct type should not be set to `readonly` field.
 | SMA0032 | Implicit Boxing Conversion                 | Implicit conversion from struct to reference type (including interface) causes boxing.
+| SMA0033 | Missing Move Method on [NoCopy] Type       | Types decorated with [NoCopy] must define a public parameterless Move() method returning the type itself.
+| SMA0034 | Copying [NoCopy] Type Disallowed           | [NoCopy] type cannot be copied. Pass by value or assignment to local requires calling .Move().
+| SMA0035 | Ref/Out [NoCopy] Parameter in Async Method | Passing [NoCopy] type by ref or out is not allowed in async methods.
 
 ## Disposable Analysis
 
