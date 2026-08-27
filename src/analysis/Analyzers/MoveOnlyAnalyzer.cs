@@ -279,7 +279,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Exclude object creation (new ...) and default expressions (default / default(...))
+            // 'new T(...)' and 'default(T)' do not copy an existing instance.
             if (unwrapped is IObjectCreationOperation || unwrapped is IDefaultValueOperation)
             {
                 return;
