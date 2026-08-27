@@ -80,11 +80,6 @@ namespace Test
             return ret;
         }
     }
-
-    struct MoveOnlyRecordStruct
-    {
-        public MoveOnlyRecordStruct Move() => this;
-    }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
