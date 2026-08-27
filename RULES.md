@@ -110,10 +110,10 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 |---------|---------------------------------------------------------------|-------------
 | SMA0080 | Internal cross-namespace access                               | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)
 | | | |
-| SMA0090 | Invalid MoveOnly Type                                         | MoveOnly type requires public Move() method, and reference types are not allowed.
-| SMA0091 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without Move().
-| SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by ref or out in async methods.
-| SMA0093 | Invalid MoveOnly Declaration                                  | MoveOnly type must be a struct (record or record struct is allowed).
+| SMA0090 | Invalid MoveOnly Type                                         | MoveOnly type must declare a public instance `Move()` method returning the containing type.
+| SMA0091 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without `Move()`.
+| SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by `ref` or `out` in `async` methods.
+| SMA0093 | Invalid MoveOnly Declaration                                  | MoveOnly type must be a struct.
 
 ## Coding Assistance
 
