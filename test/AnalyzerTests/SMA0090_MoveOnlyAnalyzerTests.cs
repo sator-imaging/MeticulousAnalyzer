@@ -26,10 +26,7 @@ namespace Test
         public MoveOnlyClass Move() => this;
     }
 
-    record {|#2:MoveOnlyRecord|}
-    {
-        public MoveOnlyRecord Move() => this;
-    }
+    record {|#2:MoveOnlyRecordWithoutMove|} { }
 }
 ";
 
@@ -39,9 +36,9 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyClass");
-            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
                 .WithLocation(markupKey: 2)
-                .WithArguments("MoveOnlyRecord");
+                .WithArguments("MoveOnlyRecordWithoutMove");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
@@ -79,6 +76,11 @@ namespace Test
             this = default;
             return ret;
         }
+    }
+
+    record MoveOnlyRecord
+    {
+        public MoveOnlyRecord Move() => this;
     }
 }
 ";

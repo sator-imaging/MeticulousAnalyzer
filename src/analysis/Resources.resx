@@ -517,6 +517,15 @@
   <data name="SMA0092_Title" xml:space="preserve">
     <value>Prohibited Ref/Out Parameter of MoveOnly Type in Async Method</value>
   </data>
+  <data name="SMA0093_Description" xml:space="preserve">
+    <value>MoveOnly type must be a struct (record or record struct is allowed).</value>
+  </data>
+  <data name="SMA0093_MessageFormat" xml:space="preserve">
+    <value>MoveOnly type '{0}' must be a struct.</value>
+  </data>
+  <data name="SMA0093_Title" xml:space="preserve">
+    <value>Invalid MoveOnly Declaration</value>
+  </data>
   <data name="SMA7000__MD_DESC__" xml:space="preserve">
     <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.
 &gt; Suppression comment: `// Allow allocation [Reason(optional)]`</value>

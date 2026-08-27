@@ -31,12 +31,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static readonly DiagnosticDescriptor Rule_InvalidTypeDeclaration = new(
             RuleId_InvalidTypeDeclaration,
-            new LocalizableResourceString(nameof(Resources.SMA0090_Title), Resources.ResourceManager, typeof(Resources)),
-            new LocalizableResourceString(nameof(Resources.SMA0090_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0093_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0093_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0090_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0093_Description), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedCopy = "SMA0091";
         public const string RuleId_NoCopyValueCopy = RuleId_ProhibitedCopy;
@@ -139,7 +139,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // Error if missing public Move() method
             Location location = namedType.Locations.Length > 0 ? namedType.Locations[0] : Location.None;
 
-            if (!namedType.IsValueType)
+            bool isRecord = namedType.DeclaringSyntaxReferences.Length > 0 &&
+                namedType.DeclaringSyntaxReferences[0].GetSyntax().GetType().Name.Contains("Record");
+
+            if (!namedType.IsValueType && !isRecord)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_InvalidTypeDeclaration,
