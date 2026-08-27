@@ -31,6 +31,28 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_DeconstructionLocalDeclarationsBeforeIfReturn()
+        {
+            var test = @"
+class C
+{
+    int M(bool foo)
+    {
+        var (a, b) = (31, 42);
+        (var x, var y) = (31, 42);
+
+        if (foo)
+        {
+            return a + x;
+        }
+
+        return b + y;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Violation_MidFlowReturnInIf()
         {
             var test = @"
