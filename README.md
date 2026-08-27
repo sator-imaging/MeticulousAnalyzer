@@ -533,6 +533,25 @@ var x = (((foo)))!;
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
 
 
+## Mid-flow return analyzer
+
+Avoid mid-flow returns. Early returns are fine, but don't introduce a new long control-flow branch in the middle of the main flow.
+
+To avoid error, use `return` OR `yield return` in `if`-`else if`-`else` statements (don't use early return style exit in mid-flow).
+
+```cs
+if (foo) {
+    ... 20 lines ...
+    return A;
+} else if (bar) {
+    ... 20 lines ...
+    return B;
+} else {
+    return C;
+}
+```
+
+
 
 
 

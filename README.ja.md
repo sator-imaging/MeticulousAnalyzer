@@ -533,6 +533,25 @@ var x = (((foo)))!;
 > その後、`!` 演算子の代わりに `Debug.Assert(foo is not null);` を使用して、Release ビルドでの実行時オーバーヘッドを発生させることなく安全に抑制することを強く推奨します。
 
 
+## 処理途中の return アナライザー
+
+処理途中での return を回避します。早期 return は問題ありませんが、メインフローの途中で新たな長い制御フロー分岐を持ち込まないでください。
+
+エラーを回避するには、`if`-`else if`-`else` 文の中で `return` または `yield return` を使用します（処理途中で早期 return スタイルの脱出を使用しないでください）。
+
+```cs
+if (foo) {
+    ... 20 lines ...
+    return A;
+} else if (bar) {
+    ... 20 lines ...
+    return B;
+} else {
+    return C;
+}
+```
+
+
 
 
 
