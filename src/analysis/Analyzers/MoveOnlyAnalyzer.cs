@@ -23,9 +23,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_MissingMoveMethod = "SMA0090";
-        public const string RuleId_InvalidTypeDeclaration = RuleId_MissingMoveMethod;
+        public const string RuleId_InvalidTypeDeclaration = "SMA0093";
         private static readonly DiagnosticDescriptor Rule_MissingMoveMethod = new(
             RuleId_MissingMoveMethod,
+            new LocalizableResourceString(nameof(Resources.SMA0090_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0090_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0090_Description), Resources.ResourceManager, typeof(Resources)));
+
+        private static readonly DiagnosticDescriptor Rule_InvalidTypeDeclaration = new(
+            RuleId_InvalidTypeDeclaration,
             new LocalizableResourceString(nameof(Resources.SMA0090_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0090_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
@@ -63,6 +72,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.Rule_DebugWarn,
 #endif
             Rule_MissingMoveMethod,
+            Rule_InvalidTypeDeclaration,
             Rule_ProhibitedCopy,
             Rule_ProhibitedRefOutInAsync
             );
@@ -89,15 +99,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (type.Name.StartsWith("MoveOnly", StringComparison.Ordinal))
             {
                 return true;
-            }
-
-            foreach (var attr in type.GetAttributes())
-            {
-                var name = attr.AttributeClass?.Name;
-                if (name == "MoveOnlyAttribute" || name == "MoveOnly")
-                {
-                    return true;
-                }
             }
 
             return false;
@@ -154,12 +155,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Warn on type identifier if not struct (record or record struct is allowed)
             // Error if missing public Move() method
-            bool isStructOrRecordStruct = namedType.IsValueType;
-            bool hasMove = HasPublicMoveMethod(namedType);
+            Location location = namedType.Locations.Length > 0 ? namedType.Locations[0] : Location.None;
 
-            if (!isStructOrRecordStruct || !hasMove)
+            if (!namedType.IsValueType)
             {
-                Location location = namedType.Locations.Length > 0 ? namedType.Locations[0] : Location.None;
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_InvalidTypeDeclaration,
+                    location,
+                    namedType.ToDiagnosticMessageName()));
+                return;
+            }
+
+            if (!HasPublicMoveMethod(namedType))
+            {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_MissingMoveMethod,
                     location,
@@ -282,25 +290,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsOutParameterOrReturn(IOperation? target, IOperation currentOp)
+        private static bool IsOutParameter(IOperation? target)
         {
             if (target is IParameterReferenceOperation paramRef && paramRef.Parameter.RefKind == RefKind.Out)
             {
                 return true;
-            }
-
-            var p = currentOp.Parent;
-            while (p != null)
-            {
-                if (p is IReturnOperation)
-                {
-                    return true;
-                }
-                if (p is IArgumentOperation || p is ISimpleAssignmentOperation || p is IVariableDeclaratorOperation)
-                {
-                    break;
-                }
-                p = p.Parent;
             }
 
             return false;
@@ -352,7 +346,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
                 return;
 
-            if (IsOutParameterOrReturn(assignOp.Target, assignOp))
+            if (IsOutParameter(assignOp.Target))
                 return;
 
             if (IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(assignOp.Target, context.ContainingSymbol))
@@ -371,9 +365,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
-                return;
-
-            if (IsOutParameterOrReturn(null, declOp))
                 return;
 
             CheckAndReportMoveOnlyCopy(context, initializer);
