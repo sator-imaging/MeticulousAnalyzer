@@ -11,12 +11,15 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class MoveOnlyAnalyzer : DiagnosticAnalyzer
     {
+        private const string MoveMethodName = "Move";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_MissingMoveMethod = "SMA0090";
@@ -117,28 +120,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsAwaited(IOperation operation)
         {
-            var p = operation.Parent;
-            while (p != null)
-            {
-                if (p is IAwaitOperation)
-                {
-                    return true;
-                }
-                if (p is IBlockOperation)
-                {
-                    break;
-                }
-                p = p.Parent;
-            }
-
-            return false;
+            return operation.Parent is IAwaitOperation;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool HasPublicMoveMethod(INamedTypeSymbol type)
         {
-            foreach (var member in type.GetMembers("Move"))
+            foreach (var member in type.GetMembers(MoveMethodName))
             {
                 if (member is IMethodSymbol method &&
                     method.DeclaredAccessibility == Accessibility.Public &&
@@ -182,7 +173,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             if (containingSymbol is IMethodSymbol methodSymbol)
             {
-                if (methodSymbol.Name == "Move" &&
+                if (methodSymbol.Name == MoveMethodName &&
                     methodSymbol.DeclaredAccessibility == Accessibility.Public &&
                     !methodSymbol.IsStatic &&
                     methodSymbol.Parameters.Length == 0 &&
@@ -218,7 +209,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (unwrapped is IInvocationOperation invocation)
             {
-                if (invocation.TargetMethod.Name == "Move" && invocation.TargetMethod.Parameters.Length == 0)
+                if (invocation.TargetMethod.Name == MoveMethodName && invocation.TargetMethod.Parameters.Length == 0)
                 {
                     return true;
                 }
