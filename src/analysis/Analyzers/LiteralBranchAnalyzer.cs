@@ -182,7 +182,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (!IsInLoopCondition(outermostSyntax))
+                if (!IsInLoopCondition(outermostSyntax) && !IsInLoopCondition(outermostSyntax.Parent))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_LiteralBranchZero,
@@ -199,25 +199,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsInLoopCondition(SyntaxNode node)
+        private static bool IsInLoopCondition(SyntaxNode? node)
         {
-            var parent = node.Parent;
-            if (parent == null)
-                return false;
-
-            if (IsLoopCondition(parent, node))
-                return true;
-
-            return IsLoopCondition(parent.Parent, parent);
-        }
-
-        private static bool IsLoopCondition(SyntaxNode? loopNode, SyntaxNode conditionChild)
-        {
-            return loopNode switch
+            if (node == null) return false;
+            return node.Parent switch
             {
-                ForStatementSyntax forStmt => forStmt.Condition == conditionChild,
-                WhileStatementSyntax whileStmt => whileStmt.Condition == conditionChild,
-                DoStatementSyntax doStmt => doStmt.Condition == conditionChild,
+                ForStatementSyntax forStmt => forStmt.Condition == node,
+                WhileStatementSyntax whileStmt => whileStmt.Condition == node,
+                DoStatementSyntax doStmt => doStmt.Condition == node,
                 _ => false
             };
         }
