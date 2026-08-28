@@ -573,6 +573,41 @@ else
 }
 ```
 
+ループ内の `continue` についても同じルールが適用されます。
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue; // 早期 continue は許可されます。
+
+    Preprocess(item);
+
+    if (item.Length == 0)
+    {
+        continue;
+        ~~~~~~~~ // エラー: ループフローの途中で continue しています。
+    }
+
+    DoSomething(item);
+}
+```
+
+完全な `if-else` 文を使用するか、条件を反転してエラーを回避します。
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue;
+
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
+}
+```
+
 
 
 

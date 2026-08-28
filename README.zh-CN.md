@@ -573,6 +573,41 @@ else
 }
 ```
 
+同样的规则适用于循环内部的 `continue`：
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue; // 允许早期 continue。
+
+    Preprocess(item);
+
+    if (item.Length == 0)
+    {
+        continue;
+        ~~~~~~~~ // 错误：在循环流程中途 continue。
+    }
+
+    DoSomething(item);
+}
+```
+
+使用完整的 `if-else` 语句或反转条件来避免错误。
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue;
+
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
+}
+```
+
 
 
 

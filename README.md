@@ -573,6 +573,41 @@ else
 }
 ```
 
+The same rule applies to `continue` inside loops:
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue; // Early continue is allowed.
+
+    Preprocess(item);
+
+    if (item.Length == 0)
+    {
+        continue;
+        ~~~~~~~~ // Error: Continuing in the middle of the loop flow.
+    }
+
+    DoSomething(item);
+}
+```
+
+Use a complete `if-else` statement or invert conditions to avoid errors.
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue;
+
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
+}
+```
+
 
 
 
