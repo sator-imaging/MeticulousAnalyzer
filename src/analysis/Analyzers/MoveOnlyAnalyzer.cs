@@ -36,8 +36,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             new LocalizableResourceString(nameof(Resources.SMA0093_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0093_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.Category,
-            DiagnosticSeverity.Warning,
-            Core.Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0093_Description), Resources.ResourceManager, typeof(Resources)));
