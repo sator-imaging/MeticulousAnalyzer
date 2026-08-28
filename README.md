@@ -576,12 +576,13 @@ else
 The same rule applies to `continue` inside loops:
 
 ```cs
-// Mid-flow continue inside loop:
 foreach (var item in items)
 {
-    int len = item?.Length ?? 0;
+    if (item == null) continue; // Early continue is allowed.
 
-    if (item == null)
+    Preprocess(item);
+
+    if (item.Length == 0)
     {
         continue;
         ~~~~~~~~ // Error: Continuing in the middle of the loop flow.
@@ -589,13 +590,21 @@ foreach (var item in items)
 
     DoSomething(item);
 }
+```
 
-// Fixed: Early continue or inverted condition:
+Use a complete `if-else` statement or invert conditions to avoid errors.
+
+```cs
 foreach (var item in items)
 {
-    if (item == null) continue; // Early continue is allowed.
+    if (item == null) continue;
 
-    DoSomething(item);
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
 }
 ```
 

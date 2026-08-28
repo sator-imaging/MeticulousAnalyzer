@@ -573,15 +573,16 @@ else
 }
 ```
 
-同样的规则适用于循环内部 include 的 `continue`：
+同样的规则适用于循环内部的 `continue`：
 
 ```cs
-// 循环处理流程中途的 continue：
 foreach (var item in items)
 {
-    int len = item?.Length ?? 0;
+    if (item == null) continue; // 允许早期 continue。
 
-    if (item == null)
+    Preprocess(item);
+
+    if (item.Length == 0)
     {
         continue;
         ~~~~~~~~ // 错误：在循环流程中途 continue。
@@ -589,13 +590,21 @@ foreach (var item in items)
 
     DoSomething(item);
 }
+```
 
-// 修复后：早期 continue 或条件反转：
+使用完整的 `if-else` 语句或反转条件来避免错误。
+
+```cs
 foreach (var item in items)
 {
-    if (item == null) continue; // 允许早期 continue。
+    if (item == null) continue;
 
-    DoSomething(item);
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
 }
 ```
 

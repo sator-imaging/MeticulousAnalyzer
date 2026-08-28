@@ -576,12 +576,13 @@ else
 ループ内の `continue` についても同じルールが適用されます。
 
 ```cs
-// ループ処理途中での continue:
 foreach (var item in items)
 {
-    int len = item?.Length ?? 0;
+    if (item == null) continue; // 早期 continue は許可されます。
 
-    if (item == null)
+    Preprocess(item);
+
+    if (item.Length == 0)
     {
         continue;
         ~~~~~~~~ // エラー: ループフローの途中で continue しています。
@@ -589,13 +590,21 @@ foreach (var item in items)
 
     DoSomething(item);
 }
+```
 
-// 修正後: 早期 continue または条件反転:
+完全な `if-else` 文を使用するか、条件を反転してエラーを回避します。
+
+```cs
 foreach (var item in items)
 {
-    if (item == null) continue; // 早期 continue は許可されます。
+    if (item == null) continue;
 
-    DoSomething(item);
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
 }
 ```
 
