@@ -25,7 +25,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_LiteralBranch,
             new LocalizableResourceString(nameof(Resources.SMA8020_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8020_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8020_Description), Resources.ResourceManager, typeof(Resources)));
@@ -34,7 +34,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_LiteralBranchZero,
             new LocalizableResourceString(nameof(Resources.SMA8021_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8021_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8021_Description), Resources.ResourceManager, typeof(Resources)));
@@ -43,7 +43,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_LiteralBranchString,
             new LocalizableResourceString(nameof(Resources.SMA8022_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8022_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8022_Description), Resources.ResourceManager, typeof(Resources)));
@@ -52,7 +52,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_LiteralBranchChar,
             new LocalizableResourceString(nameof(Resources.SMA8023_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8023_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8023_Description), Resources.ResourceManager, typeof(Resources)));

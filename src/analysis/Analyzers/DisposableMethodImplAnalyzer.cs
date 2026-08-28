@@ -22,7 +22,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UndisposedMember,
             new LocalizableResourceString(nameof(Resources.SMA0043_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0043_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(DisposableMethodImplAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0043_Description), Resources.ResourceManager, typeof(Resources)));
@@ -32,7 +32,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_MissingDisposeImplementation,
             new LocalizableResourceString(nameof(Resources.SMA0044_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0044_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(DisposableMethodImplAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0044_Description), Resources.ResourceManager, typeof(Resources)));
@@ -42,7 +42,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_MissingIDisposableInterface,
             new LocalizableResourceString(nameof(Resources.SMA0045_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0045_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(DisposableMethodImplAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0045_Description), Resources.ResourceManager, typeof(Resources)));

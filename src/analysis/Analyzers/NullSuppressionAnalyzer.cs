@@ -18,7 +18,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_NullSuppression,
             new LocalizableResourceString(nameof(Resources.SMA8002_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8002_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(NullSuppressionAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8002_Description), Resources.ResourceManager, typeof(Resources)));

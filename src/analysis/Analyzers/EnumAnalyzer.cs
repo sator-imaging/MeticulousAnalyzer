@@ -37,7 +37,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_CastToEnum,
             new LocalizableResourceString(nameof(Resources.SMA0020_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0020_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0020_Description), Resources.ResourceManager, typeof(Resources)));
@@ -47,7 +47,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_CastFromEnum,
             new LocalizableResourceString(nameof(Resources.SMA0021_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0021_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0021_Description), Resources.ResourceManager, typeof(Resources)));
@@ -58,7 +58,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_CastToGenericEnum,
             new LocalizableResourceString(nameof(Resources.SMA0022_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0022_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0022_Description), Resources.ResourceManager, typeof(Resources)));
@@ -68,7 +68,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_CastFromGenericEnum,
             new LocalizableResourceString(nameof(Resources.SMA0023_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0023_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0023_Description), Resources.ResourceManager, typeof(Resources)));
@@ -79,7 +79,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_EnumToString,
             new LocalizableResourceString(nameof(Resources.SMA0024_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0024_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0024_Description), Resources.ResourceManager, typeof(Resources)));
@@ -90,7 +90,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_EnumMethod,
             new LocalizableResourceString(nameof(Resources.SMA0025_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0025_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0025_Description), Resources.ResourceManager, typeof(Resources)));
@@ -101,7 +101,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_EnumObfuscation,
             new LocalizableResourceString(nameof(Resources.SMA0026_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0026_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0026_Description), Resources.ResourceManager, typeof(Resources)));
@@ -112,7 +112,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnusualEnum,
             new LocalizableResourceString(nameof(Resources.SMA0027_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0027_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0027_Description), Resources.ResourceManager, typeof(Resources)));
@@ -124,7 +124,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_EnumLike,
             new LocalizableResourceString(nameof(Resources.SMA0028_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0028_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(EnumAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0028_Description), Resources.ResourceManager, typeof(Resources)));
