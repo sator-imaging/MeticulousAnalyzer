@@ -533,6 +533,82 @@ var x = (((foo)))!;
 > その後、`!` 演算子の代わりに `Debug.Assert(foo is not null);` を使用して、Release ビルドでの実行時オーバーヘッドを発生させることなく安全に抑制することを強く推奨します。
 
 
+## 処理途中の分岐
+
+処理途中での分岐を禁止します。早期 return は問題ありませんが、メインフローの途中で新たな制御フロー分岐を持ち込まないでください。
+
+```cs
+if (!IsValid()) return;  // 早期 return は許可されます。
+
+// 早期 return 後の処理...
+// ...
+// ...
+
+if (foo)
+{
+    Foo();
+    return;
+    ~~~~~~ // エラー: メインフローの途中で脱出しています。
+}
+
+Alpha();
+Bravo();
+Charlie();
+```
+
+エラーを回避するには、完全な `if-else` 文を使用するか、メソッドを分割して制御フローを明確にします。
+
+```cs
+// すべてのコードパスで return、yield return、または throw を使用するか、
+// メイン制御フローでの脱出を回避します。
+if (foo)
+{
+    Foo();
+}
+else
+{
+    Alpha();
+    Bravo();
+    Charlie();
+}
+```
+
+ループ内の `continue` についても同じルールが適用されます。
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue; // 早期 continue は許可されます。
+
+    Preprocess(item);
+
+    if (item.Length == 0)
+    {
+        continue;
+        ~~~~~~~~ // エラー: ループフローの途中で continue しています。
+    }
+
+    DoSomething(item);
+}
+```
+
+完全な `if-else` 文を使用するか、条件を反転してエラーを回避します。
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue;
+
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
+}
+```
+
+
 
 
 

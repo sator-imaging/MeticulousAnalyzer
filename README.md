@@ -512,7 +512,7 @@ catch (System.IO.IOException ex)
 > The comment must start with `// Ignore exception:` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) must always contain a `throw` statement and cannot be suppressed by comments.
 
 
-## Null suppression operation
+## Null Suppression Operation
 
 Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
 
@@ -531,6 +531,82 @@ var x = (((foo)))!;
 > Applying codefix by `dotnet format analyzers --diagnostics SMA8002` unveils all null warning suppressions in code base.
 >
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
+
+
+## Mid-flow Branch
+
+Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
+
+```cs
+if (!IsValid()) return;  // Early return is allowed.
+
+// Some operations after early return...
+// ...
+// ...
+
+if (foo)
+{
+    Foo();
+    return;
+    ~~~~~~ // Error: Exiting in the middle of the main flow.
+}
+
+Alpha();
+Bravo();
+Charlie();
+```
+
+To avoid errors, use a complete `if-else` statement or extract methods to clarify the control flow.
+
+```cs
+// Use return, yield return or throw in all code paths,
+// or avoid exiting in main control flow.
+if (foo)
+{
+    Foo();
+}
+else
+{
+    Alpha();
+    Bravo();
+    Charlie();
+}
+```
+
+The same rule applies to `continue` inside loops:
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue; // Early continue is allowed.
+
+    Preprocess(item);
+
+    if (item.Length == 0)
+    {
+        continue;
+        ~~~~~~~~ // Error: Continuing in the middle of the loop flow.
+    }
+
+    DoSomething(item);
+}
+```
+
+Use a complete `if-else` statement or invert conditions to avoid errors.
+
+```cs
+foreach (var item in items)
+{
+    if (item == null) continue;
+
+    Preprocess(item);
+
+    if (item.Length != 0)
+    {
+        DoSomething(item);
+    }
+}
+```
 
 
 
