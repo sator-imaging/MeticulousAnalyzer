@@ -88,8 +88,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeOperandForLiteral(context, binary.LeftOperand);
-            AnalyzeOperandForLiteral(context, binary.RightOperand);
+            AnalyzeOperandForLiteral(context, binary.LeftOperand, binary.RightOperand);
+            AnalyzeOperandForLiteral(context, binary.RightOperand, binary.LeftOperand);
         }
 
         private static void AnalyzeConstantPattern(OperationAnalysisContext context)
@@ -97,7 +97,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IConstantPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value);
+            AnalyzeOperandForLiteral(context, pattern.Value, GetPatternTargetValue(pattern));
         }
 
         private static void AnalyzeRelationalPattern(OperationAnalysisContext context)
@@ -105,7 +105,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IRelationalPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value);
+            AnalyzeOperandForLiteral(context, pattern.Value, GetPatternTargetValue(pattern));
         }
 
         private static void AnalyzeSwitchCase(OperationAnalysisContext context)
@@ -113,14 +113,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not ISwitchCaseOperation switchCase)
                 return;
 
+            var targetValue = switchCase.Parent is ISwitchOperation switchOp ? switchOp.Value : null;
+
             foreach (var clause in switchCase.Clauses)
             {
                 if (clause is ISingleValueCaseClauseOperation singleValue)
-                    AnalyzeOperandForLiteral(context, singleValue.Value);
+                    AnalyzeOperandForLiteral(context, singleValue.Value, targetValue);
             }
         }
 
-        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand)
+        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand, IOperation? targetOperand = null)
         {
             // Unwrap interleaved conversions and unary +/- to reach the literal
             var current = operand;
@@ -182,7 +184,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (IsExemptZeroForMemberAccess(literalOp))
+                if (targetOperand != null && HasMemberAccessWithMatchingName(targetOperand))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -222,54 +224,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        private static bool IsExemptZeroForMemberAccess(ILiteralOperation literalOp)
+        private static IOperation? GetPatternTargetValue(IPatternOperation pattern)
         {
-            var current = (IOperation)literalOp;
-            while (current.Parent is IConversionOperation or IUnaryOperation)
+            var current = (IOperation)pattern;
+            while (current != null)
             {
+                if (current.Parent is IIsPatternOperation isPattern)
+                    return isPattern.Value;
+                if (current.Parent is ISwitchCaseOperation switchCase && switchCase.Parent is ISwitchOperation switchOp)
+                    return switchOp.Value;
+                if (current.Parent is ISwitchExpressionArmOperation arm && arm.Parent is ISwitchExpressionOperation switchExpr)
+                    return switchExpr.Value;
                 current = current.Parent;
             }
-
-            var parent = current.Parent;
-            if (parent == null)
-                return false;
-
-            if (parent is IBinaryOperation binary)
-            {
-                return HasMemberAccessWithMatchingName(binary.LeftOperand) ||
-                       HasMemberAccessWithMatchingName(binary.RightOperand);
-            }
-
-            if (parent is IConstantPatternOperation or IRelationalPatternOperation)
-            {
-                var pat = parent;
-                while (pat != null)
-                {
-                    if (pat.Parent is IIsPatternOperation isPattern)
-                    {
-                        return HasMemberAccessWithMatchingName(isPattern.Value);
-                    }
-                    if (pat.Parent is ISwitchCaseOperation switchCase && switchCase.Parent is ISwitchOperation switchOp)
-                    {
-                        return HasMemberAccessWithMatchingName(switchOp.Value);
-                    }
-                    if (pat.Parent is ISwitchExpressionArmOperation arm && arm.Parent is ISwitchExpressionOperation switchExpr)
-                    {
-                        return HasMemberAccessWithMatchingName(switchExpr.Value);
-                    }
-                    pat = pat.Parent;
-                }
-            }
-
-            if (parent is ISingleValueCaseClauseOperation clause)
-            {
-                if (clause.Parent is ISwitchCaseOperation switchCase && switchCase.Parent is ISwitchOperation switchOp)
-                {
-                    return HasMemberAccessWithMatchingName(switchOp.Value);
-                }
-            }
-
-            return false;
+            return null;
         }
 
         private static bool IsMatchingMemberName(string name)
