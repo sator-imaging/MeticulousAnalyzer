@@ -235,6 +235,29 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0091_Compliant_InsidePublicMoveMethod()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        private void Helper(MoveOnlyStruct item) { }
+
+        public MoveOnlyStruct Move()
+        {
+            var temp = this;
+            Helper(temp);
+            this = default;
+            return temp;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA0091_GenericMethodTests()
         {
             var test = @"
