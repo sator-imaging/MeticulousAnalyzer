@@ -62,13 +62,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0092_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_ProhibitedCast = "SMA0094";
+        private static readonly DiagnosticDescriptor Rule_ProhibitedCast = new(
+            RuleId_ProhibitedCast,
+            new LocalizableResourceString(nameof(Resources.SMA0094_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0094_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.Category,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0094_Description), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             Rule_MissingMoveMethod,
             Rule_InvalidTypeDeclaration,
             Rule_ProhibitedCopy,
-            Rule_ProhibitedRefOutInAsync
+            Rule_ProhibitedRefOutInAsync,
+            Rule_ProhibitedCast
             );
 
         public override void Initialize(AnalysisContext context)
@@ -81,6 +92,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
             context.RegisterOperationAction(AnalyzeAssignmentOperation, OperationKind.SimpleAssignment, OperationKind.DeconstructionAssignment);
             context.RegisterOperationAction(AnalyzeVariableDeclaratorOperation, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
         }
 
         /*  MoveOnly helpers & type analysis  ======================================== */
@@ -214,7 +226,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IArgumentOperation argOp)
                 return;
 
-            if (argOp.Value == null || !IsMoveOnlyType(argOp.Value.Type))
+            if (argOp.Value == null)
+                return;
+
+            if (argOp.Value is IConversionOperation conv &&
+                conv.Operand != null && conv.Operand.Type != null && conv.Type != null &&
+                IsMoveOnlyType(conv.Operand.Type) &&
+                !SymbolEqualityComparer.Default.Equals(conv.Operand.Type, conv.Type))
+            {
+                return;
+            }
+
+            if (!IsMoveOnlyType(argOp.Value.Type))
                 return;
 
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
@@ -300,6 +323,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var unwrapped = value;
             while (unwrapped is IConversionOperation conv)
             {
+                if (conv.Operand != null && conv.Operand.Type != null && conv.Type != null &&
+                    IsMoveOnlyType(conv.Operand.Type) &&
+                    !SymbolEqualityComparer.Default.Equals(conv.Operand.Type, conv.Type))
+                {
+                    return;
+                }
                 unwrapped = conv.Operand;
             }
 
@@ -363,6 +392,33 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             CheckAndReportMoveOnlyCopy(context, initializer);
+        }
+
+        private static void AnalyzeConversionOperation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IConversionOperation convOp)
+                return;
+
+            if (convOp.Operand == null || convOp.Operand.Type == null || convOp.Type == null)
+                return;
+
+            if (!IsMoveOnlyType(convOp.Operand.Type))
+                return;
+
+            if (SymbolEqualityComparer.Default.Equals(convOp.Operand.Type, convOp.Type))
+                return;
+
+            if (IsInsidePublicMoveMethod(context.ContainingSymbol))
+                return;
+
+            if (!IsCallingMove(convOp.Operand))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ProhibitedCast,
+                    convOp.Syntax.GetLocation(),
+                    convOp.Operand.Type.ToDiagnosticMessageName(),
+                    convOp.Type.ToDiagnosticMessageName()));
+            }
         }
     }
 }

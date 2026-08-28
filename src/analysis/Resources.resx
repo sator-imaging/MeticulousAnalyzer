@@ -526,6 +526,15 @@
   <data name="SMA0093_Title" xml:space="preserve">
     <value>Invalid MoveOnly Declaration</value>
   </data>
+  <data name="SMA0094_Description" xml:space="preserve">
+    <value>MoveOnly type cannot be cast to any type without `Move()`.</value>
+  </data>
+  <data name="SMA0094_MessageFormat" xml:space="preserve">
+    <value>MoveOnly type '{0}' cannot be cast to '{1}' without calling `Move()`.</value>
+  </data>
+  <data name="SMA0094_Title" xml:space="preserve">
+    <value>Prohibited Cast of MoveOnly Type</value>
+  </data>
   <data name="SMA7000__MD_DESC__" xml:space="preserve">
     <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.
 &gt; Suppression comment: `// Allow allocation [Reason(optional)]`</value>
