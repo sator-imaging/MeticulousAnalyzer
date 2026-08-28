@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.2.0-rc.3](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.3) (2026-08-28)
+
+### 🚀 Features
+* Implement `MoveOnly` struct analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#529](https://github.com/sator-imaging/MeticulousAnalyzer/pull/529)
+* Add `SMA0094` diagnostic to prevent casting MoveOnly types without `Move()` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#541](https://github.com/sator-imaging/MeticulousAnalyzer/pull/541)
+### 📚 Other Changes
+* Add MoveOnlyStructAnalyzer unit tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#539](https://github.com/sator-imaging/MeticulousAnalyzer/pull/539)
+* Add MoveOnlyAnalyzer test for public Move() method by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#540](https://github.com/sator-imaging/MeticulousAnalyzer/pull/540)
+* Update diagnostic categories to Core.CategoryPrefix + nameof(analyzerClassName) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#542](https://github.com/sator-imaging/MeticulousAnalyzer/pull/542)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.2...v5.2.0-rc.3
+
+
 ## [5.2.0-rc.2](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.2) (2026-08-28)
 
 ### 🚀 Features
