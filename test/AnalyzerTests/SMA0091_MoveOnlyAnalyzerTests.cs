@@ -235,7 +235,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_Compliant_InsidePublicMoveMethod()
+        public async Task SMA0091_Compliant_PublicMoveMethodExemptedFromChecks()
         {
             var test = @"
 namespace Test
