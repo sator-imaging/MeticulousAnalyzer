@@ -347,6 +347,8 @@ class C
             var test = @"
 class C
 {
+    void DoSomething(int x) { }
+
     void M()
     {
         for (int i = 0; i < 10; i++)
@@ -354,7 +356,31 @@ class C
             if (i % 2 == 0) continue;
 
             int x = i;
+            DoSomething(x);
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ForLoopInvertedConditionWithoutContinue()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            int x = i;
             x++;
+            if (i % 2 != 0)
+            {
+                DoSomething(x);
+            }
         }
     }
 }";
@@ -367,6 +393,8 @@ class C
             var test = @"
 class C
 {
+    void DoSomething(int x) { }
+
     void M()
     {
         for (int i = 0; i < 10; i++)
@@ -378,6 +406,8 @@ class C
             {
                 {|#0:continue|};
             }
+
+            DoSomething(x);
         }
     }
 }";
@@ -391,14 +421,40 @@ class C
             var test = @"
 class C
 {
+    void DoSomething(string item) { }
+
     void M(string[] items)
     {
         foreach (var item in items)
         {
             if (item == null) continue;
 
-            int len = item.Length;
+            DoSomething(item);
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ForeachLoopInvertedConditionWithoutContinue()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(string item) { }
+
+    void M(string[] items)
+    {
+        foreach (var item in items)
+        {
+            int len = item?.Length ?? 0;
             len++;
+
+            if (item != null)
+            {
+                DoSomething(item);
+            }
         }
     }
 }";
@@ -411,17 +467,21 @@ class C
             var test = @"
 class C
 {
+    void DoSomething(string item) { }
+
     void M(string[] items)
     {
         foreach (var item in items)
         {
-            int len = item.Length;
+            int len = item?.Length ?? 0;
             len++;
 
             if (item == null)
             {
                 {|#0:continue|};
             }
+
+            DoSomething(item);
         }
     }
 }";
@@ -435,6 +495,8 @@ class C
             var test = @"
 class C
 {
+    void DoSomething(int x) { }
+
     void M(bool cond, bool skip)
     {
         while (cond)
@@ -442,7 +504,32 @@ class C
             if (skip) continue;
 
             int x = 1;
+            DoSomething(x);
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_WhileLoopInvertedConditionWithoutContinue()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M(bool cond, bool skip)
+    {
+        while (cond)
+        {
+            int x = 1;
             x++;
+
+            if (!skip)
+            {
+                DoSomething(x);
+            }
         }
     }
 }";
@@ -455,6 +542,8 @@ class C
             var test = @"
 class C
 {
+    void DoSomething(int x) { }
+
     void M(bool cond, bool skip)
     {
         while (cond)
@@ -466,6 +555,8 @@ class C
             {
                 {|#0:continue|};
             }
+
+            DoSomething(x);
         }
     }
 }";
@@ -479,6 +570,8 @@ class C
             var test = @"
 class C
 {
+    void DoSomething() { }
+
     void M(bool foo, bool bar)
     {
         for (int i = 0; i < 10; i++)
@@ -490,6 +583,8 @@ class C
                     continue;
                 }
             }
+
+            DoSomething();
         }
     }
 }";
@@ -503,6 +598,7 @@ class C
 class C
 {
     void Alpha() { }
+    void DoSomething() { }
 
     void M(bool foo, bool bar)
     {
@@ -517,6 +613,8 @@ class C
                     {|#0:continue|};
                 }
             }
+
+            DoSomething();
         }
     }
 }";
@@ -531,6 +629,7 @@ class C
 class C
 {
     void Alpha() { }
+    void DoSomething() { }
 
     void M(bool foo, bool bar)
     {
@@ -549,6 +648,8 @@ class C
                     continue;
                 }
             }
+
+            DoSomething();
         }
     }
 }";
