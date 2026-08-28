@@ -535,7 +535,7 @@ var x = (((foo)))!;
 
 ## Mid-flow Branch
 
-Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
+Avoid mid-flow return/yield exits. Early returns are fine, but don't return or yield in the middle of the main flow.
 
 ```cs
 if (!IsValid()) return;  // Early return is allowed.

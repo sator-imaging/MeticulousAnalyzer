@@ -535,7 +535,7 @@ var x = (((foo)))!;
 
 ## 禁止在处理流程中途分支
 
-禁止在处理过程中途引入分支。允许使用提前 return，但不要在主流程中途引入新的控制流分支。
+禁止在处理过程中途使用 return/yield 退出。允许使用提前 return，但不要在主流程中途进行 return 或 yield。
 
 ```cs
 if (!IsValid()) return;  // 允许早期 return。

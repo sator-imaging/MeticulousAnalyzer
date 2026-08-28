@@ -667,7 +667,7 @@
     <value>Literal branch char</value>
   </data>
   <data name="SMA8030_Description" xml:space="preserve">
-    <value>Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.</value>
+    <value>Avoid mid-flow return/yield exits. Early returns are fine, but don't return or yield in the middle of the main flow.</value>
   </data>
   <data name="SMA8030_MessageFormat" xml:space="preserve">
     <value>Avoid using an if-only statement to exit in the middle of the main control flow. Instead use a complete `if-else` statement or extract methods to clarify the control flow.</value>
