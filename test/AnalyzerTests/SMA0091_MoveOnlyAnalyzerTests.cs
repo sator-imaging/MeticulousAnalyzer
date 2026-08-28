@@ -285,6 +285,7 @@ namespace Test
             Helper(temp);
             this = default;
             return temp;
+        }
     }
 }
 ";
