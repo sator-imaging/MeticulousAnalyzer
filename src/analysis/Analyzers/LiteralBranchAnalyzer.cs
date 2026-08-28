@@ -182,6 +182,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
+                if (IsExemptZeroForMemberAccess(literalOp))
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_LiteralBranchZero,
                     outermostSyntax.GetLocation(),
@@ -217,6 +220,105 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 decimal m => m == 0m,
                 _ => false
             };
+        }
+
+        private static bool IsExemptZeroForMemberAccess(ILiteralOperation literalOp)
+        {
+            var current = (IOperation)literalOp;
+            while (current.Parent is IConversionOperation or IUnaryOperation)
+            {
+                current = current.Parent;
+            }
+
+            var parent = current.Parent;
+            if (parent == null)
+                return false;
+
+            if (parent is IBinaryOperation binary)
+            {
+                return HasMemberAccessWithMatchingName(binary.LeftOperand) ||
+                       HasMemberAccessWithMatchingName(binary.RightOperand);
+            }
+
+            if (parent is IConstantPatternOperation or IRelationalPatternOperation)
+            {
+                var pat = parent;
+                while (pat != null)
+                {
+                    if (pat.Parent is IIsPatternOperation isPattern)
+                    {
+                        return HasMemberAccessWithMatchingName(isPattern.Value);
+                    }
+                    if (pat.Parent is ISwitchCaseOperation switchCase && switchCase.Parent is ISwitchOperation switchOp)
+                    {
+                        return HasMemberAccessWithMatchingName(switchOp.Value);
+                    }
+                    if (pat.Parent is ISwitchExpressionArmOperation arm && arm.Parent is ISwitchExpressionOperation switchExpr)
+                    {
+                        return HasMemberAccessWithMatchingName(switchExpr.Value);
+                    }
+                    pat = pat.Parent;
+                }
+            }
+
+            if (parent is ISingleValueCaseClauseOperation clause)
+            {
+                if (clause.Parent is ISwitchCaseOperation switchCase && switchCase.Parent is ISwitchOperation switchOp)
+                {
+                    return HasMemberAccessWithMatchingName(switchOp.Value);
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsMatchingMemberName(string name)
+        {
+            return name.Contains("Count") ||
+                   name.Contains("Length") ||
+                   name.Contains("IndexOf");
+        }
+
+        private static bool HasMemberAccessWithMatchingName(IOperation? operation)
+        {
+            if (operation == null)
+                return false;
+
+            foreach (var desc in DescendantsAndSelf(operation))
+            {
+                string? name = desc switch
+                {
+                    IMemberReferenceOperation memberRef => memberRef.Member?.Name,
+                    IInvocationOperation invocation => invocation.TargetMethod?.Name,
+                    IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                    _ => null
+                };
+
+                if (name != null && IsMatchingMemberName(name))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static System.Collections.Generic.IEnumerable<IOperation> DescendantsAndSelf(IOperation operation)
+        {
+            var stack = new System.Collections.Generic.Stack<IOperation>();
+            stack.Push(operation);
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                yield return current;
+                foreach (var child in current.Children)
+                {
+                    if (child != null)
+                    {
+                        stack.Push(child);
+                    }
+                }
+            }
         }
     }
 }

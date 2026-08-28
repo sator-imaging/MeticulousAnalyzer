@@ -463,5 +463,68 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_MemberAccess_CountLengthIndexOf()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class C
+    {
+        public void M(List<int> list, string str, int[] arr)
+        {
+            if (list.Count > 0)
+            {
+            }
+
+            if (arr.Length == 0)
+            {
+            }
+
+            if (str.IndexOf('a') >= 0)
+            {
+            }
+
+            int pos;
+            if ((pos = str.IndexOf('a')) > 0)
+            {
+            }
+
+            int count;
+            if ((count = list.Count) == 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_LocalReference_NoMemberAccess()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(string some)
+        {
+            int pos = some.IndexOf('a');
+            if (pos < {|#0:0|})
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
     }
 }
