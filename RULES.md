@@ -114,6 +114,7 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 | SMA0091 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without `Move()`.
 | SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by `ref` or `out` in `async` methods.
 | SMA0093 | Invalid MoveOnly Declaration                                  | MoveOnly type must be a struct.
+| SMA0094 | Prohibited Cast of MoveOnly Type                              | MoveOnly type cannot be cast to any type without `Move()`.
 
 ## Coding Assistance
 
@@ -154,12 +155,8 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | SMA8021 | Literal branch zero                                           | Avoid hardcoded zero in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`).
 | SMA8022 | Literal branch string                                         | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).
 | SMA8023 | Literal branch char                                           | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).
-| SMA8020 | Literal branch number                      | Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`).
-| SMA8021 | Literal branch zero                        | Avoid hardcoded zero in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`).
-| SMA8022 | Literal branch string                      | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).
-| SMA8023 | Literal branch char                        | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).
 | | | |
-| SMA8030 | Mid-flow Branch                            | Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
+| SMA8030 | Mid-flow Branch                                               | Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
 
 ## `Obsolete` Annotating and Underling
 
