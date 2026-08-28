@@ -445,6 +445,78 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA0090_Description {
+            get {
+                return ResourceManager.GetString("SMA0090_Description", resourceCulture);
+            }
+        }
+
+        internal static string SMA0090_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0090_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0090_Title {
+            get {
+                return ResourceManager.GetString("SMA0090_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA0091_Description {
+            get {
+                return ResourceManager.GetString("SMA0091_Description", resourceCulture);
+            }
+        }
+
+        internal static string SMA0091_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0091_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0091_Title {
+            get {
+                return ResourceManager.GetString("SMA0091_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA0092_Description {
+            get {
+                return ResourceManager.GetString("SMA0092_Description", resourceCulture);
+            }
+        }
+
+        internal static string SMA0092_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0092_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0092_Title {
+            get {
+                return ResourceManager.GetString("SMA0092_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA0093_Description {
+            get {
+                return ResourceManager.GetString("SMA0093_Description", resourceCulture);
+            }
+        }
+
+        internal static string SMA0093_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0093_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0093_Title {
+            get {
+                return ResourceManager.GetString("SMA0093_Title", resourceCulture);
+            }
+        }
+
         internal static string SMA0040__MD_DESC__ {
             get {
                 return ResourceManager.GetString("SMA0040__MD_DESC__", resourceCulture);

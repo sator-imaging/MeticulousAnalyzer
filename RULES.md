@@ -11,140 +11,149 @@ Resource suffix: `_Title` `_Description` `__MD_TITLE__` `__MD_DESC__`
 
 Analyzes static field declarations and initialization order to prevent reading uninitialized or cross-referenced static values.
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0001 | Reading Uninitialized Value                | Static field declaration order is wrong.
-| SMA0002 | Cross Referencing across Type              | Trying to read value from static field declared in cross-referencing type.
-| SMA0003 | Static Member Declared in Another File     | Initialization order of partial type files is undefined in language spec.
-| SMA0004 | Late Declaration                           | Static field is read before initialize.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0001 | Reading Uninitialized Value                                   | Static field declaration order is wrong.
+| SMA0002 | Cross Referencing across Type                                 | Trying to read value from static field declared in cross-referencing type.
+| SMA0003 | Static Member Declared in Another File                        | Initialization order of partial type files is undefined in language spec.
+| SMA0004 | Late Declaration                                              | Static field is read before initialize.
 
 ## `TSelf` Type Arg Analysis
 
 Analyzes `TSelf` generic type arguments and constraints to ensure self-referencing type parameters are correctly declared.
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0010 | TSelf is Not Self                          | `TSelf` type arg should be pointing itself.
-| SMA0011 | TSelf is Not Self or Base                  | `TSelf` type arg should be pointing itself or its base type.
-| SMA0012 | TSelf is Not Self or Derived               | `TSelf` type arg should be pointing itself or its derived type.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0010 | TSelf is Not Self                                             | `TSelf` type arg should be pointing itself.
+| SMA0011 | TSelf is Not Self or Base                                     | `TSelf` type arg should be pointing itself or its base type.
+| SMA0012 | TSelf is Not Self or Derived                                  | `TSelf` type arg should be pointing itself or its derived type.
 | | | |
-| SMA0015 | TSelf Constraint is Not Self               | `TSelf` type constraint is not pointing itself.
+| SMA0015 | TSelf Constraint is Not Self                                  | `TSelf` type constraint is not pointing itself.
 
 ## Enum Type Analysis
 
 Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.
 > Suppression comment: `// Allow enum conversion [Reason(optional)]`
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0020 | Unchecked Cast to Enum Type                | Unchecked value cast to enum type.
-| SMA0021 | Cast from Enum Type to Other               | Casting enum type to another type.
-| SMA0022 | Unchecked Cast to Generic Enum Type        | Unchecked value cast to generic enum type.
-| SMA0023 | Cast from Generic Enum Type to Other       | Casting generic enum type to another type.
-| SMA0024 | Enum to String                             | Enum string representation may break after obfuscation.
-| SMA0025 | Enum System Method                         | Enum system method call should be centralized.
-| SMA0026 | Enum Obfuscation                           | Enum obfuscation should have controlled.
-| SMA0027 | Unusual Enum Definition                    | Enum w/o `Flags` attribute should be defined as usual.
-| SMA0028 | Invalid Enum-like Pattern                  | Enum-like pattern implementation is not complete.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0020 | Unchecked Cast to Enum Type                                   | Unchecked value cast to enum type.
+| SMA0021 | Cast from Enum Type to Other                                  | Casting enum type to another type.
+| SMA0022 | Unchecked Cast to Generic Enum Type                           | Unchecked value cast to generic enum type.
+| SMA0023 | Cast from Generic Enum Type to Other                          | Casting generic enum type to another type.
+| SMA0024 | Enum to String                                                | Enum string representation may break after obfuscation.
+| SMA0025 | Enum System Method                                            | Enum system method call should be centralized.
+| SMA0026 | Enum Obfuscation                                              | Enum obfuscation should have controlled.
+| SMA0027 | Unusual Enum Definition                                       | Enum w/o `Flags` attribute should be defined as usual.
+| SMA0028 | Invalid Enum-like Pattern                                     | Enum-like pattern implementation is not complete.
 
 ## Struct Analysis
 
 Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.
 > Suppression comment: `// Allow boxing [Reason(optional)]`
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0030 | Invalid Struct Constructor                 | Constructor has declared explicitly so should not use parameter-less one.
-| SMA0031 | Mutable Struct Field marked as Read-Only   | Mutable struct type should not be set to `readonly` field.
-| SMA0032 | Implicit Boxing Conversion                 | Implicit conversion from struct to reference type (including interface) causes boxing.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0030 | Invalid Struct Constructor                                    | Constructor has declared explicitly so should not use parameter-less one.
+| SMA0031 | Mutable Struct Field marked as Read-Only                      | Mutable struct type should not be set to `readonly` field.
+| SMA0032 | Implicit Boxing Conversion                                    | Implicit conversion from struct to reference type (including interface) causes boxing.
 
 ## Disposable Analysis
 
 Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.
 > Suppression comment: `// Don't dispose [Reason(optional)]`
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0040 | Missing Using Statement                    | Instance that implements IDisposable pattern should be wrapped with `using` statement.
-| SMA0041 | Null Assignment to Disposable              | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.
-| SMA0042 | Not All Code Paths Return a Value          | A locally declared disposable object must be returned on all code paths.
-| SMA0043 | Undisposed Member                          | Disposable field is not disposed in the Dispose method.
-| SMA0044 | Missing Dispose Implementation             | Types that own disposable fields should implement the IDisposable pattern.
-| SMA0045 | Missing IDisposable Interface              | Types that own disposable fields should implement IDisposable interface.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0040 | Missing Using Statement                                       | Instance that implements IDisposable pattern should be wrapped with `using` statement.
+| SMA0041 | Null Assignment to Disposable                                 | Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.
+| SMA0042 | Not All Code Paths Return a Value                             | A locally declared disposable object must be returned on all code paths.
+| SMA0043 | Undisposed Member                                             | Disposable field is not disposed in the Dispose method.
+| SMA0044 | Missing Dispose Implementation                                | Types that own disposable fields should implement the IDisposable pattern.
+| SMA0045 | Missing IDisposable Interface                                 | Types that own disposable fields should implement IDisposable interface.
 
 ## File Structure Analysis
 
 Analyzes source file headers and file structural conventions.
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0050 | Missing File Header Comment                | File should start with a header comment such as `//` or `/*`.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0050 | Missing File Header Comment                                   | File should start with a header comment such as `//` or `/*`.
 
 ## Read-Only Variable Analysis
 
 Analyzes local variables and parameters to enforce immutability and prevent unintentional reassignments or mutations.
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0060 | Avoid Reassigning Locals                   | Avoid assignments to locals unless the local is intentionally mutable.
-| SMA0061 | Avoid Reassigning Parameters               | Avoid assignments to parameters unless the parameter is intentionally mutable.
-| SMA0062 | Avoid Passing Writable Variables to Calls  | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
-| SMA0063 | Property Access Can Change State           | Avoid accessing properties of immutable variables as it can change their internal state.
-| SMA0064 | Method Call Can Change State               | Avoid calling methods of immutable variables as it can change their internal state.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0060 | Avoid Reassigning Locals                                      | Avoid assignments to locals unless the local is intentionally mutable.
+| SMA0061 | Avoid Reassigning Parameters                                  | Avoid assignments to parameters unless the parameter is intentionally mutable.
+| SMA0062 | Avoid Passing Writable Variables to Calls                     | Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.
+| SMA0063 | Property Access Can Change State                              | Avoid accessing properties of immutable variables as it can change their internal state.
+| SMA0064 | Method Call Can Change State                                  | Avoid calling methods of immutable variables as it can change their internal state.
 
 ## Async Context Analysis
 
 Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.
 > Suppression comment: `// Don't await [Reason(optional)]`
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0070 | Task Not Awaited                           | Task local variable should be awaited or returned.
-| SMA0071 | Task Not Awaited on All Paths              | Task local variable should be awaited or returned on all code paths.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0070 | Task Not Awaited                                              | Task local variable should be awaited or returned.
+| SMA0071 | Task Not Awaited on All Paths                                 | Task local variable should be awaited or returned on all code paths.
 
 ## Project Structure Analysis
 
 Analyzes cross-namespace access restrictions to enforce internal architecture boundaries.
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA0080 | Internal cross-namespace access            | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA0080 | Internal cross-namespace access                               | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)
+| | | |
+| SMA0090 | Invalid MoveOnly Type                                         | MoveOnly type must declare a public instance `Move()` method returning the containing type.
+| SMA0091 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without `Move()`.
+| SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by `ref` or `out` in `async` methods.
+| SMA0093 | Invalid MoveOnly Declaration                                  | MoveOnly type must be a struct.
 
 ## Coding Assistance
 
 Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.
 > Suppression comment: `// Allow allocation [Reason(optional)]`
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA7000 | Lambda can be static                       | Lambda declaration should add `static` keyword for clarity.
-| SMA7001 | Inefficient delegate declaration           | Older runtime inefficiently handle direct passing of method.
-| SMA7002 | Lambda allocation                          | Non-static lambda declaration and implicit conversion causes allocation.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA7000 | Lambda can be static                                          | Lambda declaration should add `static` keyword for clarity.
+| SMA7001 | Inefficient delegate declaration                              | Older runtime inefficiently handle direct passing of method.
+| SMA7002 | Lambda allocation                                             | Non-static lambda declaration and implicit conversion causes allocation.
 | | | |
-| SMA7010 | Reflection Access                          | Access to members of types from `System.Reflection` is not NativeAOT-friendly.
-| SMA7011 | Reflection Type Variable                   | Local variables declared with types from `System.Reflection` are not NativeAOT-friendly.
+| SMA7010 | Reflection Access                                             | Access to members of types from `System.Reflection` is not NativeAOT-friendly.
+| SMA7011 | Reflection Type Variable                                      | Local variables declared with types from `System.Reflection` are not NativeAOT-friendly.
 | | | |
-| SMA7020 | `AggressiveInlining` to public member      | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc.
+| SMA7020 | `AggressiveInlining` to public member                         | `AggressiveInlining` to public members may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc.
 | | | |
-| SMA7030 | Implicit params array allocation           | Implicit params array allocation hides actual overhead from source code representation. Use explicit array allocation.
+| SMA7030 | Implicit params array allocation                              | Implicit params array allocation hides actual overhead from source code representation. Use explicit array allocation.
 | | | |
-| SMA7040 | Anonymous Object Creation                  | Anonymous object creation should be avoided. Use tuple instead.
+| SMA7040 | Anonymous Object Creation                                     | Anonymous object creation should be avoided. Use tuple instead.
 
 ## Reliability and Maintainability Analysis
 
 Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
 > Suppression comment: `// Ignore exception: Reason (required)`
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA8000 | Literal should be passed as named argument | Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)
-| SMA8001 | Explicit number declaration                | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
-| SMA8002 | Null suppression operation                 | Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.
-| SMA8003 | Debug-only Assert in Public API            | Avoid using debug-only validation in public API surfaces, as it can lead to undefined behavior in Release builds.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA8000 | Literal should be passed as named argument                    | Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)
+| SMA8001 | Explicit number declaration                                   | All system primitive numbers, from byte to decimal, should be declared explicitly typed.
+| SMA8002 | Null suppression operation                                    | Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.
+| SMA8003 | Debug-only Assert in Public API                               | Avoid using debug-only validation in public API surfaces, as it can lead to undefined behavior in Release builds.
 | | | |
-| SMA8010 | Catch Block Without Throw                  | Catch block should contain a `throw` statement.
-| SMA8011 | Catch-All Block Without Throw              | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.
+| SMA8010 | Catch Block Without Throw                                     | Catch block should contain a `throw` statement.
+| SMA8011 | Catch-All Block Without Throw                                 | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.
 | | | |
+| SMA8020 | Literal branch number                                         | Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`).
+| SMA8021 | Literal branch zero                                           | Avoid hardcoded zero in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`).
+| SMA8022 | Literal branch string                                         | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).
+| SMA8023 | Literal branch char                                           | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).
 | SMA8020 | Literal branch number                      | Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`).
 | SMA8021 | Literal branch zero                        | Avoid hardcoded zero in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`).
 | SMA8022 | Literal branch string                      | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).
@@ -156,19 +165,19 @@ Provides rules for argument readability, explicit typing, exception handling, an
 
 Analyzes for IDE underlining and visual annotations.
 
-| ID      | Diagnostic                                 | Description
-|---------|--------------------------------------------|-------------
-| SMA9000 | Underlining on Identifier Symbols          | Draw underline in IDE.
-| SMA9001 | Underlining on Local Variables             | Draw underline in IDE.
-| SMA9002 | Underlining on Method or Lambda Parameters | Draw underline in IDE.
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
+| SMA9000 | Underlining on Identifier Symbols                             | Draw underline in IDE.
+| SMA9001 | Underlining on Local Variables                                | Draw underline in IDE.
+| SMA9002 | Underlining on Method or Lambda Parameters                    | Draw underline in IDE.
 | | | |
-| SMA9010 | Underlining on Declarations                | Draw underline in IDE.
+| SMA9010 | Underlining on Declarations                                   | Draw underline in IDE.
 | | | |
-| SMA9015 | Underlining only on Designated Type        | Draw underline in IDE.
+| SMA9015 | Underlining only on Designated Type                           | Draw underline in IDE.
 | | | |
-| SMA9020 | Underlining at Line Head                   | Draw underline in IDE.
-| SMA9021 | Underlining at Line Leading                | Draw underline in IDE.
-| SMA9022 | Underlining on Identifier                  | Draw underline in IDE.
-| SMA9023 | Underlining at Line End                    | Draw underline in IDE.
+| SMA9020 | Underlining at Line Head                                      | Draw underline in IDE.
+| SMA9021 | Underlining at Line Leading                                   | Draw underline in IDE.
+| SMA9022 | Underlining on Identifier                                     | Draw underline in IDE.
+| SMA9023 | Underlining at Line End                                       | Draw underline in IDE.
 | | | |
-| SMA9100 | Underlining as Warning                     | Draw underline in IDE.
+| SMA9100 | Underlining as Warning                                        | Draw underline in IDE.
