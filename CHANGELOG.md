@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.2.0-rc.2](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.2) (2026-08-28)
+
+### 🚀 Features
+* Add support for continue statements to `MidFlowBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#534](https://github.com/sator-imaging/MeticulousAnalyzer/pull/534)
+### 📚 Other Changes
+* Add unit tests for MidFlowBranchAnalyzer (SMA8030) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#536](https://github.com/sator-imaging/MeticulousAnalyzer/pull/536)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.1...v5.2.0-rc.2
+
+
 ## [5.2.0-rc.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.1) (2026-08-28)
 
 ### 🚀 Features
