@@ -240,6 +240,11 @@ namespace Test
             var test = @"
 namespace Test
 {
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
     class Program
     {
         private MoveOnlyStruct _field1 = default;
