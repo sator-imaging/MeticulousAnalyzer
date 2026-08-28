@@ -533,6 +533,47 @@ var x = (((foo)))!;
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
 
 
+## Mid-flow return analyzer
+
+Avoid mid-flow returns. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
+
+```cs
+if (!IsValid()) return;  // Early return is allowed.
+
+// Some operations after early return...
+// ...
+// ...
+
+if (foo)
+{
+    Foo();
+    return;
+    ~~~~~~ // Error: Exiting in the middle of the main flow.
+}
+
+Alpha();
+Bravo();
+Charlie();
+```
+
+To avoid errors, use a complete `if-else` statement or extract methods to clarify the control flow.
+
+```cs
+// Use return, yield return or throw in all code paths,
+// or avoid exiting in main control flow.
+if (foo)
+{
+    Foo();
+}
+else
+{
+    Alpha();
+    Bravo();
+    Charlie();
+}
+```
+
+
 
 
 

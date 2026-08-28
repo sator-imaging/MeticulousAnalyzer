@@ -533,6 +533,47 @@ var x = (((foo)))!;
 > 之后，强烈建议使用 `Debug.Assert(foo is not null);` 代替 `!` 运算符来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
 
 
+## 主流程中途 return 分析器
+
+避免在主流程中途 return。早期 return 是允许的，但不要在主流程中间引入新的控制流分支。
+
+```cs
+if (!IsValid()) return;  // 允许早期 return。
+
+// 早期 return 之后的处理...
+// ...
+// ...
+
+if (foo)
+{
+    Foo();
+    return;
+    ~~~~~~ // 错误：在主流程中途退出。
+}
+
+Alpha();
+Bravo();
+Charlie();
+```
+
+为避免错误，请使用完整的 `if-else` 语句或拆分方法来明确控制流。
+
+```cs
+// 在所有代码路径中使用 return、yield return 或 throw，
+// 或避免在主控制流中退出。
+if (foo)
+{
+    Foo();
+}
+else
+{
+    Alpha();
+    Bravo();
+    Charlie();
+}
+```
+
+
 
 
 
