@@ -285,7 +285,6 @@ namespace Test
             Helper(temp);
             this = default;
             return temp;
-        public MoveOnlyStruct Move() => this;
     }
 }
 ";
