@@ -334,25 +334,31 @@ namespace Test
 
 
         [TestMethod]
-        public async Task SMA8021_Violation_ForStatement_ZeroLiteral()
+        public async Task SMA8021_Compliant_LoopConditions_ZeroLiteral()
         {
             var test = @"
 namespace Test
 {
     public class C
     {
-        public void M()
+        public void M(int length)
         {
-            for (int i = 10; i > {|#0:0|}; i--)
+            for (int i = length - 1; i >= 0; i--)
             {
             }
+
+            while (length > 0)
+            {
+            }
+
+            do
+            {
+            } while (length > 0);
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
-            );
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
