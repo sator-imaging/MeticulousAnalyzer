@@ -573,6 +573,32 @@ else
 }
 ```
 
+The same rule applies to `continue` inside loops:
+
+```cs
+// Mid-flow continue inside loop:
+foreach (var item in items)
+{
+    int len = item?.Length ?? 0;
+
+    if (item == null)
+    {
+        continue;
+        ~~~~~~~~ // Error: Continuing in the middle of the loop flow.
+    }
+
+    DoSomething(item);
+}
+
+// Fixed: Early continue or inverted condition:
+foreach (var item in items)
+{
+    if (item == null) continue; // Early continue is allowed.
+
+    DoSomething(item);
+}
+```
+
 
 
 

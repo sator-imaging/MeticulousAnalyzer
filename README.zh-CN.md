@@ -573,6 +573,32 @@ else
 }
 ```
 
+同样的规则适用于循环内部 include 的 `continue`：
+
+```cs
+// 循环处理流程中途的 continue：
+foreach (var item in items)
+{
+    int len = item?.Length ?? 0;
+
+    if (item == null)
+    {
+        continue;
+        ~~~~~~~~ // 错误：在循环流程中途 continue。
+    }
+
+    DoSomething(item);
+}
+
+// 修复后：早期 continue 或条件反转：
+foreach (var item in items)
+{
+    if (item == null) continue; // 允许早期 continue。
+
+    DoSomething(item);
+}
+```
+
 
 
 
