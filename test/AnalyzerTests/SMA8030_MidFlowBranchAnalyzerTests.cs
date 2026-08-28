@@ -655,5 +655,224 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NullCoalesceLocalDeclarationBeforeIfBranch()
+        {
+            var test = @"#nullable enable
+class Item
+{
+    public int Value { get; set; }
+}
+
+class C
+{
+    void M(Item? some)
+    {
+        int value = some?.Value ?? 0;
+
+        if (value == 0) return;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_DoWhileLoopEarlyContinue()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M(bool cond, bool skip)
+    {
+        int i = 0;
+        do
+        {
+            if (skip) continue;
+
+            int x = i++;
+            DoSomething(x);
+        } while (cond);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_DoWhileLoopMidFlowContinue()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M(bool cond, bool skip)
+    {
+        int i = 0;
+        do
+        {
+            int x = i++;
+            DoSomething(x);
+
+            if (skip)
+            {
+                {|#0:continue|};
+            }
+        } while (cond);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_LoopNullCoalesceLocalDeclarationBeforeIfBranch()
+        {
+            var test = @"#nullable enable
+class Item
+{
+    public int Value { get; set; }
+}
+
+class C
+{
+    void M(Item?[] items)
+    {
+        foreach (var item in items)
+        {
+            int value = item?.Value ?? 0;
+
+            if (value == 0) continue;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_LoopMidFlowReturn()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            int value = items[i];
+            DoSomething(value);
+
+            if (value == 0)
+            {
+                {|#0:return|};
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_MethodEarlyReturnWithNullCoalesce()
+        {
+            var test = @"#nullable enable
+class Item
+{
+    public int Value { get; set; }
+}
+
+class C
+{
+    int M(Item? item)
+    {
+        int value = item?.Value ?? 0;
+
+        if (value == 0) return -1;
+
+        return value * 2;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_MethodMidFlowReturnAfterStatement()
+        {
+            var test = @"
+class C
+{
+    void Process() { }
+
+    int M(bool cond)
+    {
+        Process();
+
+        if (cond)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_LocalFunctionEarlyReturn()
+        {
+            var test = @"
+class C
+{
+    void M()
+    {
+        int LocalFunc(bool invalid)
+        {
+            if (invalid) return 0;
+
+            int a = 10;
+            return a;
+        }
+
+        LocalFunc(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_LocalFunctionMidFlowReturn()
+        {
+            var test = @"
+class C
+{
+    void M()
+    {
+        void Helper() { }
+
+        int LocalFunc(bool cond)
+        {
+            Helper();
+
+            if (cond)
+            {
+                {|#0:return|} 1;
+            }
+
+            return 0;
+        }
+
+        LocalFunc(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
     }
 }
