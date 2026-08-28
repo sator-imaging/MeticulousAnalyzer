@@ -229,8 +229,49 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (IsInAsyncContext(context.ContainingSymbol))
                 {
+                    // Allow passing with in/ref/out in async method ONLY WHEN:
+                    // 1) passing to constructor (argOp.Parent is IObjectCreationOperation)
+                    // 2) passing to sync method (returns non-Task/ValueTask)
+                    // 3) passing to async method (returns Task/ValueTask) that has `await`
                     bool isCtor = argOp.Parent is IObjectCreationOperation;
-                    bool isAllowed = isCtor || (argOp.Parent is IInvocationOperation invocationOp && invocationOp.Parent is IAwaitOperation);
+                    bool isAllowed = isCtor;
+
+                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
+                    {
+                        if (!targetMethod.IsAsync)
+                        {
+                            var returnType = targetMethod.ReturnType;
+                            bool isTaskReturning = returnType is INamedTypeSymbol
+                            {
+                                Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
+                                {
+                                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
+                                    {
+                                        Name: "Threading", ContainingNamespace: INamespaceSymbol
+                                        {
+                                            Name: "System", ContainingNamespace: INamespaceSymbol
+                                            {
+                                                IsGlobalNamespace: true
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+
+                            if (!isTaskReturning)
+                            {
+                                isAllowed = true; // passing to sync method
+                            }
+                            else if (invocationOp.Parent is IAwaitOperation)
+                            {
+                                isAllowed = true; // passing to async method that has await
+                            }
+                        }
+                        else if (invocationOp.Parent is IAwaitOperation)
+                        {
+                            isAllowed = true; // passing to async method that has await
+                        }
+                    }
 
                     if (!isAllowed)
                     {
