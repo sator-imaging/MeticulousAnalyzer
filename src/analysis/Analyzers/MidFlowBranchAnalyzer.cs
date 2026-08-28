@@ -10,7 +10,7 @@ using System.Collections.Immutable;
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class MidFlowReturnAnalyzer : DiagnosticAnalyzer
+    public sealed class MidFlowBranchAnalyzer : DiagnosticAnalyzer
     {
         public const string RuleId = "SMA8030";
 

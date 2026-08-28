@@ -4,12 +4,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
-using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MidFlowReturnAnalyzer>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MidFlowBranchAnalyzer>;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
     [TestClass]
-    public class SMA8030_MidFlowReturnAnalyzerTests
+    public class SMA8030_MidFlowBranchAnalyzerTests
     {
         [TestMethod]
         public async Task SMA8030_Compliant_EarlyReturnsOnly()
@@ -80,8 +80,8 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(0),
-                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(1));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
         }
 
         [TestMethod]
@@ -138,7 +138,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
         }
 
         [TestMethod]
@@ -211,7 +211,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
         }
 
         [TestMethod]
@@ -310,7 +310,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
         }
 
         [TestMethod]

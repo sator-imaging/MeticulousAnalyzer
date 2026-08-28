@@ -512,7 +512,7 @@ catch (System.IO.IOException ex)
 > The comment must start with `// Ignore exception:` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) must always contain a `throw` statement and cannot be suppressed by comments.
 
 
-## Null suppression operation
+## Null Suppression Operation
 
 Null suppression operation should be fenced with 3 parentheses to improve visual attention and text-based traceability.
 
@@ -533,9 +533,9 @@ var x = (((foo)))!;
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
 
 
-## Mid-flow return analyzer
+## Mid-flow Branch
 
-Avoid mid-flow returns. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
+Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
 
 ```cs
 if (!IsValid()) return;  // Early return is allowed.

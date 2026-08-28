@@ -533,9 +533,9 @@ var x = (((foo)))!;
 > 之后，强烈建议使用 `Debug.Assert(foo is not null);` 代替 `!` 运算符来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
 
 
-## 主流程中途 return 分析器
+## 禁止在处理流程中途分支
 
-避免在主流程中途 return。早期 return 是允许的，但不要在主流程中间引入新的控制流分支。
+禁止在处理过程中途引入分支。允许使用提前 return，但不要在主流程中途引入新的控制流分支。
 
 ```cs
 if (!IsValid()) return;  // 允许早期 return。
