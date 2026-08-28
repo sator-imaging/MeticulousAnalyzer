@@ -52,11 +52,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     if (isMainFlowStarted)
                     {
-                        CheckAndReportMidFlowReturns(context, ifStmt);
+                        CheckAndReportMidFlowBranches(context, ifStmt);
                     }
                     else
                     {
-                        if (!ContainsReturn(ifStmt))
+                        if (!ContainsBranch(ifStmt))
                         {
                             isMainFlowStarted = true;
                         }
@@ -69,14 +69,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool ContainsReturn(SyntaxNode node)
+        private static bool ContainsBranch(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax)
+            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax)
                 return true;
 
             foreach (var descendant in node.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
             {
-                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax)
+                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax)
                 {
                     return true;
                 }
@@ -84,22 +84,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static void CheckAndReportMidFlowReturns(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
+        private static void CheckAndReportMidFlowBranches(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
         {
-            if (AllBranchesReturn(ifStmt))
+            if (AllBranchesBranch(ifStmt))
             {
                 return;
             }
 
-            CollectAndReportReturnsInIfBranch(context, ifStmt);
+            CollectAndReportBranchesInIfBranch(context, ifStmt);
         }
 
-        private static void CollectAndReportReturnsInIfBranch(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
+        private static void CollectAndReportBranchesInIfBranch(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
         {
             IfStatementSyntax? currentIf = ifStmt;
             while (currentIf != null)
             {
-                ReportReturnsInStatement(context, currentIf.Statement);
+                ReportBranchesInStatement(context, currentIf.Statement);
 
                 if (currentIf.Else != null)
                 {
@@ -109,7 +109,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
                     else
                     {
-                        ReportReturnsInStatement(context, currentIf.Else.Statement);
+                        ReportBranchesInStatement(context, currentIf.Else.Statement);
                         currentIf = null;
                     }
                 }
@@ -120,7 +120,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void ReportReturnsInStatement(SyntaxNodeAnalysisContext context, StatementSyntax branchStatement)
+        private static void ReportBranchesInStatement(SyntaxNodeAnalysisContext context, StatementSyntax branchStatement)
         {
             CheckAndReportNode(context, branchStatement);
             foreach (var node in branchStatement.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
@@ -139,14 +139,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, yieldStmt.YieldKeyword.GetLocation()));
             }
+            else if (node is ContinueStatementSyntax continueStmt)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, continueStmt.ContinueKeyword.GetLocation()));
+            }
         }
 
-        private static bool AllBranchesReturn(IfStatementSyntax ifStmt)
+        private static bool AllBranchesBranch(IfStatementSyntax ifStmt)
         {
             IfStatementSyntax? current = ifStmt;
             while (current != null)
             {
-                if (!BranchGuaranteesReturn(current.Statement))
+                if (!BranchGuaranteesBranch(current.Statement))
                     return false;
 
                 if (current.Else == null)
@@ -158,41 +162,41 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
                 else
                 {
-                    return BranchGuaranteesReturn(current.Else.Statement);
+                    return BranchGuaranteesBranch(current.Else.Statement);
                 }
             }
 
             return false;
         }
 
-        private static bool BranchGuaranteesReturn(StatementSyntax statement)
+        private static bool BranchGuaranteesBranch(StatementSyntax statement)
         {
             if (statement is BlockSyntax block)
             {
                 foreach (var stmt in block.Statements)
                 {
-                    if (StatementGuaranteesReturn(stmt))
+                    if (StatementGuaranteesBranch(stmt))
                         return true;
                 }
                 return false;
             }
 
-            return StatementGuaranteesReturn(statement);
+            return StatementGuaranteesBranch(statement);
         }
 
-        private static bool StatementGuaranteesReturn(StatementSyntax statement)
+        private static bool StatementGuaranteesBranch(StatementSyntax statement)
         {
-            if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax)
+            if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax)
                 return true;
 
             if (statement is IfStatementSyntax innerIf)
             {
-                return AllBranchesReturn(innerIf);
+                return AllBranchesBranch(innerIf);
             }
 
             if (statement is BlockSyntax block)
             {
-                return BranchGuaranteesReturn(block);
+                return BranchGuaranteesBranch(block);
             }
 
             return false;

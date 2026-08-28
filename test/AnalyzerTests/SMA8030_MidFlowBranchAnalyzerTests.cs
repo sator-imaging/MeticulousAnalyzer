@@ -12,7 +12,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     public class SMA8030_MidFlowBranchAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA8030_Compliant_EarlyReturnsOnly()
+        public async Task SMA8030_Compliant_EarlyBranchesOnly()
         {
             var test = @"
 class C
@@ -31,7 +31,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_DeconstructionLocalDeclarationsBeforeIfReturn()
+        public async Task SMA8030_Compliant_DeconstructionLocalDeclarationsBeforeIfBranch()
         {
             var test = @"
 class C
@@ -54,7 +54,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_MidFlowReturnInIf()
+        public async Task SMA8030_Violation_MidFlowBranchInIf()
         {
             var test = @"
 class C
@@ -85,7 +85,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_IfElseIfElseAllReturn()
+        public async Task SMA8030_Compliant_IfElseIfElseAllBranch()
         {
             var test = @"
 class C
@@ -115,7 +115,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_YieldReturnInMidFlowIf()
+        public async Task SMA8030_Violation_YieldBranchInMidFlowIf()
         {
             var test = @"
 using System.Collections.Generic;
@@ -142,7 +142,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_LocalDeclarationsBeforeIfReturn()
+        public async Task SMA8030_Compliant_LocalDeclarationsBeforeIfBranch()
         {
             var test = @"
 class C
@@ -215,7 +215,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_EarlyThrowInsteadOfReturn()
+        public async Task SMA8030_Compliant_EarlyThrowInsteadOfBranch()
         {
             var test = @"
 using System;
@@ -334,6 +334,220 @@ class C
             else
             {
                 return;
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ForLoopEarlyContinue()
+        {
+            var test = @"
+class C
+{
+    void M()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (i % 2 == 0) continue;
+
+            int x = i;
+            x++;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ForLoopMidFlowContinue()
+        {
+            var test = @"
+class C
+{
+    void M()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            int x = i;
+            x++;
+
+            if (i % 2 == 0)
+            {
+                {|#0:continue|};
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ForeachLoopEarlyContinue()
+        {
+            var test = @"
+class C
+{
+    void M(string[] items)
+    {
+        foreach (var item in items)
+        {
+            if (item == null) continue;
+
+            int len = item.Length;
+            len++;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ForeachLoopMidFlowContinue()
+        {
+            var test = @"
+class C
+{
+    void M(string[] items)
+    {
+        foreach (var item in items)
+        {
+            int len = item.Length;
+            len++;
+
+            if (item == null)
+            {
+                {|#0:continue|};
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_WhileLoopEarlyContinue()
+        {
+            var test = @"
+class C
+{
+    void M(bool cond, bool skip)
+    {
+        while (cond)
+        {
+            if (skip) continue;
+
+            int x = 1;
+            x++;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_WhileLoopMidFlowContinue()
+        {
+            var test = @"
+class C
+{
+    void M(bool cond, bool skip)
+    {
+        while (cond)
+        {
+            int x = 1;
+            x++;
+
+            if (skip)
+            {
+                {|#0:continue|};
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_LoopNestedIfWithoutPriorStatements()
+        {
+            var test = @"
+class C
+{
+    void M(bool foo, bool bar)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (foo)
+            {
+                if (bar)
+                {
+                    continue;
+                }
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_LoopNestedIfWithPriorStatement()
+        {
+            var test = @"
+class C
+{
+    void Alpha() { }
+
+    void M(bool foo, bool bar)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (foo)
+            {
+                Alpha();
+
+                if (bar)
+                {
+                    {|#0:continue|};
+                }
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_LoopNestedIfElseWithPriorStatement()
+        {
+            var test = @"
+class C
+{
+    void Alpha() { }
+
+    void M(bool foo, bool bar)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (foo)
+            {
+                Alpha();
+
+                if (bar)
+                {
+                    continue;
+                }
+                else
+                {
+                    continue;
+                }
             }
         }
     }
