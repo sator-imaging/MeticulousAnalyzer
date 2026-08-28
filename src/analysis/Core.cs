@@ -22,7 +22,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 {
     public static class Core
     {
-        internal const string CategoryPrefix = nameof(SatorImaging);
+        internal const string CategoryPrefix = nameof(SatorImaging) + "_";
 
         const string ConfigPrefix = "sator_imaging.";
         public const string Config_EnableImmutableVariable = ConfigPrefix + "immutable_variable";
