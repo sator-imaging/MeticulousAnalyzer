@@ -267,5 +267,78 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NestedIfWithoutPriorStatements()
+        {
+            var test = @"
+class C
+{
+    void M(bool foo, bool bar)
+    {
+        if (foo)
+        {
+            if (bar)
+            {
+                return;
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_NestedIfWithPriorStatement()
+        {
+            var test = @"
+class C
+{
+    void Alpha() { }
+
+    void M(bool foo, bool bar)
+    {
+        if (foo)
+        {
+            Alpha();
+
+            if (bar)
+            {
+                {|#0:return|};
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowReturnAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NestedIfElseWithPriorStatement()
+        {
+            var test = @"
+class C
+{
+    void Alpha() { }
+
+    void M(bool foo, bool bar)
+    {
+        if (foo)
+        {
+            Alpha();
+
+            if (bar)
+            {
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

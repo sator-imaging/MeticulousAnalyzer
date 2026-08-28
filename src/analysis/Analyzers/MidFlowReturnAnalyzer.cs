@@ -38,23 +38,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Node is not BlockSyntax block)
                 return;
 
-            bool isMainFlowStarted = block.Parent is not (MethodDeclarationSyntax
-                or LocalFunctionStatementSyntax
-                or AnonymousMethodExpressionSyntax
-                or SimpleLambdaExpressionSyntax
-                or ParenthesizedLambdaExpressionSyntax
-                or AccessorDeclarationSyntax
-                or ConstructorDeclarationSyntax
-                or DestructorDeclarationSyntax
-                or OperatorDeclarationSyntax
-                or ConversionOperatorDeclarationSyntax);
+            bool isMainFlowStarted = false;
 
-            AnalyzeStatements(context, block.Statements, isMainFlowStarted);
-        }
-
-        private static void AnalyzeStatements(SyntaxNodeAnalysisContext context, SyntaxList<StatementSyntax> statements, bool isMainFlowStarted)
-        {
-            foreach (var statement in statements)
+            foreach (var statement in block.Statements)
             {
                 if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax))
