@@ -30,7 +30,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyLocal,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Description", Resources.ResourceManager, typeof(Resources)));
@@ -39,7 +39,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyParameter,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Description", Resources.ResourceManager, typeof(Resources)));
@@ -48,7 +48,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyArgument,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Description", Resources.ResourceManager, typeof(Resources)));
@@ -57,7 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_PropertyAccessCanChangeState,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
@@ -66,7 +66,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_ReadOnlyMethodCall,
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
             description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Description", Resources.ResourceManager, typeof(Resources)));

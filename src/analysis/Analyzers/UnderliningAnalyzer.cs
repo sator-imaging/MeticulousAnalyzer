@@ -37,7 +37,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineIdentifierSymbol,
             new LocalizableResourceString(nameof(Resources.SMA9000_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9000_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9000_Description), Resources.ResourceManager, typeof(Resources)));
@@ -47,7 +47,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineLocalVar,
             new LocalizableResourceString(nameof(Resources.SMA9001_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9001_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9001_Description), Resources.ResourceManager, typeof(Resources)));
@@ -57,7 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineParameter,
             new LocalizableResourceString(nameof(Resources.SMA9002_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9002_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9002_Description), Resources.ResourceManager, typeof(Resources)));
@@ -67,7 +67,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineDeclaration,
             new LocalizableResourceString(nameof(Resources.SMA9010_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9010_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9010_Description), Resources.ResourceManager, typeof(Resources)));
@@ -77,7 +77,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineDesignatedType,
             new LocalizableResourceString(nameof(Resources.SMA9015_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9015_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9015_Description), Resources.ResourceManager, typeof(Resources)));
@@ -89,7 +89,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineLineHead,
             new LocalizableResourceString(nameof(Resources.SMA9020_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9020_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9020_Description), Resources.ResourceManager, typeof(Resources)));
@@ -99,7 +99,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineLineLeading,
             new LocalizableResourceString(nameof(Resources.SMA9021_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9021_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9021_Description), Resources.ResourceManager, typeof(Resources)));
@@ -109,7 +109,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineLineFill,
             new LocalizableResourceString(nameof(Resources.SMA9022_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9022_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9022_Description), Resources.ResourceManager, typeof(Resources)));
@@ -119,7 +119,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineLineEnd,
             new LocalizableResourceString(nameof(Resources.SMA9023_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9023_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9023_Description), Resources.ResourceManager, typeof(Resources)));
@@ -131,7 +131,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             RuleId_UnderlineWarning,
             new LocalizableResourceString(nameof(Resources.SMA9100_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA9100_MessageFormat), Resources.ResourceManager, typeof(Resources)),
-            Core.Category,
+            Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA9100_Description), Resources.ResourceManager, typeof(Resources)));

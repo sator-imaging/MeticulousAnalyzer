@@ -22,8 +22,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 {
     public static class Core
     {
-        // https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Utilities/Compiler/DiagnosticCategoryAndIdRanges.txt
-        internal const string Category = nameof(MeticulousAnalyzer);
+        internal const string CategoryPrefix = nameof(SatorImaging);
 
         const string ConfigPrefix = "sator_imaging.";
         public const string Config_EnableImmutableVariable = ConfigPrefix + "immutable_variable";
@@ -81,7 +80,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             RuleId_DebugError,
             RuleId_DebugError,
             messageFormat: "{0}",
-            Category,
+            CategoryPrefix,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: RuleId_DebugError);
@@ -91,7 +90,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             RuleId_DebugWarn,
             RuleId_DebugWarn,
             messageFormat: "{0}",
-            Category,
+            CategoryPrefix,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: RuleId_DebugWarn);
