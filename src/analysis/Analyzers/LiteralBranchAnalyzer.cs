@@ -185,13 +185,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand))
-                    return;
-
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_LiteralBranchZero,
-                    outermostSyntax.GetLocation(),
-                    outermostSyntax.ToString()));
+                if (!IsInLoopCondition(outermostSyntax.Parent) ||
+                    (leftOperand == null || !LeftSideHasMatchingMemberAccessSyntax(leftOperand)))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_LiteralBranchZero,
+                        outermostSyntax.GetLocation(),
+                        outermostSyntax.ToString()));
+                }
             }
             else
             {
@@ -200,6 +201,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     outermostSyntax.GetLocation(),
                     outermostSyntax.ToString()));
             }
+        }
+
+        private static bool IsInLoopCondition(SyntaxNode? node)
+        {
+            if (node == null)
+                return false;
+
+            return node.Parent is ForStatementSyntax forStmt && forStmt.Condition == node
+                || node.Parent is WhileStatementSyntax whileStmt && whileStmt.Condition == node
+                || node.Parent is DoStatementSyntax doStmt && doStmt.Condition == node;
         }
 
         private static bool IsNumericZero(ILiteralOperation literalOp)
