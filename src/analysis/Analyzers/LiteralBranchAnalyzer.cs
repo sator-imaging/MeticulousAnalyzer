@@ -88,8 +88,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeOperandForLiteral(context, binary.LeftOperand, binary.RightOperand);
-            AnalyzeOperandForLiteral(context, binary.RightOperand, binary.LeftOperand);
+            bool leftHasMemberAccess = HasMemberAccessWithMatchingName(binary.LeftOperand);
+
+            AnalyzeOperandForLiteral(context, binary.LeftOperand);
+            AnalyzeOperandForLiteral(context, binary.RightOperand, exemptZero: leftHasMemberAccess);
         }
 
         private static void AnalyzeConstantPattern(OperationAnalysisContext context)
@@ -97,7 +99,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IConstantPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value, GetPatternTargetValue(pattern));
+            AnalyzeOperandForLiteral(context, pattern.Value);
         }
 
         private static void AnalyzeRelationalPattern(OperationAnalysisContext context)
@@ -105,7 +107,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IRelationalPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value, GetPatternTargetValue(pattern));
+            AnalyzeOperandForLiteral(context, pattern.Value);
         }
 
         private static void AnalyzeSwitchCase(OperationAnalysisContext context)
@@ -113,16 +115,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not ISwitchCaseOperation switchCase)
                 return;
 
-            var targetValue = switchCase.Parent is ISwitchOperation switchOp ? switchOp.Value : null;
-
             foreach (var clause in switchCase.Clauses)
             {
                 if (clause is ISingleValueCaseClauseOperation singleValue)
-                    AnalyzeOperandForLiteral(context, singleValue.Value, targetValue);
+                    AnalyzeOperandForLiteral(context, singleValue.Value);
             }
         }
 
-        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand, IOperation? targetOperand = null)
+        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand, bool exemptZero = false)
         {
             // Unwrap interleaved conversions and unary +/- to reach the literal
             var current = operand;
@@ -184,7 +184,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (targetOperand != null && HasMemberAccessWithMatchingName(targetOperand))
+                if (exemptZero)
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -224,22 +224,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        private static IOperation? GetPatternTargetValue(IPatternOperation pattern)
-        {
-            var current = (IOperation)pattern;
-            while (current != null)
-            {
-                if (current.Parent is IIsPatternOperation isPattern)
-                    return isPattern.Value;
-                if (current.Parent is ISwitchCaseOperation switchCase && switchCase.Parent is ISwitchOperation switchOp)
-                    return switchOp.Value;
-                if (current.Parent is ISwitchExpressionArmOperation arm && arm.Parent is ISwitchExpressionOperation switchExpr)
-                    return switchExpr.Value;
-                current = current.Parent;
-            }
-            return null;
-        }
-
         private static bool IsMatchingMemberName(string name)
         {
             return name.Contains("Count") ||
@@ -252,41 +236,30 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (operation == null)
                 return false;
 
-            foreach (var desc in DescendantsAndSelf(operation))
+            var current = operation;
+            while (current is IConversionOperation conv)
             {
-                string? name = desc switch
-                {
-                    IMemberReferenceOperation memberRef => memberRef.Member?.Name,
-                    IInvocationOperation invocation => invocation.TargetMethod?.Name,
-                    IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
-                    _ => null
-                };
+                current = conv.Operand;
+            }
 
-                if (name != null && IsMatchingMemberName(name))
+            if (current is IAssignmentOperation assign)
+            {
+                current = assign.Value;
+                while (current is IConversionOperation conv)
                 {
-                    return true;
+                    current = conv.Operand;
                 }
             }
 
-            return false;
-        }
-
-        private static System.Collections.Generic.IEnumerable<IOperation> DescendantsAndSelf(IOperation operation)
-        {
-            var stack = new System.Collections.Generic.Stack<IOperation>();
-            stack.Push(operation);
-            while (stack.Count > 0)
+            string? name = current switch
             {
-                var current = stack.Pop();
-                yield return current;
-                foreach (var child in current.Children)
-                {
-                    if (child != null)
-                    {
-                        stack.Push(child);
-                    }
-                }
-            }
+                IMemberReferenceOperation memberRef => memberRef.Member?.Name,
+                IInvocationOperation invocation => invocation.TargetMethod?.Name,
+                IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                _ => null
+            };
+
+            return name != null && IsMatchingMemberName(name);
         }
     }
 }
