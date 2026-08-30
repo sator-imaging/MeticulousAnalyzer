@@ -375,5 +375,97 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_ArcClass()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        MoveOnlyStruct Value = new();
+        public ref MoveOnlyStruct GetRef(int value) => ref Value;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_UsingStatement_SyncAndAsync()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyIDisposable : IDisposable, IAsyncDisposable
+    {
+        public MoveOnlyIDisposable Move() => this;
+        public void Dispose() { }
+        public ValueTask DisposeAsync() => default;
+    }
+
+    class Program
+    {
+        async Task MethodAsync(MoveOnlyIDisposable arg)
+        {
+            using var x1 = new MoveOnlyIDisposable();
+            using var x2 = arg.Move();
+            using var x3 = {|#0:arg|};
+
+            await using var y1 = new MoveOnlyIDisposable();
+            await using var y2 = arg.Move();
+            await using var y3 = {|#1:arg|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyIDisposable");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyIDisposable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_MoveOnlyReturningMethod()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        MoveOnlyStruct Some() => new MoveOnlyStruct();
+
+        void Method()
+        {
+            var x = {|#0:Some()|};
+            var y = Some().Move();
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
     }
 }
