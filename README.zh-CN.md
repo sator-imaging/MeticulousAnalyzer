@@ -665,12 +665,13 @@ foreach (var item in items)
 在 C# `struct` 类型上强制执行 C++ 风格的移动语义（Move Semantics），防止意外复制或隐式资源共享。类型名称以 `MoveOnly` 开头（区分大小写）或带有 `[NoCopy]` 特性的类型将被识别为 MoveOnly 类型（需要手动定义 `NoCopyAttribute` 类型）。
 
 - SMA0090: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
-- SMA0091: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。仅允许从 `Move()` 中返回或按引用返回，即使对返回值调用 `Move()` 也不允许返回。
+- SMA0091: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
 - SMA0092: MoveOnly 类型禁止在 `async` 方法中作为 `ref`、`out` 或 `in` 参数传递给另一个 `async` 方法。（存在 `await` 的调用除外）
 - SMA0093: MoveOnly 类型必须是 `struct`。
 - SMA0094: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
 - SMA0095: MoveOnly 类型禁止在 Lambda 表达式中被捕获。
 - SMA0096: MoveOnly 类型不能声明为 `out` 参数。
+- SMA0097: MoveOnly 类型不能在 `Move()` 之外按值返回，即使对返回值调用了 `Move()` 也不允许；按引用返回则允许。
 
 ```cs
 public struct MoveOnlyBuffer
