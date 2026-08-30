@@ -84,5 +84,71 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0090_Violation_NoCopyAttribute_MissingMoveMethod_OrReferenceType()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class)]
+    class NoCopyAttribute : Attribute { }
+
+    [NoCopy]
+    struct {|#0:CustomNoCopyStruct|} { }
+
+    [NoCopyAttribute]
+    class {|#1:CustomNoCopyClass|}
+    {
+        public CustomNoCopyClass Move() => this;
+    }
+
+    [NoCopy]
+    record {|#2:CustomNoCopyRecord|}
+    {
+        public CustomNoCopyRecord Move() => this;
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
+                .WithLocation(markupKey: 0)
+                .WithArguments("CustomNoCopyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
+                .WithLocation(markupKey: 1)
+                .WithArguments("CustomNoCopyClass");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
+                .WithLocation(markupKey: 2)
+                .WithArguments("CustomNoCopyRecord");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA0090_Compliant_NoCopyAttribute_WithValidMoveMethod()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    [AttributeUsage(AttributeTargets.Struct)]
+    class NoCopyAttribute : Attribute { }
+
+    [NoCopy]
+    struct CustomNoCopyStruct
+    {
+        public CustomNoCopyStruct Move()
+        {
+            var ret = this;
+            this = default;
+            return ret;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

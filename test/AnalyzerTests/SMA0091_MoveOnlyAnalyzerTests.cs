@@ -542,5 +542,38 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_NoCopyAttribute_ProhibitedCopy()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    [AttributeUsage(AttributeTargets.Struct)]
+    class NoCopyAttribute : Attribute { }
+
+    [NoCopy]
+    struct CustomStruct
+    {
+        public CustomStruct Move() => this;
+    }
+
+    class Program
+    {
+        void Method(CustomStruct custom)
+        {
+            var local = {|#0:custom|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("CustomStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
     }
 }
