@@ -539,6 +539,12 @@ var x = (((foo)))!;
 Avoid using hardcoded literal values (numbers, zero, strings, or chars) directly in comparison or branch conditions. Express intent clearly using constants or named variables, or suppress with a trailing comment `/* Why: reason */`.
 
 ```cs
+const int OkStatus = 200;
+if (status == OkStatus) // Allowed: Using constant
+{
+    // ...
+}
+
 if (status == 200) // Reported: Avoid hardcoded literals in comparison or branch conditions
 {
     // ...
@@ -551,7 +557,7 @@ if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing 
 ```
 
 > [!NOTE]
-> Comparisons with zero (`0`) are exempt when checking collection or string `Count`, `Length`, or `IndexOf` properties/methods, or when used within `for`/`while`/`do-while` loop condition headers.
+> Comparisons with zero (`0`) are exempt when checking properties/methods containing `Count`, `Length`, or `IndexOf` in their name, or when used within `for` / `while` / `do-while` loop condition headers.
 
 
 ## Mid-flow Branch
@@ -637,7 +643,7 @@ foreach (var item in items)
 
 # MoveOnly Type Analysis
 
-Enforces C++-style move semantics on C# struct types to prevent accidental copies or implicit resource sharing. Types are recognized as move-only if their name starts with `MoveOnly` (case-sensitive) or if they are decorated with `[NoCopy]`.
+Enforces C++-style move semantics on C# struct types to prevent accidental copies or implicit resource sharing. Types are recognized as move-only if their name starts with `MoveOnly` (case-sensitive) or if they are decorated with `[NoCopy]` (requires defining a custom `NoCopyAttribute` type).
 
 - SMA0090: MoveOnly type must declare a public instance `Move()` method returning the containing type.
 - SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`.

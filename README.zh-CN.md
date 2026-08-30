@@ -539,6 +539,12 @@ var x = (((foo)))!;
 避免在比较运算或分支条件中直接使用硬编码的字面量值（数值、0、字符串、字符）。应通过常量或命名变量明确表达意图，或使用尾随注释 `/* Why: 原因 */` 进行抑制。
 
 ```cs
+const int OkStatus = 200;
+if (status == OkStatus) // 允许：使用常量
+{
+    // ...
+}
+
 if (status == 200) // 报告：避免在比较或分支条件中使用硬编码的字面量
 {
     // ...
@@ -551,7 +557,7 @@ if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：尾随抑制�
 ```
 
 > [!NOTE]
-> 在检查集合或字符串的 `Count`、`Length` 或 `IndexOf` 属性/方法时，与零 (`0`) 的比较免受此检查；在 `for`/`while`/`do-while` 循环条件头中使用 `0` 也免受此检查。
+> 与名称包含 `Count`、`Length` 或 `IndexOf` 的属性/方法进行比较时，或在 `for` / `while` / `do-while` 循环条件头中使用 `0` 时，与零 (`0`) 的比较免受此检查。
 
 
 ## 禁止在处理流程中途分支
@@ -637,7 +643,7 @@ foreach (var item in items)
 
 # MoveOnly 类型分析
 
-在 C# `struct` 类型上强制执行 C++ 风格的移动语义（Move Semantics），防止意外复制或隐式资源共享。类型名称以 `MoveOnly` 开头（区分大小写）或带有 `[NoCopy]` 特性的类型将被识别为 MoveOnly 类型。
+在 C# `struct` 类型上强制执行 C++ 风格的移动语义（Move Semantics），防止意外复制或隐式资源共享。类型名称以 `MoveOnly` 开头（区分大小写）或带有 `[NoCopy]` 特性的类型将被识别为 MoveOnly 类型（需要手动定义 `NoCopyAttribute` 类型）。
 
 - SMA0090: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
 - SMA0091: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
