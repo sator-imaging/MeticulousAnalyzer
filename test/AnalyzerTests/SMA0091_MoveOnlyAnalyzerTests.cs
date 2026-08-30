@@ -497,6 +497,7 @@ namespace Test
         {
             var x = arc.GetRef().Increment();
             var y = arc.GetRef().Increment();
+            if (x == y) throw new System.Exception();
         }
     }
 }
