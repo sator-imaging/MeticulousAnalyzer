@@ -498,7 +498,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_MoveOnlyReturningMethod()
+        public async Task SMA0091_Violation_ValueFromRefReturningMethod()
         {
             var test = @"
 namespace Test
@@ -510,7 +510,8 @@ namespace Test
 
     class Program
     {
-        MoveOnlyStruct Some() => new MoveOnlyStruct();
+        private MoveOnlyStruct _value;
+        ref MoveOnlyStruct Some() => ref _value;
 
         void Method()
         {
