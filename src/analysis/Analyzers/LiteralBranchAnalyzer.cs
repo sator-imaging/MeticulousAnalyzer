@@ -232,11 +232,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                    name.Contains("IndexOf");
         }
 
-        private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation? leftOperand)
+        private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
         {
-            if (leftOperand == null)
-                return false;
-
             string? opName = leftOperand switch
             {
                 IMemberReferenceOperation memberRef => memberRef.Member?.Name,
