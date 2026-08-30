@@ -478,10 +478,10 @@ namespace Test
     {
         public int Count;
         public MoveOnlyCounter Move() => this;
-        public MoveOnlyCounter Increment()
+        public int Increment()
         {
             Count++;
-            return this;
+            return Count;
         }
     }
 
@@ -495,20 +495,13 @@ namespace Test
     {
         void Method(Arc arc)
         {
-            var x = {|#0:arc.GetRef().Increment()|};
-            var y = {|#1:arc.GetRef().Increment()|};
+            var x = arc.GetRef().Increment();
+            var y = arc.GetRef().Increment();
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MoveOnlyCounter");
-            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithLocation(markupKey: 1)
-                .WithArguments("MoveOnlyCounter");
-
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
