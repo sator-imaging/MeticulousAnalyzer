@@ -72,6 +72,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0094_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_ProhibitedLambdaCapture = "SMA0095";
+        private static readonly DiagnosticDescriptor Rule_ProhibitedLambdaCapture = new(
+            RuleId_ProhibitedLambdaCapture,
+            new LocalizableResourceString(nameof(Resources.SMA0095_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0095_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0095_Description), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
@@ -79,7 +89,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Rule_InvalidTypeDeclaration,
             Rule_ProhibitedCopy,
             Rule_ProhibitedRefOutInAsync,
-            Rule_ProhibitedCast
+            Rule_ProhibitedCast,
+            Rule_ProhibitedLambdaCapture
             );
 
         public override void Initialize(AnalysisContext context)
@@ -93,6 +104,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeAssignmentOperation, OperationKind.SimpleAssignment, OperationKind.DeconstructionAssignment);
             context.RegisterOperationAction(AnalyzeVariableDeclaratorOperation, OperationKind.VariableDeclarator);
             context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
+            context.RegisterOperationAction(AnalyzeAnonymousFunctionOperation, OperationKind.AnonymousFunction);
         }
 
         /*  MoveOnly helpers & type analysis  ======================================== */
@@ -435,6 +447,112 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     convOp.Operand.Type.ToDiagnosticMessageName(),
                     convOp.Type.ToDiagnosticMessageName()));
             }
+        }
+
+        private static void AnalyzeAnonymousFunctionOperation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IAnonymousFunctionOperation anonFunc)
+                return;
+
+            CheckOperationForCapturedMoveOnly(context, anonFunc, anonFunc);
+        }
+
+        private static void CheckOperationForCapturedMoveOnly(OperationAnalysisContext context, IAnonymousFunctionOperation rootLambda, IOperation currentOp)
+        {
+            foreach (var child in currentOp.Children)
+            {
+                if (child == null)
+                    continue;
+
+                if (child is IAnonymousFunctionOperation)
+                    continue;
+
+                CheckCapturedMoveOnlyInNode(context, rootLambda, child);
+                CheckOperationForCapturedMoveOnly(context, rootLambda, child);
+            }
+        }
+
+        private static void CheckCapturedMoveOnlyInNode(OperationAnalysisContext context, IAnonymousFunctionOperation rootLambda, IOperation op)
+        {
+            ITypeSymbol? type = null;
+            ISymbol? symbol = null;
+
+            if (op is ILocalReferenceOperation localRef)
+            {
+                symbol = localRef.Local;
+                type = localRef.Local.Type;
+            }
+            else if (op is IParameterReferenceOperation paramRef)
+            {
+                symbol = paramRef.Parameter;
+                type = paramRef.Parameter.Type;
+            }
+            else if (op is IInstanceReferenceOperation instanceRef)
+            {
+                symbol = instanceRef.Type;
+                type = instanceRef.Type;
+            }
+            else if (op is IFieldReferenceOperation fieldRef && !fieldRef.Field.IsStatic)
+            {
+                if (IsMoveOnlyType(fieldRef.Field.Type))
+                {
+                    if (fieldRef.Instance != null && IsOuterSymbolReference(fieldRef.Instance, rootLambda.Symbol, out var instType) && !IsMoveOnlyType(instType))
+                    {
+                        symbol = fieldRef.Field;
+                        type = fieldRef.Field.Type;
+                    }
+                }
+            }
+            else if (op is IPropertyReferenceOperation propRef && !propRef.Property.IsStatic)
+            {
+                if (IsMoveOnlyType(propRef.Property.Type))
+                {
+                    if (propRef.Instance != null && IsOuterSymbolReference(propRef.Instance, rootLambda.Symbol, out var instType) && !IsMoveOnlyType(instType))
+                    {
+                        symbol = propRef.Property;
+                        type = propRef.Property.Type;
+                    }
+                }
+            }
+
+            if (symbol == null || type == null)
+                return;
+
+            if (!IsMoveOnlyType(type))
+                return;
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol.ContainingSymbol, rootLambda.Symbol))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ProhibitedLambdaCapture,
+                    op.Syntax.GetLocation(),
+                    type.ToDiagnosticMessageName()));
+            }
+        }
+
+        private static bool IsOuterSymbolReference(IOperation instanceOp, ISymbol lambdaSymbol, out ITypeSymbol? instType)
+        {
+            instType = instanceOp.Type;
+            ISymbol? sym = null;
+            if (instanceOp is ILocalReferenceOperation localRef)
+            {
+                sym = localRef.Local;
+            }
+            else if (instanceOp is IParameterReferenceOperation paramRef)
+            {
+                sym = paramRef.Parameter;
+            }
+            else if (instanceOp is IInstanceReferenceOperation instanceRef)
+            {
+                sym = instanceRef.Type;
+            }
+
+            if (sym != null)
+            {
+                return !SymbolEqualityComparer.Default.Equals(sym.ContainingSymbol, lambdaSymbol);
+            }
+
+            return false;
         }
     }
 }

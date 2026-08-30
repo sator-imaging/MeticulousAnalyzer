@@ -115,6 +115,7 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 | SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by `ref` or `out` in `async` methods.
 | SMA0093 | Invalid MoveOnly Declaration                                  | MoveOnly type must be a struct.
 | SMA0094 | Prohibited Cast of MoveOnly Type                              | MoveOnly type cannot be cast to any type without `Move()`.
+| SMA0095 | Prohibited Lambda Capture of MoveOnly Type                    | MoveOnly type cannot be captured in a lambda expression.
 
 ## Coding Assistance
 
