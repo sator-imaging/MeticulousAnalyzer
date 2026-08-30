@@ -77,7 +77,7 @@ namespace Test
             return Task.CompletedTask;
         }
 
-        Task AsyncBar(out MoveOnlyStruct item)
+        Task AsyncBar(out MoveOnlyStruct {|#3:item|})
         {
             item = default;
             return Task.CompletedTask;
@@ -107,8 +107,11 @@ namespace Test
             var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 3)
+                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
     }
 }

@@ -113,7 +113,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_Compliant_PassByValueWithMove_ReturnCopy_OutParam()
+        public async Task SMA0091_Compliant_PassByValueWithMove()
         {
             var test = @"
 namespace Test
@@ -126,20 +126,109 @@ namespace Test
     class Program
     {
         void Foo(MoveOnlyStruct item) { }
-        void OutFoo(out MoveOnlyStruct item) { item = default; }
-
-        MoveOnlyStruct Bar(MoveOnlyStruct moveOnly)
-        {
-            return moveOnly;
-        }
-
-        MoveOnlyStruct ExpressionBody(MoveOnlyStruct moveOnly) => moveOnly;
-
         void Method(MoveOnlyStruct moveOnly)
         {
             Foo(moveOnly.Move());
-            OutFoo(out MoveOnlyStruct outRes);
         }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_OutParameterDeclaration()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        void Method(out MoveOnlyStruct {|#0:item|})
+        {
+            item = default;
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_ReturnWithoutMove()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        MoveOnlyStruct Method(MoveOnlyStruct item)
+        {
+            return {|#0:item|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_ReturnWithMove()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        MoveOnlyStruct Method(MoveOnlyStruct item) => {|#0:item.Move()|};
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_ReturnByRef()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        private MoveOnlyStruct _item;
+        ref MoveOnlyStruct Method() => ref _item;
     }
 }
 ";
@@ -159,14 +248,11 @@ namespace Test
 
     class Program
     {
-        void Foo(in MoveOnlyStruct input, ref MoveOnlyStruct rw, out MoveOnlyStruct output)
-        {
-            output = default;
-        }
+        void Foo(in MoveOnlyStruct input, ref MoveOnlyStruct rw) { }
 
-        void Method(MoveOnlyStruct moveOnly, MoveOnlyStruct moveOnlyResult)
+        void Method(MoveOnlyStruct moveOnly)
         {
-            Foo(in moveOnly, ref moveOnly, out moveOnlyResult);
+            Foo(in moveOnly, ref moveOnly);
         }
     }
 }

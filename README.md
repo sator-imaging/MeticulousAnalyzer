@@ -665,7 +665,7 @@ foreach (var item in items)
 Enforces C++-style move semantics on C# struct types to prevent accidental copies or implicit resource sharing. Types are recognized as move-only if their name starts with `MoveOnly` (case-sensitive) or if they are decorated with `[NoCopy]` (requires defining a custom `NoCopyAttribute` type).
 
 - SMA0090: MoveOnly type must declare a public instance `Move()` method returning the containing type.
-- SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`.
+- SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`. `out` parameter declarations and returns are prohibited; returns are allowed only from `Move()` or by reference. Calling `Move()` on a returned value does not make the return valid.
 - SMA0092: MoveOnly type cannot be passed by `ref`, `out`, or `in` to another `async` method in `async` methods. (Allowed if the call is awaited)
 - SMA0093: MoveOnly type must be a `struct`.
 - SMA0094: MoveOnly type cannot be cast to any type without calling `Move()`.

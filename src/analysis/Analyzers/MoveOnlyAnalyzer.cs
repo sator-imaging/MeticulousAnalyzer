@@ -99,10 +99,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSymbolAction(AnalyzeTypeDeclaration, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeParameterDeclaration, SymbolKind.Parameter);
 
             context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
             context.RegisterOperationAction(AnalyzeAssignmentOperation, OperationKind.SimpleAssignment, OperationKind.DeconstructionAssignment);
             context.RegisterOperationAction(AnalyzeVariableDeclaratorOperation, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeReturnOperation, OperationKind.Return);
             context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
             context.RegisterOperationAction(AnalyzeAnonymousFunctionOperation, OperationKind.AnonymousFunction);
         }
@@ -217,7 +219,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 m.ContainingType is INamedTypeSymbol type &&
                 IsMoveOnlyType(type) &&
                 HasPublicMoveMethod(type) &&
-                m.Name == MoveMethodName
+                m.Name == MoveMethodName &&
+                m.DeclaredAccessibility == Accessibility.Public &&
+                !m.IsStatic &&
+                m.Parameters.Length == 0 &&
+                SymbolEqualityComparer.Default.Equals(m.ReturnType, type)
             )).Value;
         }
 
@@ -225,6 +231,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static bool IsInAsyncContext(ISymbol? containingSymbol)
         {
             return containingSymbol is IMethodSymbol methodSymbol && methodSymbol.IsAsync;
+        }
+
+        private static void AnalyzeParameterDeclaration(SymbolAnalysisContext context)
+        {
+            if (context.Symbol is not IParameterSymbol { RefKind: RefKind.Out } parameter)
+                return;
+
+            if (!IsMoveOnlyType(parameter.Type))
+                return;
+
+            var location = parameter.Locations.Length > 0 ? parameter.Locations[0] : Location.None;
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_ProhibitedCopy,
+                location,
+                parameter.Type.ToDiagnosticMessageName()));
         }
 
         private static bool IsCallingMove(IOperation? expression)
@@ -420,6 +441,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             CheckAndReportMoveOnlyCopy(context, initializer);
+        }
+
+        private static void AnalyzeReturnOperation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IReturnOperation { ReturnedValue: { } returnedValue })
+                return;
+
+            if (context.ContainingSymbol is not IMethodSymbol methodSymbol ||
+                methodSymbol.RefKind != RefKind.None ||
+                IsInsidePublicMoveMethod(methodSymbol))
+            {
+                return;
+            }
+
+            if (returnedValue.Type == null || !IsMoveOnlyType(returnedValue.Type))
+                return;
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_ProhibitedCopy,
+                returnedValue.Syntax.GetLocation(),
+                returnedValue.Type.ToDiagnosticMessageName()));
         }
 
         private static void AnalyzeConversionOperation(OperationAnalysisContext context)
