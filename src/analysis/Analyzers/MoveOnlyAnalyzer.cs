@@ -259,28 +259,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!IsMoveOnlyType(parameter.Type))
                 return;
 
-            Location? location = null;
-            if (parameter.Locations.Length > 0)
-            {
-                location = parameter.Locations[0];
-            }
-            else if (parameter.ContainingSymbol.Locations.Length > 0)
-            {
-                // Some compiler-generated parameters have no location of their own.
-                // Report on the containing member instead of creating an invisible diagnostic.
-                location = parameter.ContainingSymbol.Locations[0];
-            }
-            else if (parameter.Type.Locations.Length > 0)
-            {
-                location = parameter.Type.Locations[0];
-            }
-
-            if (location == null)
-                return;
-
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_ProhibitedOutParameter,
-                location,
+                parameter.Locations[0],
                 parameter.Type.ToDiagnosticMessageName()));
         }
 
