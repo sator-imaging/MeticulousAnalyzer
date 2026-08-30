@@ -154,12 +154,13 @@ namespace Test
 {
     struct MoveOnlyStruct
     {
+        public void Foo() { }
         public MoveOnlyStruct Move() => this;
     }
 
     class Arc
     {
-        private static MoveOnlyStruct _value = default;
+        private static MoveOnlyStruct _value = new();
         public static ref MoveOnlyStruct GetRef() => ref _value;
     }
 
@@ -168,6 +169,7 @@ namespace Test
         void Method()
         {
             ref var foo = ref Arc.GetRef();
+            foo.Foo();
         }
     }
 }
@@ -185,12 +187,13 @@ namespace Test
 
     struct MoveOnlyStruct
     {
+        public void Foo() { }
         public MoveOnlyStruct Move() => this;
     }
 
     class Arc
     {
-        private static MoveOnlyStruct _value = default;
+        private static MoveOnlyStruct _value = new();
         public static ref MoveOnlyStruct GetRef() => ref _value;
     }
 
@@ -201,6 +204,7 @@ namespace Test
             Action act = () =>
             {
                 ref var foo = ref Arc.GetRef();
+                foo.Foo();
             };
         }
     }
