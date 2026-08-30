@@ -250,10 +250,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return true;
             }
 
-            var syntax = leftOperand.Syntax;
-            if (syntax == null)
-                return false;
+            return leftOperand.Syntax != null && HasMatchingMemberAccessSyntax(leftOperand.Syntax);
+        }
 
+        private static bool HasMatchingMemberAccessSyntax(SyntaxNode syntax)
+        {
             foreach (var node in syntax.DescendantNodesAndSelf())
             {
                 string? name = node switch
