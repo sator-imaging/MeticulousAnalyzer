@@ -137,33 +137,6 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_Violation_OutParameterDeclaration()
-        {
-            var test = @"
-namespace Test
-{
-    struct MoveOnlyStruct
-    {
-        public MoveOnlyStruct Move() => this;
-    }
-
-    class Program
-    {
-        void Method(out MoveOnlyStruct {|#0:item|})
-        {
-            item = default;
-        }
-    }
-}
-";
-            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MoveOnlyStruct");
-
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
-        }
-
-        [TestMethod]
         public async Task SMA0091_Violation_ReturnWithoutMove()
         {
             var test = @"

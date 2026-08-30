@@ -107,7 +107,7 @@ namespace Test
             var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MoveOnlyStruct");
-            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedOutParameter)
                 .WithLocation(markupKey: 3)
                 .WithArguments("MoveOnlyStruct");
 
