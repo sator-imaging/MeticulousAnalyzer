@@ -18,7 +18,8 @@ Roslyn ベースのアナライザーです。静的フィールド/プロパテ
 - [非同期コンテキスト解析](#非同期コンテキスト解析) で `Task` または `ValueTask` の await 欠落を検出
 - [構造体解析](#構造体解析) で引数なしコンストラクターの誤用などを検出
 - [`TSelf` 型引数解析](#tself-型引数解析) で CRTP 等をサポート
-- [コードレビュー向けの解析](#コードレビュー向けの解析) で名前付き引数や数値型の明示的宣言などを検査
+- [MoveOnly 型解析](#moveonly-型解析) でムーブセマンティクスを強制し、コピー/キャプチャを禁止
+- [コードレビュー向けの解析](#コードレビュー向けの解析) で名前付き引数、数値型の明示的宣言、リテラル分岐条件などを検査
 - [プロジェクト構造解析](#プロジェクト構造解析) で同一アセンブリ内の `internal` シンボルの名前空間境界を強制
 - [不変変数解析](#読み取り専用変数解析) でローカル/引数への代入と可変な引数受け渡しを検出
 - [**RULES.md**](RULES.md)（英語）： [ファイルヘッダーコメントの強制](RULES.md#file-structure-analysis)や[コーディング支援](RULES.md#coding-assistance)を含む、全ての診断ルール
@@ -533,6 +534,51 @@ var x = (((foo)))!;
 > その後、`!` 演算子の代わりに `Debug.Assert(foo is not null);` を使用して、Release ビルドでの実行時オーバーヘッドを発生させることなく安全に抑制することを強く推奨します。
 
 
+## リテラル分岐の解析
+
+比較演算や分岐条件の中でハードコードされたリテラル値（数値、0、文字列、文字）を直接使用することを回避します。定数や名前付き変数を使用して意図を明確にするか、直後にコメント `/* Why: 理由 */` を付与して抑制します。
+
+```cs
+const int OkStatus = 200;
+if (status == OkStatus) // 許可: 定数の使用
+{
+    // ...
+}
+
+if (status == 200)
+              ~~~ // 報告: 比較や分岐条件でのハードコードされたリテラルの使用を回避してください
+{
+    // ...
+}
+
+if (status == 200 /* Why: HTTP OK 標準ステータスコード */) // 許可: 直後に抑制コメント
+{
+    // ...
+}
+```
+
+> [!TIP]
+> `for` / `while` / `do-while` ループ条件ヘッダー内、または左辺に `Count`、`Length`、`IndexOf` を名前に含むプロパティ／メソッドがある場合は `0` との比較が許可されます。
+
+```cs
+int pos = foo.IndexOf('a');
+if (pos >= 0)
+           ~ // 報告
+{
+}
+
+// 許可: 左辺に IndexOf のアクセスを含む
+if ((pos = foo.IndexOf('a')) >= 0)
+{
+}
+
+// 許可: 左辺が Length
+if (foo.Length != 0)
+{
+}
+```
+
+
 ## 処理途中の分岐
 
 処理途中での分岐を禁止します。早期 return は問題ありませんが、メインフローの途中で新たな制御フロー分岐を持ち込まないでください。
@@ -605,6 +651,44 @@ foreach (var item in items)
     {
         DoSomething(item);
     }
+}
+```
+
+
+
+
+
+&nbsp;
+
+# MoveOnly 型解析
+
+C# の `struct` 型に対して C++ スタイルのムーブセマンティクスを強制し、意図しないコピーや暗黙の破棄・共有を防ぎます。型名が `MoveOnly` で始まる（大文字小文字を区別）か、`[NoCopy]` 属性が付与されている型が MoveOnly 型として認識されます（アトリビュートを使う場合は、`NoCopyAttribute` 型を手動で追加する必要があります）。
+
+- SMA0090: MoveOnly 型は自身を返す `public` インスタンス `Move()` メソッドを宣言する必要があります。
+- SMA0091: MoveOnly 型は `Move()` を呼び出さずにコピーまたは代入することはできません。
+- SMA0092: MoveOnly 型は `async` メソッド内で別の `async` メソッドに `ref`、`out`、`in` 引数として渡すことはできません。（`await` がある呼び出しの場合は許可されます）
+- SMA0093: MoveOnly 型は `struct` である必要があります。
+- SMA0094: MoveOnly 型は `Move()` を呼び出さずに他の型へキャストすることはできません。
+- SMA0095: MoveOnly 型をラムダ式内でキャプチャすることはできません。
+
+```cs
+public struct MoveOnlyBuffer
+{
+    [Obsolete("移動を禁止する場合は Obsolete アトリビュートでエラーに設定します", error: true)]
+    public MoveOnlyBuffer Move()
+    {
+        // Move メソッド内はあらゆるチェックの対象外です。
+        var ret = this;
+        this = default;
+        return ret;
+    }
+
+void Process(MoveOnlyBuffer buf)
+{
+    MoveOnlyBuffer copy = buf;
+                          ~~~ // 報告: Move() なしの MoveOnly 型のコピーは禁止されています
+
+    MoveOnlyBuffer moved = buf.Move(); // 許可: 明示的な Move() 呼び出し
 }
 ```
 

@@ -18,7 +18,8 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern (CRTP)
-- [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types and more
+- [MoveOnly Type Analysis](#moveonly-type-analysis) to enforce move semantics and prevent copy/capture of move-only types
+- [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types, literal branch conditions, and more
 - [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
 - [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
 - [**RULES.md**](RULES.md): All diagnostic rules, including [File Header Comment Enforcement](RULES.md#file-structure-analysis) and [Coding Assistance](RULES.md#coding-assistance)
@@ -533,6 +534,51 @@ var x = (((foo)))!;
 > After that, strongly recommended that safely suppressing them by using `Debug.Assert(foo is not null);` instead of `!` operator, without introducing runtime overhead in Release build.
 
 
+## Literal Branch Analysis
+
+Avoid using hardcoded literal values (numbers, zero, strings, or chars) directly in comparison or branch conditions. Express intent clearly using constants or named variables, or suppress with an immediately following comment `/* Why: reason */`.
+
+```cs
+const int OkStatus = 200;
+if (status == OkStatus) // Allowed: Using constant
+{
+    // ...
+}
+
+if (status == 200)
+              ~~~ // Reported: Avoid hardcoded literals in comparison or branch conditions
+{
+    // ...
+}
+
+if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing comment
+{
+    // ...
+}
+```
+
+> [!TIP]
+> Comparisons with zero (`0`) are allowed when used within `for` / `while` / `do-while` loop condition headers, or when the left-hand side contains a property or method access whose name contains `Count`, `Length`, or `IndexOf`.
+
+```cs
+int pos = foo.IndexOf('a');
+if (pos >= 0)
+           ~ // Reported
+{
+}
+
+// Allowed: Left-hand side contains IndexOf access
+if ((pos = foo.IndexOf('a')) >= 0)
+{
+}
+
+// Allowed: Left-hand side is Length
+if (foo.Length != 0)
+{
+}
+```
+
+
 ## Mid-flow Branch
 
 Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
@@ -605,6 +651,45 @@ foreach (var item in items)
     {
         DoSomething(item);
     }
+}
+```
+
+
+
+
+
+&nbsp;
+
+# MoveOnly Type Analysis
+
+Enforces C++-style move semantics on C# struct types to prevent accidental copies or implicit resource sharing. Types are recognized as move-only if their name starts with `MoveOnly` (case-sensitive) or if they are decorated with `[NoCopy]` (requires defining a custom `NoCopyAttribute` type).
+
+- SMA0090: MoveOnly type must declare a public instance `Move()` method returning the containing type.
+- SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`.
+- SMA0092: MoveOnly type cannot be passed by `ref`, `out`, or `in` to another `async` method in `async` methods. (Allowed if the call is awaited)
+- SMA0093: MoveOnly type must be a `struct`.
+- SMA0094: MoveOnly type cannot be cast to any type without calling `Move()`.
+- SMA0095: MoveOnly type cannot be captured in a lambda expression.
+
+```cs
+public struct MoveOnlyBuffer
+{
+    [Obsolete("Use Obsolete attribute with error:true if you want to disallow moving", error: true)]
+    public MoveOnlyBuffer Move()
+    {
+        // Everything inside Move() method is exempt from all checks.
+        var ret = this;
+        this = default;
+        return ret;
+    }
+}
+
+void Process(MoveOnlyBuffer buf)
+{
+    MoveOnlyBuffer copy = buf;
+                          ~~~ // Reported: Prohibited copy of MoveOnly type without Move()
+
+    MoveOnlyBuffer moved = buf.Move(); // Allowed: Explicit Move() call
 }
 ```
 
