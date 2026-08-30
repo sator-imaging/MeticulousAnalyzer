@@ -469,7 +469,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_RefReturningMoveOnlyStruct()
+        public async Task SMA0091_Compliant_RefReturningMoveOnlyStruct()
         {
             var test = @"
 namespace Test
@@ -505,7 +505,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_RefLocalAndValueLocal()
+        public async Task SMA0091_Violation_RefLocalAndValueLocal()
         {
             var test = @"
 namespace Test
