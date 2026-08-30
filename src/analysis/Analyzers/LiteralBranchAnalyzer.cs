@@ -182,7 +182,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (!IsInLoopCondition(outermostSyntax))
+                if (!IsInLoopCondition(outermostSyntax.Parent))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_LiteralBranchZero,
@@ -199,12 +199,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsInLoopCondition(SyntaxNode node)
+        private static bool IsInLoopCondition(SyntaxNode? node)
         {
-            var parent = node.Parent?.Parent;
-            return parent is ForStatementSyntax forStmt && forStmt.Condition == node.Parent
-                || parent is WhileStatementSyntax whileStmt && whileStmt.Condition == node.Parent
-                || parent is DoStatementSyntax doStmt && doStmt.Condition == node.Parent;
+            return node?.Parent is ForStatementSyntax forStmt && forStmt.Condition == node
+                || node?.Parent is WhileStatementSyntax whileStmt && whileStmt.Condition == node
+                || node?.Parent is DoStatementSyntax doStmt && doStmt.Condition == node;
         }
 
         private static bool IsNumericZero(ILiteralOperation literalOp)
