@@ -137,5 +137,48 @@ namespace Test
             var expected = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("count");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA8004_Violation_ConstructorMixedRequiredAndOptionalParameters()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public CTest(string name, int count = 1, bool flag = false) {}
+
+        public void Test()
+        {
+            var x = new CTest(""test"", {|#0:10|}, {|#1:true|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("count");
+            var expected1 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 1).WithArguments("flag");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_ConstructorMixedRequiredAndOptionalParametersWithNamedArguments()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public CTest(string name, int count = 1, bool flag = false) {}
+
+        public void Test()
+        {
+            var x = new CTest(""test"", count: 10, flag: true);
+            var y = new CTest(""test"");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
