@@ -104,6 +104,12 @@ namespace Test
     {
         public CustomNoCopyClass Move() => this;
     }
+
+    [NoCopy]
+    record {|#2:CustomNoCopyRecord|}
+    {
+        public CustomNoCopyRecord Move() => this;
+    }
 }
 ";
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
@@ -112,8 +118,37 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
                 .WithLocation(markupKey: 1)
                 .WithArguments("CustomNoCopyClass");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
+                .WithLocation(markupKey: 2)
+                .WithArguments("CustomNoCopyRecord");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA0090_Compliant_NoCopyAttribute_WithValidMoveMethod()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    [AttributeUsage(AttributeTargets.Struct)]
+    class NoCopyAttribute : Attribute { }
+
+    [NoCopy]
+    struct CustomNoCopyStruct
+    {
+        public CustomNoCopyStruct Move()
+        {
+            var ret = this;
+            this = default;
+            return ret;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
