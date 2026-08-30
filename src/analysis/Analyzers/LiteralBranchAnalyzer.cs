@@ -238,9 +238,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsMatchingMemberName(string name)
         {
-            return name.Contains("Count") ||
-                   name.Contains("Length") ||
-                   name.Contains("IndexOf");
+            return name.IndexOf("Length", StringComparison.Ordinal) >= 0 ||
+                   name.IndexOf("Count", StringComparison.Ordinal) >= 0 ||
+                   name.IndexOf("IndexOf", StringComparison.Ordinal) >= 0;
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
