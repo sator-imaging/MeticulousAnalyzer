@@ -230,11 +230,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 m.ContainingType is INamedTypeSymbol type &&
                 IsMoveOnlyType(type) &&
                 HasPublicMoveMethod(type) &&
-                m.Name == MoveMethodName &&
-                m.DeclaredAccessibility == Accessibility.Public &&
-                !m.IsStatic &&
-                m.Parameters.Length == 0 &&
-                SymbolEqualityComparer.Default.Equals(m.ReturnType, type)
+                m.Name == MoveMethodName
             )).Value;
         }
 
