@@ -478,15 +478,29 @@ using System.Collections.Generic;
 
 namespace Test
 {
+    public class Container
+    {
+        public int GetCount() { }
+        public int GetLength() { }
+    }
+
     public class C
     {
-        public void M(List<int> list, string str, int[] arr)
+        public void M(List<int> list, string str, int[] arr, Container container)
         {
             if (list.Count > 0)
             {
             }
 
             if (arr.Length == 0)
+            {
+            }
+
+            if (container.GetCount() is < 0)
+            {
+            }
+
+            if (container.GetLength() is <= 0)
             {
             }
 

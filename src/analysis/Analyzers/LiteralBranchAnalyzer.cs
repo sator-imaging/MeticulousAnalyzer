@@ -185,7 +185,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (!IsInLoopCondition(outermostSyntax.Parent) ||
+                if (!IsInLoopCondition(outermostSyntax.Parent) &&
                     (leftOperand == null || !LeftSideHasMatchingMemberAccessSyntax(leftOperand)))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
