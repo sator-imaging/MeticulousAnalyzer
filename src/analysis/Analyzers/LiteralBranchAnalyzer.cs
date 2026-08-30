@@ -89,7 +89,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             AnalyzeOperandForLiteral(context, binary.LeftOperand);
-            AnalyzeOperandForLiteral(context, binary.RightOperand);
+            AnalyzeOperandForLiteral(context, binary.RightOperand, leftOperand: binary.LeftOperand);
         }
 
         private static void AnalyzeConstantPattern(OperationAnalysisContext context)
@@ -120,7 +120,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand)
+        private static void AnalyzeOperandForLiteral(
+            OperationAnalysisContext context,
+            IOperation operand,
+            IOperation? leftOperand = null)
         {
             // Unwrap interleaved conversions and unary +/- to reach the literal
             var current = operand;
@@ -182,7 +185,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (!IsInLoopCondition(outermostSyntax.Parent))
+                if (!IsInLoopCondition(outermostSyntax.Parent) &&
+                    (leftOperand == null || !LeftSideHasMatchingMemberAccessSyntax(leftOperand)))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_LiteralBranchZero,
@@ -230,6 +234,51 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 decimal m => m == 0m,
                 _ => false
             };
+        }
+
+        private static bool IsMatchingMemberName(string name)
+        {
+            return name.IndexOf("Length", StringComparison.Ordinal) >= 0 ||
+                   name.IndexOf("Count", StringComparison.Ordinal) >= 0 ||
+                   name.IndexOf("IndexOf", StringComparison.Ordinal) >= 0;
+        }
+
+        private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
+        {
+            string? opName = leftOperand switch
+            {
+                IMemberReferenceOperation memberRef => memberRef.Member?.Name,
+                IInvocationOperation invocation => invocation.TargetMethod?.Name,
+                IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                _ => null
+            };
+
+            if (opName != null && IsMatchingMemberName(opName))
+            {
+                return true;
+            }
+
+            return leftOperand.Syntax != null && HasMatchingMemberAccessSyntax(leftOperand.Syntax);
+        }
+
+        private static bool HasMatchingMemberAccessSyntax(SyntaxNode syntax)
+        {
+            foreach (var node in syntax.DescendantNodesAndSelf())
+            {
+                string? name = node switch
+                {
+                    MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                    MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
+                    _ => null
+                };
+
+                if (name != null && IsMatchingMemberName(name))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
