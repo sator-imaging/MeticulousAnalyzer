@@ -449,7 +449,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             if (context.ContainingSymbol is not IMethodSymbol methodSymbol ||
-                methodSymbol.RefKind != RefKind.None ||
+                methodSymbol.ReturnsByRef ||
+                methodSymbol.ReturnsByRefReadonly ||
                 IsInsidePublicMoveMethod(methodSymbol))
             {
                 return;
