@@ -89,7 +89,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             AnalyzeOperandForLiteral(context, binary.LeftOperand);
-            AnalyzeOperandForLiteral(context, binary.RightOperand, isRightOperand: true, leftOperand: binary.LeftOperand);
+            AnalyzeOperandForLiteral(context, binary.RightOperand, leftOperand: binary.LeftOperand);
         }
 
         private static void AnalyzeConstantPattern(OperationAnalysisContext context)
@@ -123,7 +123,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void AnalyzeOperandForLiteral(
             OperationAnalysisContext context,
             IOperation operand,
-            bool isRightOperand = false,
             IOperation? leftOperand = null)
         {
             // Unwrap interleaved conversions and unary +/- to reach the literal
@@ -186,7 +185,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (isRightOperand && leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand.Syntax))
+                if (leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand.Syntax))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
