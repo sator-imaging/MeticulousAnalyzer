@@ -480,8 +480,8 @@ namespace Test
 {
     public class Container
     {
-        public int GetCount() { }
-        public int GetLength() { }
+        public int GetCount() => 0;
+        public int GetLength() => 0;
     }
 
     public class C
@@ -505,6 +505,10 @@ namespace Test
             }
 
             if (str.IndexOf('a') >= 0)
+            {
+            }
+
+            if (str.LastIndexOf('z') >= 0)
             {
             }
 
