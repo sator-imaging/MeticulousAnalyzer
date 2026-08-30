@@ -396,6 +396,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IVariableDeclaratorOperation declOp)
                 return;
 
+            if (declOp.Symbol.IsRef)
+                return;
+
             var initializer = declOp.Initializer?.Value;
             if (initializer == null)
                 return;

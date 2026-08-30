@@ -147,6 +147,69 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0091_Compliant_RefLocalInMethod()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private static MoveOnlyStruct _value = default;
+        public static ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            ref var foo = ref Arc.GetRef();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_RefLocalInLambda()
+        {
+            var test = @"
+namespace Test
+{
+    using System;
+
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private static MoveOnlyStruct _value = default;
+        public static ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            Action act = () =>
+            {
+                ref var foo = ref Arc.GetRef();
+            };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA0091_Compliant_PassByRef_SyncMethod()
         {
             var test = @"
