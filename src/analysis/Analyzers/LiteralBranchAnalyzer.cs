@@ -201,9 +201,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsInLoopCondition(SyntaxNode? node)
         {
-            return node?.Parent is ForStatementSyntax forStmt && forStmt.Condition == node
-                || node?.Parent is WhileStatementSyntax whileStmt && whileStmt.Condition == node
-                || node?.Parent is DoStatementSyntax doStmt && doStmt.Condition == node;
+            if (node == null)
+                return false;
+
+            return node.Parent is ForStatementSyntax forStmt && forStmt.Condition == node
+                || node.Parent is WhileStatementSyntax whileStmt && whileStmt.Condition == node
+                || node.Parent is DoStatementSyntax doStmt && doStmt.Condition == node;
         }
 
         private static bool IsNumericZero(ILiteralOperation literalOp)
