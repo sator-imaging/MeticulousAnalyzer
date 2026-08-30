@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.2.0-rc.4](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.4) (2026-08-30)
+
+### 🚀 Features
+* Exempt `0` comparisons in loop conditions in `LiteralBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#546](https://github.com/sator-imaging/MeticulousAnalyzer/pull/546)
+* Add `SMA0095` diagnostic to disallow MoveOnly struct lambda captures by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#549](https://github.com/sator-imaging/MeticulousAnalyzer/pull/549)
+* Exempt `0` for member access containing `*Count*`, `*Length*`, or `*IndexOf*` in `LiteralBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#547](https://github.com/sator-imaging/MeticulousAnalyzer/pull/547)
+* Add support for `NoCopy` attribute in `MoveOnlyAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#550](https://github.com/sator-imaging/MeticulousAnalyzer/pull/550)
+* Add `SMA8004` analyzer for omittable arguments by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#553](https://github.com/sator-imaging/MeticulousAnalyzer/pull/553)
+* Restrict MoveOnly out parameter declarations and value returns by [@sator-imaging](https://github.com/sator-imaging) in [#556](https://github.com/sator-imaging/MeticulousAnalyzer/pull/556)
+### 📚 Other Changes
+* Add tests for MoveOnlyAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#548](https://github.com/sator-imaging/MeticulousAnalyzer/pull/548)
+* Add ref-returning MoveOnly struct and ref local unit tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#552](https://github.com/sator-imaging/MeticulousAnalyzer/pull/552)
+* Update README documentation for Literal Branch and MoveOnly analyzers by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#554](https://github.com/sator-imaging/MeticulousAnalyzer/pull/554)
+* Enforce explicit StringComparison for string containment checks by [@sator-imaging](https://github.com/sator-imaging) in [#555](https://github.com/sator-imaging/MeticulousAnalyzer/pull/555)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.3...v5.2.0-rc.4
+
+
 ## [5.2.0-rc.3](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.3) (2026-08-28)
 
 ### 🚀 Features
