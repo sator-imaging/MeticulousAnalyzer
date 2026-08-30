@@ -390,7 +390,7 @@ namespace Test
     class Arc
     {
         MoveOnlyStruct Value = new();
-        public void DoSomethingOnMoveOnlyStruct(int value) { }
+        public MoveOnlyStruct DoSomethingOnMoveOnlyStruct(int value) => Value;
     }
 }
 ";
