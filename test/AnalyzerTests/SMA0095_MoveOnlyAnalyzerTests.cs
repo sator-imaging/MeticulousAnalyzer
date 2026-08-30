@@ -153,5 +153,41 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0095_Violation_GenericAndObjectMethodsWithoutMove()
+        {
+            var test = @"
+namespace Test
+{
+    using System;
+
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        void SomeGeneric<TState>(Action<TState> act, TState state) { }
+        void SomeObject(Action<object> act, object state) { }
+
+        void Method(MoveOnlyStruct moveOnly)
+        {
+            SomeGeneric(state => { }, {|#0:moveOnly|});
+            SomeObject(state => { }, {|#1:moveOnly|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct", "object");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
