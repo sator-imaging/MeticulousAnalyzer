@@ -496,11 +496,11 @@ namespace Test
             {
             }
 
-            if (container.GetCount() is < 0)
+            if (container.GetCount() < 0)
             {
             }
 
-            if (container.GetLength() is <= 0)
+            if (container.GetLength() <= 0)
             {
             }
 

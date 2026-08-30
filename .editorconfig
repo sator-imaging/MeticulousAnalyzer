@@ -13,3 +13,5 @@ dotnet_diagnostic.SMA0066.severity = error
 dotnet_diagnostic.SMA0067.severity = error
 dotnet_diagnostic.SMA0068.severity = error
 dotnet_diagnostic.SMA0069.severity = error
+
+dotnet_diagnostic.CS1591.severity = silent  # Missing XML comment for publicly visible type or member
