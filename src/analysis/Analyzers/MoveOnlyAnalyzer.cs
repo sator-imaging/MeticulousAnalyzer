@@ -103,7 +103,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (type == null)
                 return false;
 
-            return _moveOnlyTypeCache.GetValue(type, static t => new StrongBox<bool>(t.Name.StartsWith("MoveOnly", StringComparison.Ordinal))).Value;
+            return _moveOnlyTypeCache.GetValue(type, static t => new StrongBox<bool>(ComputeIsMoveOnlyType(t))).Value;
+        }
+
+        private static bool ComputeIsMoveOnlyType(ITypeSymbol type)
+        {
+            if (type.Name.StartsWith("MoveOnly", StringComparison.Ordinal))
+                return true;
+
+            foreach (var attr in type.GetAttributes())
+            {
+                if (attr.AttributeClass?.Name == "NoCopyAttribute")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(IOperation? target, ISymbol? containingSymbol)
