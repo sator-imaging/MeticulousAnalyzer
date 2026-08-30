@@ -117,7 +117,7 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 | SMA0094 | Prohibited Cast of MoveOnly Type                              | MoveOnly type cannot be cast to any type without `Move()`.
 | SMA0095 | Prohibited Lambda Capture of MoveOnly Type                    | MoveOnly type cannot be captured in a lambda expression.
 | SMA0096 | Prohibited Out Parameter of MoveOnly Type                      | MoveOnly type cannot be declared as an `out` parameter.
-| SMA0097 | Prohibited Return of MoveOnly Type                             | MoveOnly type cannot be returned by value outside its `Move()` method.
+| SMA0097 | Prohibited Return of MoveOnly Type                             | MoveOnly type cannot be returned by value outside its `Move()` method. Returning by reference is allowed.
 
 ## Coding Assistance
 
