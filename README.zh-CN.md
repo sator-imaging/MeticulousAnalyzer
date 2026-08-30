@@ -545,7 +545,8 @@ if (status == OkStatus) // 允许：使用常量
     // ...
 }
 
-if (status == 200) // 报告：避免在比较或分支条件中使用硬编码的字面量
+if (status == 200)
+              ~~~ // 报告：避免在比较或分支条件中使用硬编码的字面量
 {
     // ...
 }
@@ -556,8 +557,26 @@ if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：尾随抑制�
 }
 ```
 
-> [!NOTE]
-> 与名称包含 `Count`、`Length` 或 `IndexOf` 的属性/方法进行比较时，或在 `for` / `while` / `do-while` 循环条件头中使用 `0` 时，与零 (`0`) 的比较免受此检查。
+> [!TIP]
+> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧包含名称中带有 `Count`、`Length` 或 `IndexOf` 的属性/方法访问时，允许与 `0` 进行比较。
+
+```cs
+int pos = foo.IndexOf('a');
+if (pos >= 0)
+           ~ // 报告
+{
+}
+
+// 允许：左侧包含 IndexOf 访问
+if ((pos = foo.IndexOf('a')) >= 0)
+{
+}
+
+// 允许：左侧为 Length
+if (foo.Length != 0)
+{
+}
+```
 
 
 ## 禁止在处理流程中途分支
@@ -647,7 +666,7 @@ foreach (var item in items)
 
 - SMA0090: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
 - SMA0091: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
-- SMA0092: MoveOnly 类型禁止在 `async` 方法中作为 `ref`、`out` 或 `in` 参数传递。
+- SMA0092: MoveOnly 类型禁止在 `async` 方法中作为 `ref`、`out` 或 `in` 参数传递给另一个 `async` 方法。（存在 `await` 的调用除外）
 - SMA0093: MoveOnly 类型必须是 `struct`。
 - SMA0094: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
 - SMA0095: MoveOnly 类型禁止在 Lambda 表达式中被捕获。
@@ -655,7 +674,14 @@ foreach (var item in items)
 ```cs
 public struct MoveOnlyBuffer
 {
-    public MoveOnlyBuffer Move() => this;
+    [Obsolete("若需禁止移动，可使用 Obsolete 特性", error: true)]
+    public MoveOnlyBuffer Move()
+    {
+        // Move 方法内部免受所有检查
+        var ret = this;
+        this = default;
+        return ret;
+    }
 }
 
 void Process(MoveOnlyBuffer buf)

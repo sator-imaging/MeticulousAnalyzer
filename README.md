@@ -545,7 +545,8 @@ if (status == OkStatus) // Allowed: Using constant
     // ...
 }
 
-if (status == 200) // Reported: Avoid hardcoded literals in comparison or branch conditions
+if (status == 200)
+              ~~~ // Reported: Avoid hardcoded literals in comparison or branch conditions
 {
     // ...
 }
@@ -556,8 +557,26 @@ if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing 
 }
 ```
 
-> [!NOTE]
-> Comparisons with zero (`0`) are exempt when checking properties/methods containing `Count`, `Length`, or `IndexOf` in their name, or when used within `for` / `while` / `do-while` loop condition headers.
+> [!TIP]
+> Comparisons with zero (`0`) are allowed when used within `for` / `while` / `do-while` loop condition headers, or when the left-hand side contains a property or method access whose name contains `Count`, `Length`, or `IndexOf`.
+
+```cs
+int pos = foo.IndexOf('a');
+if (pos >= 0)
+           ~ // Reported
+{
+}
+
+// Allowed: Left-hand side contains IndexOf access
+if ((pos = foo.IndexOf('a')) >= 0)
+{
+}
+
+// Allowed: Left-hand side is Length
+if (foo.Length != 0)
+{
+}
+```
 
 
 ## Mid-flow Branch
@@ -647,7 +666,7 @@ Enforces C++-style move semantics on C# struct types to prevent accidental copie
 
 - SMA0090: MoveOnly type must declare a public instance `Move()` method returning the containing type.
 - SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`.
-- SMA0092: MoveOnly type cannot be passed by `ref`, `out`, or `in` in `async` methods.
+- SMA0092: MoveOnly type cannot be passed by `ref`, `out`, or `in` to another `async` method in `async` methods. (Allowed if the call is awaited)
 - SMA0093: MoveOnly type must be a `struct`.
 - SMA0094: MoveOnly type cannot be cast to any type without calling `Move()`.
 - SMA0095: MoveOnly type cannot be captured in a lambda expression.
@@ -655,7 +674,14 @@ Enforces C++-style move semantics on C# struct types to prevent accidental copie
 ```cs
 public struct MoveOnlyBuffer
 {
-    public MoveOnlyBuffer Move() => this;
+    [Obsolete("Use Obsolete attribute if you want to disallow moving", error: true)]
+    public MoveOnlyBuffer Move()
+    {
+        // Everything inside Move() method is exempt from all checks.
+        var ret = this;
+        this = default;
+        return ret;
+    }
 }
 
 void Process(MoveOnlyBuffer buf)
