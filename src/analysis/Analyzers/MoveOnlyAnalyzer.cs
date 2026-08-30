@@ -82,6 +82,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0095_Description), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_ProhibitedOutParameter = "SMA0096";
+        private static readonly DiagnosticDescriptor Rule_ProhibitedOutParameter = new(
+            RuleId_ProhibitedOutParameter,
+            new LocalizableResourceString(nameof(Resources.SMA0096_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0096_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0096_Description), Resources.ResourceManager, typeof(Resources)));
+
+        public const string RuleId_ProhibitedReturn = "SMA0097";
+        private static readonly DiagnosticDescriptor Rule_ProhibitedReturn = new(
+            RuleId_ProhibitedReturn,
+            new LocalizableResourceString(nameof(Resources.SMA0097_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0097_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0097_Description), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
@@ -90,7 +110,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Rule_ProhibitedCopy,
             Rule_ProhibitedRefOutInAsync,
             Rule_ProhibitedCast,
-            Rule_ProhibitedLambdaCapture
+            Rule_ProhibitedLambdaCapture,
+            Rule_ProhibitedOutParameter,
+            Rule_ProhibitedReturn
             );
 
         public override void Initialize(AnalysisContext context)
@@ -99,10 +121,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSymbolAction(AnalyzeTypeDeclaration, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeParameterDeclaration, SymbolKind.Parameter);
 
             context.RegisterOperationAction(AnalyzeArgumentOperation, OperationKind.Argument);
             context.RegisterOperationAction(AnalyzeAssignmentOperation, OperationKind.SimpleAssignment, OperationKind.DeconstructionAssignment);
             context.RegisterOperationAction(AnalyzeVariableDeclaratorOperation, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeReturnOperation, OperationKind.Return);
             context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
             context.RegisterOperationAction(AnalyzeAnonymousFunctionOperation, OperationKind.AnonymousFunction);
         }
@@ -225,6 +249,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static bool IsInAsyncContext(ISymbol? containingSymbol)
         {
             return containingSymbol is IMethodSymbol methodSymbol && methodSymbol.IsAsync;
+        }
+
+        private static void AnalyzeParameterDeclaration(SymbolAnalysisContext context)
+        {
+            if (context.Symbol is not IParameterSymbol { RefKind: RefKind.Out } parameter)
+                return;
+
+            if (!IsMoveOnlyType(parameter.Type))
+                return;
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_ProhibitedOutParameter,
+                parameter.Locations[0],
+                parameter.Type.ToDiagnosticMessageName()));
         }
 
         private static bool IsCallingMove(IOperation? expression)
@@ -420,6 +458,28 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             CheckAndReportMoveOnlyCopy(context, initializer);
+        }
+
+        private static void AnalyzeReturnOperation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IReturnOperation { ReturnedValue: { } returnedValue })
+                return;
+
+            if (context.ContainingSymbol is not IMethodSymbol methodSymbol ||
+                methodSymbol.ReturnsByRef ||
+                methodSymbol.ReturnsByRefReadonly ||
+                IsInsidePublicMoveMethod(methodSymbol))
+            {
+                return;
+            }
+
+            if (returnedValue.Type == null || !IsMoveOnlyType(returnedValue.Type))
+                return;
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_ProhibitedReturn,
+                returnedValue.Syntax.GetLocation(),
+                returnedValue.Type.ToDiagnosticMessageName()));
         }
 
         private static void AnalyzeConversionOperation(OperationAnalysisContext context)

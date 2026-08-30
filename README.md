@@ -666,10 +666,12 @@ Enforces C++-style move semantics on C# struct types to prevent accidental copie
 
 - SMA0090: MoveOnly type must declare a public instance `Move()` method returning the containing type.
 - SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`.
-- SMA0092: MoveOnly type cannot be passed by `ref`, `out`, or `in` to another `async` method in `async` methods. (Allowed if the call is awaited)
+- SMA0092: MoveOnly type cannot be passed by reference from an `async` method to another `async` method without `await`.
 - SMA0093: MoveOnly type must be a `struct`.
 - SMA0094: MoveOnly type cannot be cast to any type without calling `Move()`.
 - SMA0095: MoveOnly type cannot be captured in a lambda expression.
+- SMA0096: MoveOnly type cannot be declared as an `out` parameter.
+- SMA0097: MoveOnly type cannot be returned by value outside `Move()`, even when `Move()` is called on the returned value. Reference returns are allowed.
 
 ```cs
 public struct MoveOnlyBuffer

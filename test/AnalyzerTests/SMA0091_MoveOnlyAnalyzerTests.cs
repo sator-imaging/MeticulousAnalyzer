@@ -113,7 +113,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_Compliant_PassByValueWithMove_ReturnCopy_OutParam()
+        public async Task SMA0091_Compliant_PassByValueWithMove()
         {
             var test = @"
 namespace Test
@@ -126,19 +126,9 @@ namespace Test
     class Program
     {
         void Foo(MoveOnlyStruct item) { }
-        void OutFoo(out MoveOnlyStruct item) { item = default; }
-
-        MoveOnlyStruct Bar(MoveOnlyStruct moveOnly)
-        {
-            return moveOnly;
-        }
-
-        MoveOnlyStruct ExpressionBody(MoveOnlyStruct moveOnly) => moveOnly;
-
         void Method(MoveOnlyStruct moveOnly)
         {
             Foo(moveOnly.Move());
-            OutFoo(out MoveOnlyStruct outRes);
         }
     }
 }
@@ -159,14 +149,11 @@ namespace Test
 
     class Program
     {
-        void Foo(in MoveOnlyStruct input, ref MoveOnlyStruct rw, out MoveOnlyStruct output)
-        {
-            output = default;
-        }
+        void Foo(in MoveOnlyStruct input, ref MoveOnlyStruct rw) { }
 
-        void Method(MoveOnlyStruct moveOnly, MoveOnlyStruct moveOnlyResult)
+        void Method(MoveOnlyStruct moveOnly)
         {
-            Foo(in moveOnly, ref moveOnly, out moveOnlyResult);
+            Foo(in moveOnly, ref moveOnly);
         }
     }
 }
@@ -439,7 +426,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_MoveOnlyReturningMethod()
+        public async Task SMA0091_Violation_ValueFromRefReturningMethod()
         {
             var test = @"
 namespace Test
@@ -451,7 +438,8 @@ namespace Test
 
     class Program
     {
-        MoveOnlyStruct Some() => new MoveOnlyStruct();
+        private MoveOnlyStruct _value;
+        ref MoveOnlyStruct Some() => ref _value;
 
         void Method()
         {

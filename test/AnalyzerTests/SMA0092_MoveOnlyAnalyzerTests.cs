@@ -58,7 +58,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0092_Violation_RefOutInAsyncMethod_UnawaitedAsyncMethod()
+        public async Task SMA0092_Violation_RefInAsyncMethod_UnawaitedTaskReturningMethod()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -77,12 +77,6 @@ namespace Test
             return Task.CompletedTask;
         }
 
-        Task AsyncBar(out MoveOnlyStruct item)
-        {
-            item = default;
-            return Task.CompletedTask;
-        }
-
         Task AsyncBaz(in MoveOnlyStruct item)
         {
             return Task.CompletedTask;
@@ -91,8 +85,7 @@ namespace Test
         async Task MethodAsync(MoveOnlyStruct moveOnly)
         {
             AsyncFoo({|#0:ref moveOnly|});
-            AsyncBar({|#1:out moveOnly|});
-            AsyncBaz({|#2:in moveOnly|});
+            AsyncBaz({|#1:in moveOnly|});
             await Task.CompletedTask;
         }
     }
@@ -104,11 +97,8 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyStruct");
-            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
-                .WithLocation(markupKey: 2)
-                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
     }
 }

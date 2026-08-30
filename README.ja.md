@@ -666,10 +666,12 @@ C# の `struct` 型に対して C++ スタイルのムーブセマンティク�
 
 - SMA0090: MoveOnly 型は自身を返す `public` インスタンス `Move()` メソッドを宣言する必要があります。
 - SMA0091: MoveOnly 型は `Move()` を呼び出さずにコピーまたは代入することはできません。
-- SMA0092: MoveOnly 型は `async` メソッド内で別の `async` メソッドに `ref`、`out`、`in` 引数として渡すことはできません。（`await` がある呼び出しの場合は許可されます）
+- SMA0092: MoveOnly 型は `async` メソッド内で別の `async` メソッドに `await` 無しで参照渡しすることはできません。
 - SMA0093: MoveOnly 型は `struct` である必要があります。
 - SMA0094: MoveOnly 型は `Move()` を呼び出さずに他の型へキャストすることはできません。
 - SMA0095: MoveOnly 型をラムダ式内でキャプチャすることはできません。
+- SMA0096: MoveOnly 型を `out` パラメーターとして宣言することはできません。
+- SMA0097: MoveOnly 型を `Move()` の外部で値として返すことはできません。戻す値に `Move()` を呼び出した場合も禁止されますが、参照戻り値は許可されます。
 
 ```cs
 public struct MoveOnlyBuffer
