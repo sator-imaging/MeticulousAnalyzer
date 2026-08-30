@@ -236,30 +236,41 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (operation == null)
                 return false;
 
-            var current = operation;
-            while (current is IConversionOperation conv)
+            foreach (var desc in DescendantsAndSelf(operation))
             {
-                current = conv.Operand;
-            }
-
-            if (current is IAssignmentOperation assign)
-            {
-                current = assign.Value;
-                while (current is IConversionOperation conv)
+                string? name = desc switch
                 {
-                    current = conv.Operand;
+                    IMemberReferenceOperation memberRef => memberRef.Member?.Name,
+                    IInvocationOperation invocation => invocation.TargetMethod?.Name,
+                    IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                    _ => null
+                };
+
+                if (name != null && IsMatchingMemberName(name))
+                {
+                    return true;
                 }
             }
 
-            string? name = current switch
-            {
-                IMemberReferenceOperation memberRef => memberRef.Member?.Name,
-                IInvocationOperation invocation => invocation.TargetMethod?.Name,
-                IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
-                _ => null
-            };
+            return false;
+        }
 
-            return name != null && IsMatchingMemberName(name);
+        private static System.Collections.Generic.IEnumerable<IOperation> DescendantsAndSelf(IOperation operation)
+        {
+            var stack = new System.Collections.Generic.Stack<IOperation>();
+            stack.Push(operation);
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                yield return current;
+                foreach (var child in current.Children)
+                {
+                    if (child != null)
+                    {
+                        stack.Push(child);
+                    }
+                }
+            }
         }
     }
 }
