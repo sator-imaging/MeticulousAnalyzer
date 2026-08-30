@@ -185,7 +185,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand.Syntax))
+                if (leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -232,8 +232,25 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                    name.Contains("IndexOf");
         }
 
-        private static bool LeftSideHasMatchingMemberAccessSyntax(SyntaxNode? syntax)
+        private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation? leftOperand)
         {
+            if (leftOperand == null)
+                return false;
+
+            string? opName = leftOperand switch
+            {
+                IMemberReferenceOperation memberRef => memberRef.Member?.Name,
+                IInvocationOperation invocation => invocation.TargetMethod?.Name,
+                IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                _ => null
+            };
+
+            if (opName != null && IsMatchingMemberName(opName))
+            {
+                return true;
+            }
+
+            var syntax = leftOperand.Syntax;
             if (syntax == null)
                 return false;
 
