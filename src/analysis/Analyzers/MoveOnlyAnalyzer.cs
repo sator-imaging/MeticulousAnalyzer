@@ -259,13 +259,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!IsMoveOnlyType(parameter.Type))
                 return;
 
-            var location = parameter.Locations.Length > 0
-                ? parameter.Locations[0]
-                : context.Symbol.ContainingSymbol.Locations[0];
-
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_ProhibitedOutParameter,
-                location,
+                parameter.Locations[0],
                 parameter.Type.ToDiagnosticMessageName()));
         }
 
