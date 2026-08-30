@@ -49,8 +49,6 @@ public class BurstLinqBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _string = new string('0', Size) + "Target";
-
         _stringArray = new string[Size];
         for (int i = 0; i < Size; i++)
             _stringArray[i] = i.ToString();
@@ -209,25 +207,6 @@ public class BurstLinqBenchmarks
     public bool Contains_SystemLinq()
     {
         return System.Linq.Enumerable.Contains(_enumerable, (double)(Size - 1));
-    }
-
-
-    /*  Contains (string)  ================================================================ */
-
-    string _string = null!;
-
-    [BenchmarkCategory("ContainsString")]
-    [Benchmark(Baseline = true)]
-    public bool ContainsString()
-    {
-        return _string.Contains("Target");
-    }
-
-    [BenchmarkCategory("ContainsString")]
-    [Benchmark]
-    public bool IndexOfString()
-    {
-        return _string.IndexOf("Target", StringComparison.Ordinal) >= 0;
     }
 
 

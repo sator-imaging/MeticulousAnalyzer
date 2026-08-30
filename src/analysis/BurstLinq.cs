@@ -580,12 +580,6 @@ namespace SatorImaging.MeticulousAnalyzer
             return false;
         }
 
-        [Obsolete("Use IndexOf with StringComparison option instead of Contains", error: true)]
-        public static bool Contains(this string source, string s)
-        {
-            return source.IndexOf(s, StringComparison.Ordinal) >= 0;
-        }
-
         public static bool Contains<T>(this IEnumerable<T> source, T value)
         {
             if (source is ICollection<T> col)
