@@ -476,7 +476,7 @@ namespace Test
 {
     struct MoveOnlyCounter
     {
-        public int Count;
+        public int Count { get; private set; }
         public MoveOnlyCounter Move() => this;
         public int Increment()
         {
