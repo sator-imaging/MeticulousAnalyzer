@@ -469,6 +469,81 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0091_Compliant_RefReturningMoveOnlyStruct()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyCounter
+    {
+        public int Count { get; private set; }
+        public MoveOnlyCounter Move() => this;
+        public int Increment()
+        {
+            Count++;
+            return Count;
+        }
+    }
+
+    class Arc
+    {
+        private MoveOnlyCounter _value;
+        public ref MoveOnlyCounter GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method(Arc arc)
+        {
+            var x = arc.GetRef().Increment();
+            var y = arc.GetRef().Increment();
+            if (x == y) throw new System.Exception();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_RefLocalAndValueLocal()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method(Arc arc)
+        {
+            ref var x = ref {|#0:arc.GetRef()|};
+            var y = {|#1:arc.GetRef()|};
+            var z = arc.GetRef().Move();
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
         public async Task SMA0091_Violation_NoCopyAttribute_ProhibitedCopy()
         {
             var test = @"
