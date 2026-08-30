@@ -213,8 +213,8 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             var tree = CSharpSyntaxTree.ParseText("namespace MyNs { class MyClass { int x; } }");
             var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var result = Core.GetMemberNamePrefix(field);
-            Assert.IsTrue(result.Contains("MyNs"));
-            Assert.IsTrue(result.Contains("MyClass"));
+            Assert.IsTrue(result.IndexOf("MyNs", StringComparison.Ordinal) >= 0);
+            Assert.IsTrue(result.IndexOf("MyClass", StringComparison.Ordinal) >= 0);
         }
 
         [TestMethod]
@@ -223,8 +223,8 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             var tree = CSharpSyntaxTree.ParseText("class Outer { class Inner { int x; } }");
             var field = FindFirst<BaseFieldDeclarationSyntax>(tree.GetRoot());
             var result = Core.GetMemberNamePrefix(field);
-            Assert.IsTrue(result.Contains("Outer"));
-            Assert.IsTrue(result.Contains("Inner"));
+            Assert.IsTrue(result.IndexOf("Outer", StringComparison.Ordinal) >= 0);
+            Assert.IsTrue(result.IndexOf("Inner", StringComparison.Ordinal) >= 0);
         }
 
         // ===== SpanConcat =====
@@ -729,8 +729,8 @@ namespace MyNamespace {
                 if (node is BaseFieldDeclarationSyntax f) { field = f; break; }
             }
             var result = Core.GetMemberNamePrefix(field);
-            Assert.IsTrue(result.Contains("A.B"));
-            Assert.IsTrue(result.Contains("C"));
+            Assert.IsTrue(result.IndexOf("A.B", StringComparison.Ordinal) >= 0);
+            Assert.IsTrue(result.IndexOf("C", StringComparison.Ordinal) >= 0);
         }
 
         [TestMethod]
