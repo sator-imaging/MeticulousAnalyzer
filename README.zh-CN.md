@@ -536,7 +536,7 @@ var x = (((foo)))!;
 
 ## 字面量分支分析
 
-避免在比较运算或分支条件中直接使用硬编码的字面量值（数值、0、字符串、字符）。应通过常量或命名变量明确表达意图，或使用尾随注释 `/* Why: 原因 */` 进行抑制。
+避免在比较运算或分支条件中直接使用硬编码的字面量值（数值、0、字符串、字符）。应通过常量或命名变量明确表达意图，或在字面量紧后使用注释 `/* Why: 原因 */` 进行抑制。
 
 ```cs
 const int OkStatus = 200;
@@ -551,7 +551,7 @@ if (status == 200)
     // ...
 }
 
-if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：尾随抑制注释
+if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：紧随其后的抑制注释
 {
     // ...
 }
@@ -674,7 +674,7 @@ foreach (var item in items)
 ```cs
 public struct MoveOnlyBuffer
 {
-    [Obsolete("若需禁止移动，可使用 Obsolete 特性", error: true)]
+    [Obsolete("若需禁止移动，可使用 Obsolete 特性并设置为 error: true", error: true)]
     public MoveOnlyBuffer Move()
     {
         // Move 方法内部免受所有检查

@@ -536,7 +536,7 @@ var x = (((foo)))!;
 
 ## Literal Branch Analysis
 
-Avoid using hardcoded literal values (numbers, zero, strings, or chars) directly in comparison or branch conditions. Express intent clearly using constants or named variables, or suppress with a trailing comment `/* Why: reason */`.
+Avoid using hardcoded literal values (numbers, zero, strings, or chars) directly in comparison or branch conditions. Express intent clearly using constants or named variables, or suppress with an immediately following comment `/* Why: reason */`.
 
 ```cs
 const int OkStatus = 200;
@@ -551,7 +551,7 @@ if (status == 200)
     // ...
 }
 
-if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing suppression comment
+if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing comment
 {
     // ...
 }
@@ -674,7 +674,7 @@ Enforces C++-style move semantics on C# struct types to prevent accidental copie
 ```cs
 public struct MoveOnlyBuffer
 {
-    [Obsolete("Use Obsolete attribute if you want to disallow moving", error: true)]
+    [Obsolete("Use Obsolete attribute with error:true if you want to disallow moving", error: true)]
     public MoveOnlyBuffer Move()
     {
         // Everything inside Move() method is exempt from all checks.
