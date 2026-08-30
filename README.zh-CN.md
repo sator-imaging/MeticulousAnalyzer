@@ -18,7 +18,8 @@
 - [异步上下文分析](#异步上下文分析) 检测 `Task` 或 `ValueTask` 缺少 await
 - [结构体分析](#结构体分析) 检测无参构造函数误用等
 - [`TSelf` 类型参数分析](#tself-类型参数分析) 支持 CRTP 等模式
-- [代码审查分析](#代码审查分析) 用于命名参数、显式数值类型等
+- [MoveOnly 类型分析](#moveonly-类型分析) 强制移动语义，禁止移动类型的复制与捕获
+- [代码审查分析](#代码审查分析) 用于命名参数、显式数值类型、字面量分支条件等
 - [项目结构分析](#项目结构分析) 强制同一程序集内 `internal` 符号的命名空间边界
 - [不可变变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
 - [**RULES.md**](RULES.md)（英文）： [文件头注释强制规则](RULES.md#file-structure-analysis)和[编码辅助](RULES.md#coding-assistance)以及所有诊断规则
@@ -533,6 +534,26 @@ var x = (((foo)))!;
 > 之后，强烈建议使用 `Debug.Assert(foo is not null);` 代替 `!` 运算符来安全地抑制警告，这样不会在 Release 构建中引入运行时开销。
 
 
+## 字面量分支分析
+
+避免在比较运算或分支条件中直接使用硬编码的字面量值（数值、0、字符串、字符）。应通过常量或命名变量明确表达意图，或使用尾随注释 `/* Why: 原因 */` 进行抑制。
+
+```cs
+if (status == 200) // 报告：避免在比较或分支条件中使用硬编码的字面量
+{
+    // ...
+}
+
+if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：尾随抑制注释
+{
+    // ...
+}
+```
+
+> [!NOTE]
+> 在检查集合或字符串的 `Count`、`Length` 或 `IndexOf` 属性/方法时，与零 (`0`) 的比较免受此检查；在 `for`/`while`/`do-while` 循环条件头中使用 `0` 也免受此检查。
+
+
 ## 禁止在处理流程中途分支
 
 禁止在处理过程中途引入分支。允许使用提前 return，但不要在主流程中途引入新的控制流分支。
@@ -605,6 +626,38 @@ foreach (var item in items)
     {
         DoSomething(item);
     }
+}
+```
+
+
+
+
+
+&nbsp;
+
+# MoveOnly 类型分析
+
+在 C# `struct` 类型上强制执行 C++ 风格的移动语义（Move Semantics），防止意外复制或隐式资源共享。类型名称以 `MoveOnly` 开头（区分大小写）或带有 `[NoCopy]` 特性的类型将被识别为 MoveOnly 类型。
+
+- SMA0090: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
+- SMA0091: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
+- SMA0092: MoveOnly 类型禁止在 `async` 方法中作为 `ref`、`out` 或 `in` 参数传递。
+- SMA0093: MoveOnly 类型必须是 `struct`。
+- SMA0094: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
+- SMA0095: MoveOnly 类型禁止在 Lambda 表达式中被捕获。
+
+```cs
+public struct MoveOnlyBuffer
+{
+    public MoveOnlyBuffer Move() => this;
+}
+
+void Process(MoveOnlyBuffer buf)
+{
+    MoveOnlyBuffer copy = buf;
+                          ~~~ // 报告：禁止在未调用 Move() 的情况下复制 MoveOnly 类型
+
+    MoveOnlyBuffer moved = buf.Move(); // 允许：显式调用 Move()
 }
 ```
 
