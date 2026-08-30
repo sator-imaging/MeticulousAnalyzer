@@ -643,11 +643,11 @@ foreach (var item in items)
 
 # MoveOnly 型解析
 
-C# の `struct` 型に対して C++ スタイルのムーブセマンティクスを強制し、意図しないコピーや暗黙の破棄・共有を防ぎます。型名が `MoveOnly` で始まる（大文字小文字を区別）か、`[NoCopy]` 属性が付与されている型が MoveOnly 型として認識されます（`NoCopyAttribute` 型を手動で追加する必要があります）。
+C# の `struct` 型に対して C++ スタイルのムーブセマンティクスを強制し、意図しないコピーや暗黙の破棄・共有を防ぎます。型名が `MoveOnly` で始まる（大文字小文字を区別）か、`[NoCopy]` 属性が付与されている型が MoveOnly 型として認識されます（アトリビュートを使う場合は、`NoCopyAttribute` 型を手動で追加する必要があります）。
 
 - SMA0090: MoveOnly 型は自身を返す `public` インスタンス `Move()` メソッドを宣言する必要があります。
 - SMA0091: MoveOnly 型は `Move()` を呼び出さずにコピーまたは代入することはできません。
-- SMA0092: MoveOnly 型は `async` メソッド内で `ref`、`out`、`in` 引数として渡すことはできません。
+- SMA0092: MoveOnly 型は `async` メソッド内で `ref`、`out`、`in` 引数として渡すことはできません。（`await` がある場合は許可されます）
 - SMA0093: MoveOnly 型は `struct` である必要があります。
 - SMA0094: MoveOnly 型は `Move()` を呼び出さずに他の型へキャストすることはできません。
 - SMA0095: MoveOnly 型をラムダ式内でキャプチャすることはできません。
@@ -655,8 +655,13 @@ C# の `struct` 型に対して C++ スタイルのムーブセマンティク�
 ```cs
 public struct MoveOnlyBuffer
 {
-    public MoveOnlyBuffer Move() => this;
-}
+    public MoveOnlyBuffer Move()
+    {
+        // Move メソッド内はあらゆるチェックの対象外です。
+        var ret = this;
+        this = default;
+        return ret;
+    }
 
 void Process(MoveOnlyBuffer buf)
 {
