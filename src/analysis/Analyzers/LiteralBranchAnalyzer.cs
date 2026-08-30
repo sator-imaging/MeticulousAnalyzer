@@ -88,10 +88,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            bool leftHasMemberAccess = HasMemberAccessWithMatchingName(binary.LeftOperand);
-
             AnalyzeOperandForLiteral(context, binary.LeftOperand);
-            AnalyzeOperandForLiteral(context, binary.RightOperand, exemptZero: leftHasMemberAccess);
+            AnalyzeOperandForLiteral(context, binary.RightOperand, isRightOperand: true, leftOperand: binary.LeftOperand);
         }
 
         private static void AnalyzeConstantPattern(OperationAnalysisContext context)
@@ -122,7 +120,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void AnalyzeOperandForLiteral(OperationAnalysisContext context, IOperation operand, bool exemptZero = false)
+        private static void AnalyzeOperandForLiteral(
+            OperationAnalysisContext context,
+            IOperation operand,
+            bool isRightOperand = false,
+            IOperation? leftOperand = null)
         {
             // Unwrap interleaved conversions and unary +/- to reach the literal
             var current = operand;
@@ -184,7 +186,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (IsNumericZero(literalOp))
             {
-                if (exemptZero)
+                if (isRightOperand && leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand.Syntax))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -231,18 +233,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                    name.Contains("IndexOf");
         }
 
-        private static bool HasMemberAccessWithMatchingName(IOperation? operation)
+        private static bool LeftSideHasMatchingMemberAccessSyntax(SyntaxNode? syntax)
         {
-            if (operation == null)
+            if (syntax == null)
                 return false;
 
-            foreach (var desc in DescendantsAndSelf(operation))
+            foreach (var node in syntax.DescendantNodesAndSelf())
             {
-                string? name = desc switch
+                string? name = node switch
                 {
-                    IMemberReferenceOperation memberRef => memberRef.Member?.Name,
-                    IInvocationOperation invocation => invocation.TargetMethod?.Name,
-                    IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                    MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                    MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
                     _ => null
                 };
 
@@ -253,24 +254,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             return false;
-        }
-
-        private static System.Collections.Generic.IEnumerable<IOperation> DescendantsAndSelf(IOperation operation)
-        {
-            var stack = new System.Collections.Generic.Stack<IOperation>();
-            stack.Push(operation);
-            while (stack.Count > 0)
-            {
-                var current = stack.Pop();
-                yield return current;
-                foreach (var child in current.Children)
-                {
-                    if (child != null)
-                    {
-                        stack.Push(child);
-                    }
-                }
-            }
         }
     }
 }
