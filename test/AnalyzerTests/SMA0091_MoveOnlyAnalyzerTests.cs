@@ -605,5 +605,49 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0092_Violation_GenericParameterWithInRefModifier_UnawaitedTaskReturningMethod()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        Task GenericTaskIn<T>(in T value)
+        {
+            return Task.CompletedTask;
+        }
+
+        Task GenericTaskRef<T>(ref T value)
+        {
+            return Task.CompletedTask;
+        }
+
+        async Task MethodAsync(MoveOnlyStruct moveOnly)
+        {
+            GenericTaskIn({|#0:in moveOnly|});
+            GenericTaskRef({|#1:ref moveOnly|});
+            await Task.CompletedTask;
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
