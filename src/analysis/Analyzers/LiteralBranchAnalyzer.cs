@@ -88,7 +88,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeOperandForLiteral(context, binary.LeftOperand);
+            AnalyzeOperandForLiteral(context, binary.LeftOperand, leftOperand: binary.RightOperand);
             AnalyzeOperandForLiteral(context, binary.RightOperand, leftOperand: binary.LeftOperand);
         }
 
@@ -97,7 +97,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IConstantPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value);
+            var target = GetPatternTarget(pattern);
+            AnalyzeOperandForLiteral(context, pattern.Value, leftOperand: target);
         }
 
         private static void AnalyzeRelationalPattern(OperationAnalysisContext context)
@@ -105,7 +106,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IRelationalPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value);
+            var target = GetPatternTarget(pattern);
+            AnalyzeOperandForLiteral(context, pattern.Value, leftOperand: target);
         }
 
         private static void AnalyzeSwitchCase(OperationAnalysisContext context)
@@ -113,11 +115,44 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not ISwitchCaseOperation switchCase)
                 return;
 
+            var target = (switchCase.Parent as ISwitchOperation)?.Value;
             foreach (var clause in switchCase.Clauses)
             {
                 if (clause is ISingleValueCaseClauseOperation singleValue)
-                    AnalyzeOperandForLiteral(context, singleValue.Value);
+                    AnalyzeOperandForLiteral(context, singleValue.Value, leftOperand: target);
             }
+        }
+
+        private static IOperation? GetPatternTarget(IOperation pattern)
+        {
+            IOperation? curr = pattern.Parent;
+            while (curr != null)
+            {
+                if (curr is IIsPatternOperation isPattern)
+                    return isPattern.Value;
+
+                if (curr is ISwitchExpressionArmOperation arm)
+                    return (arm.Parent as ISwitchExpressionOperation)?.Value;
+
+                if (curr is ISwitchCaseOperation switchCase)
+                    return (switchCase.Parent as ISwitchOperation)?.Value;
+
+                if (curr is IPatternCaseClauseOperation patternClause)
+                    return ((patternClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value;
+
+                if (curr is ISingleValueCaseClauseOperation singleValueClause)
+                    return ((singleValueClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value;
+
+                if (curr is IPropertySubpatternOperation propSub)
+                    return propSub;
+
+                if (curr is IBlockOperation || curr.Kind == OperationKind.Block || curr.Kind == OperationKind.MethodBody)
+                    break;
+
+                curr = curr.Parent;
+            }
+
+            return null;
         }
 
         private static void AnalyzeOperandForLiteral(
@@ -186,7 +221,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             else if (IsNumericZero(literalOp))
             {
                 if (!IsInLoopCondition(outermostSyntax.Parent) &&
-                    !HasMatchingTargetOperand(literalOp, leftOperand))
+                    (leftOperand == null || !LeftSideHasMatchingMemberAccessSyntax(leftOperand)))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_LiteralBranchZero,
@@ -241,57 +276,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return name.Contains("Length") ||
                    name.Contains("Count") ||
                    name.Contains("IndexOf");
-        }
-
-        private static bool HasMatchingTargetOperand(ILiteralOperation literalOp, IOperation? leftOperand)
-        {
-            if (leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand))
-            {
-                return true;
-            }
-
-            IOperation? curr = literalOp.Parent;
-            while (curr != null)
-            {
-                if (curr is IBlockOperation || curr.Kind == OperationKind.Block || curr.Kind == OperationKind.MethodBody)
-                {
-                    break;
-                }
-
-                if (curr is IIsPatternOperation isPattern)
-                {
-                    if (LeftSideHasMatchingMemberAccessSyntax(isPattern.Value))
-                        return true;
-                }
-                else if (curr is ISwitchExpressionOperation switchExpr)
-                {
-                    if (LeftSideHasMatchingMemberAccessSyntax(switchExpr.Value))
-                        return true;
-                }
-                else if (curr is ISwitchOperation switchStmt)
-                {
-                    if (LeftSideHasMatchingMemberAccessSyntax(switchStmt.Value))
-                        return true;
-                }
-                else if (curr is IPropertySubpatternOperation propSub)
-                {
-                    if (propSub.Syntax != null && HasMatchingMemberAccessSyntax(propSub.Syntax))
-                        return true;
-                }
-                else if (leftOperand == null && curr is IBinaryOperation binary)
-                {
-                    IOperation target = binary.LeftOperand.Syntax?.Span.Contains(literalOp.Syntax.Span) == true
-                        ? binary.RightOperand
-                        : binary.LeftOperand;
-
-                    if (LeftSideHasMatchingMemberAccessSyntax(target))
-                        return true;
-                }
-
-                curr = curr.Parent;
-            }
-
-            return false;
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
