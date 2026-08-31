@@ -126,12 +126,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static IOperation? GetPatternTarget(IOperation pattern)
         {
             var parent = pattern.Parent;
-            while (parent is IConversionOperation ||
-                   (parent is IPatternOperation &&
-                    parent is not IIsPatternOperation &&
-                    parent is not IPropertySubpatternOperation))
+            if (parent is IConversionOperation conv)
             {
-                parent = parent.Parent;
+                parent = conv.Parent;
+            }
+
+            if (parent is INegatedPatternOperation negatedPattern)
+            {
+                parent = negatedPattern.Parent;
+            }
+
+            if (parent is IBinaryPatternOperation binaryPattern)
+            {
+                parent = binaryPattern.Parent;
+            }
+
+            if (parent is IConversionOperation conv2)
+            {
+                parent = conv2.Parent;
             }
 
             return parent switch
@@ -300,6 +312,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
                     MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
                     SubpatternSyntax subpattern => subpattern.NameColon?.Name.Identifier.ValueText,
+                    IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
                     _ => null
                 };
 
