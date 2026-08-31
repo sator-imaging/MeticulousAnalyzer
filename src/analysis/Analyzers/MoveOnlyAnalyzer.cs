@@ -330,22 +330,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         if (!targetMethod.IsAsync)
                         {
                             var returnType = targetMethod.ReturnType;
-                            bool isTaskReturning = returnType is INamedTypeSymbol
-                            {
-                                Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
-                                {
-                                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
-                                    {
-                                        Name: "Threading", ContainingNamespace: INamespaceSymbol
-                                        {
-                                            Name: "System", ContainingNamespace: INamespaceSymbol
-                                            {
-                                                IsGlobalNamespace: true
-                                            }
-                                        }
-                                    }
-                                }
-                            } || returnType.Name.StartsWith("UniTask", StringComparison.Ordinal);
+                            bool isTaskReturning = returnType.IsTaskLikeType();
 
                             if (!isTaskReturning)
                             {

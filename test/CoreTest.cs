@@ -932,5 +932,90 @@ class C {
         {
             Assert.AreEqual(string.Empty, Core.GetPrecedingComments(null));
         }
+
+        // ===== IsTaskLikeType =====
+
+        [TestMethod]
+        public void IsTaskLikeType_Null_ReturnsFalse()
+        {
+            Assert.IsFalse(Core.IsTaskLikeType(null));
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_Task_ReturnsTrue()
+        {
+            var source = "using System.Threading.Tasks; class C { Task x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsTrue(type.IsTaskLikeType());
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_ValueTask_ReturnsTrue()
+        {
+            var source = "using System.Threading.Tasks; class C { ValueTask x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsTrue(type.IsTaskLikeType());
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_GenericTask_ReturnsTrue()
+        {
+            var source = "using System.Threading.Tasks; class C { Task<int> x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsTrue(type.IsTaskLikeType());
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_GenericValueTask_ReturnsTrue()
+        {
+            var source = "using System.Threading.Tasks; class C { ValueTask<int> x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsTrue(type.IsTaskLikeType());
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_UniTask_ReturnsTrue()
+        {
+            var source = "namespace Cysharp.Threading.Tasks { public struct UniTask {} } class C { Cysharp.Threading.Tasks.UniTask x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsTrue(type.IsTaskLikeType());
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_DerivedFromTask_ReturnsFalse()
+        {
+            var source = "using System.Threading.Tasks; class MyTask : Task { } class C { MyTask x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsFalse(type.IsTaskLikeType());
+        }
+
+        [TestMethod]
+        public void IsTaskLikeType_NonTaskType_ReturnsFalse()
+        {
+            var source = "class C { int x; }";
+            var comp = CreateCompilation(source);
+            var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
+            var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
+            var type = model.GetTypeInfo(field.Declaration.Type).Type;
+            Assert.IsFalse(type.IsTaskLikeType());
+        }
     }
 }

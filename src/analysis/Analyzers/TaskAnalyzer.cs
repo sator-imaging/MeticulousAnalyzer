@@ -63,7 +63,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (!IsTask(assignment.Value.Type))
+            if (!assignment.Value.Type.IsTaskLikeType())
             {
                 return;
             }
@@ -84,7 +84,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var local = declarator.Symbol;
-            if (!IsTask(local.Type))
+            if (!local.Type.IsTaskLikeType())
             {
                 return;
             }
@@ -117,22 +117,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             context.ReportDiagnostic(Diagnostic.Create(Rule_MissingAwait, syntax.Identifier.GetLocation(), local.ToDiagnosticMessageName()));
         }
-
-        private static bool IsTask(ITypeSymbol? type)
-        {
-            if (type == null)
-            {
-                return false;
-            }
-
-            if (type is INamedTypeSymbol { Name: "Task" or "ValueTask", ContainingNamespace: { Name: "Tasks", ContainingNamespace: { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } } } })
-            {
-                return true;
-            }
-
-            return IsTask(type.BaseType);
-        }
-
 
         private static bool IsTaskAwaitedOrReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)
         {

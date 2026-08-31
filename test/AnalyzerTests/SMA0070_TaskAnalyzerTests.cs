@@ -623,7 +623,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0070_Violation_CustomTaskSubclass()
+        public async Task SMA0070_Compliant_CustomTaskSubclass()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -639,15 +639,12 @@ namespace Test
     {
         async Task Method()
         {
-            var {|#0:t|} = new MyTask();
+            var t = new MyTask();
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(TaskAnalyzer.RuleId_MissingAwait)
-                .WithLocation(markupKey: 0)
-                .WithArguments("t");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
