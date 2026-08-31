@@ -932,5 +932,32 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseLessIfElseIf()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool foo, bool bar)
+    {
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            {|#0:return|};
+        }
+        else if (bar)
+        {
+            throw new Exception();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
     }
 }
