@@ -58,11 +58,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
+                if (IsInSystemNamespace(attrSymbol.ContainingType))
+                {
+                    return;
+                }
+
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
                     var paramSymbol = attrSymbol.Parameters[argIndex];
                     if (paramSymbol.IsOptional || paramSymbol.HasExplicitDefaultValue)
                     {
+                        if (paramSymbol.Type.Name == "CancellationToken" &&
+                            argIndex == argListStx.Arguments.Count - 1)
+                        {
+                            return;
+                        }
+
                         context.ReportDiagnostic(Diagnostic.Create(
                             Rule_OmittableArgument,
                             argStx.GetLocation(),
@@ -93,13 +104,49 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var parameter = argOp.Parameter;
-            if (parameter != null && (parameter.IsOptional || parameter.HasExplicitDefaultValue))
+            if (parameter == null)
             {
+                return;
+            }
+
+            var containingType = parameter.ContainingType
+                               ?? (argOp.Parent as IInvocationOperation)?.TargetMethod.ContainingType
+                               ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
+
+            if (IsInSystemNamespace(containingType))
+            {
+                return;
+            }
+
+            if (parameter.IsOptional || parameter.HasExplicitDefaultValue)
+            {
+                if (parameter.Type.Name == "CancellationToken")
+                {
+                    if (argStx.Parent is ArgumentListSyntax argListStx &&
+                        argListStx.Arguments.Count > 0 &&
+                        argListStx.Arguments[argListStx.Arguments.Count - 1] == argStx)
+                    {
+                        return;
+                    }
+                }
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_OmittableArgument,
                     argStx.GetLocation(),
                     parameter.ToDiagnosticMessageName()));
             }
+        }
+
+        private static bool IsInSystemNamespace(INamedTypeSymbol? typeSymbol)
+        {
+            for (var ns = typeSymbol?.ContainingNamespace; ns is { IsGlobalNamespace: false }; ns = ns.ContainingNamespace)
+            {
+                if (ns is INamespaceSymbol { Name: "System", ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true } })
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
