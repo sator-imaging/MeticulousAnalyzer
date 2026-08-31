@@ -100,5 +100,54 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0092_UniTask_Support()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Cysharp.Threading.Tasks
+{
+    public struct UniTask
+    {
+        public UniTaskAwaiter GetAwaiter() => new UniTaskAwaiter();
+    }
+
+    public struct UniTaskAwaiter : System.Runtime.CompilerServices.INotifyCompletion
+    {
+        public bool IsCompleted => true;
+        public void GetResult() { }
+        public void OnCompleted(System.Action continuation) { }
+    }
+}
+
+namespace Test
+{
+    using Cysharp.Threading.Tasks;
+
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        UniTask UniTaskFoo(ref MoveOnlyStruct item) => default;
+
+        async Task MethodAsync(MoveOnlyStruct moveOnly)
+        {
+            UniTaskFoo({|#0:ref moveOnly|});
+            await UniTaskFoo(ref moveOnly);
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
     }
 }

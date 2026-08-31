@@ -666,7 +666,7 @@ foreach (var item in items)
 
 - **SMA0090**: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
 - **SMA0091**: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
-- **SMA0092**: MoveOnly 类型不能在 `async` 方法中未经 `await` 就按引用传递给另一个 `async` 方法。
+- **SMA0092**: MoveOnly 类型不能在 `async` 方法中未经 `await` 就按引用传递给返回 Task-like 类型的方法。
 - **SMA0093**: MoveOnly 类型必须是 `struct`。
 - **SMA0094**: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
 - **SMA0095**: MoveOnly 类型禁止在 Lambda 表达式中被捕获。

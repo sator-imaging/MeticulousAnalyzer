@@ -332,7 +332,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             var returnType = targetMethod.ReturnType;
                             bool isTaskReturning = returnType is INamedTypeSymbol
                             {
-                                Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
+                                Name: "Task" or "ValueTask" or "UniTask" or "UniTaskVoid", ContainingNamespace: INamespaceSymbol
                                 {
                                     Name: "Tasks", ContainingNamespace: INamespaceSymbol
                                     {
@@ -345,7 +345,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                         }
                                     }
                                 }
-                            };
+                            } || returnType.Name.StartsWith("UniTask", StringComparison.Ordinal);
 
                             if (!isTaskReturning)
                             {
