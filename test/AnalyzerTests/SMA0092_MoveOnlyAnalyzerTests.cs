@@ -102,7 +102,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0092_UniTask_Support()
+        public async Task SMA0092_Violation_UniTask()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -134,11 +134,15 @@ namespace Test
     class Program
     {
         UniTask UniTaskFoo(ref MoveOnlyStruct item) => default;
+        UniTask UniTaskBaz(in MoveOnlyStruct item) => default;
 
         async Task MethodAsync(MoveOnlyStruct moveOnly)
         {
             UniTaskFoo({|#0:ref moveOnly|});
+            UniTaskBaz({|#1:in moveOnly|});
+
             await UniTaskFoo(ref moveOnly);
+            await UniTaskBaz(in moveOnly);
         }
     }
 }
@@ -146,8 +150,11 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
