@@ -18,7 +18,7 @@
 - [异步上下文分析](#异步上下文分析) 检测 `Task` 或 `ValueTask` 缺少 await
 - [结构体分析](#结构体分析) 检测无参构造函数误用等
 - [`TSelf` 类型参数分析](#tself-类型参数分析) 支持 CRTP 等模式
-- [MoveOnly 类型分析](#moveonly-类型分析) 强制移动语义，禁止移动类型的复制与捕获
+- [`MoveOnly` / `NoCopy` 类型分析](#moveonly--nocopy-类型分析) 强制移动语义，禁止移动类型的复制与捕获
 - [代码审查分析](#代码审查分析) 用于命名参数、显式数值类型、字面量分支条件等
 - [项目结构分析](#项目结构分析) 强制同一程序集内 `internal` 符号的命名空间边界
 - [不可变变量分析](#只读变量分析) 检测对局部变量/参数赋值，以及可变参数传递
@@ -660,18 +660,18 @@ foreach (var item in items)
 
 &nbsp;
 
-# MoveOnly 类型分析
+# `MoveOnly` / `NoCopy` 类型分析
 
 在 C# `struct` 类型上强制执行 C++ 风格的移动语义（Move Semantics），防止意外复制或隐式资源共享。类型名称以 `MoveOnly` 开头（区分大小写）或带有 `[NoCopy]` 特性的类型将被识别为 MoveOnly 类型（需要手动定义 `NoCopyAttribute` 类型）。
 
-- SMA0090: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
-- SMA0091: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
-- SMA0092: MoveOnly 类型不能在 `async` 方法中未经 `await` 就按引用传递给另一个 `async` 方法。
-- SMA0093: MoveOnly 类型必须是 `struct`。
-- SMA0094: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
-- SMA0095: MoveOnly 类型禁止在 Lambda 表达式中被捕获。
-- SMA0096: MoveOnly 类型不能声明为 `out` 参数。
-- SMA0097: MoveOnly 类型不能在 `Move()` 之外按值返回，即使对返回值调用了 `Move()` 也不允许；按引用返回则允许。
+- **SMA0090**: MoveOnly 类型必须声明一个返回自身类型的 `public` 实例 `Move()` 方法。
+- **SMA0091**: MoveOnly 类型在未调用 `Move()` 的情况下禁止被复制或赋值。
+- **SMA0092**: MoveOnly 类型不能在 `async` 方法中未经 `await` 就按引用传递给返回 Task-like 类型的方法。
+- **SMA0093**: MoveOnly 类型必须是 `struct`。
+- **SMA0094**: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
+- **SMA0095**: MoveOnly 类型禁止在 Lambda 表达式中被捕获。
+- **SMA0096**: MoveOnly 类型不能声明为 `out` 参数。
+- **SMA0097**: MoveOnly 类型不能在 `Move()` 之外按值返回，即使对返回值调用了 `Move()` 也不允许；按引用返回则允许。
 
 ```cs
 public struct MoveOnlyBuffer

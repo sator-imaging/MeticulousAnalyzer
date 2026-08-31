@@ -345,7 +345,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                         }
                                     }
                                 }
-                            };
+                            } || returnType.Name.StartsWith("UniTask", StringComparison.Ordinal);
 
                             if (!isTaskReturning)
                             {
