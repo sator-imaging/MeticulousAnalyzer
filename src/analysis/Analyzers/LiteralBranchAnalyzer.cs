@@ -186,7 +186,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             else if (IsNumericZero(literalOp))
             {
                 if (!IsInLoopCondition(outermostSyntax.Parent) &&
-                    (leftOperand == null || !LeftSideHasMatchingMemberAccessSyntax(leftOperand)))
+                    !HasMatchingTargetOperand(literalOp, leftOperand))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         Rule_LiteralBranchZero,
@@ -243,6 +243,57 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                    name.Contains("IndexOf");
         }
 
+        private static bool HasMatchingTargetOperand(ILiteralOperation literalOp, IOperation? leftOperand)
+        {
+            if (leftOperand != null && LeftSideHasMatchingMemberAccessSyntax(leftOperand))
+            {
+                return true;
+            }
+
+            IOperation? curr = literalOp.Parent;
+            while (curr != null)
+            {
+                if (curr is IBlockOperation || curr.Kind == OperationKind.Block || curr.Kind == OperationKind.MethodBody)
+                {
+                    break;
+                }
+
+                if (curr is IIsPatternOperation isPattern)
+                {
+                    if (LeftSideHasMatchingMemberAccessSyntax(isPattern.Value))
+                        return true;
+                }
+                else if (curr is ISwitchExpressionOperation switchExpr)
+                {
+                    if (LeftSideHasMatchingMemberAccessSyntax(switchExpr.Value))
+                        return true;
+                }
+                else if (curr is ISwitchOperation switchStmt)
+                {
+                    if (LeftSideHasMatchingMemberAccessSyntax(switchStmt.Value))
+                        return true;
+                }
+                else if (curr is IPropertySubpatternOperation propSub)
+                {
+                    if (propSub.Syntax != null && HasMatchingMemberAccessSyntax(propSub.Syntax))
+                        return true;
+                }
+                else if (leftOperand == null && curr is IBinaryOperation binary)
+                {
+                    IOperation target = binary.LeftOperand.Syntax?.Span.Contains(literalOp.Syntax.Span) == true
+                        ? binary.RightOperand
+                        : binary.LeftOperand;
+
+                    if (LeftSideHasMatchingMemberAccessSyntax(target))
+                        return true;
+                }
+
+                curr = curr.Parent;
+            }
+
+            return false;
+        }
+
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
         {
             string? opName = leftOperand switch
@@ -269,6 +320,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
                     MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
+                    SubpatternSyntax subpattern => subpattern.NameColon?.Name.Identifier.ValueText,
                     _ => null
                 };
 

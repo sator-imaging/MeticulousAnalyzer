@@ -550,5 +550,123 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
             );
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PatternMatch_LengthCountIndexOf()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class Container
+    {
+        public int? Length { get; set; }
+    }
+
+    public class C
+    {
+        public bool M(int[] arr, List<int> list, string str, Container container)
+        {
+            if (arr?.Length is null or 0)
+            {
+            }
+
+            if (arr.Length is >= 0)
+            {
+            }
+
+            if (arr.Length is 0)
+            {
+            }
+
+            if (list.Count is not 0)
+            {
+            }
+
+            if (str.IndexOf('a') is >= 0)
+            {
+            }
+
+            var res1 = arr?.Length switch
+            {
+                null or 0 => true,
+                _ => false
+            };
+
+            var res2 = list.Count switch
+            {
+                >= 0 => true,
+                _ => false
+            };
+
+            switch (arr?.Length)
+            {
+                case null or 0:
+                    break;
+                case >= 0:
+                    break;
+            }
+
+            if (container is { Length: 0 })
+            {
+            }
+
+            if (container is { Length: null or 0 })
+            {
+            }
+
+            if (container is { Length: >= 0 })
+            {
+            }
+
+            return res1 && res2;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_PatternMatch_NoMatchingMember()
+        {
+            var test = @"
+namespace Test
+{
+    public class Person
+    {
+        public int Age { get; set; }
+    }
+
+    public class C
+    {
+        public bool M(int? val, Person person)
+        {
+            if (val is null or {|#0:0|})
+            {
+            }
+
+            if (person is { Age: {|#1:0|} })
+            {
+            }
+
+            var res = val switch
+            {
+                null or {|#2:0|} => true,
+                _ => false
+            };
+
+            return res;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments(arguments: "0"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 2).WithArguments(arguments: "0")
+            );
+        }
     }
 }
