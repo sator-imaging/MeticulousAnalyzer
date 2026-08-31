@@ -115,11 +115,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not ISwitchCaseOperation switchCase)
                 return;
 
-            var target = (switchCase.Parent as ISwitchOperation)?.Value;
             foreach (var clause in switchCase.Clauses)
             {
                 if (clause is ISingleValueCaseClauseOperation singleValue)
-                    AnalyzeOperandForLiteral(context, singleValue.Value, leftOperand: target);
+                    AnalyzeOperandForLiteral(context, singleValue.Value);
             }
         }
 
@@ -149,9 +148,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return parent switch
             {
                 IIsPatternOperation isPattern => isPattern.Value,
-                ISwitchExpressionArmOperation arm => (arm.Parent as ISwitchExpressionOperation)?.Value,
-                IPatternCaseClauseOperation patternClause => ((patternClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value,
-                ISingleValueCaseClauseOperation singleValueClause => ((singleValueClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value,
                 IPropertySubpatternOperation propSub => propSub,
                 _ => null
             };
@@ -282,7 +278,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
         {
-            while (leftOperand is IConversionOperation conv)
+            if (leftOperand is IConversionOperation conv)
             {
                 leftOperand = conv.Operand;
             }

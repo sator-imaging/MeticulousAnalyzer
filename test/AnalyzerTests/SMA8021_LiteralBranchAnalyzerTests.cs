@@ -566,7 +566,7 @@ namespace Test
 
     public class C
     {
-        public bool M(int[] arr, List<int> list, string str, Container container)
+        public void M(int[] arr, List<int> list, string str, Container container)
         {
             if (arr?.Length is null or 0)
             {
@@ -588,26 +588,6 @@ namespace Test
             {
             }
 
-            var res1 = arr?.Length switch
-            {
-                null or 0 => true,
-                _ => false
-            };
-
-            var res2 = list.Count switch
-            {
-                >= 0 => true,
-                _ => false
-            };
-
-            switch (arr?.Length)
-            {
-                case null or 0:
-                    break;
-                case >= 0:
-                    break;
-            }
-
             if (container is { Length: 0 })
             {
             }
@@ -619,8 +599,6 @@ namespace Test
             if (container is { Length: >= 0 })
             {
             }
-
-            return res1 && res2;
         }
     }
 }
