@@ -109,15 +109,21 @@ Analyzes cross-namespace access restrictions to enforce internal architecture bo
 | ID      | Diagnostic                                                    | Description
 |---------|---------------------------------------------------------------|-------------
 | SMA0080 | Internal cross-namespace access                               | Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)
-| | | |
+
+## MoveOnly Type Analysis
+
+Analyzes move-only types and `NoCopy` attributes to enforce single-ownership semantics and prevent prohibited copies, assignments, casts, or captures.
+
+| ID      | Diagnostic                                                    | Description
+|---------|---------------------------------------------------------------|-------------
 | SMA0090 | Invalid MoveOnly Type                                         | MoveOnly type must declare a public instance `Move()` method returning the containing type.
 | SMA0091 | Prohibited Copy of MoveOnly Type                              | MoveOnly type cannot be copied or assigned without `Move()`.
-| SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by `ref` or `out` in `async` methods.
+| SMA0092 | Prohibited Ref/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by ref or out in async methods.
 | SMA0093 | Invalid MoveOnly Declaration                                  | MoveOnly type must be a struct.
 | SMA0094 | Prohibited Cast of MoveOnly Type                              | MoveOnly type cannot be cast to any type without `Move()`.
 | SMA0095 | Prohibited Lambda Capture of MoveOnly Type                    | MoveOnly type cannot be captured in a lambda expression.
 | SMA0096 | Prohibited Out Parameter of MoveOnly Type                     | MoveOnly type cannot be declared as an `out` parameter.
-| SMA0097 | Prohibited Return of MoveOnly Type                            | MoveOnly type cannot be returned by value outside its `Move()` method. Returning by `ref` is allowed.
+| SMA0097 | Prohibited Return of MoveOnly Type                            | MoveOnly type cannot be returned without `ref` outside its `Move()` method.
 
 ## Coding Assistance
 

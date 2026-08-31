@@ -1165,6 +1165,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA0090__MD_DESC__ {
+            get {
+                return ResourceManager.GetString("SMA0090__MD_DESC__", resourceCulture);
+            }
+        }
+
+        internal static string SMA0090__MD_TITLE__ {
+            get {
+                return ResourceManager.GetString("SMA0090__MD_TITLE__", resourceCulture);
+            }
+        }
+
         internal static string SMA7000__MD_DESC__ {
             get {
                 return ResourceManager.GetString("SMA7000__MD_DESC__", resourceCulture);
