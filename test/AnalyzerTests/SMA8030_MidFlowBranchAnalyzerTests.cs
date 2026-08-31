@@ -1021,5 +1021,521 @@ class C
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
         }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfOnlyExit_Return_Variant1()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            {|#0:return|};
+        }
+        else
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfOnlyExit_Return_Variant2()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            {|#0:return|};
+        }
+        else if (bar)
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfOnlyExit_YieldReturn_Variant1()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    void DoSomething() { }
+
+    IEnumerable<int> M(bool foo)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            {|#0:yield|} return 1;
+        }
+        else
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfOnlyExit_YieldReturn_Variant2()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    void DoSomething() { }
+
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            {|#0:yield|} return 1;
+        }
+        else if (bar)
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfOnlyExit_Throw_Variant1()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            {|#0:throw|} new Exception();
+        }
+        else
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfOnlyExit_Throw_Variant2()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            {|#0:throw|} new Exception();
+        }
+        else if (bar)
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseOnlyExit_Return_Variant1()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else
+        {
+            {|#0:return|};
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseOnlyExit_Return_Variant2()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            // Do nothing
+        }
+        else
+        {
+            {|#0:return|};
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseOnlyExit_YieldReturn_Variant1()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    void DoSomething() { }
+
+    IEnumerable<int> M(bool foo)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else
+        {
+            {|#0:yield|} return 1;
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseOnlyExit_YieldReturn_Variant2()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    void DoSomething() { }
+
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            // Do nothing
+        }
+        else
+        {
+            {|#0:yield|} return 1;
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseOnlyExit_Throw_Variant1()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else
+        {
+            {|#0:throw|} new Exception();
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseOnlyExit_Throw_Variant2()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            // Do nothing
+        }
+        else
+        {
+            {|#0:throw|} new Exception();
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseIfOnlyExit_Return_Variant1()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            {|#0:return|};
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseIfOnlyExit_Return_Variant2()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            {|#0:return|};
+        }
+        else
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseIfOnlyExit_YieldReturn_Variant1()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    void DoSomething() { }
+
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            {|#0:yield|} return 1;
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseIfOnlyExit_YieldReturn_Variant2()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    void DoSomething() { }
+
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            {|#0:yield|} return 1;
+        }
+        else
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseIfOnlyExit_Throw_Variant1()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            {|#0:throw|} new Exception();
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseIfOnlyExit_Throw_Variant2()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void DoSomething() { }
+
+    void M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo)
+        {
+            // Do nothing
+        }
+        else if (bar)
+        {
+            {|#0:throw|} new Exception();
+        }
+        else
+        {
+            // Do nothing
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
