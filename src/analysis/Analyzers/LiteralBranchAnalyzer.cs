@@ -125,34 +125,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static IOperation? GetPatternTarget(IOperation pattern)
         {
-            IOperation? curr = pattern.Parent;
-            while (curr != null)
+            var parent = pattern.Parent;
+            while (parent is IConversionOperation ||
+                   (parent is IPatternOperation &&
+                    parent is not IIsPatternOperation &&
+                    parent is not IPropertySubpatternOperation))
             {
-                if (curr is IIsPatternOperation isPattern)
-                    return isPattern.Value;
-
-                if (curr is ISwitchExpressionArmOperation arm)
-                    return (arm.Parent as ISwitchExpressionOperation)?.Value;
-
-                if (curr is ISwitchCaseOperation switchCase)
-                    return (switchCase.Parent as ISwitchOperation)?.Value;
-
-                if (curr is IPatternCaseClauseOperation patternClause)
-                    return ((patternClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value;
-
-                if (curr is ISingleValueCaseClauseOperation singleValueClause)
-                    return ((singleValueClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value;
-
-                if (curr is IPropertySubpatternOperation propSub)
-                    return propSub;
-
-                if (curr is IBlockOperation || curr.Kind == OperationKind.Block || curr.Kind == OperationKind.MethodBody)
-                    break;
-
-                curr = curr.Parent;
+                parent = parent.Parent;
             }
 
-            return null;
+            return parent switch
+            {
+                IIsPatternOperation isPattern => isPattern.Value,
+                ISwitchExpressionArmOperation arm => (arm.Parent as ISwitchExpressionOperation)?.Value,
+                IPatternCaseClauseOperation patternClause => ((patternClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value,
+                ISingleValueCaseClauseOperation singleValueClause => ((singleValueClause.Parent as ISwitchCaseOperation)?.Parent as ISwitchOperation)?.Value,
+                IPropertySubpatternOperation propSub => propSub,
+                _ => null
+            };
         }
 
         private static void AnalyzeOperandForLiteral(
@@ -280,6 +270,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
         {
+            while (leftOperand is IConversionOperation conv)
+            {
+                leftOperand = conv.Operand;
+            }
+
             string? opName = leftOperand switch
             {
                 IMemberReferenceOperation memberRef => memberRef.Member?.Name,
