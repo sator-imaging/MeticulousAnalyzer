@@ -563,5 +563,47 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_GenericParameterWithInRefModifier()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        void GenericSyncIn<T>(in T value) { }
+        void GenericSyncRef<T>(ref T value) { }
+
+        Task GenericTaskIn<T>(in T value)
+        {
+            return Task.CompletedTask;
+        }
+
+        Task GenericTaskRef<T>(ref T value)
+        {
+            return Task.CompletedTask;
+        }
+
+        async Task MethodAsync(MoveOnlyStruct moveOnly)
+        {
+            GenericSyncIn(in moveOnly);
+            GenericSyncRef(ref moveOnly);
+
+            await GenericTaskIn(in moveOnly);
+            await GenericTaskRef(ref moveOnly);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
