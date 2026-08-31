@@ -39,12 +39,31 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             bool isMainFlowStarted = false;
+            bool hasDeclarationInCurrentSequence = false;
 
             foreach (var statement in block.Statements)
             {
-                if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax ||
+                if (statement is EmptyStatementSyntax)
+                {
+                    continue;
+                }
+
+                if (statement is LocalDeclarationStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign && IsTupleDeclaration(assign)))
                 {
+                    if (isMainFlowStarted)
+                    {
+                        continue;
+                    }
+
+                    if (hasDeclarationInCurrentSequence)
+                    {
+                        isMainFlowStarted = true;
+                    }
+                    else
+                    {
+                        hasDeclarationInCurrentSequence = true;
+                    }
                     continue;
                 }
 
@@ -56,7 +75,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
                     else
                     {
-                        if (!ContainsBranch(ifStmt))
+                        if (ContainsBranch(ifStmt))
+                        {
+                            hasDeclarationInCurrentSequence = false;
+                        }
+                        else
                         {
                             isMainFlowStarted = true;
                         }

@@ -39,15 +39,13 @@ class C
     int M(bool foo)
     {
         var (a, b) = (31, 42);
-        (var x, var y) = (31, 42);
-        (var c, var d) = (31, 42);
 
         if (foo)
         {
-            return a + x;
+            return a;
         }
 
-        return b + y;
+        return b;
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
@@ -150,7 +148,6 @@ class C
     int M(bool foo)
     {
         int x = 1;
-        string s = ""test"";
 
         if (foo)
         {
@@ -884,13 +881,9 @@ class C
     int M(bool earlyReturn, bool foo)
     {
         int pos;
-        var x = 42;
-        var (a, b) = (1, 2);
-        (int fooVal, long bar) = (3, 4);
-
         if (earlyReturn) return 0;
 
-        x = 310;
+        pos = 310;
 
         if (foo)
         {
@@ -912,11 +905,7 @@ class C
 {
     int M(bool earlyReturn, bool foo)
     {
-        int pos;
-        var x = 42;
         var (a, b) = (1, 2);
-        (int fooVal, long bar) = (3, 4);
-
         if (earlyReturn) return 0;
 
         (a, b) = (11, 22);
@@ -927,6 +916,49 @@ class C
         }
 
         return 2;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NonRepeatedDeclarationsAllowed()
+        {
+            var test = @"
+class C
+{
+    int M(bool cond1, bool cond2)
+    {
+        int x = 1;
+        if (cond1) return 0;
+
+        int y = 2;
+        if (cond2) return 0;
+
+        return x + y;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_RepeatedDeclarationStartsMainFlow()
+        {
+            var test = @"
+class C
+{
+    int M(bool foo)
+    {
+        int x = 1;
+        int y = 2;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return x + y;
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
