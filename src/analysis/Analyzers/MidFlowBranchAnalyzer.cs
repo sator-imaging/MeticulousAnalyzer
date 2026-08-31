@@ -184,6 +184,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, continueStmt.ContinueKeyword.GetLocation()));
             }
+            else if (node is ThrowStatementSyntax throwStmt)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
+            }
         }
 
         private static bool AllBranchesBranch(IfStatementSyntax ifStmt)

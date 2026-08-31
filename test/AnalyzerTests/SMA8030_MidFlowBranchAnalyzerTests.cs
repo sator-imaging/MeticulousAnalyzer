@@ -984,12 +984,13 @@ class C
         }
         else if (bar)
         {
-            throw new Exception();
+            {|#1:throw|} new Exception();
         }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
         }
 
         [TestMethod]
@@ -1012,12 +1013,13 @@ class C
         }
         else if (bar)
         {
-            throw new Exception();
+            {|#1:throw|} new Exception();
         }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
         }
     }
 }
