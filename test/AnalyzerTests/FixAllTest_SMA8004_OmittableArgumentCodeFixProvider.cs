@@ -32,13 +32,18 @@ namespace Test_{0}
 
     public class C_{0}
     {{
-        void M(string req, int a = 1, bool b = false, int c = 2, CancellationToken ct = default) {{}}
+        void M(string req, int a = 1, bool b = false, CancellationToken ct = default) {{}}
+        void N(int req, string s = ""default"", CancellationToken ct = default) {{}}
+        void P(bool req, double d = 1.0, CancellationToken ct = default) {{}}
 
         void Test()
         {{
             M(""test"", /* Leading trivia */ {{|#{1}:10|}} // Trailing trivia
 , /* Leading trivia */ {{|#{2}:true|}} // Trailing trivia
-, /* Leading trivia */ {{|#{3}:20|}} // Trailing trivia
+, CancellationToken.None);
+            N(100, /* Leading trivia */ {{|#{3}:""hello""|}} // Trailing trivia
+, CancellationToken.None);
+            P(true, /* Leading trivia */ {{|#{4}:3.14|}} // Trailing trivia
 , CancellationToken.None);
         }}
     }}
@@ -51,13 +56,18 @@ namespace Test_{0}
 
     public class C_{0}
     {{
-        void M(string req, int a = 1, bool b = false, int c = 2, CancellationToken ct = default) {{}}
+        void M(string req, int a = 1, bool b = false, CancellationToken ct = default) {{}}
+        void N(int req, string s = ""default"", CancellationToken ct = default) {{}}
+        void P(bool req, double d = 1.0, CancellationToken ct = default) {{}}
 
         void Test()
         {{
             M(""test"", /* Leading trivia */ a: 10 // Trailing trivia
 , /* Leading trivia */ b: true // Trailing trivia
-, /* Leading trivia */ c: 20 // Trailing trivia
+, CancellationToken.None);
+            N(100, /* Leading trivia */ s: ""hello"" // Trailing trivia
+, CancellationToken.None);
+            P(true, /* Leading trivia */ d: 3.14 // Trailing trivia
 , CancellationToken.None);
         }}
     }}
@@ -73,9 +83,9 @@ namespace Test_{0}
                     Sources =
                     {
                         ("CancellationToken.cs", CancellationTokenSource.ReplaceLineEndings()),
-                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2)),
-                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 3, 4, 5)),
-                        ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 6, 7, 8)),
+                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2, 3)),
+                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 4, 5, 6, 7)),
+                        ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 8, 9, 10, 11)),
                     },
                 },
                 FixedState =
@@ -98,15 +108,16 @@ namespace Test_{0}
                         ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
                     },
                 },
-                NumberOfIncrementalIterations = 9,
+                NumberOfIncrementalIterations = 12,
             };
 
             for (int i = 0; i < 3; i++)
             {
-                int offset = i * 3;
+                int offset = i * 4;
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 0).WithArguments("a"));
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 1).WithArguments("b"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 2).WithArguments("c"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 2).WithArguments("s"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 3).WithArguments("d"));
             }
 
             // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
