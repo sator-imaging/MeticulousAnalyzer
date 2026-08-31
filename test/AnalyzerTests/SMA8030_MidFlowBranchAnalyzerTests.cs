@@ -40,7 +40,7 @@ class C
     {
         var (a, b) = (31, 42);
         (var x, var y) = (31, 42);
-        (b, _) = (31, 42);
+        (var c, var d) = (31, 42);
 
         if (foo)
         {
@@ -869,6 +869,64 @@ class C
         }
 
         LocalFunc(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ReassignmentStartsMainFlow_SimpleAssignment()
+        {
+            var test = @"
+class C
+{
+    int M(bool earlyReturn, bool foo)
+    {
+        int pos;
+        var x = 42;
+        var (a, b) = (1, 2);
+        (int fooVal, long bar) = (3, 4);
+
+        if (earlyReturn) return 0;
+
+        x = 310;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 2;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ReassignmentStartsMainFlow_TupleAssignment()
+        {
+            var test = @"
+class C
+{
+    int M(bool earlyReturn, bool foo)
+    {
+        int pos;
+        var x = 42;
+        var (a, b) = (1, 2);
+        (int fooVal, long bar) = (3, 4);
+
+        if (earlyReturn) return 0;
+
+        (a, b) = (11, 22);
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 2;
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
