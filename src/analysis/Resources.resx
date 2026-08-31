@@ -491,10 +491,10 @@
     <value>Internal cross-namespace access</value>
   </data>
   <data name="SMA0090__MD_DESC__" xml:space="preserve">
-    <value>Analyzes move-only types and `NoCopy` attributes to enforce single-ownership semantics and prevent prohibited copies, assignments, casts, or captures.</value>
+    <value>Analyzes move-only or `NoCopyAttribute`-marked types to enforce single-ownership semantics and prevent prohibited copies, assignments, casts, or captures.</value>
   </data>
   <data name="SMA0090__MD_TITLE__" xml:space="preserve">
-    <value>MoveOnly Type Analysis</value>
+    <value>`MoveOnly` / `NoCopy` Type Analysis</value>
   </data>
   <data name="SMA0090_Description" xml:space="preserve">
     <value>MoveOnly type must declare a public instance `Move()` method returning the containing type.</value>
@@ -515,13 +515,13 @@
     <value>Prohibited Copy of MoveOnly Type</value>
   </data>
   <data name="SMA0092_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be passed by ref or out in async methods.</value>
+    <value>MoveOnly type cannot be passed by ref, in or out in async methods.</value>
   </data>
   <data name="SMA0092_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be passed by ref or out in async methods.</value>
+    <value>MoveOnly type '{0}' cannot be passed by ref, in or out in async methods.</value>
   </data>
   <data name="SMA0092_Title" xml:space="preserve">
-    <value>Prohibited Ref/Out Parameter of MoveOnly Type in Async Method</value>
+    <value>Prohibited Ref/In/Out Parameter of MoveOnly Type in Async Method</value>
   </data>
   <data name="SMA0093_Description" xml:space="preserve">
     <value>MoveOnly type must be a struct.</value>
