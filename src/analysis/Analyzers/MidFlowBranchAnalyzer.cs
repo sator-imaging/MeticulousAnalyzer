@@ -39,12 +39,31 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             bool isMainFlowStarted = false;
+            bool hasDeclarationInCurrentSequence = false;
 
             foreach (var statement in block.Statements)
             {
-                if (statement is LocalDeclarationStatementSyntax or EmptyStatementSyntax ||
-                    (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax))
+                if (statement is EmptyStatementSyntax)
                 {
+                    continue;
+                }
+
+                if (statement is LocalDeclarationStatementSyntax ||
+                    (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign && IsTupleDeclaration(assign)))
+                {
+                    if (isMainFlowStarted)
+                    {
+                        continue;
+                    }
+
+                    if (hasDeclarationInCurrentSequence)
+                    {
+                        isMainFlowStarted = true;
+                    }
+                    else
+                    {
+                        hasDeclarationInCurrentSequence = true;
+                    }
                     continue;
                 }
 
@@ -56,7 +75,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
                     else
                     {
-                        if (!ContainsBranch(ifStmt))
+                        if (ContainsBranch(ifStmt))
+                        {
+                            hasDeclarationInCurrentSequence = false;
+                        }
+                        else
                         {
                             isMainFlowStarted = true;
                         }
@@ -67,6 +90,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     isMainFlowStarted = true;
                 }
             }
+        }
+
+        private static bool IsTupleDeclaration(AssignmentExpressionSyntax syntax)
+        {
+            if (syntax.Left is TupleExpressionSyntax tuple)
+            {
+                foreach (var arg in tuple.Arguments)
+                {
+                    if (arg.Expression is not DeclarationExpressionSyntax)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return syntax.Left is DeclarationExpressionSyntax;
         }
 
         private static bool ContainsBranch(SyntaxNode node)
@@ -142,6 +183,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             else if (node is ContinueStatementSyntax continueStmt)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, continueStmt.ContinueKeyword.GetLocation()));
+            }
+            else if (node is ThrowStatementSyntax throwStmt)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
             }
         }
 

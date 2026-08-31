@@ -39,15 +39,13 @@ class C
     int M(bool foo)
     {
         var (a, b) = (31, 42);
-        (var x, var y) = (31, 42);
-        (b, _) = (31, 42);
 
         if (foo)
         {
-            return a + x;
+            return a;
         }
 
-        return b + y;
+        return b;
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
@@ -150,7 +148,6 @@ class C
     int M(bool foo)
     {
         int x = 1;
-        string s = ""test"";
 
         if (foo)
         {
@@ -873,6 +870,156 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ReassignmentStartsMainFlow_SimpleAssignment()
+        {
+            var test = @"
+class C
+{
+    int M(bool earlyReturn, bool foo)
+    {
+        int pos;
+        if (earlyReturn) return 0;
+
+        pos = 310;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 2;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ReassignmentStartsMainFlow_TupleAssignment()
+        {
+            var test = @"
+class C
+{
+    int M(bool earlyReturn, bool foo)
+    {
+        var (a, b) = (1, 2);
+        if (earlyReturn) return 0;
+
+        (a, b) = (11, 22);
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 2;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NonRepeatedDeclarationsAllowed()
+        {
+            var test = @"
+class C
+{
+    int M(bool cond1, bool cond2)
+    {
+        int x = 1;
+        if (cond1) return 0;
+
+        int y = 2;
+        if (cond2) return 0;
+
+        return x + y;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_RepeatedDeclarationStartsMainFlow()
+        {
+            var test = @"
+class C
+{
+    int M(bool foo)
+    {
+        int x = 1;
+        int y = 2;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return x + y;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ElseLessIfElseIf()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool foo, bool bar)
+    {
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            {|#0:return|};
+        }
+        else if (bar)
+        {
+            {|#1:throw|} new Exception();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_YieldInElseLessIfElseIf()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        int count = 0;
+        count++;
+
+        if (foo)
+        {
+            {|#0:yield|} return 1;
+        }
+        else if (bar)
+        {
+            {|#1:throw|} new Exception();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
         }
     }
 }
