@@ -18,7 +18,7 @@ Roslyn-based analyzer to provide diagnostics of static fields and properties ini
 - [Async Context Analysis](#async-context-analysis) to detect missing await on `Task` or `ValueTask`
 - [Struct Analysis](#struct-analysis) to detect parameterless constructor misuse and more
 - [`TSelf` Type Argument Analysis](#tself-type-argument-analysis) for Curiously Recurring Template Pattern (CRTP)
-- [MoveOnly Type Analysis](#moveonly-type-analysis) to enforce move semantics and prevent copy/capture of move-only types
+- [`MoveOnly` / `NoCopy` Type Analysis](#moveonly--nocopy-type-analysis) to enforce move semantics and prevent copy/capture of move-only types
 - [Analysis for Code Review](#analysis-for-code-review) for named arguments, explicit number types, literal branch conditions, and more
 - [Project Structure Analysis](#project-structure-analysis) enforces namespace boundaries for `internal` symbols within the same assembly
 - [Immutable Variable Analysis](#read-only-variable-analysis) detects assignment to locals/parameters and writable call-site argument passing
@@ -660,18 +660,18 @@ foreach (var item in items)
 
 &nbsp;
 
-# MoveOnly Type Analysis
+# `MoveOnly` / `NoCopy` Type Analysis
 
 Enforces C++-style move semantics on C# struct types to prevent accidental copies or implicit resource sharing. Types are recognized as move-only if their name starts with `MoveOnly` (case-sensitive) or if they are decorated with `[NoCopy]` (requires defining a custom `NoCopyAttribute` type).
 
-- SMA0090: MoveOnly type must declare a public instance `Move()` method returning the containing type.
-- SMA0091: MoveOnly type cannot be copied or assigned without calling `Move()`.
-- SMA0092: MoveOnly type cannot be passed by reference from an `async` method to another `async` method without `await`.
-- SMA0093: MoveOnly type must be a `struct`.
-- SMA0094: MoveOnly type cannot be cast to any type without calling `Move()`.
-- SMA0095: MoveOnly type cannot be captured in a lambda expression.
-- SMA0096: MoveOnly type cannot be declared as an `out` parameter.
-- SMA0097: MoveOnly type cannot be returned by value outside `Move()`, even when `Move()` is called on the returned value. Reference returns are allowed.
+- **SMA0090**: MoveOnly type must declare a public instance `Move()` method returning the containing type.
+- **SMA0091**: MoveOnly type cannot be copied or assigned without calling `Move()`.
+- **SMA0092**: MoveOnly type cannot be passed by reference from an `async` method to another `async` method without `await`.
+- **SMA0093**: MoveOnly type must be a `struct`.
+- **SMA0094**: MoveOnly type cannot be cast to any type without calling `Move()`.
+- **SMA0095**: MoveOnly type cannot be captured in a lambda expression.
+- **SMA0096**: MoveOnly type cannot be declared as an `out` parameter.
+- **SMA0097**: MoveOnly type cannot be returned by value outside `Move()`, even when `Move()` is called on the returned value. Reference returns are allowed.
 
 ```cs
 public struct MoveOnlyBuffer

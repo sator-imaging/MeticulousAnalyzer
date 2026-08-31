@@ -69,5 +69,38 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
+
+        [TestMethod]
+        public async Task SMA0096_Violation_AsyncMethod_OutParameterDeclaration()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        async Task MethodWithAsync(out MoveOnlyStruct {|#0:item|})
+        {
+            item = default;
+            await Task.Yield();
+        }
+    }
+}
+";
+            var expectedCompilerError = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1988")
+                .WithLocation(markupKey: 0);
+
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedOutParameter)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedCompilerError, expected0);
+        }
     }
 }

@@ -86,5 +86,68 @@ class Program
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0097_Violation_ReturnNewAndDefault_StatementAndArrow()
+        {
+            var test = MoveOnlyType + @"
+class Program
+{
+    MoveOnlyStruct StatementNew()
+    {
+        return {|#0:new()|};
+    }
+
+    MoveOnlyStruct ArrowNew() => {|#1:new()|};
+
+    MoveOnlyStruct StatementDefault()
+    {
+        return {|#2:default|};
+    }
+
+    MoveOnlyStruct ArrowDefault() => {|#3:default|};
+
+    MoveOnlyStruct StatementExplicitNew()
+    {
+        return {|#4:new MoveOnlyStruct()|};
+    }
+
+    MoveOnlyStruct ArrowExplicitNew() => {|#5:new MoveOnlyStruct()|};
+
+    MoveOnlyStruct StatementExplicitDefault()
+    {
+        return {|#6:default(MoveOnlyStruct)|};
+    }
+
+    MoveOnlyStruct ArrowExplicitDefault() => {|#7:default(MoveOnlyStruct)|};
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 3)
+                .WithArguments("MoveOnlyStruct");
+            var expected4 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 4)
+                .WithArguments("MoveOnlyStruct");
+            var expected5 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 5)
+                .WithArguments("MoveOnlyStruct");
+            var expected6 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 6)
+                .WithArguments("MoveOnlyStruct");
+            var expected7 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 7)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
+        }
     }
 }
