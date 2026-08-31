@@ -42,7 +42,10 @@ namespace Test_{0}
 , /* Leading trivia */ {{|#{2}:true|}} // Trailing trivia
 , CancellationToken.None);
             N(/* Leading trivia */ {{|#{3}:""hello""|}} /* Trailing trivia */, CancellationToken.None);
-            P(CancellationToken.None);
+            P(// Leading trivia
+              CancellationToken.None
+              // Trailing trivia
+);
         }}
     }}
 }}";
@@ -64,7 +67,10 @@ namespace Test_{0}
 , /* Leading trivia */ b: true // Trailing trivia
 , CancellationToken.None);
             N(/* Leading trivia */ s: ""hello"" /* Trailing trivia */, CancellationToken.None);
-            P(CancellationToken.None);
+            P(// Leading trivia
+              CancellationToken.None
+              // Trailing trivia
+);
         }}
     }}
 }}";
