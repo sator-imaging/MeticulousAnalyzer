@@ -118,7 +118,7 @@ Analyzes move-only or `NoCopyAttribute`-marked types to enforce single-ownership
 |---------|------------------------------------------------------------------|-------------
 | SMA0090 | Invalid MoveOnly Type                                            | MoveOnly type must declare a public instance `Move()` method returning the containing type.
 | SMA0091 | Prohibited Copy of MoveOnly Type                                 | MoveOnly type cannot be copied or assigned without `Move()`.
-| SMA0092 | Prohibited Ref/In/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by ref, in or out in async methods.
+| SMA0092 | Prohibited Ref/In/Out Parameter of MoveOnly Type in Async Method | MoveOnly type cannot be passed by `ref`, `in` or `out` in `async` methods.
 | SMA0093 | Invalid MoveOnly Declaration                                     | MoveOnly type must be a struct.
 | SMA0094 | Prohibited Cast of MoveOnly Type                                 | MoveOnly type cannot be cast to any type without `Move()`.
 | SMA0095 | Prohibited Lambda Capture of MoveOnly Type                       | MoveOnly type cannot be captured in a lambda expression.

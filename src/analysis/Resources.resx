@@ -515,10 +515,10 @@
     <value>Prohibited Copy of MoveOnly Type</value>
   </data>
   <data name="SMA0092_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be passed by ref, in or out in async methods.</value>
+    <value>MoveOnly type cannot be passed by `ref`, `in` or `out` in `async` methods.</value>
   </data>
   <data name="SMA0092_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be passed by ref, in or out in async methods.</value>
+    <value>MoveOnly type '{0}' cannot be passed by `ref`, `in` or `out` in `async` methods.</value>
   </data>
   <data name="SMA0092_Title" xml:space="preserve">
     <value>Prohibited Ref/In/Out Parameter of MoveOnly Type in Async Method</value>
