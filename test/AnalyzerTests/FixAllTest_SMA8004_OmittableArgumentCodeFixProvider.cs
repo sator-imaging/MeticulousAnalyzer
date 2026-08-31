@@ -32,11 +32,14 @@ namespace Test_{0}
 
     public class C_{0}
     {{
-        void M(string req, int count = 1, bool flag = false, CancellationToken ct = default) {{}}
+        void M(string req, int a = 1, bool b = false, int c = 2, CancellationToken ct = default) {{}}
 
         void Test()
         {{
-            M(""test"", {{|#{1}:10|}}, {{|#{2}:true|}}, CancellationToken.None);
+            M(""test"", /* Leading trivia */ {{|#{1}:10|}} // Trailing trivia
+, /* Leading trivia */ {{|#{2}:true|}} // Trailing trivia
+, /* Leading trivia */ {{|#{3}:20|}} // Trailing trivia
+, CancellationToken.None);
         }}
     }}
 }}";
@@ -48,11 +51,14 @@ namespace Test_{0}
 
     public class C_{0}
     {{
-        void M(string req, int count = 1, bool flag = false, CancellationToken ct = default) {{}}
+        void M(string req, int a = 1, bool b = false, int c = 2, CancellationToken ct = default) {{}}
 
         void Test()
         {{
-            M(""test"", count: 10, flag: true, CancellationToken.None);
+            M(""test"", /* Leading trivia */ a: 10 // Trailing trivia
+, /* Leading trivia */ b: true // Trailing trivia
+, /* Leading trivia */ c: 20 // Trailing trivia
+, CancellationToken.None);
         }}
     }}
 }}";
@@ -67,8 +73,9 @@ namespace Test_{0}
                     Sources =
                     {
                         ("CancellationToken.cs", CancellationTokenSource.ReplaceLineEndings()),
-                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1)),
-                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 2, 3)),
+                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2)),
+                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 3, 4, 5)),
+                        ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 6, 7, 8)),
                     },
                 },
                 FixedState =
@@ -78,6 +85,7 @@ namespace Test_{0}
                         ("CancellationToken.cs", CancellationTokenSource.ReplaceLineEndings()),
                         ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
                         ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
+                        ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
                     },
                 },
                 BatchFixedState =
@@ -87,18 +95,24 @@ namespace Test_{0}
                         ("CancellationToken.cs", CancellationTokenSource.ReplaceLineEndings()),
                         ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
                         ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
+                        ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
                     },
                 },
-                NumberOfIncrementalIterations = 4,
+                NumberOfIncrementalIterations = 9,
             };
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 3; i++)
             {
-                int offset = i * 2;
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 0).WithArguments("count"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 1).WithArguments("flag"));
+                int offset = i * 3;
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 0).WithArguments("a"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 1).WithArguments("b"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: offset + 2).WithArguments("c"));
             }
 
+            // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
+            //         e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
+            //       It's available in Roslyn version (4.4.0 or later).
+            // test.FixAllScope = FixAllScope.Solution;
             await test.RunAsync();
         }
     }
