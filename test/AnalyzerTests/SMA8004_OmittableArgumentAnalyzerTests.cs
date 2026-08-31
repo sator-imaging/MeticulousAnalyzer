@@ -180,5 +180,105 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_MethodInSystemNamespace()
+        {
+            var test = @"
+namespace System
+{
+    public class CustomSystemClass
+    {
+        public void SomeMethod(int value = 0) {}
+    }
+}
+
+namespace System.SubNamespace
+{
+    public class CustomSubSystemClass
+    {
+        public void OtherMethod(int value = 0) {}
+    }
+}
+
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var sys = new System.CustomSystemClass();
+            sys.SomeMethod(10);
+
+            var subSys = new System.SubNamespace.CustomSubSystemClass();
+            subSys.OtherMethod(20);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_CancellationTokenAsLastArgument()
+        {
+            var test = @"
+namespace System.Threading
+{
+    public struct CancellationToken
+    {
+        public static CancellationToken None => default;
+    }
+}
+
+namespace Test
+{
+    using System.Threading;
+
+    public class CTest
+    {
+        public void DoAsync(string name, CancellationToken cancellationToken = default) {}
+
+        public void Test()
+        {
+            DoAsync(""test"", CancellationToken.None);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Violation_CancellationTokenNotAsLastArgument()
+        {
+            var test = @"
+namespace System.Threading
+{
+    public struct CancellationToken
+    {
+        public static CancellationToken None => default;
+    }
+}
+
+namespace Test
+{
+    using System.Threading;
+
+    public class CTest
+    {
+        public void DoAsync(CancellationToken cancellationToken = default, int extra = 0) {}
+
+        public void Test()
+        {
+            DoAsync({|#0:CancellationToken.None|}, {|#1:10|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("cancellationToken");
+            var expected1 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 1).WithArguments("extra");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }

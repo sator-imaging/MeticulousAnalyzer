@@ -22,7 +22,9 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get => ImmutableArray.Create(ArgumentAnalyzer.RuleId_LiteralArgument);
+            get => ImmutableArray.Create(
+                ArgumentAnalyzer.RuleId_LiteralArgument,
+                OmittableArgumentAnalyzer.RuleId_OmittableArgument);
         }
 
         public sealed override FixAllProvider GetFixAllProvider()
