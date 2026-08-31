@@ -69,6 +69,5 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
-
     }
 }

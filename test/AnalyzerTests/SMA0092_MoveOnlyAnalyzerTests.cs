@@ -149,5 +149,44 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
+
+        [TestMethod]
+        public async Task SMA0092_Violation_GenericTaskAndValueTask()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        Task<int> GenericTaskFoo(ref MoveOnlyStruct item) => Task.FromResult(0);
+        ValueTask<int> GenericValueTaskFoo(in MoveOnlyStruct item) => default;
+
+        async Task MethodAsync(MoveOnlyStruct moveOnly)
+        {
+            GenericTaskFoo({|#0:ref moveOnly|});
+            GenericValueTaskFoo({|#1:in moveOnly|});
+
+            await GenericTaskFoo(ref moveOnly);
+            await GenericValueTaskFoo(in moveOnly);
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
