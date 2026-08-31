@@ -991,5 +991,33 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_YieldInElseLessIfElseIf()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        int count = 0;
+        count++;
+
+        if (foo)
+        {
+            {|#0:yield|} return 1;
+        }
+        else if (bar)
+        {
+            throw new Exception();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
     }
 }
