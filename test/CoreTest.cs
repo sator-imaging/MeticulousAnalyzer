@@ -997,14 +997,14 @@ class C {
         }
 
         [TestMethod]
-        public void IsTaskLikeType_DerivedFromTask_ReturnsFalse()
+        public void IsTaskLikeType_DerivedFromTask_ReturnsTrue()
         {
             var source = "using System.Threading.Tasks; class MyTask : Task { } class C { MyTask x; }";
             var comp = CreateCompilation(source);
             var model = comp.GetSemanticModel(comp.SyntaxTrees[0]);
             var field = FindFirst<BaseFieldDeclarationSyntax>(comp.SyntaxTrees[0].GetRoot());
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
-            Assert.IsFalse(type.IsTaskLikeType());
+            Assert.IsTrue(type.IsTaskLikeType());
         }
 
         [TestMethod]

@@ -493,7 +493,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 return true;
             }
 
-            return false;
+            return IsTaskLikeType(type.BaseType);
         }
 
         public static bool IsKnownImmutableType(ITypeSymbol? symbol)
