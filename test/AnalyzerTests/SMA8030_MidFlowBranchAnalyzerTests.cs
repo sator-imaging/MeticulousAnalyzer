@@ -1357,5 +1357,148 @@ class C
             var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(5);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_SyncMethod_IfStatementsWithoutExitInMainFlow()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void If(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+    }
+
+    void IfElse(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else { }
+    }
+
+    void IfElseIf(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+    }
+
+    void IfElseIfElse(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+        else { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_IfStatementsWithoutExitInMainFlow()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task If(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+    }
+
+    async Task IfElse(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else { }
+    }
+
+    async Task IfElseIf(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+    }
+
+    async Task IfElseIfElse(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+        else { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ForeachLoop_IfStatementsWithoutExitInMainFlow()
+        {
+            var test = @"
+class C
+{
+    void DoSomething() { }
+
+    void If(string[] items, bool foo)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+        }
+    }
+
+    void IfElse(string[] items, bool foo)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+            else { }
+        }
+    }
+
+    void IfElseIf(string[] items, bool foo, bool bar)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+            else if (bar) { }
+        }
+    }
+
+    void IfElseIfElse(string[] items, bool foo, bool bar)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+            else if (bar) { }
+            else { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
