@@ -253,5 +253,45 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_StateChangingExpressionInReturnAndThrow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int M1(bool cond, int val)
+    {
+        if (cond)
+        {
+            return (val = 42);
+        }
+
+        return 0;
+    }
+
+    int M2(bool cond, int val)
+    {
+        if (cond) return (val = 42);
+        return 0;
+    }
+
+    void M3(bool cond, Exception ex)
+    {
+        if (cond)
+        {
+            throw (ex = new InvalidOperationException());
+        }
+    }
+
+    void M4(bool cond, Exception ex)
+    {
+        if (cond) throw (ex = new InvalidOperationException());
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
