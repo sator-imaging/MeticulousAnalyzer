@@ -282,6 +282,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IOperation? UnwrapConversion(this IOperation? op)
         {
             var value = op;
@@ -293,6 +294,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
         {
             unwrapped = op.UnwrapConversion()!;
