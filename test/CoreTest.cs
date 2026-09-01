@@ -1021,10 +1021,9 @@ class C {
         // ===== UnwrapConversion & TryUnwrapConversion =====
 
         [TestMethod]
-        public void UnwrapConversion_Null_ReturnsNull()
+        public void TryUnwrapConversion_Null_ReturnsFalse()
         {
             IOperation op = null;
-            Assert.IsNull(op.UnwrapConversion());
             Assert.IsFalse(op.TryUnwrapConversion(out var unwrapped));
             Assert.IsNull(unwrapped);
         }

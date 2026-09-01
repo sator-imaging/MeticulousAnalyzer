@@ -282,7 +282,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
-        internal static IOperation? UnwrapConversion(this IOperation? op)
+        internal static IOperation UnwrapConversion(this IOperation op)
         {
             var value = op;
             while (value is IConversionOperation conversion)
@@ -290,6 +290,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 value = conversion.Operand;
             }
 
+            Debug.Assert(value != null);
             return value;
         }
 
