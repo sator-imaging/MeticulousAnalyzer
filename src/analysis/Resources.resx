@@ -762,6 +762,15 @@
   <data name="SMA8030_Title" xml:space="preserve">
     <value>Mid-flow Branch</value>
   </data>
+  <data name="SMA8031_Description" xml:space="preserve">
+    <value>Early return blocks should not perform state changes other than out parameter assignments.</value>
+  </data>
+  <data name="SMA8031_MessageFormat" xml:space="preserve">
+    <value>Avoid state changes in early return block.</value>
+  </data>
+  <data name="SMA8031_Title" xml:space="preserve">
+    <value>State Change in Early Return</value>
+  </data>
   <data name="SMA9000__MD_DESC__" xml:space="preserve">
     <value>Analyzes for IDE underlining and visual annotations.</value>
   </data>
