@@ -274,7 +274,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             return name.Contains("Length") ||
                    name.Contains("Count") ||
-                   name.Contains("IndexOf");
+                   name.Contains("IndexOf") ||
+                   name.Contains("Add") ||
+                   name.Contains("Remove") ||
+                   name.Contains("Search");
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
