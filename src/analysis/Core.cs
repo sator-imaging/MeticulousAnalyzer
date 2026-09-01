@@ -457,6 +457,40 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 
         /*  Polyfill  ================================================================ */
 
+        public static bool IsTaskLikeType(this ITypeSymbol? type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            var typeName = type.Name;
+            if (typeName is "Task" or "ValueTask" &&
+                type.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: "Threading", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "System", ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true
+                            }
+                        }
+                    }
+                })
+            {
+                return true;
+            }
+
+            if (typeName.StartsWith("UniTask", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            return IsTaskLikeType(type.BaseType);
+        }
+
         public static bool IsKnownImmutableType(ITypeSymbol? symbol)
         {
             return symbol != null && symbol.SpecialType switch

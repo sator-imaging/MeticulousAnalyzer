@@ -380,21 +380,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 #endif
 
             // Task implements IDisposable...!!
-            if (disposableSymbol.Name is nameof(Task) &&
-                disposableSymbol.ContainingNamespace is INamespaceSymbol
-                {
-                    Name: nameof(System.Threading.Tasks), ContainingNamespace: INamespaceSymbol
-                    {
-                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
-                        {
-                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
-                            {
-                                IsGlobalNamespace: true,
-                            }
-                        }
-                    }
-                }
-            )
+            if (disposableSymbol.IsTaskLikeType())
             {
                 return false;
             }
