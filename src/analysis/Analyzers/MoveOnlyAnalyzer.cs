@@ -270,11 +270,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (expression == null)
                 return false;
 
-            var unwrapped = expression;
-            while (unwrapped is IConversionOperation conv)
-            {
-                unwrapped = conv.Operand;
-            }
+            var unwrapped = expression.UnwrapConversion();
 
             if (unwrapped is IInvocationOperation invocation)
             {
@@ -371,8 +367,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void CheckAndReportMoveOnlyCopy(OperationAnalysisContext context, IOperation value)
         {
-            var unwrapped = value;
-            while (unwrapped is IConversionOperation conv)
+            var current = value;
+            while (current is IConversionOperation conv)
             {
                 if (conv.Operand != null && conv.Operand.Type != null && conv.Type != null &&
                     IsMoveOnlyType(conv.Operand.Type) &&
@@ -380,7 +376,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     return;
                 }
-                unwrapped = conv.Operand;
+                current = conv.Operand;
+            }
+
+            var unwrapped = current.UnwrapConversion();
+            if (unwrapped == null)
+            {
+                return;
             }
 
             if (unwrapped is ITupleOperation tupleOp)

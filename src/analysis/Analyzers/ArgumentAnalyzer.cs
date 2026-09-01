@@ -155,7 +155,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             // Use the semantic IArrayCreationOperation to extract the actual params arguments.
-            if (!TryUnwrapConversion(paramsArgOp.Value, out var unwrapped) ||
+            if (!paramsArgOp.Value.TryUnwrapConversion(out var unwrapped) ||
                 unwrapped is not IArrayCreationOperation arrayCreation ||
                 arrayCreation.Initializer == null)
             {
@@ -289,23 +289,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 argOp.Parameter?.ToDiagnosticMessageName() ?? UnknownParameterName));
         }
 
-        private static bool TryUnwrapConversion(IOperation operation, out IOperation unwrapped)
-        {
-            var value = operation;
-            while (value is IConversionOperation conversion)
-            {
-                value = conversion.Operand;
-            }
-
-            // [NotNullWhen] cannot be used on Roslyn Analyzer
-            return (unwrapped = value) != null;
-        }
-
         private static bool IsPossibleOperation(IOperation operation, out bool requireReporting)
         {
             // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
             if (operation.Kind is OperationKind.Conversion &&
-                TryUnwrapConversion(operation, out var unwrapped))
+                operation.TryUnwrapConversion(out var unwrapped))
             {
                 operation = unwrapped;
             }

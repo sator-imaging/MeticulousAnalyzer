@@ -181,11 +181,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     {
                         if (desc is IAwaitOperation awaitOp)
                         {
-                            var operand = awaitOp.Operation;
-                            while (operand is IConversionOperation conv)
-                            {
-                                operand = conv.Operand;
-                            }
+                            var operand = awaitOp.Operation.UnwrapConversion();
 
                             if (operand is ILocalReferenceOperation lr && SymbolEqualityComparer.Default.Equals(lr.Local, localSymbol))
                             {
@@ -195,11 +191,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         }
                         else if (desc is IReturnOperation returnOp && returnOp.ReturnedValue != null)
                         {
-                            var val = returnOp.ReturnedValue;
-                            while (val is IConversionOperation conv)
-                            {
-                                val = conv.Operand;
-                            }
+                            var val = returnOp.ReturnedValue.UnwrapConversion();
 
                             if (val is ILocalReferenceOperation lr && SymbolEqualityComparer.Default.Equals(lr.Local, localSymbol))
                             {

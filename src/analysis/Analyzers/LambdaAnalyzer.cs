@@ -82,7 +82,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else
             {
-                var op = UnwrapConversion(anonFunc);
+                var op = anonFunc.UnwrapConversion()!;
 
                 // NOTE: For lambda, additionally allow placing comment on declaration.
                 //       --> DoSomething(
@@ -129,7 +129,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
-            var unwrapped = UnwrapConversion(operand);
+            var unwrapped = operand.UnwrapConversion()!;
             if (unwrapped.Kind == OperationKind.AnonymousFunction)
             {
                 return;
@@ -164,18 +164,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return flow != null && !flow.CapturedInside.Any();
         }
 
-        private static IOperation UnwrapConversion(IOperation operation)
-        {
-            while (operation is IConversionOperation conversion)
-            {
-                operation = conversion.Operand;
-            }
-            return operation;
-        }
-
         private static bool IsStaticMember(IOperation operation)
         {
-            var current = UnwrapConversion(operation);
+            var current = operation.UnwrapConversion();
 
             if (current is IMemberReferenceOperation memRef)
             {
@@ -197,7 +188,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsStaticMethodReference(IOperation operation)
         {
-            var current = UnwrapConversion(operation);
+            var current = operation.UnwrapConversion();
             return current is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic;
         }
 

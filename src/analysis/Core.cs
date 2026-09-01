@@ -282,6 +282,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
+        internal static IOperation? UnwrapConversion(this IOperation? op)
+        {
+            var value = op;
+            while (value is IConversionOperation conversion)
+            {
+                value = conversion.Operand;
+            }
+
+            return value;
+        }
+
+        internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
+        {
+            unwrapped = op.UnwrapConversion()!;
+            return unwrapped != null;
+        }
+
 
         /*  string op  ================================================================ */
 
