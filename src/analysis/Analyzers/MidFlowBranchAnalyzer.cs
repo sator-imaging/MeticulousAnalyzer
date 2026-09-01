@@ -110,12 +110,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return syntax.Left is DeclarationExpressionSyntax;
         }
 
+        private static bool ShouldDescendInto(SyntaxNode node)
+        {
+            return !(node is LocalFunctionStatementSyntax
+                or AnonymousFunctionExpressionSyntax
+                or ForStatementSyntax
+                or ForEachStatementSyntax
+                or ForEachVariableStatementSyntax
+                or WhileStatementSyntax
+                or DoStatementSyntax);
+        }
+
         private static bool ContainsBranch(SyntaxNode node)
         {
             if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 return true;
 
-            foreach (var descendant in node.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
+            foreach (var descendant in node.DescendantNodes(static x => ShouldDescendInto(x)))
             {
                 if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 {
@@ -164,7 +175,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void ReportBranchesInStatement(SyntaxNodeAnalysisContext context, StatementSyntax branchStatement)
         {
             CheckAndReportNode(context, branchStatement);
-            foreach (var node in branchStatement.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
+            foreach (var node in branchStatement.DescendantNodes(static x => ShouldDescendInto(x)))
             {
                 CheckAndReportNode(context, node);
             }

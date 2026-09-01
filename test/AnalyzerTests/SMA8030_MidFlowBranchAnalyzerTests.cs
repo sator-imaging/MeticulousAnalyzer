@@ -1657,5 +1657,31 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NestedLoopInsideIfStatement()
+        {
+            var test = @"
+class C
+{
+    void M(bool foo)
+    {
+        if (foo)
+        {
+        }
+        else
+        {
+            while (true)
+            {
+                if (true)
+                {
+                    break;
+                }
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
