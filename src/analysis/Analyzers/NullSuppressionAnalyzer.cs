@@ -44,13 +44,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // Check if operand is parenthesized at least 3 times.
             var operand = node.Operand;
             int depth = 0;
-            var current = operand;
-            while (current is ParenthesizedExpressionSyntax parenthesized)
+            while (operand is ParenthesizedExpressionSyntax parenthesized)
             {
                 depth++;
-                current = parenthesized.Expression;
+                operand = parenthesized.Expression;
             }
-            operand = operand.UnwrapParentheses();
 
             if (depth < 3)
             {
