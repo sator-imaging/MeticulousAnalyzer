@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.2.0-rc.6](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.6) (2026-09-01)
+
+### ✨ Bug Fixes
+* fix: `SMA8030` false positive for break/continue in nested loops by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#576](https://github.com/sator-imaging/MeticulousAnalyzer/pull/576)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.5...v5.2.0-rc.6
+
+
 ## [5.2.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.5) (2026-09-01)
 
 ### 🚀 Features
