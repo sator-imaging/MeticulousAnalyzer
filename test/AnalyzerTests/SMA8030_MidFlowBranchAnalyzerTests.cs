@@ -1359,36 +1359,42 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_StatementBeforeIfWithoutElse()
+        public async Task SMA8030_Compliant_SyncMethod_IfStatementsWithoutExitInMainFlow()
         {
             var test = @"
 class C
 {
     void DoSomething() { }
 
-    void M(bool foo)
+    void If(bool foo)
     {
         DoSomething();
 
         if (foo) { }
     }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
 
-        [TestMethod]
-        public async Task SMA8030_Compliant_StatementBeforeIfElse()
-        {
-            var test = @"
-class C
-{
-    void DoSomething() { }
-
-    void M(bool foo)
+    void IfElse(bool foo)
     {
         DoSomething();
 
         if (foo) { }
+        else { }
+    }
+
+    void IfElseIf(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+    }
+
+    void IfElseIfElse(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
         else { }
     }
 }";
@@ -1396,33 +1402,59 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_StatementBeforeIfElseIf()
+        public async Task SMA8030_Compliant_AsyncMethod_IfStatementsWithoutExitInMainFlow()
         {
             var test = @"
+using System.Threading.Tasks;
+
 class C
 {
     void DoSomething() { }
 
-    void M(bool foo, bool bar)
+    async Task If(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+    }
+
+    async Task IfElse(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else { }
+    }
+
+    async Task IfElseIf(bool foo, bool bar)
     {
         DoSomething();
 
         if (foo) { }
         else if (bar) { }
     }
+
+    async Task IfElseIfElse(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+        else { }
+    }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_ForeachLoop_StatementBeforeIfWithoutElse()
+        public async Task SMA8030_Compliant_ForeachLoop_IfStatementsWithoutExitInMainFlow()
         {
             var test = @"
 class C
 {
     void DoSomething() { }
 
-    void M(string[] items, bool foo)
+    void If(string[] items, bool foo)
     {
         foreach (var item in items)
         {
@@ -1431,19 +1463,8 @@ class C
             if (foo) { }
         }
     }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
 
-        [TestMethod]
-        public async Task SMA8030_Compliant_ForeachLoop_StatementBeforeIfElse()
-        {
-            var test = @"
-class C
-{
-    void DoSomething() { }
-
-    void M(string[] items, bool foo)
+    void IfElse(string[] items, bool foo)
     {
         foreach (var item in items)
         {
@@ -1453,19 +1474,8 @@ class C
             else { }
         }
     }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
 
-        [TestMethod]
-        public async Task SMA8030_Compliant_ForeachLoop_StatementBeforeIfElseIf()
-        {
-            var test = @"
-class C
-{
-    void DoSomething() { }
-
-    void M(string[] items, bool foo, bool bar)
+    void IfElseIf(string[] items, bool foo, bool bar)
     {
         foreach (var item in items)
         {
@@ -1475,137 +1485,16 @@ class C
             else if (bar) { }
         }
     }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
 
-        [TestMethod]
-        public async Task SMA8030_Compliant_AsyncMethod_StatementBeforeIfWithoutElse()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-class C
-{
-    void DoSomething() { }
-
-    async Task M(bool foo)
-    {
-        DoSomething();
-
-        if (foo) { }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8030_Compliant_AsyncMethod_StatementBeforeIfElse()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-class C
-{
-    void DoSomething() { }
-
-    async Task M(bool foo)
-    {
-        DoSomething();
-
-        if (foo) { }
-        else { }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8030_Compliant_AsyncMethod_StatementBeforeIfElseIf()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-class C
-{
-    void DoSomething() { }
-
-    async Task M(bool foo, bool bar)
-    {
-        DoSomething();
-
-        if (foo) { }
-        else if (bar) { }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8030_Compliant_AsyncMethod_ForeachLoop_StatementBeforeIfWithoutElse()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-class C
-{
-    void DoSomething() { }
-
-    async Task M(string[] items, bool foo)
+    void IfElseIfElse(string[] items, bool foo, bool bar)
     {
         foreach (var item in items)
         {
             DoSomething();
 
             if (foo) { }
-        }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8030_Compliant_AsyncMethod_ForeachLoop_StatementBeforeIfElse()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-class C
-{
-    void DoSomething() { }
-
-    async Task M(string[] items, bool foo)
-    {
-        foreach (var item in items)
-        {
-            DoSomething();
-
-            if (foo) { }
+            else if (bar) { }
             else { }
-        }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8030_Compliant_AsyncMethod_ForeachLoop_StatementBeforeIfElseIf()
-        {
-            var test = @"
-using System.Threading.Tasks;
-
-class C
-{
-    void DoSomething() { }
-
-    async Task M(string[] items, bool foo, bool bar)
-    {
-        foreach (var item in items)
-        {
-            DoSomething();
-
-            if (foo) { }
-            else if (bar) { }
         }
     }
 }";
