@@ -41,7 +41,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeBlock, SyntaxKind.Block);
-            context.RegisterSyntaxNodeAction(AnalyzeEarlyReturnBlock, SyntaxKind.Block);
         }
 
         private static void AnalyzeBlock(SyntaxNodeAnalysisContext context)
@@ -89,6 +88,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         if (ContainsBranch(ifStmt))
                         {
                             hasDeclarationInCurrentSequence = false;
+                            CheckAndReportStateChangeInEarlyReturn(context, ifStmt);
                         }
                         else
                         {
@@ -103,25 +103,35 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void AnalyzeEarlyReturnBlock(SyntaxNodeAnalysisContext context)
+        private static void CheckAndReportStateChangeInEarlyReturn(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
         {
-            if (context.Node is not BlockSyntax block)
-                return;
-
-            if (block.Parent is not (IfStatementSyntax or ElseClauseSyntax or SwitchSectionSyntax or CatchClauseSyntax))
-                return;
-
-            bool hasExitingStatement = false;
-            foreach (var statement in block.Statements)
+            IfStatementSyntax? currentIf = ifStmt;
+            while (currentIf != null)
             {
-                if (IsExitingStatement(statement))
+                CheckBlockStateChange(context, currentIf.Statement);
+
+                if (currentIf.Else != null)
                 {
-                    hasExitingStatement = true;
-                    break;
+                    if (currentIf.Else.Statement is IfStatementSyntax elseIf)
+                    {
+                        currentIf = elseIf;
+                    }
+                    else
+                    {
+                        CheckBlockStateChange(context, currentIf.Else.Statement);
+                        currentIf = null;
+                    }
+                }
+                else
+                {
+                    currentIf = null;
                 }
             }
+        }
 
-            if (!hasExitingStatement)
+        private static void CheckBlockStateChange(SyntaxNodeAnalysisContext context, StatementSyntax branchStatement)
+        {
+            if (branchStatement is not BlockSyntax block)
                 return;
 
             bool hasDisallowedStatement = false;
@@ -179,50 +189,29 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsExitingStatement(statement))
                 return true;
 
-            if (IsDeclarationStatement(statement))
-                return true;
-
-            if (IsOutParameterAssignment(context, statement))
-                return true;
-
-            return false;
-        }
-
-        private static bool IsDeclarationStatement(StatementSyntax statement)
-        {
             if (statement is LocalDeclarationStatementSyntax or LocalFunctionStatementSyntax)
-            {
                 return true;
-            }
 
-            if (statement is ExpressionStatementSyntax exprStmt &&
-                exprStmt.Expression is AssignmentExpressionSyntax assign)
+            if (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign)
             {
-                return IsTupleDeclaration(assign);
+                if (IsTupleDeclaration(assign))
+                    return true;
+
+                if (IsOutParameterAssignment(context, assign))
+                    return true;
             }
 
             return false;
         }
 
-        private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, StatementSyntax statement)
+        private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, AssignmentExpressionSyntax assign)
         {
-            if (statement is not ExpressionStatementSyntax exprStmt)
-                return false;
-
-            if (exprStmt.Expression is not AssignmentExpressionSyntax assign)
-                return false;
-
             if (assign.Left is TupleExpressionSyntax)
                 return false;
 
             var targetSyntax = UnwrapParentheses(assign.Left);
             var symbol = context.SemanticModel.GetSymbolInfo(targetSyntax).Symbol;
-            if (symbol is IParameterSymbol parameterSymbol && parameterSymbol.RefKind == RefKind.Out)
-            {
-                return true;
-            }
-
-            return false;
+            return symbol is IParameterSymbol parameterSymbol && parameterSymbol.RefKind == RefKind.Out;
         }
 
         private static ExpressionSyntax UnwrapParentheses(ExpressionSyntax expression)
