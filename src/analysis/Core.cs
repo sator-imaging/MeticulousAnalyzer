@@ -301,6 +301,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 value = conversion.Operand;
             }
 
+            // [NotNullWhen] cannot be used on Roslyn Analyzer
             return (unwrapped = value!) != null;
         }
 
