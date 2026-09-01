@@ -297,8 +297,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
         {
-            unwrapped = op.UnwrapConversion()!;
-            return unwrapped != null;
+            var value = op;
+            while (value is IConversionOperation conversion)
+            {
+                value = conversion.Operand;
+            }
+
+            return (unwrapped = value!) != null;
         }
 
 
