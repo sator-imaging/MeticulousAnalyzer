@@ -88,7 +88,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeOperandForLiteral(context, binary.LeftOperand);
+            AnalyzeOperandForLiteral(context, binary.LeftOperand, leftOperand: binary.RightOperand);
             AnalyzeOperandForLiteral(context, binary.RightOperand, leftOperand: binary.LeftOperand);
         }
 
@@ -97,7 +97,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IConstantPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value);
+            var target = GetPatternTarget(pattern);
+            AnalyzeOperandForLiteral(context, pattern.Value, leftOperand: target);
         }
 
         private static void AnalyzeRelationalPattern(OperationAnalysisContext context)
@@ -105,7 +106,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IRelationalPatternOperation pattern)
                 return;
 
-            AnalyzeOperandForLiteral(context, pattern.Value);
+            var target = GetPatternTarget(pattern);
+            AnalyzeOperandForLiteral(context, pattern.Value, leftOperand: target);
         }
 
         private static void AnalyzeSwitchCase(OperationAnalysisContext context)
@@ -118,6 +120,38 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (clause is ISingleValueCaseClauseOperation singleValue)
                     AnalyzeOperandForLiteral(context, singleValue.Value);
             }
+        }
+
+        private static IOperation? GetPatternTarget(IOperation pattern)
+        {
+            var parent = pattern.Parent;
+            do
+            {
+                if (parent is IConversionOperation conv)
+                {
+                    parent = conv.Parent;
+                }
+                else if (parent is INegatedPatternOperation negatedPattern)
+                {
+                    parent = negatedPattern.Parent;
+                }
+                else if (parent is IBinaryPatternOperation binaryPattern)
+                {
+                    parent = binaryPattern.Parent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (parent != null);
+
+            return parent switch
+            {
+                IIsPatternOperation isPattern => isPattern.Value,
+                IPropertySubpatternOperation propSub => propSub,
+                _ => null
+            };
         }
 
         private static void AnalyzeOperandForLiteral(
@@ -245,6 +279,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
         {
+            if (leftOperand is IConversionOperation conv)
+            {
+                leftOperand = conv.Operand;
+            }
+
             string? opName = leftOperand switch
             {
                 IMemberReferenceOperation memberRef => memberRef.Member?.Name,
@@ -269,6 +308,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
                     MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
+                    SubpatternSyntax subpattern => subpattern.NameColon?.Name.Identifier.ValueText,
+                    IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
                     _ => null
                 };
 
