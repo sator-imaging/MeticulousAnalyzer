@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.2.0-rc.7](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.7) (2026-09-01)
+
+### 🚀 Features
+* Exempt Add, Remove, and Search member names in LiteralBranchAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#578](https://github.com/sator-imaging/MeticulousAnalyzer/pull/578)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.6...v5.2.0-rc.7
+
+
 ## [5.2.0-rc.6](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.6) (2026-09-01)
 
 ### ✨ Bug Fixes
