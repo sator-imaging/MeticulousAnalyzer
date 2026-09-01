@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SatorImaging.MeticulousAnalyzer.Analysis;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Collections.Immutable;
 using System.Composition;
@@ -61,11 +62,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 return document;
 
             // Unwrap existing parentheses
-            var operand = suppression.Operand;
-            while (operand is ParenthesizedExpressionSyntax parenthesized)
-            {
-                operand = parenthesized.Expression;
-            }
+            var operand = suppression.Operand.UnwrapParentheses();
 
             // Add 3 parentheses: (((variable)))!
             var newOperand = SyntaxFactory.ParenthesizedExpression(

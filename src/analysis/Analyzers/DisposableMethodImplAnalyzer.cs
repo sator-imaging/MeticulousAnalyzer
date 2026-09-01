@@ -218,10 +218,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (IsDisposeCall(invocation.TargetMethod))
                     {
                         instance ??= invocation.Instance;
-                        if (instance is IConversionOperation conversion)
-                        {
-                            instance = conversion.Operand;
-                        }
+                        instance = instance?.UnwrapConversion();
 
                         if (instance is IMemberReferenceOperation memberRef)
                         {

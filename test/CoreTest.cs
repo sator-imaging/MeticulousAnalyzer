@@ -1062,5 +1062,43 @@ class C {
             Assert.IsTrue(op.TryUnwrapConversion(out var tryUnwrapped));
             Assert.AreSame(unwrapped, tryUnwrapped);
         }
+
+        // ===== UnwrapParentheses & TryUnwrapParentheses =====
+
+        [TestMethod]
+        public void TryUnwrapParentheses_Null_ReturnsFalse()
+        {
+            ExpressionSyntax expr = null;
+            Assert.IsFalse(expr.TryUnwrapParentheses(out var unwrapped));
+            Assert.IsNull(unwrapped);
+        }
+
+        [TestMethod]
+        public void UnwrapParentheses_NonParenthesized_ReturnsSame()
+        {
+            var tree = CSharpSyntaxTree.ParseText("class C { void M() { var x = 1; } }");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var expr = local.Declaration.Variables[0].Initializer.Value;
+
+            var unwrapped = expr.UnwrapParentheses();
+            Assert.AreSame(expr, unwrapped);
+            Assert.IsTrue(expr.TryUnwrapParentheses(out var tryUnwrapped));
+            Assert.AreSame(expr, tryUnwrapped);
+        }
+
+        [TestMethod]
+        public void UnwrapParentheses_NestedParentheses_UnwrapsToInnerExpression()
+        {
+            var tree = CSharpSyntaxTree.ParseText("class C { void M() { var x = (((1))); } }");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var outerExpr = local.Declaration.Variables[0].Initializer.Value;
+
+            Assert.IsInstanceOfType(outerExpr, typeof(ParenthesizedExpressionSyntax));
+            var unwrapped = outerExpr.UnwrapParentheses();
+            Assert.IsInstanceOfType(unwrapped, typeof(LiteralExpressionSyntax));
+
+            Assert.IsTrue(outerExpr.TryUnwrapParentheses(out var tryUnwrapped));
+            Assert.AreSame(unwrapped, tryUnwrapped);
+        }
     }
 }
