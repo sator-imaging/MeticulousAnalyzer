@@ -1478,5 +1478,138 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_StatementBeforeIfWithoutElse()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task M(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_StatementBeforeIfElse()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task M(bool foo)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_StatementBeforeIfElseIf()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task M(bool foo, bool bar)
+    {
+        DoSomething();
+
+        if (foo) { }
+        else if (bar) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_ForeachLoop_StatementBeforeIfWithoutElse()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task M(string[] items, bool foo)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_ForeachLoop_StatementBeforeIfElse()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task M(string[] items, bool foo)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+            else { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AsyncMethod_ForeachLoop_StatementBeforeIfElseIf()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+class C
+{
+    void DoSomething() { }
+
+    async Task M(string[] items, bool foo, bool bar)
+    {
+        foreach (var item in items)
+        {
+            DoSomething();
+
+            if (foo) { }
+            else if (bar) { }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
