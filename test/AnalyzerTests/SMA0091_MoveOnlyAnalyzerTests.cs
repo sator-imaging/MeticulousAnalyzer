@@ -494,7 +494,40 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_Violation_RefLocalAndValueLocal()
+        public async Task SMA0091_Violation_ValueLocalFromRefReturn()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method(Arc arc)
+        {
+            var y = {|#0:arc.GetRef()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_RefLocalFromRefReturn()
         {
             var test = @"
 namespace Test
@@ -515,17 +548,12 @@ namespace Test
         void Method(Arc arc)
         {
             ref var x = ref arc.GetRef();
-            var y = {|#0:arc.GetRef()|};
             var z = arc.GetRef().Move();
         }
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MoveOnlyStruct");
-
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
