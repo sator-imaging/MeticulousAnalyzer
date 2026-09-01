@@ -126,7 +126,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 return true;
 
-            foreach (var descendant in node.DescendantNodes(ShouldDescendInto))
+            foreach (var descendant in node.DescendantNodes(static x => ShouldDescendInto(x)))
             {
                 if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 {
@@ -175,7 +175,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void ReportBranchesInStatement(SyntaxNodeAnalysisContext context, StatementSyntax branchStatement)
         {
             CheckAndReportNode(context, branchStatement);
-            foreach (var node in branchStatement.DescendantNodes(ShouldDescendInto))
+            foreach (var node in branchStatement.DescendantNodes(static x => ShouldDescendInto(x)))
             {
                 CheckAndReportNode(context, node);
             }
