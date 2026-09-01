@@ -558,7 +558,7 @@ if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：紧随其后�
 ```
 
 > [!TIP]
-> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧包含名称中带有 `Count`、`Length` 或 `IndexOf` 的属性/方法访问时，允许与 `0` 进行比较。
+> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧包含名称中带有 `Count`、`Length`、`Index`、`Remove`、`Search` 或 `Add` 的属性/方法访问时，允许与 `0` 进行比较。
 
 ```cs
 int pos = foo.IndexOf('a');
