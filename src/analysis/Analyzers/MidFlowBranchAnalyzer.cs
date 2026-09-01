@@ -13,6 +13,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     public sealed class MidFlowBranchAnalyzer : DiagnosticAnalyzer
     {
         public const string RuleId = "SMA8030";
+        public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
 
         private static readonly DiagnosticDescriptor Rule = new(
             RuleId,
@@ -23,7 +24,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8030_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        private static readonly DiagnosticDescriptor Rule_StateChangeInEarlyReturn = new(
+            RuleId_StateChangeInEarlyReturn,
+            new LocalizableResourceString(nameof(Resources.SMA8031_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8031_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA8031_Description), Resources.ResourceManager, typeof(Resources)));
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, Rule_StateChangeInEarlyReturn);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -31,6 +41,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeBlock, SyntaxKind.Block);
+            context.RegisterSyntaxNodeAction(AnalyzeEarlyReturnBlock, SyntaxKind.Block);
         }
 
         private static void AnalyzeBlock(SyntaxNodeAnalysisContext context)
@@ -90,6 +101,138 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     isMainFlowStarted = true;
                 }
             }
+        }
+
+        private static void AnalyzeEarlyReturnBlock(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not BlockSyntax block)
+                return;
+
+            if (block.Parent is not (IfStatementSyntax or ElseClauseSyntax or SwitchSectionSyntax or CatchClauseSyntax))
+                return;
+
+            bool hasExitingStatement = false;
+            foreach (var statement in block.Statements)
+            {
+                if (IsExitingStatement(statement))
+                {
+                    hasExitingStatement = true;
+                    break;
+                }
+            }
+
+            if (!hasExitingStatement)
+                return;
+
+            bool hasDisallowedStatement = false;
+            foreach (var statement in block.Statements)
+            {
+                if (!IsAllowedEarlyReturnStatement(context, statement))
+                {
+                    hasDisallowedStatement = true;
+                    break;
+                }
+            }
+
+            if (!hasDisallowedStatement)
+                return;
+
+            foreach (var statement in block.Statements)
+            {
+                if (IsExitingStatement(statement))
+                {
+                    var location = GetExitKeywordLocation(statement);
+                    context.ReportDiagnostic(Diagnostic.Create(Rule_StateChangeInEarlyReturn, location));
+                }
+            }
+        }
+
+        private static bool IsExitingStatement(StatementSyntax statement)
+        {
+            return statement is ReturnStatementSyntax
+                or YieldStatementSyntax
+                or ContinueStatementSyntax
+                or BreakStatementSyntax
+                or ThrowStatementSyntax
+                or GotoStatementSyntax;
+        }
+
+        private static Location GetExitKeywordLocation(StatementSyntax statement)
+        {
+            return statement switch
+            {
+                ReturnStatementSyntax s => s.ReturnKeyword.GetLocation(),
+                YieldStatementSyntax s => s.YieldKeyword.GetLocation(),
+                ContinueStatementSyntax s => s.ContinueKeyword.GetLocation(),
+                BreakStatementSyntax s => s.BreakKeyword.GetLocation(),
+                ThrowStatementSyntax s => s.ThrowKeyword.GetLocation(),
+                GotoStatementSyntax s => s.GotoKeyword.GetLocation(),
+                _ => statement.GetLocation(),
+            };
+        }
+
+        private static bool IsAllowedEarlyReturnStatement(SyntaxNodeAnalysisContext context, StatementSyntax statement)
+        {
+            if (statement is EmptyStatementSyntax)
+                return true;
+
+            if (IsExitingStatement(statement))
+                return true;
+
+            if (IsDeclarationStatement(statement))
+                return true;
+
+            if (IsOutParameterAssignment(context, statement))
+                return true;
+
+            return false;
+        }
+
+        private static bool IsDeclarationStatement(StatementSyntax statement)
+        {
+            if (statement is LocalDeclarationStatementSyntax or LocalFunctionStatementSyntax)
+            {
+                return true;
+            }
+
+            if (statement is ExpressionStatementSyntax exprStmt &&
+                exprStmt.Expression is AssignmentExpressionSyntax assign)
+            {
+                return IsTupleDeclaration(assign);
+            }
+
+            return false;
+        }
+
+        private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, StatementSyntax statement)
+        {
+            if (statement is not ExpressionStatementSyntax exprStmt)
+                return false;
+
+            if (exprStmt.Expression is not AssignmentExpressionSyntax assign)
+                return false;
+
+            if (assign.Left is TupleExpressionSyntax)
+                return false;
+
+            var targetSyntax = UnwrapParentheses(assign.Left);
+            var symbol = context.SemanticModel.GetSymbolInfo(targetSyntax).Symbol;
+            if (symbol is IParameterSymbol parameterSymbol && parameterSymbol.RefKind == RefKind.Out)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static ExpressionSyntax UnwrapParentheses(ExpressionSyntax expression)
+        {
+            var current = expression;
+            while (current is ParenthesizedExpressionSyntax parenthesized)
+            {
+                current = parenthesized.Expression;
+            }
+            return current;
         }
 
         private static bool IsTupleDeclaration(AssignmentExpressionSyntax syntax)

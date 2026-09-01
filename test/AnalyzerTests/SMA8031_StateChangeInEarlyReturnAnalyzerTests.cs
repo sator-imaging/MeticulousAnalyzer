@@ -4,7 +4,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System.Threading.Tasks;
-using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.StateChangeInEarlyReturnAnalyzer>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MidFlowBranchAnalyzer>;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
@@ -30,7 +30,7 @@ class C
         }
     }
 }";
-            var expected = VerifyCS.Diagnostic(StateChangeInEarlyReturnAnalyzer.RuleId).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -94,7 +94,7 @@ class C
         return true;
     }
 }";
-            var expected = VerifyCS.Diagnostic(StateChangeInEarlyReturnAnalyzer.RuleId).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -114,7 +114,7 @@ class C
         }
     }
 }";
-            var expected = VerifyCS.Diagnostic(StateChangeInEarlyReturnAnalyzer.RuleId).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -133,7 +133,7 @@ class C
         }
     }
 }";
-            var expected = VerifyCS.Diagnostic(StateChangeInEarlyReturnAnalyzer.RuleId).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -154,7 +154,7 @@ class C
         y = 0;
     }
 }";
-            var expected = VerifyCS.Diagnostic(StateChangeInEarlyReturnAnalyzer.RuleId).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -174,7 +174,7 @@ class C
         }
     }
 }";
-            var expected = VerifyCS.Diagnostic(StateChangeInEarlyReturnAnalyzer.RuleId).WithLocation(0);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
