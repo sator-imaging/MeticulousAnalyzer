@@ -1017,5 +1017,50 @@ class C {
             var type = model.GetTypeInfo(field.Declaration.Type).Type;
             Assert.IsFalse(type.IsTaskLikeType());
         }
+
+        // ===== UnwrapConversion & TryUnwrapConversion =====
+
+        [TestMethod]
+        public void TryUnwrapConversion_Null_ReturnsFalse()
+        {
+            IOperation op = null;
+            Assert.IsFalse(op.TryUnwrapConversion(out var unwrapped));
+            Assert.IsNull(unwrapped);
+        }
+
+        [TestMethod]
+        public void UnwrapConversion_NonConversion_ReturnsSameOperation()
+        {
+            var source = "class C { void M() { int x = 1; } }";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
+
+            var unwrapped = op.UnwrapConversion();
+            Assert.AreSame(op, unwrapped);
+            Assert.IsTrue(op.TryUnwrapConversion(out var tryUnwrapped));
+            Assert.AreSame(op, tryUnwrapped);
+        }
+
+        [TestMethod]
+        public void UnwrapConversion_NestedConversion_UnwrapsToInnerOperation()
+        {
+            var source = "class C { void M() { object x = (object)(long)1; } }";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            var op = model.GetOperation(local.Declaration.Variables[0].Initializer.Value)!;
+
+            Assert.IsInstanceOfType(op, typeof(IConversionOperation));
+            var unwrapped = op.UnwrapConversion();
+            Assert.IsNotInstanceOfType(unwrapped, typeof(IConversionOperation));
+            Assert.IsInstanceOfType(unwrapped, typeof(ILiteralOperation));
+
+            Assert.IsTrue(op.TryUnwrapConversion(out var tryUnwrapped));
+            Assert.AreSame(unwrapped, tryUnwrapped);
+        }
     }
 }

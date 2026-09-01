@@ -270,11 +270,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (expression == null)
                 return false;
 
-            var unwrapped = expression;
-            while (unwrapped is IConversionOperation conv)
-            {
-                unwrapped = conv.Operand;
-            }
+            var unwrapped = expression.UnwrapConversion();
 
             if (unwrapped is IInvocationOperation invocation)
             {

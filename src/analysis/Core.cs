@@ -282,6 +282,31 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
+        internal static IOperation UnwrapConversion(this IOperation op)
+        {
+            var value = op;
+            while (value is IConversionOperation conversion)
+            {
+                value = conversion.Operand;
+            }
+
+            // .Operand doesn't return null
+            return value;
+        }
+
+        internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
+        {
+            if (op == null)
+            {
+                // [NotNullWhen] cannot be used in Roslyn analyzer project
+                unwrapped = (((null)))!;
+                return false;
+            }
+
+            unwrapped = op.UnwrapConversion();
+            return true;
+        }
+
 
         /*  string op  ================================================================ */
 

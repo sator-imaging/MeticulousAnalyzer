@@ -84,7 +84,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             // Use the semantic IArrayCreationOperation to extract the actual params arguments.
-            if (!TryUnwrapConversion(paramsArgOp.Value, out var unwrapped) ||
+            if (!paramsArgOp.Value.TryUnwrapConversion(out var unwrapped) ||
                 unwrapped is not IArrayCreationOperation arrayCreation ||
                 arrayCreation.Initializer == null)
             {
@@ -118,17 +118,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 Rule_ImplicitParamsAllocation,
                 location,
                 paramsParam.ToDiagnosticMessageName()));
-        }
-
-        private static bool TryUnwrapConversion(IOperation operation, out IOperation unwrapped)
-        {
-            var value = operation;
-            while (value is IConversionOperation conversion)
-            {
-                value = conversion.Operand;
-            }
-
-            return (unwrapped = value) != null;
         }
     }
 }
