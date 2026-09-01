@@ -558,7 +558,7 @@ if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing 
 ```
 
 > [!TIP]
-> Comparisons with zero (`0`) are allowed when used within `for` / `while` / `do-while` loop condition headers, or when the left-hand side contains a property or method access whose name contains `Count`, `Length`, or `IndexOf`.
+> Comparisons with zero (`0`) are allowed when used within `for` / `while` / `do-while` loop condition headers, or when the left-hand side contains a property or method access whose name contains `Count`, `Length`, `Index`, `Remove`, `Search`, or `Add`.
 
 ```cs
 int pos = foo.IndexOf('a');

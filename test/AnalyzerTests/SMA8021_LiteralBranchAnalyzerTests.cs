@@ -709,5 +709,76 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA8021_Compliant_MemberAccess_AddRemoveSearch()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+namespace Test
+{
+    public class Container
+    {
+        public int AddRange(IEnumerable<int> items) => 0;
+        public int RemoveAll(System.Predicate<int> match) => 0;
+        public int BinarySearch(int item) => 0;
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container.AddRange(new int[] { 1 }) == 0)
+            {
+            }
+
+            if (container.RemoveAll(_ => true) > 0)
+            {
+            }
+
+            if (container.BinarySearch(5) >= 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PatternMatch_AddRemoveSearch()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int AddedCount { get; set; }
+        public int RemovedItems { get; set; }
+        public int SearchResult { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container is { AddedCount: 0 })
+            {
+            }
+
+            if (container is { RemovedItems: >= 0 })
+            {
+            }
+
+            if (container is { SearchResult: not 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
