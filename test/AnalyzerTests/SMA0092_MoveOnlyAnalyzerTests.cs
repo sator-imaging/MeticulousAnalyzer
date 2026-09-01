@@ -195,5 +195,58 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0092_Violation_ArcGetRef_And_RefLocal_UnawaitedAsync()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        Task AsyncIn(in MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncRef(ref MoveOnlyStruct item) => Task.CompletedTask;
+
+        void MethodSync(Arc arc)
+        {
+            ref var refLocal = ref arc.GetRef();
+
+            // arc.GetRef(): cannot pass to async method without: async/await, with various modifier variants
+            AsyncIn({|#0:in arc.GetRef()|});
+            AsyncRef({|#1:ref arc.GetRef()|});
+
+            // ref local: cannot pass to async method without: async/await, with various modifier variants
+            AsyncIn({|#2:in refLocal|});
+            AsyncRef({|#3:ref refLocal|});
+        }
+
+        async Task MethodAsyncCompliant(Arc arc)
+        {
+            await AsyncIn(in arc.GetRef());
+            await AsyncRef(ref arc.GetRef());
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 0).WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 1).WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 2).WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 3).WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
     }
 }

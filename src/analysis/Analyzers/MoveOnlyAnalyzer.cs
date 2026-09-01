@@ -158,6 +158,38 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
+        private static bool IsRefLocal(IOperation? operation)
+        {
+            var unwrapped = operation;
+            while (unwrapped is IConversionOperation conv)
+            {
+                unwrapped = conv.Operand;
+            }
+
+            if (unwrapped is ILocalReferenceOperation localRef)
+            {
+                return localRef.Local.IsRef;
+            }
+
+            return false;
+        }
+
+        private static bool IsRefReturningInvocation(IOperation? operation)
+        {
+            var unwrapped = operation;
+            while (unwrapped is IConversionOperation conv)
+            {
+                unwrapped = conv.Operand;
+            }
+
+            if (unwrapped is IInvocationOperation invocation)
+            {
+                return invocation.TargetMethod.ReturnsByRef || invocation.TargetMethod.ReturnsByRefReadonly;
+            }
+
+            return false;
+        }
+
         private static bool IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(IOperation? target, ISymbol? containingSymbol)
         {
             if (containingSymbol is IMethodSymbol methodSymbol &&
@@ -316,58 +348,75 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (isRefOutIn)
             {
-                if (IsInAsyncContext(context.ContainingSymbol))
-                {
-                    // Allow passing with in/ref/out in async method ONLY WHEN:
-                    // 1) passing to constructor (argOp.Parent is IObjectCreationOperation)
-                    // 2) passing to sync method (returns non-Task/ValueTask)
-                    // 3) passing to async method (returns Task/ValueTask) that has `await`
-                    bool isCtor = argOp.Parent is IObjectCreationOperation;
-                    bool isAllowed = isCtor;
+                bool isCtor = argOp.Parent is IObjectCreationOperation;
+                bool isTaskReturning = false;
+                bool isAwaited = false;
 
-                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
+                if (argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
+                {
+                    if (targetMethod.IsAsync)
                     {
-                        if (!targetMethod.IsAsync)
+                        isTaskReturning = true;
+                        isAwaited = invocationOp.Parent is IAwaitOperation;
+                    }
+                    else
+                    {
+                        var returnType = targetMethod.ReturnType;
+                        isTaskReturning = returnType is INamedTypeSymbol
                         {
-                            var returnType = targetMethod.ReturnType;
-                            bool isTaskReturning = returnType is INamedTypeSymbol
+                            Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
                             {
-                                Name: "Task" or "ValueTask", ContainingNamespace: INamespaceSymbol
+                                Name: "Tasks", ContainingNamespace: INamespaceSymbol
                                 {
-                                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
+                                    Name: "Threading", ContainingNamespace: INamespaceSymbol
                                     {
-                                        Name: "Threading", ContainingNamespace: INamespaceSymbol
+                                        Name: "System", ContainingNamespace: INamespaceSymbol
                                         {
-                                            Name: "System", ContainingNamespace: INamespaceSymbol
-                                            {
-                                                IsGlobalNamespace: true
-                                            }
+                                            IsGlobalNamespace: true
                                         }
                                     }
                                 }
-                            } || returnType.Name.StartsWith("UniTask", StringComparison.Ordinal);
+                            }
+                        } || returnType.Name.StartsWith("UniTask", StringComparison.Ordinal);
 
-                            if (!isTaskReturning)
-                            {
-                                isAllowed = true; // passing to sync method
-                            }
-                            else if (invocationOp.Parent is IAwaitOperation)
-                            {
-                                isAllowed = true; // passing to async method that has await
-                            }
-                        }
-                        else if (invocationOp.Parent is IAwaitOperation)
+                        if (isTaskReturning)
                         {
-                            isAllowed = true; // passing to async method that has await
+                            isAwaited = invocationOp.Parent is IAwaitOperation;
                         }
                     }
+                }
 
-                    if (!isAllowed)
+                if (isTaskReturning)
+                {
+                    if (!isAwaited)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
                             Rule_ProhibitedRefOutInAsync,
                             argOp.Syntax.GetLocation(),
                             argOp.Value.Type.ToDiagnosticMessageName()));
+                    }
+                }
+                else if (!isCtor)
+                {
+                    if (argOp.Parameter!.RefKind == RefKind.In)
+                    {
+                        if (IsRefReturningInvocation(argOp.Value) || IsRefLocal(argOp.Value))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule_ProhibitedCopy,
+                                argOp.Value.Syntax.GetLocation(),
+                                argOp.Value.Type.ToDiagnosticMessageName()));
+                        }
+                    }
+                    else if (argOp.Parameter.RefKind == RefKind.Ref)
+                    {
+                        if (IsRefLocal(argOp.Value))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule_ProhibitedCopy,
+                                argOp.Value.Syntax.GetLocation(),
+                                argOp.Value.Type.ToDiagnosticMessageName()));
+                        }
                     }
                 }
             }
@@ -448,6 +497,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void AnalyzeVariableDeclaratorOperation(OperationAnalysisContext context)
         {
             if (context.Operation is not IVariableDeclaratorOperation declOp)
+                return;
+
+            if (declOp.Symbol != null && declOp.Symbol.IsRef)
                 return;
 
             var initializer = declOp.Initializer?.Value;
