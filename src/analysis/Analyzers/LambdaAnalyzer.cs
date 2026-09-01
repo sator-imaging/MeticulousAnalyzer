@@ -82,7 +82,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else
             {
-                var op = anonFunc.UnwrapConversion()!;
+                var op = anonFunc.UnwrapConversion();
 
                 // NOTE: For lambda, additionally allow placing comment on declaration.
                 //       --> DoSomething(
@@ -129,7 +129,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
-            var unwrapped = operand.UnwrapConversion()!;
+            var unwrapped = operand.UnwrapConversion();
             if (unwrapped.Kind == OperationKind.AnonymousFunction)
             {
                 return;

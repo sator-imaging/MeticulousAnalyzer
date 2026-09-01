@@ -290,8 +290,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 value = conversion.Operand;
             }
 
-            Debug.Assert(value != null);
-            return value;
+            return value ?? op;
         }
 
         internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
