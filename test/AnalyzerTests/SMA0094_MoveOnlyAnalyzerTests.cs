@@ -105,7 +105,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0094_RefLocalAndArcGetRef_CastToObjectOrInterface()
+        public async Task SMA0094_Violation_RefLocalAndArcGetRef_CastToObjectOrInterface()
         {
             var test = @"
 namespace Test
@@ -133,11 +133,6 @@ namespace Test
             ICustomInterface iface1 = {|#1:arc.GetRef()|};
             object obj2 = {|#2:refLocal|};
             ICustomInterface iface2 = {|#3:refLocal|};
-
-            object obj3 = arc.GetRef().Move();
-            ICustomInterface iface3 = arc.GetRef().Move();
-            object obj4 = refLocal.Move();
-            ICustomInterface iface4 = refLocal.Move();
         }
     }
 }
@@ -148,6 +143,42 @@ namespace Test
             var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast).WithLocation(markupKey: 3).WithArguments("MoveOnlyStruct", "ICustomInterface");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0094_Compliant_RefLocalAndArcGetRef_CastToObjectOrInterface()
+        {
+            var test = @"
+namespace Test
+{
+    public interface ICustomInterface { }
+
+    struct MoveOnlyStruct : ICustomInterface
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method(Arc arc)
+        {
+            ref var refLocal = ref arc.GetRef();
+
+            object obj3 = arc.GetRef().Move();
+            ICustomInterface iface3 = arc.GetRef().Move();
+            object obj4 = refLocal.Move();
+            ICustomInterface iface4 = refLocal.Move();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

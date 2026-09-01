@@ -191,7 +191,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0095_RefLocalAndArcGetRef_LambdaCapture()
+        public async Task SMA0095_Violation_RefLocalAndArcGetRef_LambdaCapture()
         {
             var test = @"
 namespace Test

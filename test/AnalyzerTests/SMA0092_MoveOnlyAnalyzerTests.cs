@@ -197,7 +197,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0092_RefLocalAndArcGetRef_AsyncMethodPassing()
+        public async Task SMA0092_Violation_RefLocalAndArcGetRef_AsyncMethodPassing()
         {
             var test = @"
 using System.Threading.Tasks;
@@ -225,26 +225,14 @@ namespace Test
         {
             ref var refLocal = ref arc.GetRef();
 
-            // Passing to async method without async context by value:
             AsyncNoMod({|#0:arc.GetRef()|});
-            AsyncNoMod(arc.GetRef().Move());
-
-            // ref local
             AsyncNoMod({|#1:refLocal|});
-            AsyncNoMod(refLocal.Move());
         }
 
         async Task AsyncMethod(Arc arc)
         {
-            // Unawaited async method call in async method:
             AsyncIn({|#2:in arc.GetRef()|});
             AsyncRef({|#3:ref arc.GetRef()|});
-
-            // Awaited async method call in async method:
-            await AsyncIn(in arc.GetRef());
-            await AsyncRef(ref arc.GetRef());
-
-            await AsyncNoMod(arc.GetRef().Move());
         }
     }
 }
@@ -255,6 +243,52 @@ namespace Test
             var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 3).WithArguments("MoveOnlyStruct");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0092_Compliant_RefLocalAndArcGetRef_AsyncMethodPassing()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        Task AsyncNoMod(MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncIn(in MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncRef(ref MoveOnlyStruct item) => Task.CompletedTask;
+
+        void NonAsyncMethod(Arc arc)
+        {
+            ref var refLocal = ref arc.GetRef();
+
+            AsyncNoMod(arc.GetRef().Move());
+            AsyncNoMod(refLocal.Move());
+        }
+
+        async Task AsyncMethod(Arc arc)
+        {
+            await AsyncIn(in arc.GetRef());
+            await AsyncRef(ref arc.GetRef());
+
+            await AsyncNoMod(arc.GetRef().Move());
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
