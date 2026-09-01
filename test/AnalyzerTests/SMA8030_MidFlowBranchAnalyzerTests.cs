@@ -1575,5 +1575,87 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+        [TestMethod]
+        public async Task SMA8030_Compliant_EarlyBreakAndGoto()
+        {
+            var test = @"
+class C
+{
+    void M(bool cond1, bool cond2)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (cond1) break;
+
+            int x = i;
+            x++;
+        }
+
+        while (cond1)
+        {
+            if (cond2) goto END;
+
+            int y = 0;
+            y++;
+        }
+
+    END:
+        return;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_MidFlowBreakInLoop()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M(bool cond)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            int x = i;
+            DoSomething(x);
+
+            if (cond)
+            {
+                {|#0:break|};
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_MidFlowGotoInMethod()
+        {
+            var test = @"
+class C
+{
+    void DoSomething(int x) { }
+
+    void M(bool cond)
+    {
+        int x = 10;
+        DoSomething(x);
+
+        if (cond)
+        {
+            {|#0:goto|} TARGET;
+        }
+
+    TARGET:
+        return;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
     }
 }
