@@ -282,10 +282,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
         {
-            if (leftOperand is IConversionOperation conv)
-            {
-                leftOperand = conv.Operand;
-            }
+            leftOperand = leftOperand.UnwrapConversion();
 
             string? opName = leftOperand switch
             {

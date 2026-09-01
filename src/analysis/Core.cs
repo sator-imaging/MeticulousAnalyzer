@@ -282,7 +282,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return (op as IConditionalAccessOperation)?.Operation ?? op;
         }
 
-        internal static IOperation UnwrapConversion(this IOperation op)
+        public static IOperation UnwrapConversion(this IOperation op)
         {
             var value = op;
             while (value is IConversionOperation conversion)
@@ -294,7 +294,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return value;
         }
 
-        internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
+        public static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
         {
             if (op == null)
             {
@@ -304,6 +304,29 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             }
 
             unwrapped = op.UnwrapConversion();
+            return true;
+        }
+
+        public static ExpressionSyntax UnwrapParentheses(this ExpressionSyntax expression)
+        {
+            var value = expression;
+            while (value is ParenthesizedExpressionSyntax parenthesized)
+            {
+                value = parenthesized.Expression;
+            }
+
+            return value;
+        }
+
+        public static bool TryUnwrapParentheses(this ExpressionSyntax? expression, out ExpressionSyntax unwrapped)
+        {
+            if (expression == null)
+            {
+                unwrapped = (((null)))!;
+                return false;
+            }
+
+            unwrapped = expression.UnwrapParentheses();
             return true;
         }
 

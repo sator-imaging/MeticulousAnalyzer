@@ -63,9 +63,9 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     if (operation == null) continue;
 
                     // Unwrap conversion
-                    while (operation is IConversionOperation conv) operation = conv.Operand;
+                    operation = operation.UnwrapConversion();
                     if (operation is IDelegateCreationOperation del) operation = del.Target;
-                    while (operation is IConversionOperation conv) operation = conv.Operand;
+                    operation = operation.UnwrapConversion();
 
                     if (operation is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic)
                     {
