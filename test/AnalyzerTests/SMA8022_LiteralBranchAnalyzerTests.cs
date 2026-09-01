@@ -173,5 +173,62 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+        [TestMethod]
+        public async Task SMA8022_Violation_PropertySubpattern_StringLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class Target
+    {
+        public string Name { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Target some)
+        {
+            if (some is { Name: {|#0:""Literal""|} })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchString).WithLocation(markupKey: 0).WithArguments(arguments: "\"Literal\"")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8022_Compliant_PropertySubpattern_StringConstantAndSuppression()
+        {
+            var test = @"
+namespace Test
+{
+    public class Target
+    {
+        public string Name { get; set; }
+    }
+
+    public class C
+    {
+        private const string LiteralName = ""Literal"";
+
+        public void M(Target some)
+        {
+            if (some is { Name: LiteralName })
+            {
+            }
+
+            if (some is { Name: ""Literal"" /* Why: test */ })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

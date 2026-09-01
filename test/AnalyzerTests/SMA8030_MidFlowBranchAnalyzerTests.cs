@@ -1500,5 +1500,80 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+        [TestMethod]
+        public async Task SMA8030_Compliant_EarlyYieldBreak()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> M(bool invalid, int count)
+    {
+        if (invalid) yield break;
+        if (count <= 0) yield break;
+
+        int a = 1;
+        yield return a;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_YieldBreakInMidFlowIf()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> M(bool foo)
+    {
+        int count = 0;
+        count++;
+
+        if (foo)
+        {
+            {|#0:yield|} break;
+        }
+
+        yield return count;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_YieldBreakInAllIfElseBranches()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> M(bool foo, bool bar)
+    {
+        int count = 0;
+        count++;
+
+        if (foo)
+        {
+            yield break;
+        }
+        else if (bar)
+        {
+            yield return 1;
+        }
+        else
+        {
+            yield break;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }

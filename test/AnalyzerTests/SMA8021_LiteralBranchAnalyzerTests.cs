@@ -646,5 +646,68 @@ namespace Test
                 VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 2).WithArguments(arguments: "0")
             );
         }
+        [TestMethod]
+        public async Task SMA8021_Violation_PropertySubpattern_ZeroLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class Target
+    {
+        public int Value { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Target some)
+        {
+            if (some is { Value: {|#0:0|} })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments(arguments: "0")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PropertySubpattern_ZeroLiteralWithMatchingMemberOrSuppression()
+        {
+            var test = @"
+namespace Test
+{
+    public class Target
+    {
+        public int Length { get; set; }
+        public int Value { get; set; }
+    }
+
+    public class C
+    {
+        private const int ZeroConst = 0;
+
+        public void M(Target some)
+        {
+            if (some is { Length: 0 })
+            {
+            }
+
+            if (some is { Value: ZeroConst })
+            {
+            }
+
+            if (some is { Value: 0 /* Why: test */ })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }

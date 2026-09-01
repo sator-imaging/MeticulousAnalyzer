@@ -286,5 +286,65 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+        [TestMethod]
+        public async Task SMA8023_Violation_PropertySubpattern_CharLiteral()
+        {
+            var test = @"
+namespace Test
+{
+    public class Target
+    {
+        public char Char { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Target some)
+        {
+            if (some is { Char: >= {|#0:'a'|} and <= {|#1:'z'|} })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchChar).WithLocation(markupKey: 0).WithArguments(arguments: "'a'"),
+                VerifyCS.Diagnostic(diagnosticId: LiteralBranchAnalyzer.RuleId_LiteralBranchChar).WithLocation(markupKey: 1).WithArguments(arguments: "'z'")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA8023_Compliant_PropertySubpattern_CharConstantAndSuppression()
+        {
+            var test = @"
+namespace Test
+{
+    public class Target
+    {
+        public char Char { get; set; }
+    }
+
+    public class C
+    {
+        private const char MinChar = 'a';
+        private const char MaxChar = 'z';
+
+        public void M(Target some)
+        {
+            if (some is { Char: >= MinChar and <= MaxChar })
+            {
+            }
+
+            if (some is { Char: >= 'a' /* Why: test */ and <= 'z' /* Why: test */ })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
