@@ -514,8 +514,8 @@ namespace Test
     {
         void Method(Arc arc)
         {
-            ref var x = ref arc.GetRef();
-            var y = {|#0:arc.GetRef()|};
+            ref var x = ref {|#0:arc.GetRef()|};
+            var y = {|#1:arc.GetRef()|};
             var z = arc.GetRef().Move();
         }
     }
@@ -524,8 +524,11 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
