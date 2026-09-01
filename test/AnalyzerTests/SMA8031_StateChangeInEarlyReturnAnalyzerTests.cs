@@ -237,5 +237,21 @@ class C
             var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(3);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_BlocklessIfAndElseIf()
+        {
+            var test = @"
+class C
+{
+    int M(bool cond1, bool cond2)
+    {
+        if (cond1) return 1;
+        else if (cond2) return 2;
+        else return 3;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
