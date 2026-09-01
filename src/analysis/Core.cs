@@ -296,14 +296,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 
         internal static bool TryUnwrapConversion(this IOperation? op, out IOperation unwrapped)
         {
-            var value = op;
-            while (value is IConversionOperation conversion)
+            if (op == null)
             {
-                value = conversion.Operand;
+                // [NotNullWhen] cannot be used in Roslyn analyzer project
+                unwrapped = (((null)))!;
+                return false;
             }
 
-            // [NotNullWhen] cannot be used on Roslyn Analyzer
-            return (unwrapped = value!) != null;
+            unwrapped = op.UnwrapConversion();
+            return true;
         }
 
 
