@@ -125,25 +125,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static IOperation? GetPatternTarget(IOperation pattern)
         {
             var parent = pattern.Parent;
-            if (parent is IConversionOperation conv)
+            do
             {
-                parent = conv.Parent;
+                if (parent is IConversionOperation conv)
+                {
+                    parent = conv.Parent;
+                }
+                else if (parent is INegatedPatternOperation negatedPattern)
+                {
+                    parent = negatedPattern.Parent;
+                }
+                else if (parent is IBinaryPatternOperation binaryPattern)
+                {
+                    parent = binaryPattern.Parent;
+                }
+                else
+                {
+                    break;
+                }
             }
-
-            if (parent is INegatedPatternOperation negatedPattern)
-            {
-                parent = negatedPattern.Parent;
-            }
-
-            if (parent is IBinaryPatternOperation binaryPattern)
-            {
-                parent = binaryPattern.Parent;
-            }
-
-            if (parent is IConversionOperation conv2)
-            {
-                parent = conv2.Parent;
-            }
+            while (parent != null);
 
             return parent switch
             {
