@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
@@ -427,7 +428,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(assignOp.Target, context.ContainingSymbol))
                 return;
 
-            if (assignOp.Syntax is Microsoft.CodeAnalysis.CSharp.Syntax.AssignmentExpressionSyntax { Right: Microsoft.CodeAnalysis.CSharp.Syntax.RefExpressionSyntax })
+            if (assignOp.Syntax is AssignmentExpressionSyntax { Right: RefExpressionSyntax })
                 return;
 
             CheckAndReportMoveOnlyCopy(context, assignOp.Value);
