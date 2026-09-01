@@ -2,6 +2,8 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
@@ -265,13 +267,34 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 parameter.Type.ToDiagnosticMessageName()));
         }
 
+        private static bool IsRefLocal(IOperation? op)
+        {
+            if (op is IConversionOperation conv)
+                op = conv.Operand;
+
+            return op is ILocalReferenceOperation localRef && localRef.Local.IsRef;
+        }
+
+        private static bool IsRefReturn(IOperation? op)
+        {
+            if (op is IConversionOperation conv)
+                op = conv.Operand;
+
+            if (op is IInvocationOperation invocation)
+            {
+                return invocation.TargetMethod.ReturnsByRef || invocation.TargetMethod.ReturnsByRefReadonly;
+            }
+
+            return false;
+        }
+
         private static bool IsCallingMove(IOperation? expression)
         {
             if (expression == null)
                 return false;
 
             var unwrapped = expression;
-            while (unwrapped is IConversionOperation conv)
+            if (unwrapped is IConversionOperation conv)
             {
                 unwrapped = conv.Operand;
             }
@@ -309,51 +332,58 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
                 return;
 
+            bool isRefLocalVal = IsRefLocal(argOp.Value);
+            bool isRefReturnVal = IsRefReturn(argOp.Value);
+
             bool isRefOutIn = argOp.Parameter != null &&
                 (argOp.Parameter.RefKind == RefKind.Ref ||
                  argOp.Parameter.RefKind == RefKind.Out ||
                  argOp.Parameter.RefKind == RefKind.In);
 
+            if (isRefLocalVal)
+            {
+                if (IsInAsyncContext(context.ContainingSymbol))
+                {
+                    CheckAsyncArgumentPassing(context, argOp);
+                }
+                else
+                {
+                    if (!IsCallingMove(argOp.Value))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            Rule_ProhibitedCopy,
+                            argOp.Value.Syntax.GetLocation(),
+                            argOp.Value.Type.ToDiagnosticMessageName()));
+                    }
+                }
+                return;
+            }
+
+            if (isRefReturnVal)
+            {
+                if (IsInAsyncContext(context.ContainingSymbol))
+                {
+                    CheckAsyncArgumentPassing(context, argOp);
+                }
+                else
+                {
+                    bool isNoModifierOrIn = !isRefOutIn || (argOp.Parameter != null && argOp.Parameter.RefKind == RefKind.In);
+                    if (isNoModifierOrIn && !IsCallingMove(argOp.Value))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            Rule_ProhibitedCopy,
+                            argOp.Value.Syntax.GetLocation(),
+                            argOp.Value.Type.ToDiagnosticMessageName()));
+                    }
+                }
+                return;
+            }
+
             if (isRefOutIn)
             {
                 if (IsInAsyncContext(context.ContainingSymbol))
                 {
-                    // Allow passing with in/ref/out in async method ONLY WHEN:
-                    // 1) passing to constructor (argOp.Parent is IObjectCreationOperation)
-                    // 2) passing to sync method (returns non-Task/ValueTask)
-                    // 3) passing to async method (returns Task/ValueTask) that has `await`
-                    bool isCtor = argOp.Parent is IObjectCreationOperation;
-                    bool isAllowed = isCtor;
-
-                    if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
-                    {
-                        if (!targetMethod.IsAsync)
-                        {
-                            var returnType = targetMethod.ReturnType;
-                            bool isTaskReturning = returnType.IsTaskLikeType();
-
-                            if (!isTaskReturning)
-                            {
-                                isAllowed = true; // passing to sync method
-                            }
-                            else if (invocationOp.Parent is IAwaitOperation)
-                            {
-                                isAllowed = true; // passing to async method that has await
-                            }
-                        }
-                        else if (invocationOp.Parent is IAwaitOperation)
-                        {
-                            isAllowed = true; // passing to async method that has await
-                        }
-                    }
-
-                    if (!isAllowed)
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            Rule_ProhibitedRefOutInAsync,
-                            argOp.Syntax.GetLocation(),
-                            argOp.Value.Type.ToDiagnosticMessageName()));
-                    }
+                    CheckAsyncArgumentPassing(context, argOp);
                 }
             }
             else
@@ -369,10 +399,46 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
+        private static void CheckAsyncArgumentPassing(OperationAnalysisContext context, IArgumentOperation argOp)
+        {
+            bool isCtor = argOp.Parent is IObjectCreationOperation;
+            bool isAllowed = isCtor;
+
+            if (!isAllowed && argOp.Parent is IInvocationOperation invocationOp && invocationOp.TargetMethod is IMethodSymbol targetMethod)
+            {
+                if (!targetMethod.IsAsync)
+                {
+                    var returnType = targetMethod.ReturnType;
+                    bool isTaskReturning = returnType.IsTaskLikeType();
+
+                    if (!isTaskReturning)
+                    {
+                        isAllowed = true;
+                    }
+                    else if (invocationOp.Parent is IAwaitOperation)
+                    {
+                        isAllowed = true;
+                    }
+                }
+                else if (invocationOp.Parent is IAwaitOperation)
+                {
+                    isAllowed = true;
+                }
+            }
+
+            if (!isAllowed)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ProhibitedRefOutInAsync,
+                    argOp.Syntax.GetLocation(),
+                    argOp.Value.Type.ToDiagnosticMessageName()));
+            }
+        }
+
         private static void CheckAndReportMoveOnlyCopy(OperationAnalysisContext context, IOperation value)
         {
             var unwrapped = value;
-            while (unwrapped is IConversionOperation conv)
+            if (unwrapped is IConversionOperation conv)
             {
                 if (conv.Operand != null && conv.Operand.Type != null && conv.Type != null &&
                     IsMoveOnlyType(conv.Operand.Type) &&
@@ -398,7 +464,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (unwrapped.Type != null && IsMoveOnlyType(unwrapped.Type))
+            if (unwrapped?.Type != null && IsMoveOnlyType(unwrapped.Type))
             {
                 if (!IsCallingMove(unwrapped))
                 {
@@ -427,6 +493,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsFieldOrPropertyAssignmentInMoveOnlyStructCtor(assignOp.Target, context.ContainingSymbol))
                 return;
 
+            if (assignOp.Syntax is AssignmentExpressionSyntax assignSyntax &&
+                assignSyntax.Right is RefExpressionSyntax)
+            {
+                return;
+            }
+
             CheckAndReportMoveOnlyCopy(context, assignOp.Value);
         }
 
@@ -440,6 +512,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
+                return;
+
+            if (declOp.Symbol.IsRef)
                 return;
 
             CheckAndReportMoveOnlyCopy(context, initializer);
