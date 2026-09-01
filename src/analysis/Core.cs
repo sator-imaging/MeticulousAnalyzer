@@ -290,6 +290,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 value = conversion.Operand;
             }
 
+            // .Operand doesn't return null
             return value;
         }
 
