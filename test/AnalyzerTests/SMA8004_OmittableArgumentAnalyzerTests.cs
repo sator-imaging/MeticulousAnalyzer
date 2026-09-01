@@ -280,5 +280,85 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 1).WithArguments("extra");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA8004_Violation_AttributeArgumentForOmittableParameter()
+        {
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class MyAttrAttribute : Attribute
+{
+    public MyAttrAttribute(int opt = 10) {}
+}
+
+[MyAttr({|#0:42|})]
+public class CTest
+{
+}
+";
+            var expected = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("opt");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_AttributeArgumentWithNamedOrColonArgument()
+        {
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class MyAttrAttribute : Attribute
+{
+    public int Prop { get; set; }
+    public MyAttrAttribute(int opt = 10) {}
+}
+
+[MyAttr(opt: 42, Prop = 1)]
+public class CTest
+{
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_SystemAttributeArgument()
+        {
+            var test = @"
+using System;
+using System.Diagnostics;
+
+public class CTest
+{
+    [Conditional(""DEBUG"")]
+    public void M() {}
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_AttributeArgumentCancellationTokenAsLastArgument()
+        {
+            var test = @"
+using System;
+
+public enum CancellationToken { None }
+
+[AttributeUsage(AttributeTargets.Class)]
+public class MyAsyncAttrAttribute : Attribute
+{
+    public MyAsyncAttrAttribute(CancellationToken cancellationToken = CancellationToken.None) {}
+}
+
+[MyAsyncAttr(CancellationToken.None)]
+public class CTest
+{
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
