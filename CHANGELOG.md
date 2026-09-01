@@ -1,5 +1,27 @@
 # Changelog
 
+## [5.2.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.5) (2026-09-01)
+
+### 🚀 Features
+* Update `MidFlowBranch` analyzer main flow detection logic by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#559](https://github.com/sator-imaging/MeticulousAnalyzer/pull/559)
+* feat: Add `SMA8004` System namespace and CancellationToken exemption by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#560](https://github.com/sator-imaging/MeticulousAnalyzer/pull/560)
+* Exempt 0 pattern match comparisons for Length/Count/IndexOf (SMA8021) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#561](https://github.com/sator-imaging/MeticulousAnalyzer/pull/561)
+* Add break and goto support to MidFlowBranchAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#567](https://github.com/sator-imaging/MeticulousAnalyzer/pull/567)
+### 📖 Documentation
+* Update MoveOnly string resources and RULES.md by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#562](https://github.com/sator-imaging/MeticulousAnalyzer/pull/562)
+### 📚 Other Changes
+* Add tests for generic parameters with in/ref modifiers in `MoveOnlyAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#564](https://github.com/sator-imaging/MeticulousAnalyzer/pull/564)
+* Add unit tests for MidFlowBranchAnalyzer (SMA8030) exit variants by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#565](https://github.com/sator-imaging/MeticulousAnalyzer/pull/565)
+* Add MoveOnly analyzer tests and update README docs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#563](https://github.com/sator-imaging/MeticulousAnalyzer/pull/563)
+* Centralize detection logic of Task-like type symbol in Core.cs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#566](https://github.com/sator-imaging/MeticulousAnalyzer/pull/566)
+* Add compliant unit tests for MidFlowBranchAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#568](https://github.com/sator-imaging/MeticulousAnalyzer/pull/568)
+* Add unit tests for property subpatterns and yield break by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#572](https://github.com/sator-imaging/MeticulousAnalyzer/pull/572)
+* Centralize unwrapping conversionOperation by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#571](https://github.com/sator-imaging/MeticulousAnalyzer/pull/571)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.4...v5.2.0-rc.5
+
+
 ## [5.2.0-rc.4](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.4) (2026-08-30)
 
 ### 🚀 Features
