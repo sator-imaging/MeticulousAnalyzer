@@ -112,12 +112,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ContainsBranch(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax)
+            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 return true;
 
             foreach (var descendant in node.DescendantNodes(static n => !(n is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)))
             {
-                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax)
+                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 {
                     return true;
                 }
@@ -184,6 +184,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, continueStmt.ContinueKeyword.GetLocation()));
             }
+            else if (node is BreakStatementSyntax breakStmt)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, breakStmt.BreakKeyword.GetLocation()));
+            }
+            else if (node is GotoStatementSyntax gotoStmt)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, gotoStmt.GotoKeyword.GetLocation()));
+            }
             else if (node is ThrowStatementSyntax throwStmt)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
@@ -231,7 +239,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool StatementGuaranteesBranch(StatementSyntax statement)
         {
-            if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax)
+            if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 return true;
 
             if (statement is IfStatementSyntax innerIf)
