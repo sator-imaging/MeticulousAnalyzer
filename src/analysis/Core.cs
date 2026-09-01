@@ -464,22 +464,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 return false;
             }
 
-            if (type is INamedTypeSymbol
+            var typeName = type.Name;
+            if (typeName is "Task" or "ValueTask" &&
+                type.ContainingNamespace is INamespaceSymbol
                 {
-                    Name: "Task" or "ValueTask",
-                    ContainingNamespace:
+                    Name: "Tasks", ContainingNamespace: INamespaceSymbol
                     {
-                        Name: "Tasks",
-                        ContainingNamespace:
+                        Name: "Threading", ContainingNamespace: INamespaceSymbol
                         {
-                            Name: "Threading",
-                            ContainingNamespace:
+                            Name: "System", ContainingNamespace: INamespaceSymbol
                             {
-                                Name: "System",
-                                ContainingNamespace:
-                                {
-                                    IsGlobalNamespace: true
-                                }
+                                IsGlobalNamespace: true
                             }
                         }
                     }
@@ -488,7 +483,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 return true;
             }
 
-            if (type.Name.StartsWith("UniTask", StringComparison.Ordinal))
+            if (typeName.StartsWith("UniTask", StringComparison.Ordinal))
             {
                 return true;
             }
