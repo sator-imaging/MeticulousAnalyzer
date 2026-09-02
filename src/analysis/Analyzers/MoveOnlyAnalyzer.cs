@@ -389,8 +389,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // 'new T(...)' and 'default(T)' do not copy an existing instance.
-            if (unwrapped is IObjectCreationOperation || unwrapped is IDefaultValueOperation)
+            // 'new T(...)', 'default(T)', and 'with' expressions do not copy an existing instance directly
+            // ('with' operand is checked separately in AnalyzeWithOperation).
+            if (unwrapped is IObjectCreationOperation || unwrapped is IDefaultValueOperation || unwrapped is IWithOperation)
             {
                 return;
             }
