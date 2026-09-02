@@ -163,19 +163,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static Location? GetBranchLocation(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax returnStmt)
-                return returnStmt.ReturnKeyword.GetLocation();
-            if (node is YieldStatementSyntax yieldStmt)
-                return yieldStmt.YieldKeyword.GetLocation();
-            if (node is ContinueStatementSyntax continueStmt)
-                return continueStmt.ContinueKeyword.GetLocation();
-            if (node is BreakStatementSyntax breakStmt)
-                return breakStmt.BreakKeyword.GetLocation();
-            if (node is GotoStatementSyntax gotoStmt)
-                return gotoStmt.GotoKeyword.GetLocation();
-            if (node is ThrowStatementSyntax throwStmt)
-                return throwStmt.ThrowKeyword.GetLocation();
-            return null;
+            return node switch
+            {
+                ReturnStatementSyntax returnStmt => returnStmt.ReturnKeyword.GetLocation(),
+                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword.GetLocation(),
+                ContinueStatementSyntax continueStmt => continueStmt.ContinueKeyword.GetLocation(),
+                BreakStatementSyntax breakStmt => breakStmt.BreakKeyword.GetLocation(),
+                GotoStatementSyntax gotoStmt => gotoStmt.GotoKeyword.GetLocation(),
+                ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
+                _ => null,
+            };
         }
 
         private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, AssignmentExpressionSyntax assign)
