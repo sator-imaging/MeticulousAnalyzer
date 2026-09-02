@@ -189,5 +189,44 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0095_Violation_RefLocalAndArcGetRef_LambdaCapture()
+        {
+            var test = @"
+namespace Test
+{
+    using System;
+
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method(Arc arc)
+        {
+            ref var refLocal = ref arc.GetRef();
+
+            Action act1 = () =>
+            {
+                var x = {|#0:refLocal|}.Move();
+            };
+        }
+    }
+}
+";
+            var expectedCompilerError = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8175").WithLocation(markupKey: 0).WithArguments("refLocal");
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedLambdaCapture).WithLocation(markupKey: 0).WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedCompilerError, expected0);
+        }
     }
 }

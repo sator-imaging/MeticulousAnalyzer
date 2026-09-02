@@ -195,5 +195,100 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0092_Violation_RefLocalAndArcGetRef_AsyncMethodPassing()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        Task AsyncNoMod(MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncIn(in MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncRef(ref MoveOnlyStruct item) => Task.CompletedTask;
+
+        void NonAsyncMethod(Arc arc)
+        {
+            ref var refLocal = ref arc.GetRef();
+
+            AsyncNoMod({|#0:arc.GetRef()|});
+            AsyncNoMod({|#1:refLocal|});
+        }
+
+        async Task AsyncMethod(Arc arc)
+        {
+            AsyncIn({|#2:in arc.GetRef()|});
+            AsyncRef({|#3:ref arc.GetRef()|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 0).WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 1).WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 2).WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync).WithLocation(markupKey: 3).WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0092_Compliant_RefLocalAndArcGetRef_AsyncMethodPassing()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        Task AsyncNoMod(MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncIn(in MoveOnlyStruct item) => Task.CompletedTask;
+        Task AsyncRef(ref MoveOnlyStruct item) => Task.CompletedTask;
+
+        void NonAsyncMethod(Arc arc)
+        {
+            ref var refLocal = ref arc.GetRef();
+
+            AsyncNoMod(arc.GetRef().Move());
+            AsyncNoMod(refLocal.Move());
+        }
+
+        async Task AsyncMethod(Arc arc)
+        {
+            await AsyncIn(in arc.GetRef());
+            await AsyncRef(ref arc.GetRef());
+
+            await AsyncNoMod(arc.GetRef().Move());
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

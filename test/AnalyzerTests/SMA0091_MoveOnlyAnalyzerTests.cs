@@ -494,7 +494,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0091_Violation_RefLocalAndValueLocal()
+        public async Task SMA0091_Violation_ValueLocalFromRefReturn()
         {
             var test = @"
 namespace Test
@@ -514,9 +514,7 @@ namespace Test
     {
         void Method(Arc arc)
         {
-            ref var x = ref {|#0:arc.GetRef()|};
-            var y = {|#1:arc.GetRef()|};
-            var z = arc.GetRef().Move();
+            var y = {|#0:arc.GetRef()|};
         }
     }
 }
@@ -524,11 +522,38 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
-            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithLocation(markupKey: 1)
-                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_RefLocalFromRefReturn()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void Method(Arc arc)
+        {
+            ref var x = ref arc.GetRef();
+            var z = arc.GetRef().Move();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -648,6 +673,95 @@ namespace Test
                 .WithArguments("MoveOnlyStruct");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_RefLocalAndArcGetRef_AssignmentAndSyncMethod()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void SyncNoMod(MoveOnlyStruct item) { }
+
+        void Method(Arc arc)
+        {
+            ref var refLocal1 = ref arc.GetRef();
+
+            MoveOnlyStruct valueLocal1 = {|#0:arc.GetRef()|};
+            SyncNoMod({|#1:arc.GetRef()|});
+
+            MoveOnlyStruct valueLocal2 = {|#2:refLocal1|};
+            SyncNoMod({|#3:refLocal1|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 0).WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 1).WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 2).WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy).WithLocation(markupKey: 3).WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_RefLocalAndArcGetRef_AssignmentAndSyncMethod()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Arc
+    {
+        private MoveOnlyStruct _value;
+        public ref MoveOnlyStruct GetRef() => ref _value;
+    }
+
+    class Program
+    {
+        void SyncNoMod(MoveOnlyStruct item) { }
+        void SyncIn(in MoveOnlyStruct item) { }
+        void SyncRef(ref MoveOnlyStruct item) { }
+
+        void Method(Arc arc)
+        {
+            ref var refLocal1 = ref arc.GetRef();
+            ref var refLocal2 = ref refLocal1;
+
+            MoveOnlyStruct valueLocal1 = arc.GetRef().Move();
+            MoveOnlyStruct valueLocal2 = refLocal1.Move();
+
+            SyncIn(in arc.GetRef());
+            SyncRef(ref arc.GetRef());
+            SyncNoMod(arc.GetRef().Move());
+            SyncIn(arc.GetRef().Move());
+
+            SyncIn(in refLocal1);
+            SyncRef(ref refLocal1);
+            SyncNoMod(refLocal1.Move());
+            SyncIn(refLocal1.Move());
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
