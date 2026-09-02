@@ -12,11 +12,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class MidFlowBranchAnalyzer : DiagnosticAnalyzer
     {
-        public const string RuleId = "SMA8030";
+        public const string RuleId_MidFlowBranch = "SMA8030";
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
 
         private static readonly DiagnosticDescriptor Rule = new(
-            RuleId,
+            RuleId_MidFlowBranch,
             new LocalizableResourceString(nameof(Resources.SMA8030_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8030_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),

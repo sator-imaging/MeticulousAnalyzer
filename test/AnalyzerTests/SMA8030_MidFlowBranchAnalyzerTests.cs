@@ -78,8 +78,8 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1));
         }
 
         [TestMethod]
@@ -136,7 +136,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -208,7 +208,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -307,7 +307,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -409,7 +409,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -483,7 +483,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -558,7 +558,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -616,7 +616,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -721,7 +721,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -771,7 +771,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -818,7 +818,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -869,7 +869,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -894,7 +894,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -919,7 +919,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -962,7 +962,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -989,8 +989,8 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1));
         }
 
         [TestMethod]
@@ -1018,8 +1018,8 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0),
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1));
         }
 
         [TestMethod]
@@ -1117,12 +1117,12 @@ class C
         }
     }
 }";
-            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1);
-            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(2);
-            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(3);
-            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(4);
-            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(5);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(2);
+            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(3);
+            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(4);
+            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(5);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
 
@@ -1233,12 +1233,12 @@ class C
         }
     }
 }";
-            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1);
-            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(2);
-            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(3);
-            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(4);
-            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(5);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(2);
+            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(3);
+            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(4);
+            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(5);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
 
@@ -1349,12 +1349,12 @@ class C
         }
     }
 }";
-            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(1);
-            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(2);
-            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(3);
-            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(4);
-            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(5);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(2);
+            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(3);
+            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(4);
+            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(5);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
 
@@ -1542,7 +1542,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -1629,7 +1629,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
@@ -1655,7 +1655,7 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId).WithLocation(0));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
 
         [TestMethod]
