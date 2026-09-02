@@ -292,5 +292,24 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_StateChangingNonExitingEarlyBranch()
+        {
+            var test = @"
+class C
+{
+    void M(bool cond, int x)
+    {
+        if (cond)
+        {
+            x = 10;
+        }
+
+        int a = 1;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
