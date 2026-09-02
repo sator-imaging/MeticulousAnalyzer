@@ -127,42 +127,44 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void CheckEarlyReturnBlock(SyntaxNodeAnalysisContext context, BlockSyntax block)
         {
             bool hasDisallowedStatement = false;
-            Location? firstExitingLocation = null;
 
             foreach (var statement in block.Statements)
             {
-                var branchLoc = GetBranchLocation(statement);
-                if (branchLoc != null)
+                if (!hasDisallowedStatement)
                 {
-                    if (firstExitingLocation == null)
+                    if (statement is EmptyStatementSyntax)
                     {
-                        firstExitingLocation = branchLoc;
+                        continue;
                     }
-                }
-                else if (statement is EmptyStatementSyntax)
-                {
-                    continue;
-                }
-                else if (statement is LocalDeclarationStatementSyntax ||
-                         (statement is ExpressionStatementSyntax tupleExpr && tupleExpr.Expression is AssignmentExpressionSyntax tupleAssign && IsTupleDeclaration(tupleAssign)))
-                {
-                    continue;
-                }
-                else if (statement is ExpressionStatementSyntax exprStmt &&
-                         exprStmt.Expression is AssignmentExpressionSyntax assign &&
-                         IsOutParameterAssignment(context, assign))
-                {
-                    continue;
+                    else if (statement is LocalDeclarationStatementSyntax)
+                    {
+                        continue;
+                    }
+                    else if (statement is ExpressionStatementSyntax exprStmt)
+                    {
+                        if (exprStmt.Expression is AssignmentExpressionSyntax assign &&
+                            (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign)))
+                        {
+                            continue;
+                        }
+                    }
+
+                    var branchLoc = GetBranchLocation(statement);
+                    if (branchLoc != null)
+                    {
+                        break;
+                    }
+
+                    hasDisallowedStatement = true;
                 }
                 else
                 {
-                    hasDisallowedStatement = true;
-                }
-
-                if (hasDisallowedStatement && firstExitingLocation != null)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule_StateChangeInEarlyReturn, firstExitingLocation));
-                    break;
+                    var branchLoc = GetBranchLocation(statement);
+                    if (branchLoc != null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_StateChangeInEarlyReturn, branchLoc));
+                        break;
+                    }
                 }
             }
         }
