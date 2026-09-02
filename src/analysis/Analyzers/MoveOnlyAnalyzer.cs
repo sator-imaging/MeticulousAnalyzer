@@ -129,6 +129,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeReturnOperation, OperationKind.Return);
             context.RegisterOperationAction(AnalyzeConversionOperation, OperationKind.Conversion);
             context.RegisterOperationAction(AnalyzeAnonymousFunctionOperation, OperationKind.AnonymousFunction);
+            context.RegisterOperationAction(AnalyzeWithOperation, OperationKind.With);
         }
 
         /*  MoveOnly helpers & type analysis  ======================================== */
@@ -496,6 +497,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             CheckOperationForCapturedMoveOnly(context, anonFunc, anonFunc);
+        }
+
+        private static void AnalyzeWithOperation(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IWithOperation withOp)
+                return;
+
+            if (withOp.Operand == null)
+                return;
+
+            if (IsInsidePublicMoveMethod(context.ContainingSymbol))
+                return;
+
+            CheckAndReportMoveOnlyCopy(context, withOp.Operand);
         }
 
         private static void CheckOperationForCapturedMoveOnly(OperationAnalysisContext context, IAnonymousFunctionOperation rootLambda, IOperation currentOp)
