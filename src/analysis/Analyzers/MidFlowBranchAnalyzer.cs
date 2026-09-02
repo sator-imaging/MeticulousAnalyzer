@@ -150,7 +150,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
                 else if (statement is ExpressionStatementSyntax exprStmt &&
                          exprStmt.Expression is AssignmentExpressionSyntax assign &&
-                         IsOutOrRefParameterAssignment(context, assign))
+                         IsOutParameterAssignment(context, assign))
                 {
                     continue;
                 }
@@ -184,7 +184,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return null;
         }
 
-        private static bool IsOutOrRefParameterAssignment(SyntaxNodeAnalysisContext context, AssignmentExpressionSyntax assign)
+        private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, AssignmentExpressionSyntax assign)
         {
             if (assign.Left is TupleExpressionSyntax)
             {
@@ -192,7 +192,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var symbol = context.SemanticModel.GetSymbolInfo(assign.Left).Symbol;
-            return symbol is IParameterSymbol param && (param.RefKind == RefKind.Out || param.RefKind == RefKind.Ref);
+            return symbol is IParameterSymbol param && param.RefKind == RefKind.Out;
         }
 
         private static bool IsTupleDeclaration(AssignmentExpressionSyntax syntax)

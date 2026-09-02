@@ -156,7 +156,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8031_Compliant_RefParameterAssignment()
+        public async Task SMA8031_Violation_RefParameterAssignment()
         {
             var test = @"
 class C
@@ -167,14 +167,15 @@ class C
         {
             outParam = 0;
             refParam = 10;
-            return false;
+            {|#0:return|} false;
         }
 
         outParam = 1;
         return true;
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]

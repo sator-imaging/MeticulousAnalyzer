@@ -167,7 +167,7 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | SMA8023 | Literal branch char                                              | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).
 | | | |
 | SMA8030 | Mid-flow Branch                                                  | Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
-| SMA8031 | State Change in Early Branch                                     | Early branch block should not contain state-changing operations before exiting.
+| SMA8031 | State Change in Early Exit                                       | Early exit block should not contain state-changing operations before exiting.
 
 ## `Obsolete` Annotating and Underling
 
