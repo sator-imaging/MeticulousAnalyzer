@@ -666,7 +666,7 @@ namespace Test
     {
         void Method(MoveOnlyRecordStruct moveOnly)
         {
-            _ = {|#0:moveOnly|} with { Value = 42 };
+            _ = {|#1:{|#0:moveOnly|} with { Value = 42 }|};
         }
     }
 }
@@ -676,7 +676,7 @@ namespace Test
                 .WithArguments("MoveOnlyRecordStruct");
 
             var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithSpan(14, 17, 14, 45)
+                .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyRecordStruct");
 
             // TODO: Roslyn 3.8.0 defaults to C# 9.0 and does not natively support C# 10 'record struct' syntax,
