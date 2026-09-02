@@ -581,7 +581,7 @@ if (foo.Length != 0)
 
 ## Mid-flow Branch
 
-Avoid mid-flow branches. Don't introduce a new control flow branch in the middle of the main flow. Early exits (such as return, continue, break) are fine, but don't contain state-changing operations before exiting (only assignments to `out` parameters are permitted).
+Avoid mid-flow branches. Don't introduce a new control flow branch in the middle of the main flow. Early exits (such as return, continue, break) are fine, but state-changing operations before exiting will cause an error (only assignments to `out` parameters are permitted).
 
 ```cs
 if (!IsValid()) return;  // Early return is allowed.

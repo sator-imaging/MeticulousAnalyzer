@@ -130,42 +130,34 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             foreach (var statement in block.Statements)
             {
-                if (!hasDisallowedStatement)
+                var branchLoc = GetBranchLocation(statement);
+                if (branchLoc != null)
                 {
-                    if (statement is EmptyStatementSyntax)
-                    {
-                        continue;
-                    }
-                    else if (statement is LocalDeclarationStatementSyntax)
-                    {
-                        continue;
-                    }
-                    else if (statement is ExpressionStatementSyntax exprStmt)
-                    {
-                        if (exprStmt.Expression is AssignmentExpressionSyntax assign &&
-                            (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign)))
-                        {
-                            continue;
-                        }
-                    }
-
-                    var branchLoc = GetBranchLocation(statement);
-                    if (branchLoc != null)
-                    {
-                        break;
-                    }
-
-                    hasDisallowedStatement = true;
-                }
-                else
-                {
-                    var branchLoc = GetBranchLocation(statement);
-                    if (branchLoc != null)
+                    if (hasDisallowedStatement)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(Rule_StateChangeInEarlyReturn, branchLoc));
-                        break;
+                    }
+                    break;
+                }
+
+                if (statement is EmptyStatementSyntax)
+                {
+                    continue;
+                }
+                else if (statement is LocalDeclarationStatementSyntax)
+                {
+                    continue;
+                }
+                else if (statement is ExpressionStatementSyntax exprStmt)
+                {
+                    if (exprStmt.Expression is AssignmentExpressionSyntax assign &&
+                        (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign)))
+                    {
+                        continue;
                     }
                 }
+
+                hasDisallowedStatement = true;
             }
         }
 
