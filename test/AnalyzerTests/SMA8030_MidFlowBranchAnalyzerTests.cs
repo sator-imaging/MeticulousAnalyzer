@@ -1683,5 +1683,63 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_EarlyReturn_IncompleteIf()
+        {
+            var test = @"
+class C
+{
+    void M1(bool foo)
+    {
+        if (foo)
+        {
+            // skip
+        }
+        else
+        {
+            return;
+        }
+
+        int x = 1;
+        x++;
+    }
+
+    void M2(bool foo, bool bar)
+    {
+        if (foo)
+        {
+            // skip
+        }
+        else if (bar)
+        {
+            return;
+        }
+
+        int x = 1;
+        x++;
+    }
+
+    void M3(bool foo, bool bar)
+    {
+        if (foo)
+        {
+            // skip
+        }
+        else if (bar)
+        {
+            // skip
+        }
+        else
+        {
+            return;
+        }
+
+        int x = 1;
+        x++;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
