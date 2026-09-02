@@ -649,5 +649,42 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_MethodParameterAndLocalVariable()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        void Consume(MoveOnlyStruct item) { }
+
+        void Method(MoveOnlyStruct param)
+        {
+            var local = {|#0:param|};
+            Consume({|#1:local|});
+            Consume({|#2:param|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
     }
 }
