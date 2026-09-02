@@ -780,5 +780,76 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_MemberAccess_ExchangeDecrementIncrement()
+        {
+            var test = @"
+using System.Threading;
+
+namespace Test
+{
+    public class C
+    {
+        private int _value;
+
+        public void M()
+        {
+            if (Interlocked.Exchange(ref _value, 1) == 0)
+            {
+            }
+
+            if (Interlocked.CompareExchange(ref _value, 1, 0) == 0)
+            {
+            }
+
+            if (Interlocked.Decrement(ref _value) == 0)
+            {
+            }
+
+            if (Interlocked.Increment(ref _value) == 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PatternMatch_ExchangeDecrementIncrement()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int ExchangeValue { get; set; }
+        public int DecrementCount { get; set; }
+        public int IncrementCount { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container is { ExchangeValue: 0 })
+            {
+            }
+
+            if (container is { DecrementCount: 0 })
+            {
+            }
+
+            if (container is { IncrementCount: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
