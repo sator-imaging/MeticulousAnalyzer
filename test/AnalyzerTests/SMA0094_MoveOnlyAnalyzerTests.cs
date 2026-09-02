@@ -103,5 +103,53 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0094_Violation_ParameterLocalAndRefLocalCast()
+        {
+            var test = @"
+namespace Test
+{
+    public interface ICustomInterface { }
+
+    struct MoveOnlyStruct : ICustomInterface
+    {
+        public MoveOnlyStruct Move() => this;
+    }
+
+    class Program
+    {
+        private MoveOnlyStruct _field;
+
+        void Method(MoveOnlyStruct param)
+        {
+            var local = {|#0:param|};
+            ref var refLocal = ref {|#1:_field|};
+
+            object obj1 = {|#2:param|};
+            object obj2 = {|#3:local|};
+            object obj3 = {|#4:refLocal|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct", "object");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 3)
+                .WithArguments("MoveOnlyStruct", "object");
+            var expected4 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 4)
+                .WithArguments("MoveOnlyStruct", "object");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
+        }
     }
 }

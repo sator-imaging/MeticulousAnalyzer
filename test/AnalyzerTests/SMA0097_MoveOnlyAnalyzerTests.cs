@@ -149,5 +149,50 @@ class Program
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
         }
+
+        [TestMethod]
+        public async Task SMA0097_Violation_ParameterLocalAndRefLocalReturn()
+        {
+            var test = MoveOnlyType + @"
+class Program
+{
+    private MoveOnlyStruct _field;
+
+    MoveOnlyStruct ReturnParam(MoveOnlyStruct param)
+    {
+        return {|#0:param|};
+    }
+
+    MoveOnlyStruct ReturnLocal(MoveOnlyStruct param)
+    {
+        var local = {|#1:param|};
+        return {|#2:local|};
+    }
+
+    MoveOnlyStruct ReturnRefLocal()
+    {
+        ref var refLocal = ref {|#3:_field|};
+        return {|#4:refLocal|};
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 3)
+                .WithArguments("MoveOnlyStruct");
+            var expected4 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 4)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
+        }
     }
 }
