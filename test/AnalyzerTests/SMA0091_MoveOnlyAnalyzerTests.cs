@@ -649,5 +649,73 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_RecordStructWithExpression()
+        {
+            var test = @"
+namespace Test
+{
+    record struct MoveOnlyRecordStruct
+    {
+        public int Value { get; init; }
+        public MoveOnlyRecordStruct Move() => this;
+    }
+
+    class Program
+    {
+        void Method(MoveOnlyRecordStruct moveOnly)
+        {
+            _ = {|#0:moveOnly|} with { Value = 42 };
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyRecordStruct");
+
+            // TODO: Roslyn 3.8.0 defaults to C# 9.0 and does not natively support C# 10 'record struct' syntax,
+            // resulting in C# compiler errors during parsing while still allowing the operation analyzer to run.
+            var c1 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1001").WithSpan(4, 12, 4, 18);
+            var c2 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1513").WithSpan(4, 12, 4, 18);
+            var c3 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1514").WithSpan(4, 12, 4, 18);
+            var c4 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS0518").WithSpan(6, 33, 6, 37).WithArguments("System.Runtime.CompilerServices.IsExternalInit");
+            var c5 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8858").WithSpan(14, 17, 14, 25).WithArguments("Test.MoveOnlyRecordStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, c1, c2, c3, c4, c5, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA0091_Compliant_RecordStructWithExpression()
+        {
+            var test = @"
+namespace Test
+{
+    record struct MoveOnlyRecordStruct
+    {
+        public int Value { get; init; }
+        public MoveOnlyRecordStruct Move() => this;
+    }
+
+    class Program
+    {
+        void Method(MoveOnlyRecordStruct moveOnly)
+        {
+            _ = moveOnly.Move() with { Value = 42 };
+        }
+    }
+}
+";
+            // TODO: Roslyn 3.8.0 defaults to C# 9.0 and does not natively support C# 10 'record struct' syntax,
+            // resulting in C# compiler errors during parsing while still allowing the operation analyzer to run.
+            var c1 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1001").WithSpan(4, 12, 4, 18);
+            var c2 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1513").WithSpan(4, 12, 4, 18);
+            var c3 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1514").WithSpan(4, 12, 4, 18);
+            var c4 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS0518").WithSpan(6, 33, 6, 37).WithArguments("System.Runtime.CompilerServices.IsExternalInit");
+            var c5 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS8858").WithSpan(14, 17, 14, 32).WithArguments("Test.MoveOnlyRecordStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, c1, c2, c3, c4, c5);
+        }
     }
 }
