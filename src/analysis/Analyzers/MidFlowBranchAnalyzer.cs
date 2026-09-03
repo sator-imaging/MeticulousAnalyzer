@@ -16,6 +16,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
 
         private const string SuppressionComment = "// Early exit";
+        private const string SuppressionComment_ExitWithLog = "// Exit with log";
 
         private static readonly DiagnosticDescriptor Rule = new(
             RuleId_MidFlowBranch,
@@ -116,14 +117,25 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool HasEarlyExitSuppression(IfStatementSyntax ifStmt)
+        private static bool HasEarlyExitSuppression(SyntaxNode node)
         {
-            var comment = Core.GetFirstSingleLineCommentTrivia(ifStmt);
+            var comment = Core.GetFirstSingleLineCommentTrivia(node);
 
             // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
             // Checking Length is enough and efficient.
-            return comment.Span.Length >= SuppressionComment.Length
-                && comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
+            if (comment.Span.Length >= SuppressionComment.Length
+                && comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (comment.Span.Length >= SuppressionComment_ExitWithLog.Length
+                && comment.ToString().StartsWith(SuppressionComment_ExitWithLog, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static void CheckStateChangeInEarlyReturnIf(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
@@ -299,6 +311,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void CheckAndReportNode(SyntaxNodeAnalysisContext context, SyntaxNode node)
         {
+            if (HasEarlyExitSuppression(node))
+            {
+                return;
+            }
+
             if (node is ReturnStatementSyntax returnStmt)
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, returnStmt.ReturnKeyword.GetLocation()));

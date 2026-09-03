@@ -1977,5 +1977,144 @@ class C
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_SuppressionComment_ExitWithLog_BeforeExits()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    int ReturnMethod(bool foo)
+    {
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            // Exit with log
+            return 1;
+        }
+
+        return 0;
+    }
+
+    void ThrowMethod(bool foo)
+    {
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            // Exit with log
+            throw new Exception();
+        }
+    }
+
+    void LoopExits(bool cond1, bool cond2)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            int x = i;
+            x++;
+
+            if (cond1)
+            {
+                // Exit with log
+                continue;
+            }
+
+            if (cond2)
+            {
+                // Exit with log
+                break;
+            }
+        }
+    }
+
+    IEnumerable<int> YieldMethod(bool foo)
+    {
+        int count = 0;
+        count++;
+
+        if (foo)
+        {
+            // Exit with log
+            yield return 1;
+        }
+
+        yield return 2;
+    }
+
+    void GotoMethod(bool cond)
+    {
+        int x = 10;
+        x++;
+
+        if (cond)
+        {
+            // Exit with log
+            goto TARGET;
+        }
+
+    TARGET:
+        return;
+    }
+
+    int BeforeIfStatement(bool foo)
+    {
+        int x = 10;
+        x++;
+
+        // Exit with log
+        if (foo)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_SuppressionComment_ExitWithLog_WithReason()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int ReturnWithReason(bool foo)
+    {
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            // Exit with log: logging warning for invalid condition
+            return 1;
+        }
+
+        return 0;
+    }
+
+    void ThrowWithReason(bool foo)
+    {
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            // Exit with log (Reason: unexpected state)
+            throw new Exception();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
