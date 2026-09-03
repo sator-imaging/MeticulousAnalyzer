@@ -1789,5 +1789,145 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_SuppressionComment_EarlyExit()
+        {
+            var test = @"
+class C
+{
+    int M(bool invalid, bool foo)
+    {
+        if (invalid) return 0;
+
+        int x = 10;
+        x++;
+
+        // Early exit
+        if (foo)
+        {
+            return 1;
+        }
+
+        return 3;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_SuppressionComment_CaseInsensitive()
+        {
+            var test = @"
+class C
+{
+    int M(bool invalid, bool foo, bool bar)
+    {
+        if (invalid) return 0;
+
+        int x = 10;
+        x++;
+
+        // early exit
+        if (foo)
+        {
+            return 1;
+        }
+
+        // EARLY EXIT: Reason can be omitted.
+        if (bar)
+        {
+            return 2;
+        }
+
+        return 3;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_SuppressionComment_WhitespaceMismatch()
+        {
+            var test = @"
+class C
+{
+    int M(bool invalid, bool foo)
+    {
+        if (invalid) return 0;
+
+        int x = 10;
+        x++;
+
+        //Early exit
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 3;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_SuppressionComment_NotFirstComment()
+        {
+            var test = @"
+class C
+{
+    int M(bool invalid, bool foo)
+    {
+        if (invalid) return 0;
+
+        int x = 10;
+        x++;
+
+        // regular comment
+        // Early exit
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return 3;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_SuppressThirdIfStatementOnly()
+        {
+            var test = @"
+class C
+{
+    int M(bool earlyExit, bool foo, bool bar)
+    {
+        if (earlyExit) return 0;
+
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        // Early exit
+        if (bar)
+        {
+            return 2;
+        }
+
+        return 3;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+        }
     }
 }
