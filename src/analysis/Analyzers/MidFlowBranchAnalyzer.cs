@@ -31,7 +31,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             new LocalizableResourceString(nameof(Resources.SMA8031_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8031_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
-            DiagnosticSeverity.Warning,
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8031_Description), Resources.ResourceManager, typeof(Resources)));
 
@@ -149,6 +149,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void CheckEarlyReturnBlock(SyntaxNodeAnalysisContext context, BlockSyntax block)
         {
             bool hasDisallowedStatement = false;
+            int methodCallCount = 0;
 
             foreach (var statement in block.Statements)
             {
@@ -177,10 +178,38 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     {
                         continue;
                     }
+
+                    if (IsMethodCall(exprStmt.Expression))
+                    {
+                        methodCallCount++;
+                        if (methodCallCount > 1)
+                        {
+                            hasDisallowedStatement = true;
+                        }
+                        continue;
+                    }
                 }
 
                 hasDisallowedStatement = true;
             }
+        }
+
+        private static bool IsMethodCall(ExpressionSyntax expression)
+        {
+            var unwrapped = expression.UnwrapParentheses();
+            if (unwrapped is InvocationExpressionSyntax)
+            {
+                return true;
+            }
+            if (unwrapped is AwaitExpressionSyntax awaitExpr)
+            {
+                return IsMethodCall(awaitExpr.Expression);
+            }
+            if (unwrapped is ConditionalAccessExpressionSyntax condAccess)
+            {
+                return IsMethodCall(condAccess.WhenNotNull);
+            }
+            return false;
         }
 
         private static Location? GetBranchLocation(SyntaxNode node)

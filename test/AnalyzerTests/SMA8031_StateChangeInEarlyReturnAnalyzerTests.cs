@@ -60,15 +60,16 @@ class C
         public async Task SMA8031_Violation_MethodCallBeforeEarlyReturn()
         {
             var test = @"
+using System;
+
 class C
 {
-    void DoWork() { }
-
     int M(bool cond)
     {
         if (cond)
         {
-            DoWork();
+            Console.Write(""a"");
+            Console.Write(""b"");
             {|#0:return|} 0;
         }
 
@@ -303,6 +304,90 @@ class C
         }
 
         int a = 1;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_LocalVarAndSingleConsoleWriteBeforeReturn()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int M(bool cond)
+    {
+        if (cond)
+        {
+            int val = 42;
+            Console.Write(""a"");
+            return val;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_SingleConsoleWriteBeforeReturn()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        if (cond)
+        {
+            Console.Write(""a"");
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_LocalVarAndSingleConsoleWriteBeforeThrow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        if (cond)
+        {
+            string msg = ""error"";
+            Console.Write(msg);
+            throw new InvalidOperationException(msg);
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_SingleConsoleWriteBeforeThrow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        if (cond)
+        {
+            Console.Write(""a"");
+            throw new InvalidOperationException();
+        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
