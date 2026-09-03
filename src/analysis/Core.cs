@@ -411,6 +411,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 ;
         }
 
+        internal static SyntaxTrivia GetFirstSingleLineCommentTrivia(SyntaxNode? node)
+        {
+            if (node == null)
+            {
+                return default;
+            }
+
+            foreach (var trivia in node.GetFirstToken().LeadingTrivia)
+            {
+                if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                {
+                    return trivia;
+                }
+            }
+
+            return default;
+        }
+
         /// <param name="isDiscardOperation">
         /// Discard assignment is only allowed to be suppressed. e.g. `_ = Foo()`
         /// </param>
@@ -428,14 +446,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
-                foreach (var trivia in node.GetFirstToken().LeadingTrivia)
-                {
-                    if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                    {
-                        comment = trivia;
-                        break;
-                    }
-                }
+                comment = GetFirstSingleLineCommentTrivia(node);
             }
 
             // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.

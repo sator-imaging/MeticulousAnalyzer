@@ -113,18 +113,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool HasEarlyExitSuppression(IfStatementSyntax ifStmt)
         {
-            foreach (var trivia in ifStmt.GetLeadingTrivia())
-            {
-                if (trivia.IsKind(SyntaxKind.WhitespaceTrivia) || trivia.IsKind(SyntaxKind.EndOfLineTrivia))
-                {
-                    continue;
-                }
-
-                return trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) &&
-                       trivia.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
-            }
-
-            return false;
+            var comment = Core.GetFirstSingleLineCommentTrivia(ifStmt);
+            return comment.Span.Length >= SuppressionComment.Length &&
+                   comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static void CheckStateChangeInEarlyReturnIf(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
