@@ -129,6 +129,10 @@ namespace Test
             object obj1 = {|#2:param|};
             object obj2 = {|#3:local|};
             object obj3 = {|#4:refLocal|};
+
+            var explicit1 = {|#5:(object)param|};
+            var explicit2 = {|#6:(object)local|};
+            var explicit3 = {|#7:(object)refLocal|};
         }
     }
 }
@@ -148,8 +152,17 @@ namespace Test
             var expected4 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
                 .WithLocation(markupKey: 4)
                 .WithArguments("MoveOnlyStruct", "object");
+            var expected5 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 5)
+                .WithArguments("MoveOnlyStruct", "object");
+            var expected6 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 6)
+                .WithArguments("MoveOnlyStruct", "object");
+            var expected7 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 7)
+                .WithArguments("MoveOnlyStruct", "object");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
         }
     }
 }
