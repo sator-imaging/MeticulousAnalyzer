@@ -148,7 +148,7 @@ Provides rules and assistance to improve runtime efficiency, avoid delegate allo
 ## Reliability and Maintainability Analysis
 
 Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
-> Suppression comment: `// Ignore exception: Reason (required)`
+> Suppression comment: `// Ignore exception: Reason (required)`, `// Early exit`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
