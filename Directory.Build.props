@@ -43,7 +43,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">
-    <GlobalPackageVersion>5.2.0-rc.8</GlobalPackageVersion>
+    <GlobalPackageVersion>5.2.0-rc.9</GlobalPackageVersion>
     <GlobalPackageID>SatorImaging.MeticulousAnalyzer</GlobalPackageID>
     <GlobalPackageTitle>Meticulous Analyzer</GlobalPackageTitle>
     <GlobalPackageProduct>$(GlobalPackageTitle)</GlobalPackageProduct>
