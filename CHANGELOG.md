@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.2.0-rc.8](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.8) (2026-09-03)
+
+### 🚀 Features
+* Add exemption member names from Interlocked by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#586](https://github.com/sator-imaging/MeticulousAnalyzer/pull/586)
+* Add `SMA8031`: State Change in Early Return by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#584](https://github.com/sator-imaging/MeticulousAnalyzer/pull/584)
+* Exempt repeated local declaration before first if statement by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#588](https://github.com/sator-imaging/MeticulousAnalyzer/pull/588)
+* Add suppression comment support to MidFlowBranch analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#589](https://github.com/sator-imaging/MeticulousAnalyzer/pull/589)
+### 📚 Other Changes
+* test: increase coverage for OmittableArgumentAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#579](https://github.com/sator-imaging/MeticulousAnalyzer/pull/579)
+* Centralize unwrapping operations and syntax in Core.cs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#575](https://github.com/sator-imaging/MeticulousAnalyzer/pull/575)
+* Add unit tests for incomplete if statements in MidFlowBranch analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#583](https://github.com/sator-imaging/MeticulousAnalyzer/pull/583)
+* Add record struct test for MoveOnly analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#585](https://github.com/sator-imaging/MeticulousAnalyzer/pull/585)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.7...v5.2.0-rc.8
+
+
 ## [5.2.0-rc.7](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.7) (2026-09-01)
 
 ### 🚀 Features
