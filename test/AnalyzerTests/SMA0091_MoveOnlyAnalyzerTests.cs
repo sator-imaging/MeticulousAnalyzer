@@ -673,7 +673,8 @@ namespace Test
             Consume({|#2:local|});
             Consume({|#3:param|});
             Consume({|#4:refLocal|});
-            var copyFromRef = {|#5:refLocal|};
+            var copyFromLocal = {|#5:local|};
+            var copyFromRefLocal = {|#6:refLocal|};
         }
     }
 }
@@ -696,8 +697,11 @@ namespace Test
             var expected5 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 5)
                 .WithArguments("MoveOnlyStruct");
+            var expected6 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 6)
+                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6);
         }
     }
 }
