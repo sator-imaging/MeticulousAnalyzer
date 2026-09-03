@@ -50,6 +50,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             bool isMainFlowStarted = false;
             bool hasDeclarationInCurrentSequence = false;
+            bool hasSeenIf = false;
 
             foreach (var statement in block.Statements)
             {
@@ -66,7 +67,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         continue;
                     }
 
-                    if (hasDeclarationInCurrentSequence)
+                    if (hasDeclarationInCurrentSequence && hasSeenIf)
                     {
                         isMainFlowStarted = true;
                     }
@@ -79,6 +80,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (statement is IfStatementSyntax ifStmt)
                 {
+                    hasSeenIf = true;
                     if (isMainFlowStarted)
                     {
                         CheckAndReportMidFlowBranches(context, ifStmt);

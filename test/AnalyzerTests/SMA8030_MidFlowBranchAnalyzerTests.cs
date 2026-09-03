@@ -943,7 +943,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_RepeatedDeclarationStartsMainFlow()
+        public async Task SMA8030_Compliant_RepeatedDeclarationBeforeFirstIfDoesNotStartMainFlow()
         {
             var test = @"
 class C
@@ -955,14 +955,13 @@ class C
 
         if (foo)
         {
-            {|#0:return|} 1;
+            return 1;
         }
 
         return x + y;
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -1737,6 +1736,54 @@ class C
 
         int x = 1;
         x++;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_RepeatedDeclarationAfterIfStartsMainFlow()
+        {
+            var test = @"
+class C
+{
+    int M(bool earlyExit, bool foo)
+    {
+        var x = 1;
+        if (earlyExit) return 0;
+
+        var z = 10;
+        var w = 20;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        return z + w;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_NestedBlockRepeatedDeclarationsBeforeIf()
+        {
+            var test = @"
+class C
+{
+    void Foo(bool cond1, bool cond2)
+    {
+        var x = 1;
+        var y = 2;
+        if (cond1) return;
+
+        {
+            var z = 10;
+            var w = 20;
+            if (cond2) return;
+        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
