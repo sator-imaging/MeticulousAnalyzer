@@ -207,29 +207,38 @@ namespace Test
     {
         private MoveOnlyStruct _field;
 
-        void Method()
+        void Method(MoveOnlyStruct param)
         {
-            ref var refLocal = ref {|#0:_field|};
+            var local = {|#0:param|};
+            ref var refLocal = ref {|#1:_field|};
             Action act = () =>
             {
-                var x = {|#1:refLocal|}.Move();
+                var x = {|#2:refLocal|}.Move();
+                var y = {|#3:local|}.Move();
             };
         }
     }
 }
 ";
+            // CS8175: Cannot use ref local inside an anonymous method, lambda expression, or query expression
             var expectedCompilerError = DiagnosticResult.CompilerError("CS8175")
-                .WithSpan(20, 25, 20, 33)
+                .WithSpan(21, 25, 21, 33)
                 .WithArguments("refLocal");
 
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyStruct");
-            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedLambdaCapture)
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedLambdaCapture)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct");
+            var expected3 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedLambdaCapture)
+                .WithLocation(markupKey: 3)
+                .WithArguments("MoveOnlyStruct");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expectedCompilerError, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedCompilerError, expected0, expected1, expected2, expected3);
         }
     }
 }

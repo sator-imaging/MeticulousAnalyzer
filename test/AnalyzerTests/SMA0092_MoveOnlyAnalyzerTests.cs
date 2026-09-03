@@ -233,6 +233,7 @@ namespace Test
     }
 }
 ";
+            // CS8177: Async methods cannot have by-reference locals
             var expectedCompilerError = DiagnosticResult.CompilerError("CS8177")
                 .WithSpan(23, 21, 23, 29);
 
