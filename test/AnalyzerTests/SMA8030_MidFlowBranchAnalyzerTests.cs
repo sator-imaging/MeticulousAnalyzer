@@ -1834,7 +1834,7 @@ class C
             return 1;
         }
 
-        // EARLY EXIT
+        // EARLY EXIT: Reason can be omitted.
         if (bar)
         {
             return 2;
@@ -1931,9 +1931,9 @@ class C
         return 4;
     }
 }";
-            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1));
         }
     }
 }
