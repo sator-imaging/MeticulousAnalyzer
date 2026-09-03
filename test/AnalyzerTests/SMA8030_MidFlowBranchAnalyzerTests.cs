@@ -1898,5 +1898,42 @@ class C
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_SuppressThirdIfStatementOnly()
+        {
+            var test = @"
+class C
+{
+    int M(bool invalid, bool foo, bool bar, bool baz)
+    {
+        if (invalid) return 0;
+
+        int x = 10;
+        x++;
+
+        if (foo)
+        {
+            {|#0:return|} 1;
+        }
+
+        if (bar)
+        {
+            {|#1:return|} 2;
+        }
+
+        // Early exit
+        if (baz)
+        {
+            return 3;
+        }
+
+        return 4;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
