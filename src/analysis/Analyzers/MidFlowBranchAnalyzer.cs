@@ -83,9 +83,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (statement is IfStatementSyntax ifStmt)
                 {
                     hasSeenIf = true;
-                    if (isMainFlowStarted || ifStmt.Else != null)
+                    if (ifStmt.Else != null)
                     {
                         isMainFlowStarted = true;
+                    }
+
+                    if (isMainFlowStarted)
+                    {
                         if (!HasEarlyExitSuppression(ifStmt))
                         {
                             CheckAndReportMidFlowBranches(context, ifStmt);
