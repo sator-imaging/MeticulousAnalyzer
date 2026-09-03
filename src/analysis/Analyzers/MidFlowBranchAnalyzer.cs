@@ -12,10 +12,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class MidFlowBranchAnalyzer : DiagnosticAnalyzer
     {
-        public const string RuleId = "SMA8030";
+        public const string RuleId_MidFlowBranch = "SMA8030";
+        public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
 
         private static readonly DiagnosticDescriptor Rule = new(
-            RuleId,
+            RuleId_MidFlowBranch,
             new LocalizableResourceString(nameof(Resources.SMA8030_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8030_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
@@ -23,7 +24,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8030_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        private static readonly DiagnosticDescriptor Rule_StateChangeInEarlyReturn = new(
+            RuleId_StateChangeInEarlyReturn,
+            new LocalizableResourceString(nameof(Resources.SMA8031_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8031_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA8031_Description), Resources.ResourceManager, typeof(Resources)));
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, Rule_StateChangeInEarlyReturn);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -75,6 +85,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
                     else
                     {
+                        CheckStateChangeInEarlyReturnIf(context, ifStmt);
+
                         if (ContainsBranch(ifStmt))
                         {
                             hasDeclarationInCurrentSequence = false;
@@ -90,6 +102,88 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     isMainFlowStarted = true;
                 }
             }
+        }
+
+        private static void CheckStateChangeInEarlyReturnIf(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
+        {
+            if (ifStmt.Statement is BlockSyntax ifBlock)
+            {
+                CheckEarlyReturnBlock(context, ifBlock);
+            }
+
+            if (ifStmt.Else != null)
+            {
+                if (ifStmt.Else.Statement is IfStatementSyntax elseIf)
+                {
+                    CheckStateChangeInEarlyReturnIf(context, elseIf);
+                }
+                else if (ifStmt.Else.Statement is BlockSyntax elseBlock)
+                {
+                    CheckEarlyReturnBlock(context, elseBlock);
+                }
+            }
+        }
+
+        private static void CheckEarlyReturnBlock(SyntaxNodeAnalysisContext context, BlockSyntax block)
+        {
+            bool hasDisallowedStatement = false;
+
+            foreach (var statement in block.Statements)
+            {
+                var branchLoc = GetBranchLocation(statement);
+                if (branchLoc != null)
+                {
+                    if (hasDisallowedStatement)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_StateChangeInEarlyReturn, branchLoc));
+                    }
+                    break;
+                }
+
+                if (statement is EmptyStatementSyntax)
+                {
+                    continue;
+                }
+                else if (statement is LocalDeclarationStatementSyntax)
+                {
+                    continue;
+                }
+                else if (statement is ExpressionStatementSyntax exprStmt)
+                {
+                    if (exprStmt.Expression is AssignmentExpressionSyntax assign &&
+                        (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign)))
+                    {
+                        continue;
+                    }
+                }
+
+                hasDisallowedStatement = true;
+            }
+        }
+
+        private static Location? GetBranchLocation(SyntaxNode node)
+        {
+            return node switch
+            {
+                ReturnStatementSyntax returnStmt => returnStmt.ReturnKeyword.GetLocation(),
+                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword.GetLocation(),
+                ContinueStatementSyntax continueStmt => continueStmt.ContinueKeyword.GetLocation(),
+                BreakStatementSyntax breakStmt => breakStmt.BreakKeyword.GetLocation(),
+                GotoStatementSyntax gotoStmt => gotoStmt.GotoKeyword.GetLocation(),
+                ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
+                _ => null,
+            };
+        }
+
+        private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, AssignmentExpressionSyntax assign)
+        {
+            if (assign.Left is TupleExpressionSyntax)
+            {
+                return false;
+            }
+
+            var symbol = context.SemanticModel.GetSymbolInfo(assign.Left).Symbol;
+            return symbol is IParameterSymbol param && param.RefKind == RefKind.Out;
         }
 
         private static bool IsTupleDeclaration(AssignmentExpressionSyntax syntax)
