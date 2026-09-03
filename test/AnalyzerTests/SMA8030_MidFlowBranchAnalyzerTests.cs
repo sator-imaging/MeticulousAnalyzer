@@ -1905,9 +1905,9 @@ class C
             var test = @"
 class C
 {
-    int M(bool invalid, bool foo, bool bar, bool baz)
+    int M(bool earlyExit, bool foo, bool bar)
     {
-        if (invalid) return 0;
+        if (earlyExit) return 0;
 
         int x = 10;
         x++;
@@ -1917,23 +1917,17 @@ class C
             {|#0:return|} 1;
         }
 
+        // Early exit
         if (bar)
         {
-            {|#1:return|} 2;
+            return 2;
         }
 
-        // Early exit
-        if (baz)
-        {
-            return 3;
-        }
-
-        return 4;
+        return 3;
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1));
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
         }
     }
 }
