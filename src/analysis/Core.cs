@@ -411,13 +411,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 ;
         }
 
-        internal static SyntaxTrivia GetFirstSingleLineCommentTrivia(SyntaxNode? node)
+        internal static SyntaxTrivia GetFirstSingleLineCommentTrivia(SyntaxNode node)
         {
-            if (node == null)
-            {
-                return default;
-            }
-
             foreach (var trivia in node.GetFirstToken().LeadingTrivia)
             {
                 if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
@@ -434,8 +429,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// </param>
         internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment, bool isDiscardOperation = false)
         {
-            SyntaxTrivia comment = default;
-
             if (node is LocalDeclarationStatementSyntax
                      // Allow suppression comment "Don't dispose" on field declaration
                      or BaseFieldDeclarationSyntax
@@ -446,14 +439,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
-                comment = GetFirstSingleLineCommentTrivia(node);
+                var comment = GetFirstSingleLineCommentTrivia(node);
+
+                // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
+                // Checking Length is enough and efficient.
+                Debug.Assert(suppressionComment.Length > 0);
+                return comment.Span.Length >= suppressionComment.Length
+                    && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
             }
 
-            // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
-            // Checking Length is enough and efficient.
-            Debug.Assert(suppressionComment.Length > 0);
-            return comment.Span.Length >= suppressionComment.Length
-                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+            return false;
         }
 
         internal static string GetPrecedingComments(SyntaxNode? node)

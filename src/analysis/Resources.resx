@@ -649,7 +649,7 @@
   </data>
   <data name="SMA8000__MD_DESC__" xml:space="preserve">
     <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
-&gt; Suppression comment: `// Ignore exception: Reason (required)`, `// Early exit`</value>
+&gt; Suppression comments: `// Ignore exception: Reason (required)`, `// Early exit [Reason(Optional)]`</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Reliability and Maintainability Analysis</value>
@@ -757,7 +757,7 @@
     <value>Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.</value>
   </data>
   <data name="SMA8030_MessageFormat" xml:space="preserve">
-    <value>Avoid using an if-only statement to exit in the middle of the main control flow. Instead use a complete `if-else` statement or extract methods to clarify the control flow. Can suppress with comment `// Early exit`</value>
+    <value>Avoid using an if-only statement to exit in the middle of the main control flow. Instead use a complete `if-else` statement or extract methods to clarify the control flow. Can suppress with comment `// Early exit [Reason(optional)]`</value>
   </data>
   <data name="SMA8030_Title" xml:space="preserve">
     <value>Mid-flow Branch</value>

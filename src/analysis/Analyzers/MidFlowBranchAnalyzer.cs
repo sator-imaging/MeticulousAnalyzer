@@ -114,8 +114,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static bool HasEarlyExitSuppression(IfStatementSyntax ifStmt)
         {
             var comment = Core.GetFirstSingleLineCommentTrivia(ifStmt);
-            return comment.Span.Length >= SuppressionComment.Length &&
-                   comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
+
+            // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
+            // Checking Length is enough and efficient.
+            return comment.Span.Length >= SuppressionComment.Length
+                && comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static void CheckStateChangeInEarlyReturnIf(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
