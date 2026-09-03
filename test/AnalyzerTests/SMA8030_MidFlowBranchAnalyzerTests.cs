@@ -1750,6 +1750,7 @@ class C
     int M(bool earlyExit, bool foo)
     {
         var x = 1;
+        var y = 2;
         if (earlyExit) return 0;
 
         var z = 10;
