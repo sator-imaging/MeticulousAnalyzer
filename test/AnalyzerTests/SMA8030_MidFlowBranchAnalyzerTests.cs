@@ -1956,5 +1956,26 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Violation_IfWithoutElse()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool foo)
+    {
+        if (foo)
+        {
+            Console.WriteLine(""foo"");
+            {|#0:return|};
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
