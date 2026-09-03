@@ -80,7 +80,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8031_Violation_ElseIfAndElseBlocks()
+        public async Task SMA8031_Violation_MultipleEarlyReturnIfBlocks()
         {
             var test = @"
 class C
@@ -92,15 +92,11 @@ class C
             x = 1;
             {|#0:return|} 1;
         }
-        else if (cond2)
+
+        if (cond2)
         {
             x = 2;
             {|#1:return|} 2;
-        }
-        else
-        {
-            x = 3;
-            {|#2:return|} 3;
         }
 
         return 0;
@@ -108,8 +104,7 @@ class C
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(1);
-            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(2);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]

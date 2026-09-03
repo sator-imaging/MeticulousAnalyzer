@@ -1684,7 +1684,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_EarlyReturn_IncompleteIf()
+        public async Task SMA8030_Violation_EarlyReturn_IncompleteIf()
         {
             var test = @"
 class C
@@ -1697,7 +1697,7 @@ class C
         }
         else
         {
-            return;
+            {|#0:return|};
         }
 
         int x = 1;
@@ -1712,7 +1712,7 @@ class C
         }
         else if (bar)
         {
-            return;
+            {|#1:return|};
         }
 
         int x = 1;
@@ -1731,14 +1731,17 @@ class C
         }
         else
         {
-            return;
+            {|#2:return|};
         }
 
         int x = 1;
         x++;
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
@@ -1928,6 +1931,30 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_IfWithElseMarksMainFlow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool foo)
+    {
+        if (foo)
+        {
+            Console.WriteLine(""foo"");
+            return;
+        }
+        else
+        {
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
