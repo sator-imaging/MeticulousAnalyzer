@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.2.0-rc.9](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.9) (2026-09-03)
+
+### ✨ Bug Fixes
+* Update MidFlowBranchAnalyzer to mark main flow when if statement has else clause by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#594](https://github.com/sator-imaging/MeticulousAnalyzer/pull/594)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.8...v5.2.0-rc.9
+
+
 ## [5.2.0-rc.8](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.8) (2026-09-03)
 
 ### 🚀 Features
