@@ -402,12 +402,35 @@ using System;
 
 class C
 {
+    void DoWork() { }
+
     void M(string? str)
     {
-        if (str == null)
+        DoWork();
+        str = str ?? throw new ArgumentNullException(nameof(str));
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Violation_CoalesceThrowInMidFlowIfBlock()
         {
-            string s = str ?? throw new ArgumentNullException(nameof(str));
-            return;
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(bool foo, string? str)
+    {
+        DoWork();
+
+        if (foo)
+        {
+            DoWork();
+            str = str ?? throw new ArgumentNullException(nameof(str));
         }
     }
 }";

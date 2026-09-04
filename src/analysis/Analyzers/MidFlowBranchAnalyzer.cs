@@ -178,7 +178,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 else if (statement is ExpressionStatementSyntax exprStmt)
                 {
                     if (exprStmt.Expression is AssignmentExpressionSyntax assign &&
-                        (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign) || ContainsThrowInCoalesce(assign.Right)))
+                        (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign)))
                     {
                         continue;
                     }
@@ -225,19 +225,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
                 _ => null,
             };
-        }
-
-        private static bool ContainsThrowInCoalesce(ExpressionSyntax expression)
-        {
-            if (expression is BinaryExpressionSyntax binary && binary.IsKind(SyntaxKind.CoalesceExpression))
-            {
-                if (binary.Right is not ThrowExpressionSyntax)
-                {
-                    return ContainsThrowInCoalesce(binary.Right);
-                }
-                return true;
-            }
-            return false;
         }
 
         private static bool IsOutParameterAssignment(SyntaxNodeAnalysisContext context, AssignmentExpressionSyntax assign)
