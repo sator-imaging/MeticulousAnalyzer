@@ -393,5 +393,25 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_CoalesceThrowInAssignment()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void M(string? str)
+    {
+        if (str == null)
+        {
+            string s = str ?? throw new ArgumentNullException(nameof(str));
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
