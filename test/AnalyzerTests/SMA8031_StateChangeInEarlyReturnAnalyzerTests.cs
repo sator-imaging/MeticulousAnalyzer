@@ -321,15 +321,16 @@ class C
     {
         if (cond)
         {
-            int val = 42;
-            Console.Write(""a"");
-            return val;
+            var msg = cond ? ""Foo"" : ""Bar"";
+            int idx = msg.IndexOf('o');
+            Console.Write(msg[..(idx >= 0 ? idx : msg.Length)]);
+            return {|#0:val|};
         }
 
         return 0;
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test, Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS0103").WithLocation(0));
         }
 
         [TestMethod]
@@ -365,7 +366,7 @@ class C
         if (cond)
         {
             string msg = ""error"";
-            Console.Write(msg);
+            Console.Error.Write(msg);
             throw new InvalidOperationException(msg);
         }
     }
@@ -385,7 +386,7 @@ class C
     {
         if (cond)
         {
-            Console.Write(""a"");
+            Console.Error.Write(""a"");
             throw new InvalidOperationException();
         }
     }

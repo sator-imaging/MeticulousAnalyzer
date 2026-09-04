@@ -196,20 +196,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsMethodCall(ExpressionSyntax expression)
         {
-            var unwrapped = expression.UnwrapParentheses();
-            if (unwrapped is InvocationExpressionSyntax)
+            if (expression is InvocationExpressionSyntax)
             {
                 return true;
             }
-            if (unwrapped is AwaitExpressionSyntax awaitExpr)
+
+            if (expression is not AwaitExpressionSyntax awaitExpr)
             {
-                return IsMethodCall(awaitExpr.Expression);
+                return false;
             }
-            if (unwrapped is ConditionalAccessExpressionSyntax condAccess)
-            {
-                return IsMethodCall(condAccess.WhenNotNull);
-            }
-            return false;
+
+            return IsMethodCall(awaitExpr.Expression);
         }
 
         private static Location? GetBranchLocation(SyntaxNode node)
