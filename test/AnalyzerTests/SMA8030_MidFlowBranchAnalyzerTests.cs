@@ -1978,5 +1978,28 @@ class C
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_EarlyExitMarkerInMainFlow()
+        {
+            var test = @"
+class C
+{
+    int M(bool foo)
+    {
+        int x = 10;
+        x++;
+
+        // Early exit
+        if (foo)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
