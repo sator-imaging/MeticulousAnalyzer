@@ -223,6 +223,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 BreakStatementSyntax breakStmt => breakStmt.BreakKeyword.GetLocation(),
                 GotoStatementSyntax gotoStmt => gotoStmt.GotoKeyword.GetLocation(),
                 ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
+                ThrowExpressionSyntax throwExpr => throwExpr.ThrowKeyword.GetLocation(),
                 _ => null,
             };
         }
@@ -269,12 +270,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ContainsBranch(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 return true;
 
             foreach (var descendant in node.DescendantNodes(static x => ShouldDescendInto(x)))
             {
-                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
                 {
                     return true;
                 }
@@ -353,6 +354,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
             }
+            else if (node is ThrowExpressionSyntax throwExpr)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
+            }
         }
 
         private static bool AllBranchesBranch(IfStatementSyntax ifStmt)
@@ -397,6 +402,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static bool StatementGuaranteesBranch(StatementSyntax statement)
         {
             if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+                return true;
+
+            if (statement.DescendantNodes(static x => ShouldDescendInto(x)).Any(d => d is ThrowExpressionSyntax))
                 return true;
 
             if (statement is IfStatementSyntax innerIf)

@@ -414,7 +414,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8031_Violation_CoalesceThrowInMidFlowIfBlock()
+        public async Task SMA8030_Violation_CoalesceThrowInMidFlowIfBlock()
         {
             var test = @"#nullable enable
 using System;
@@ -429,12 +429,12 @@ class C
 
         if (foo)
         {
-            DoWork();
-            str = str ?? throw new ArgumentNullException(nameof(str));
+            str = str ?? {|#0:throw|} new ArgumentNullException(nameof(str));
         }
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }
