@@ -68,8 +68,8 @@ class C
     {
         if (cond)
         {
-            Console.Write(""a"");
-            Console.Write(""b"");
+            Console.Write(""Up to 1 method call is allowed in early exit block."");
+            Console.Write(""2nd call is not allowed."");
             {|#0:return|} 0;
         }
 
@@ -345,7 +345,7 @@ class C
     {
         if (cond)
         {
-            Console.Write(""a"");
+            Console.Write(""Up to 1 method call is allowed in early exit block."");
             return;
         }
     }
@@ -365,7 +365,7 @@ class C
     {
         if (cond)
         {
-            string msg = ""error"";
+            string msg = ""Up to 1 method call is allowed in early exit block."";
             Console.Error.Write(msg);
             throw new InvalidOperationException(msg);
         }
@@ -386,7 +386,7 @@ class C
     {
         if (cond)
         {
-            Console.Error.Write(""a"");
+            Console.Error.Write(""Up to 1 method call is allowed in early exit block."");
             throw new InvalidOperationException();
         }
     }
