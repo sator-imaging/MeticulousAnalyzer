@@ -754,19 +754,19 @@
     <value>Literal branch char</value>
   </data>
   <data name="SMA8030_Description" xml:space="preserve">
-    <value>Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.</value>
+    <value>Avoid inserting a control flow exit into the middle of the main flow unless it has exits in all code paths.</value>
   </data>
   <data name="SMA8030_MessageFormat" xml:space="preserve">
-    <value>Avoid using an if-only statement to exit in the middle of the main control flow. Instead use a complete `if-else` statement or extract methods to clarify the control flow. Can suppress with comment `// Early exit [Reason(optional)]`</value>
+    <value>Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue` in the middle of the main control flow. Instead, use a complete `if-else` statements without, or with exits in all code paths, or extract methods to clarify the control flow. If `if-only` statement is not detected as early exit block unexpectedly, add marker comment before `if` keyword to avoid error: `// Early exit [Description(optional)]`</value>
   </data>
   <data name="SMA8030_Title" xml:space="preserve">
-    <value>Mid-flow Branch</value>
+    <value>Incomplete Mid-Flow Branch</value>
   </data>
   <data name="SMA8031_Description" xml:space="preserve">
     <value>Early exit block should not contain state-changing operations before exiting.</value>
   </data>
   <data name="SMA8031_MessageFormat" xml:space="preserve">
-    <value>Avoid state changes in early exit block. Up to 1 method call is allowed.</value>
+    <value>Avoid state changes in the early exit block. Declarations of local variables and up to 1 method call that is not expected to have any side effects are permitted. Use a helper method to combine multiple method calls into one and decrease the number of calls.</value>
   </data>
   <data name="SMA8031_Title" xml:space="preserve">
     <value>State Change in Early Exit</value>

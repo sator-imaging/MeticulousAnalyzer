@@ -15,7 +15,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         public const string RuleId_MidFlowBranch = "SMA8030";
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
 
-        private const string SuppressionComment = "// Early exit";
+        private const string MarkerComment = "// Early exit";
 
         private static readonly DiagnosticDescriptor Rule = new(
             RuleId_MidFlowBranch,
@@ -90,7 +90,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                     if (isMainFlowStarted)
                     {
-                        if (!HasEarlyExitSuppression(ifStmt))
+                        if (!HasEarlyExitMarker(ifStmt))
                         {
                             CheckAndReportMidFlowBranches(context, ifStmt);
                         }
@@ -116,14 +116,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool HasEarlyExitSuppression(IfStatementSyntax ifStmt)
+        private static bool HasEarlyExitMarker(IfStatementSyntax ifStmt)
         {
             var comment = Core.GetFirstSingleLineCommentTrivia(ifStmt);
 
             // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
             // Checking Length is enough and efficient.
-            return comment.Span.Length >= SuppressionComment.Length
-                && comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
+            return comment.Span.Length >= MarkerComment.Length
+                && comment.ToString().StartsWith(MarkerComment, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static void CheckStateChangeInEarlyReturnIf(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)

@@ -1794,7 +1794,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_SuppressionComment_EarlyExit()
+        public async Task SMA8030_Compliant_MarkerComment_EarlyExit()
         {
             var test = @"
 class C
@@ -1819,7 +1819,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_SuppressionComment_CaseInsensitive()
+        public async Task SMA8030_Compliant_MarkerComment_CaseInsensitive()
         {
             var test = @"
 class C
@@ -1850,7 +1850,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_SuppressionComment_WhitespaceMismatch()
+        public async Task SMA8030_Violation_MarkerComment_WhitespaceMismatch()
         {
             var test = @"
 class C
@@ -1876,7 +1876,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_SuppressionComment_NotFirstComment()
+        public async Task SMA8030_Violation_MarkerComment_NotFirstComment()
         {
             var test = @"
 class C
