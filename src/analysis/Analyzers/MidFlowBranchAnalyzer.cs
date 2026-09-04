@@ -94,10 +94,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                     if (isMainFlowStarted)
                     {
-                        if (!HasEarlyExitMarker(ifStmt))
-                        {
-                            CheckAndReportMidFlowBranches(context, ifStmt);
-                        }
+                        CheckAndReportMidFlowBranches(context, ifStmt);
                     }
                     else
                     {
