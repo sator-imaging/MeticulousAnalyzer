@@ -218,12 +218,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return node switch
             {
                 ReturnStatementSyntax returnStmt => returnStmt.ReturnKeyword.GetLocation(),
-                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword.GetLocation(),
+                ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
+                ThrowExpressionSyntax throwExpr => throwExpr.ThrowKeyword.GetLocation(),
                 ContinueStatementSyntax continueStmt => continueStmt.ContinueKeyword.GetLocation(),
                 BreakStatementSyntax breakStmt => breakStmt.BreakKeyword.GetLocation(),
                 GotoStatementSyntax gotoStmt => gotoStmt.GotoKeyword.GetLocation(),
-                ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
-                ThrowExpressionSyntax throwExpr => throwExpr.ThrowKeyword.GetLocation(),
+                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword.GetLocation(),
                 _ => null,
             };
         }
