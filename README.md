@@ -673,7 +673,7 @@ foreach (var item in items)
 ```
 
 > [!TIP]
-> If an else-less `if` statement is unexpectedly detected as a mid-flow branch, you can place a comment starting with `// Early exit` (e.g., `// Early exit: reason`) immediately before the `if` keyword to treat it as an early exit block.
+> If an else-less `if` statement is unexpectedly detected as a mid-flow branch, you can place a comment starting with `// Early exit` (e.g., `// Early exit: Description (optional)`) immediately before the `if` keyword to treat it as an early exit block.
 
 
 

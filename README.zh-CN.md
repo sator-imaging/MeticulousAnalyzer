@@ -673,7 +673,7 @@ foreach (var item in items)
 ```
 
 > [!TIP]
-> 如果无 `else` 的 `if` 语句被意外检测为中途分支，可以在 `if` 关键字前添加以 `// Early exit` 开头的注释（例如 `// Early exit: 原因`）将其标记为早期退出块。
+> 如果无 `else` 的 `if` 语句被意外检测为中途分支，可以在 `if` 关键字前添加以 `// Early exit` 开头的注释（例如 `// Early exit: 说明（可选）`）将其标记为早期退出块。
 
 
 
