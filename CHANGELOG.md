@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.2.0-rc.11](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.11) (2026-09-04)
+
+### ✨ Bug Fixes
+* Remove redundant HasEarlyExitMarker check in `MidFlowBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#602](https://github.com/sator-imaging/MeticulousAnalyzer/pull/602)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.10...v5.2.0-rc.11
+
+
 ## [5.2.0-rc.10](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.10) (2026-09-04)
 
 ### 🚀 Features
