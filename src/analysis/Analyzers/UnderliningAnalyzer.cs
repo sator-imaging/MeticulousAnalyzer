@@ -40,7 +40,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9000_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9000_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineLocalVar = "SMA9001";
         private static readonly DiagnosticDescriptor Rule_UnderlineLocalVar = new(
@@ -50,7 +50,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9001_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9001_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineParameter = "SMA9002";
         private static readonly DiagnosticDescriptor Rule_UnderlineParameter = new(
@@ -60,7 +60,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9002_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9002_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineDeclaration = "SMA9010";
         private static readonly DiagnosticDescriptor Rule_UnderlineDeclaration = new(
@@ -70,7 +70,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9010_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9010_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineDesignatedType = "SMA9015";
         private static readonly DiagnosticDescriptor Rule_UnderlineDesignatedType = new(
@@ -80,7 +80,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9015_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9015_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
 
         // line annotators
@@ -92,7 +92,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9020_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9020_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineLineLeading = "SMA9021";
         private static readonly DiagnosticDescriptor Rule_UnderlineLineLeading = new(
@@ -102,7 +102,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9021_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9021_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineLineFill = "SMA9022";
         private static readonly DiagnosticDescriptor Rule_UnderlineLineFill = new(
@@ -112,7 +112,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9022_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9022_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_UnderlineLineEnd = "SMA9023";
         private static readonly DiagnosticDescriptor Rule_UnderlineLineEnd = new(
@@ -122,7 +122,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9023_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9023_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
 
         //warning!!
@@ -134,7 +134,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(UnderliningAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA9100_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA9100_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         #endregion
 

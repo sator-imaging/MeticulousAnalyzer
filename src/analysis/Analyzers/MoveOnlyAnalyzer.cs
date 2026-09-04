@@ -29,7 +29,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0090_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0090_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_InvalidTypeDeclaration = new(
             RuleId_InvalidTypeDeclaration,
@@ -38,7 +38,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0093_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0093_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedCopy = "SMA0091";
         public const string RuleId_NoCopyValueCopy = RuleId_ProhibitedCopy;
@@ -49,7 +49,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0091_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0091_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedRefOutInAsync = "SMA0092";
         public const string RuleId_AsyncRefOutNoCopy = RuleId_ProhibitedRefOutInAsync;
@@ -60,7 +60,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0092_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0092_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedCast = "SMA0094";
         private static readonly DiagnosticDescriptor Rule_ProhibitedCast = new(
@@ -70,7 +70,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0094_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0094_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedLambdaCapture = "SMA0095";
         private static readonly DiagnosticDescriptor Rule_ProhibitedLambdaCapture = new(
@@ -80,7 +80,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0095_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0095_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedOutParameter = "SMA0096";
         private static readonly DiagnosticDescriptor Rule_ProhibitedOutParameter = new(
@@ -90,7 +90,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0096_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0096_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         public const string RuleId_ProhibitedReturn = "SMA0097";
         private static readonly DiagnosticDescriptor Rule_ProhibitedReturn = new(
@@ -100,7 +100,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0097_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0097_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
         #endregion
 

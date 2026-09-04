@@ -33,7 +33,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0060_MessageFormat", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyParameter = new(
             RuleId_ReadOnlyParameter,
@@ -42,7 +42,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0061_MessageFormat", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyArgument = new(
             RuleId_ReadOnlyArgument,
@@ -51,7 +51,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0062_MessageFormat", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_PropertyAccessCanChangeState = new(
             RuleId_PropertyAccessCanChangeState,
@@ -60,7 +60,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0063_MessageFormat", Resources.ResourceManager, typeof(Resources)));
 
         private static readonly DiagnosticDescriptor Rule_ReadOnlyMethodCall = new(
             RuleId_ReadOnlyMethodCall,
@@ -69,7 +69,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReadOnlyVariableAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: IsEnabledByDefault,
-            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_Description", Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameOfLocalizableResource: "SMA0064_MessageFormat", Resources.ResourceManager, typeof(Resources)));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
 #if STMG_DEBUG_MESSAGE
