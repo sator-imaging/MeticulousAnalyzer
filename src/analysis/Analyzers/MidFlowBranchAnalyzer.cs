@@ -270,12 +270,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ContainsBranch(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+            if (node is ReturnStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
                 return true;
 
             foreach (var descendant in node.DescendantNodes(static x => ShouldDescendInto(x)))
             {
-                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+                if (descendant is ReturnStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
                 {
                     return true;
                 }
@@ -334,9 +334,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, returnStmt.ReturnKeyword.GetLocation()));
             }
-            else if (node is YieldStatementSyntax yieldStmt)
+            else if (node is ThrowStatementSyntax throwStmt)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, yieldStmt.YieldKeyword.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
+            }
+            else if (node is ThrowExpressionSyntax throwExpr)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
             }
             else if (node is ContinueStatementSyntax continueStmt)
             {
@@ -350,13 +354,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, gotoStmt.GotoKeyword.GetLocation()));
             }
-            else if (node is ThrowStatementSyntax throwStmt)
+            else if (node is YieldStatementSyntax yieldStmt)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
-            }
-            else if (node is ThrowExpressionSyntax throwExpr)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(Rule, yieldStmt.YieldKeyword.GetLocation()));
             }
         }
 
