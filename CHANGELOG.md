@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.2.0-rc.10](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.10) (2026-09-04)
+
+### 🚀 Features
+* feat: Allow up to 1 method call on early exit in `SMA8031` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#598](https://github.com/sator-imaging/MeticulousAnalyzer/pull/598)
+* Update `MidFlowBranch` analyzer implementation and docs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#599](https://github.com/sator-imaging/MeticulousAnalyzer/pull/599)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.9...v5.2.0-rc.10
+
+
 ## [5.2.0-rc.9](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.9) (2026-09-03)
 
 ### ✨ Bug Fixes
