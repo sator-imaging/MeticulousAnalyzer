@@ -231,11 +231,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             if (expression is BinaryExpressionSyntax binary && binary.IsKind(SyntaxKind.CoalesceExpression))
             {
-                if (binary.Right is ThrowExpressionSyntax)
+                if (binary.Right is not ThrowExpressionSyntax)
                 {
-                    return true;
+                    return ContainsThrowInCoalesce(binary.Right);
                 }
-                return ContainsThrowInCoalesce(binary.Right);
+                return true;
             }
             return false;
         }
