@@ -766,7 +766,7 @@
     <value>Early exit block should not contain state-changing operations before exiting.</value>
   </data>
   <data name="SMA8031_MessageFormat" xml:space="preserve">
-    <value>Avoid state changes in early exit block.</value>
+    <value>Avoid state changes in early exit block. Up to 1 method call is allowed.</value>
   </data>
   <data name="SMA8031_Title" xml:space="preserve">
     <value>State Change in Early Exit</value>

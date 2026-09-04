@@ -60,15 +60,16 @@ class C
         public async Task SMA8031_Violation_MethodCallBeforeEarlyReturn()
         {
             var test = @"
+using System;
+
 class C
 {
-    void DoWork() { }
-
     int M(bool cond)
     {
         if (cond)
         {
-            DoWork();
+            Console.Write(""Up to 1 method call is allowed in early exit block."");
+            Console.Write(""2nd call is not allowed."");
             {|#0:return|} 0;
         }
 
@@ -303,6 +304,91 @@ class C
         }
 
         int a = 1;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_LocalVarAndSingleConsoleWriteBeforeReturn()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int M(bool cond)
+    {
+        if (cond)
+        {
+            var msg = cond ? ""Foo"" : ""Bar"";
+            int idx = msg.IndexOf('o');
+            Console.Write(msg[..(idx >= 0 ? idx : msg.Length)]);
+            return idx;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_SingleConsoleWriteBeforeReturn()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        if (cond)
+        {
+            Console.Write(""Up to 1 method call is allowed in early exit block."");
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_LocalVarAndSingleConsoleWriteBeforeThrow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        if (cond)
+        {
+            string msg = ""Up to 1 method call is allowed in early exit block."";
+            Console.Error.Write(msg);
+            throw new InvalidOperationException(msg);
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_SingleConsoleWriteBeforeThrow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        if (cond)
+        {
+            Console.Error.Write(""Up to 1 method call is allowed in early exit block."");
+            throw new InvalidOperationException();
+        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);

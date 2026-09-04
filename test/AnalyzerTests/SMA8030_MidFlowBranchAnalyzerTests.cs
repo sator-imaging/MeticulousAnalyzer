@@ -1970,6 +1970,7 @@ class C
         if (foo)
         {
             Console.WriteLine(""foo"");
+            Console.WriteLine(""bar"");
             {|#0:return|};
         }
     }
