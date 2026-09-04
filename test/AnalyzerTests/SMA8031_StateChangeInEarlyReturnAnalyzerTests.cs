@@ -324,13 +324,13 @@ class C
             var msg = cond ? ""Foo"" : ""Bar"";
             int idx = msg.IndexOf('o');
             Console.Write(msg[..(idx >= 0 ? idx : msg.Length)]);
-            return {|#0:val|};
+            return idx;
         }
 
         return 0;
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test, Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS0103").WithLocation(0));
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
