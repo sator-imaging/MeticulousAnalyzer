@@ -393,5 +393,48 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_CoalesceThrowInAssignment()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(string? str)
+    {
+        DoWork();
+        str = str ?? throw new ArgumentNullException(nameof(str));
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_CoalesceThrowInMidFlowIfBlock()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(bool foo, string? str)
+    {
+        DoWork();
+
+        if (foo)
+        {
+            str = str ?? {|#0:throw|} new ArgumentNullException(nameof(str));
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }

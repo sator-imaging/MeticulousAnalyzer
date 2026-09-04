@@ -148,7 +148,8 @@ Provides rules and assistance to improve runtime efficiency, avoid delegate allo
 ## Reliability and Maintainability Analysis
 
 Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
-> Suppression comments: `// Ignore exception: Reason (required)`, `// Early exit [Reason(Optional)]`
+> Suppression comment: `// Ignore exception: Reason (required)`
+> Marker comment: `// Early exit [Description(optional)]`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
@@ -166,7 +167,7 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | SMA8022 | Literal branch string                                            | Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).
 | SMA8023 | Literal branch char                                              | Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).
 | | | |
-| SMA8030 | Mid-flow Branch                                                  | Avoid mid-flow branches. Early returns are fine, but don't introduce a new control flow branch in the middle of the main flow.
+| SMA8030 | Incomplete Mid-Flow Branch                                       | Avoid inserting a control flow exit into the middle of the main flow unless it has exits in all code paths.
 | SMA8031 | State Change in Early Exit                                       | Early exit block should not contain state-changing operations before exiting.
 
 ## `Obsolete` Annotating and Underling

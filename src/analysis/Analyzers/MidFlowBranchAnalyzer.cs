@@ -15,7 +15,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         public const string RuleId_MidFlowBranch = "SMA8030";
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
 
-        private const string SuppressionComment = "// Early exit";
+        private const string MarkerComment = "// Early exit";
 
         private static readonly DiagnosticDescriptor Rule = new(
             RuleId_MidFlowBranch,
@@ -87,10 +87,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     {
                         isMainFlowStarted = true;
                     }
+                    else if (HasEarlyExitMarker(ifStmt))  // Marker is valid only on else-less statement
+                    {
+                        isMainFlowStarted = false;
+                    }
 
                     if (isMainFlowStarted)
                     {
-                        if (!HasEarlyExitSuppression(ifStmt))
+                        if (!HasEarlyExitMarker(ifStmt))
                         {
                             CheckAndReportMidFlowBranches(context, ifStmt);
                         }
@@ -116,14 +120,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool HasEarlyExitSuppression(IfStatementSyntax ifStmt)
+        private static bool HasEarlyExitMarker(IfStatementSyntax ifStmt)
         {
             var comment = Core.GetFirstSingleLineCommentTrivia(ifStmt);
 
             // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
             // Checking Length is enough and efficient.
-            return comment.Span.Length >= SuppressionComment.Length
-                && comment.ToString().StartsWith(SuppressionComment, System.StringComparison.OrdinalIgnoreCase);
+            return comment.Span.Length >= MarkerComment.Length
+                && comment.ToString().StartsWith(MarkerComment, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static void CheckStateChangeInEarlyReturnIf(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)
@@ -214,11 +218,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return node switch
             {
                 ReturnStatementSyntax returnStmt => returnStmt.ReturnKeyword.GetLocation(),
-                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword.GetLocation(),
+                ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
+                ThrowExpressionSyntax throwExpr => throwExpr.ThrowKeyword.GetLocation(),
                 ContinueStatementSyntax continueStmt => continueStmt.ContinueKeyword.GetLocation(),
                 BreakStatementSyntax breakStmt => breakStmt.BreakKeyword.GetLocation(),
                 GotoStatementSyntax gotoStmt => gotoStmt.GotoKeyword.GetLocation(),
-                ThrowStatementSyntax throwStmt => throwStmt.ThrowKeyword.GetLocation(),
+                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword.GetLocation(),
                 _ => null,
             };
         }
@@ -265,12 +270,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool ContainsBranch(SyntaxNode node)
         {
-            if (node is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+            if (node is ReturnStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
                 return true;
 
             foreach (var descendant in node.DescendantNodes(static x => ShouldDescendInto(x)))
             {
-                if (descendant is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+                if (descendant is ReturnStatementSyntax or ThrowStatementSyntax or ThrowExpressionSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
                 {
                     return true;
                 }
@@ -329,9 +334,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, returnStmt.ReturnKeyword.GetLocation()));
             }
-            else if (node is YieldStatementSyntax yieldStmt)
+            else if (node is ThrowStatementSyntax throwStmt)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, yieldStmt.YieldKeyword.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
+            }
+            else if (node is ThrowExpressionSyntax throwExpr)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
             }
             else if (node is ContinueStatementSyntax continueStmt)
             {
@@ -345,9 +354,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, gotoStmt.GotoKeyword.GetLocation()));
             }
-            else if (node is ThrowStatementSyntax throwStmt)
+            else if (node is YieldStatementSyntax yieldStmt)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(Rule, yieldStmt.YieldKeyword.GetLocation()));
             }
         }
 
@@ -392,7 +401,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool StatementGuaranteesBranch(StatementSyntax statement)
         {
-            if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+            if (statement is ReturnStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
+                return true;
+
+            if (statement.DescendantNodes(static x => ShouldDescendInto(x)).Any(d => d is ThrowExpressionSyntax))
                 return true;
 
             if (statement is IfStatementSyntax innerIf)
