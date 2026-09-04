@@ -401,7 +401,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool StatementGuaranteesBranch(StatementSyntax statement)
         {
-            if (statement is ReturnStatementSyntax or YieldStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax)
+            if (statement is ReturnStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
                 return true;
 
             if (statement.DescendantNodes(static x => ShouldDescendInto(x)).Any(d => d is ThrowExpressionSyntax))
