@@ -149,6 +149,7 @@ Provides rules and assistance to improve runtime efficiency, avoid delegate allo
 
 Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
 > Suppression comment: `// Ignore exception: Reason (required)`
+> Suppression comment: `// Allow non-local exit from loop [ Reason (optional) ]`
 > Marker comment: `// Early exit [ Description (optional) ]`
 
 | ID      | Diagnostic                                                       | Description
@@ -169,6 +170,7 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | | | |
 | SMA8030 | Incomplete Mid-Flow Branch                                       | Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue` in the middle of the main control flow. Instead, use a complete `if-else` statements without, or with exits in all code paths, or extract methods to clarify the control flow. If `if-only` statement is not detected as early exit block unexpectedly, add marker comment before `if` keyword to avoid error: `// Early exit [ Description (optional) ]`
 | SMA8031 | State Change in Early Exit                                       | Avoid state changes in the early exit block. Declarations of local variables and up to 1 method call that is not expected to have any side effects are permitted. Use a helper method to combine multiple method calls into one and decrease the number of calls
+| SMA8032 | Non-Local Exit from Loop                                         | Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`
 
 ## `Obsolete` Annotating and Underling
 

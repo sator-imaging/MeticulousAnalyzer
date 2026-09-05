@@ -807,8 +807,9 @@ class C
         }
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -2034,6 +2035,155 @@ class C
         }
 
         return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Violation_NonLocalExitInLoops()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    int ReturnInForLoop(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == 0)
+            {
+                {|#0:return|} i;
+            }
+        }
+        return -1;
+    }
+
+    void ThrowStatementInWhileLoop(bool cond)
+    {
+        while (cond)
+        {
+            {|#1:throw|} new InvalidOperationException();
+        }
+    }
+
+    void ThrowExpressionInForeachLoop(string[] items)
+    {
+        foreach (var item in items)
+        {
+            string s = item ?? {|#2:throw|} new ArgumentNullException();
+        }
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_YieldInLoop()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> YieldInDoWhileLoop(bool cond)
+    {
+        do
+        {
+            yield return 1;
+            yield break;
+        } while (cond);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_NonLocalExitInLoopsSuppressed()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    int ForLoop(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == 0)
+            {
+                // Allow non-local exit from loop
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    int ForeachLoop(int[] items)
+    {
+        foreach (var item in items)
+        {
+            if (item == 0)
+            {
+                // Allow non-local exit from loop [ Early exit when zero is found ]
+                return item;
+            }
+        }
+        return -1;
+    }
+
+    void WhileLoop(ref bool cond)
+    {
+        while (cond)
+        {
+            // allow non-local exit from loop
+            throw new Exception();
+        }
+    }
+
+    IEnumerable<int> YieldLoop(bool cond)
+    {
+        while (cond)
+        {
+            // Allow non-local exit from loop
+            yield return 1;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_NonLocalExitInLambdaOrLocalFunctionInsideLoop()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            Func<int> f = () =>
+            {
+                return i;
+            };
+
+            int LocalFunc()
+            {
+                return i * 2;
+            }
+
+            f();
+            LocalFunc();
+        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);

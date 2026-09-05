@@ -14,8 +14,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     {
         public const string RuleId_MidFlowBranch = "SMA8030";
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
+        public const string RuleId_NonLocalExitFromLoop = "SMA8032";
 
         private const string MarkerComment = "// Early exit";
+        private const string SuppressionComment_NonLocalExitFromLoop = "// Allow non-local exit from loop";
 
         private static readonly DiagnosticDescriptor Rule = new(
             RuleId_MidFlowBranch,
@@ -35,7 +37,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8031_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, Rule_StateChangeInEarlyReturn);
+        private static readonly DiagnosticDescriptor Rule_NonLocalExitFromLoop = new(
+            RuleId_NonLocalExitFromLoop,
+            new LocalizableResourceString(nameof(Resources.SMA8032_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA8032_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA8032_Description), Resources.ResourceManager, typeof(Resources)));
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, Rule_StateChangeInEarlyReturn, Rule_NonLocalExitFromLoop);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -43,6 +54,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeBlock, SyntaxKind.Block);
+            context.RegisterSyntaxNodeAction(AnalyzeNonLocalExitInLoop,
+                SyntaxKind.ReturnStatement,
+                SyntaxKind.ThrowStatement,
+                SyntaxKind.ThrowExpression);
         }
 
         private static void AnalyzeBlock(SyntaxNodeAnalysisContext context)
@@ -115,6 +130,58 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     isMainFlowStarted = true;
                 }
             }
+        }
+
+        private static void AnalyzeNonLocalExitInLoop(SyntaxNodeAnalysisContext context)
+        {
+            if (!IsInsideLoop(context.Node))
+                return;
+
+            if (HasNonLocalExitSuppression(context.Node))
+                return;
+
+            var location = GetBranchLocation(context.Node);
+            if (location != null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule_NonLocalExitFromLoop, location));
+            }
+        }
+
+        private static bool IsInsideLoop(SyntaxNode node)
+        {
+            var current = node.Parent;
+            while (current != null)
+            {
+                if (current is LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax)
+                {
+                    return false;
+                }
+
+                if (current is ForStatementSyntax
+                    or ForEachStatementSyntax
+                    or ForEachVariableStatementSyntax
+                    or WhileStatementSyntax
+                    or DoStatementSyntax)
+                {
+                    return true;
+                }
+
+                current = current.Parent;
+            }
+
+            return false;
+        }
+
+        private static bool HasNonLocalExitSuppression(SyntaxNode node)
+        {
+            SyntaxNode targetNode = node is ThrowExpressionSyntax throwExpr
+                ? throwExpr.FirstAncestorOrSelf<StatementSyntax>() ?? node
+                : node;
+
+            var comment = Core.GetFirstSingleLineCommentTrivia(targetNode);
+
+            return comment.Span.Length >= SuppressionComment_NonLocalExitFromLoop.Length
+                && comment.ToString().StartsWith(SuppressionComment_NonLocalExitFromLoop, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool HasEarlyExitMarker(IfStatementSyntax ifStmt)
