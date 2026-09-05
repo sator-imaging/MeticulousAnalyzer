@@ -650,6 +650,7 @@
   <data name="SMA8000__MD_DESC__" xml:space="preserve">
     <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
 &gt; Suppression comment: `// Ignore exception: Reason (required)`
+&gt; Suppression comment: `// Allow return [ Description (optional) ]`
 &gt; Marker comment: `// Early exit [ Description (optional) ]`</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
@@ -771,6 +772,15 @@
   </data>
   <data name="SMA8031_Title" xml:space="preserve">
     <value>State Change in Early Exit</value>
+  </data>
+  <data name="SMA8032_Description" xml:space="preserve">
+    <value>Avoid `return` statements inside loops. Extract a helper method or use `break`/`continue` instead. Can suppress with comment `// Allow return [ Description (optional) ]`</value>
+  </data>
+  <data name="SMA8032_MessageFormat" xml:space="preserve">
+    <value>Avoid `return` statements inside loops. Extract a helper method or use `break`/`continue` instead. Can suppress with comment `// Allow return [ Description (optional) ]`</value>
+  </data>
+  <data name="SMA8032_Title" xml:space="preserve">
+    <value>Return in Loop</value>
   </data>
   <data name="SMA9000__MD_DESC__" xml:space="preserve">
     <value>Analyzes for IDE underlining and visual annotations.</value>

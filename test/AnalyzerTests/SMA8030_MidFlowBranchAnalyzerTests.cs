@@ -807,8 +807,9 @@ class C
         }
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0));
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -2034,6 +2035,137 @@ class C
         }
 
         return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Violation_ReturnInLoops()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int ForLoop(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == 0)
+            {
+                {|#0:return|} i;
+            }
+        }
+        return -1;
+    }
+
+    int ForeachLoop(int[] items)
+    {
+        foreach (var item in items)
+        {
+            if (item == 0)
+            {
+                {|#1:return|} item;
+            }
+        }
+        return -1;
+    }
+
+    void WhileLoop(ref bool cond)
+    {
+        while (cond)
+        {
+            {|#2:return|};
+        }
+    }
+
+    void DoWhileLoop(ref bool cond)
+    {
+        do
+        {
+            {|#3:return|};
+        } while (cond);
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(2);
+            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(3);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_ReturnInLoopsSuppressed()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    int ForLoop(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == 0)
+            {
+                // Allow return
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    int ForeachLoop(int[] items)
+    {
+        foreach (var item in items)
+        {
+            if (item == 0)
+            {
+                // Allow return [ Early exit when zero is found ]
+                return item;
+            }
+        }
+        return -1;
+    }
+
+    void WhileLoop(ref bool cond)
+    {
+        while (cond)
+        {
+            // allow return
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_ReturnInLambdaOrLocalFunctionInsideLoop()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            Func<int> f = () =>
+            {
+                return i;
+            };
+
+            int LocalFunc()
+            {
+                return i * 2;
+            }
+
+            f();
+            LocalFunc();
+        }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
