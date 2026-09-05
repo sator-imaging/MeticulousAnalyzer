@@ -174,8 +174,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool HasNonLocalExitSuppression(SyntaxNode node)
         {
-            var targetNode = node is ThrowExpressionSyntax throwExpr
-                ? (SyntaxNode?)throwExpr.FirstAncestorOrSelf<StatementSyntax>() ?? node
+            SyntaxNode targetNode = node is ThrowExpressionSyntax throwExpr
+                ? throwExpr.FirstAncestorOrSelf<StatementSyntax>() ?? node
                 : node;
 
             var comment = Core.GetFirstSingleLineCommentTrivia(targetNode);
