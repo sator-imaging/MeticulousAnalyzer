@@ -42,7 +42,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             new LocalizableResourceString(nameof(Resources.SMA8032_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8032_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
-            DiagnosticSeverity.Warning,
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8032_Description), Resources.ResourceManager, typeof(Resources)));
 
@@ -59,8 +59,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 SyntaxKind.ThrowStatement,
                 SyntaxKind.ThrowExpression,
                 SyntaxKind.YieldReturnStatement,
-                SyntaxKind.YieldBreakStatement,
-                SyntaxKind.GotoStatement);
+                SyntaxKind.YieldBreakStatement);
         }
 
         private static void AnalyzeBlock(SyntaxNodeAnalysisContext context)
@@ -177,15 +176,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool HasNonLocalExitSuppression(SyntaxNode node)
         {
-            var comment = Core.GetFirstSingleLineCommentTrivia(node);
-            if (comment == default && node is ThrowExpressionSyntax)
-            {
-                var stmt = node.FirstAncestorOrSelf<StatementSyntax>();
-                if (stmt != null)
-                {
-                    comment = Core.GetFirstSingleLineCommentTrivia(stmt);
-                }
-            }
+            var targetNode = node is ThrowExpressionSyntax throwExpr
+                ? (SyntaxNode?)throwExpr.FirstAncestorOrSelf<StatementSyntax>() ?? node
+                : node;
+
+            var comment = Core.GetFirstSingleLineCommentTrivia(targetNode);
 
             return comment.Span.Length >= SuppressionComment_NonLocalExitFromLoop.Length
                 && comment.ToString().StartsWith(SuppressionComment_NonLocalExitFromLoop, System.StringComparison.OrdinalIgnoreCase);

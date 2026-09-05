@@ -1613,7 +1613,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_EarlyBreakAndGoto()
+        public async Task SMA8030_Compliant_EarlyBreakAndContinue()
         {
             var test = @"
 class C
@@ -1630,18 +1630,16 @@ class C
 
         while (cond1)
         {
-            if (cond2) {|#0:goto|} END;
+            if (cond2) continue;
 
             int y = 0;
             y++;
         }
 
-    END:
         return;
     }
 }";
-            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -2086,24 +2084,13 @@ class C
             {|#4:yield|} break;
         } while (cond);
     }
-
-    void GotoInForLoop(int[] items)
-    {
-        for (int i = 0; i < items.Length; i++)
-        {
-            {|#5:goto|} END;
-        }
-    END:
-        return;
-    }
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
             var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(1);
             var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(2);
             var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(3);
             var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(4);
-            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(5);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
         }
 
         [TestMethod]

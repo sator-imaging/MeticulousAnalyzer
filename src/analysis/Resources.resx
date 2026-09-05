@@ -774,10 +774,10 @@
     <value>State Change in Early Exit</value>
   </data>
   <data name="SMA8032_Description" xml:space="preserve">
-    <value>Avoid non-local exit from the loop. Use local exit instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`</value>
+    <value>Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`</value>
   </data>
   <data name="SMA8032_MessageFormat" xml:space="preserve">
-    <value>Avoid non-local exit from the loop. Use local exit instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`</value>
+    <value>Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`</value>
   </data>
   <data name="SMA8032_Title" xml:space="preserve">
     <value>Non-Local Exit from Loop</value>
