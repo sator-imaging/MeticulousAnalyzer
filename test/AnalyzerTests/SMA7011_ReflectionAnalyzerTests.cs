@@ -24,7 +24,7 @@ namespace Test
     {
         public void M()
         {
-            MethodInfo {|#0:method|} = null;
+            {|#0:MethodInfo|} method = null;
             _ = method;
         }
     }
@@ -49,7 +49,7 @@ namespace Test
 
         public void M()
         {
-            MethodInfo {|#0:a|}, {|#1:b|} = {|#2:GetIt()|};
+            {|#0:{|#1:MethodInfo|}|} a, b = {|#2:GetIt()|};
         }
     }
 }
