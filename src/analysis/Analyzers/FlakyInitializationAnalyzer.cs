@@ -134,7 +134,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var token = context.CancellationToken;
 
             var root = context.SemanticModel.SyntaxTree.GetRoot(token);
-            foreach (var memberDeclStx in root.DescendantNodes(ShouldDescendIntoMemberDeclaration).OfType<MemberDeclarationSyntax>())
+            // TODO: FileScopedNamespaceDeclaration is not available in current Roslyn version
+            //       Filtering with ShouldDescendIntoMemberDeclaration will skip all type declarations in file-scoped namespaces.
+            foreach (var memberDeclStx in root.DescendantNodes(/*static n => ShouldDescendIntoMemberDeclaration(n)*/).OfType<MemberDeclarationSyntax>())
             {
                 if (memberDeclStx is not BaseFieldDeclarationSyntax and not BasePropertyDeclarationSyntax)
                     continue;
@@ -197,7 +199,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         foreach (var dsr in refOpMemberContainingTypeDeclares)
                         {
                             var s = dsr.GetSyntax(token);
-                            foreach (var fieldStx in s.DescendantNodes(ShouldDescendIntoTypeDeclaration).OfType<FieldDeclarationSyntax>())
+                            foreach (var fieldStx in s.DescendantNodes(static n => ShouldDescendIntoTypeDeclaration(n)).OfType<FieldDeclarationSyntax>())
                             {
                                 crossFDSyntaxList.Add(fieldStx);
                             }
