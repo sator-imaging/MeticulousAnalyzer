@@ -124,37 +124,37 @@
     <value>Static Field Analysis</value>
   </data>
   <data name="SMA0001_Description" xml:space="preserve">
-    <value>Static field declaration order is wrong.</value>
+    <value>Reading '{0}' before initialization. Reorder declarations</value>
   </data>
   <data name="SMA0001_MessageFormat" xml:space="preserve">
-    <value>'{0}' is used before it's initialized. Reorder declarations</value>
+    <value>Reading '{0}' before initialization. Reorder declarations</value>
   </data>
   <data name="SMA0001_Title" xml:space="preserve">
     <value>Reading Uninitialized Value</value>
   </data>
   <data name="SMA0002_Description" xml:space="preserve">
-    <value>Trying to read value from static field declared in cross-referencing type.</value>
+    <value>Reading '{0}' that cross-references static field in '{1}'. Initialization order is undefined and value is unstable</value>
   </data>
   <data name="SMA0002_MessageFormat" xml:space="preserve">
-    <value>'{0}' cross-references static field in '{1}'. Initialization order is unpredictable</value>
+    <value>Reading '{0}' that cross-references static field in '{1}'. Initialization order is undefined and value is unstable</value>
   </data>
   <data name="SMA0002_Title" xml:space="preserve">
     <value>Cross Referencing across Type</value>
   </data>
   <data name="SMA0003_Description" xml:space="preserve">
-    <value>Initialization order of partial type files is undefined in language spec.</value>
+    <value>Reading '{0}' that is declared in another partial file. Initialization order is undefined and value is unstable</value>
   </data>
   <data name="SMA0003_MessageFormat" xml:space="preserve">
-    <value>'{0}' is declared in another partial file. Initialization order is undefined</value>
+    <value>Reading '{0}' that is declared in another partial file. Initialization order is undefined and value is unstable</value>
   </data>
   <data name="SMA0003_Title" xml:space="preserve">
     <value>Static Member Declared in Another File</value>
   </data>
   <data name="SMA0004_Description" xml:space="preserve">
-    <value>Static field is read before initialize.</value>
+    <value>Earlier-declared '{0}' reads this member before declaration. Move it after that</value>
   </data>
   <data name="SMA0004_MessageFormat" xml:space="preserve">
-    <value>'{0}' reads this member before its declaration. Move it after</value>
+    <value>Earlier-declared '{0}' reads this member before declaration. Move it after that</value>
   </data>
   <data name="SMA0004_Title" xml:space="preserve">
     <value>Late Declaration</value>
@@ -166,138 +166,138 @@
     <value>`TSelf` Type Arg Analysis</value>
   </data>
   <data name="SMA0010_Description" xml:space="preserve">
-    <value>`TSelf` type arg should be pointing itself.</value>
+    <value>`TSelf` should point to itself (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0010_MessageFormat" xml:space="preserve">
-    <value>TSelf should point to itself, did you mean '{0}'?</value>
+    <value>`TSelf` should point to itself (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0010_Title" xml:space="preserve">
-    <value>TSelf is Not Self</value>
+    <value>`TSelf` is Not Self</value>
   </data>
   <data name="SMA0011_Description" xml:space="preserve">
-    <value>`TSelf` type arg should be pointing itself or its base type.</value>
+    <value>`TSelf` should point to itself or base type (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0011_MessageFormat" xml:space="preserve">
-    <value>TSelf should point to itself or base type, did you mean '{0}'?</value>
+    <value>`TSelf` should point to itself or base type (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0011_Title" xml:space="preserve">
-    <value>TSelf is Not Self or Base</value>
+    <value>`TSelf` is Not Self or Base</value>
   </data>
   <data name="SMA0012_Description" xml:space="preserve">
-    <value>`TSelf` type arg should be pointing itself or its derived type.</value>
+    <value>`TSelf` should point to itself or derived type (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0012_MessageFormat" xml:space="preserve">
-    <value>TSelf should point to itself or derived type, did you mean '{0}'?</value>
+    <value>`TSelf` should point to itself or derived type (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0012_Title" xml:space="preserve">
-    <value>TSelf is Not Self or Derived</value>
+    <value>`TSelf` is Not Self or Derived</value>
   </data>
   <data name="SMA0015_Description" xml:space="preserve">
-    <value>`TSelf` type constraint is not pointing itself.</value>
+    <value>`TSelf` constraint should point to itself (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0015_MessageFormat" xml:space="preserve">
-    <value>TSelf constraint should point to itself, did you mean '{0}'?</value>
+    <value>`TSelf` constraint should point to itself (Did you mean '{0}'?)</value>
   </data>
   <data name="SMA0015_Title" xml:space="preserve">
-    <value>TSelf Constraint is Not Self</value>
+    <value>`TSelf` Constraint is Not Self</value>
   </data>
   <data name="SMA0020__MD_DESC__" xml:space="preserve">
     <value>Analyzes enum casts, string conversions, obfuscation settings, and enum-like patterns.
-&gt; Suppression comment: `// Allow enum conversion [Reason(optional)]`</value>
+&gt; Suppression comment: `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0020__MD_TITLE__" xml:space="preserve">
     <value>Enum Type Analysis</value>
   </data>
   <data name="SMA0020_Description" xml:space="preserve">
-    <value>Unchecked value cast to enum type.</value>
+    <value>Unchecked value cast to enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to enum '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
+    <value>Unchecked value cast to enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0020_Title" xml:space="preserve">
     <value>Unchecked Cast to Enum Type</value>
   </data>
   <data name="SMA0021_Description" xml:space="preserve">
-    <value>Casting enum type to another type.</value>
+    <value>Casting enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
-    <value>Casting enum '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
+    <value>Casting enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
   </data>
   <data name="SMA0022_Description" xml:space="preserve">
-    <value>Unchecked value cast to generic enum type.</value>
+    <value>Unchecked value cast to generic enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to generic enum '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
+    <value>Unchecked value cast to generic enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0022_Title" xml:space="preserve">
     <value>Unchecked Cast to Generic Enum Type</value>
   </data>
   <data name="SMA0023_Description" xml:space="preserve">
-    <value>Casting generic enum type to another type.</value>
+    <value>Casting generic enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
-    <value>Casting generic enum '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
+    <value>Casting generic enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0023_Title" xml:space="preserve">
     <value>Cast from Generic Enum Type to Other</value>
   </data>
   <data name="SMA0024_Description" xml:space="preserve">
-    <value>Enum string representation may break after obfuscation.</value>
+    <value>String representation of enum type '{0}' is not localized and unstable on obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
-    <value>'{0}' string representation may break after obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
+    <value>String representation of enum type '{0}' is not localized and unstable on obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0024_Title" xml:space="preserve">
     <value>Enum to String</value>
   </data>
   <data name="SMA0025_Description" xml:space="preserve">
-    <value>Enum system method call should be centralized.</value>
+    <value>Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
-    <value>Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [Reason(optional)]`</value>
+    <value>Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0025_Title" xml:space="preserve">
     <value>Enum System Method</value>
   </data>
   <data name="SMA0026_Description" xml:space="preserve">
-    <value>Enum obfuscation should have controlled.</value>
+    <value>Add `Obfuscation` attribute to prevent enum field name changes on obfuscation</value>
   </data>
   <data name="SMA0026_MessageFormat" xml:space="preserve">
-    <value>Add `Obfuscation` attribute to prevent enum name changes</value>
+    <value>Add `Obfuscation` attribute to prevent enum field name changes on obfuscation</value>
   </data>
   <data name="SMA0026_Title" xml:space="preserve">
     <value>Enum Obfuscation</value>
   </data>
   <data name="SMA0027_Description" xml:space="preserve">
-    <value>Enum w/o `Flags` attribute should be defined as usual.</value>
+    <value>Non-Flags enum should use `int` type without explicit index values</value>
   </data>
   <data name="SMA0027_MessageFormat" xml:space="preserve">
-    <value>Non-Flags enum should use int type without explicit index values</value>
+    <value>Non-Flags enum should use `int` type without explicit index values</value>
   </data>
   <data name="SMA0027_Title" xml:space="preserve">
     <value>Unusual Enum Definition</value>
   </data>
   <data name="SMA0028_Description" xml:space="preserve">
-    <value>Enum-like pattern implementation is not complete.</value>
+    <value>Enum-like pattern implementation of type '{0}' is incomplete</value>
   </data>
   <data name="SMA0028_MessageFormat" xml:space="preserve">
-    <value>Enum-like type '{0}' is incomplete</value>
+    <value>Enum-like pattern implementation of type '{0}' is incomplete</value>
   </data>
   <data name="SMA0028_Title" xml:space="preserve">
-    <value>Invalid Enum-like Pattern</value>
+    <value>Incomplete Enum-like Pattern</value>
   </data>
   <data name="SMA0030__MD_DESC__" xml:space="preserve">
     <value>Analyzes struct constructors, readonly field assignments, and implicit boxing conversions.
-&gt; Suppression comment: `// Allow boxing [Reason(optional)]`</value>
+&gt; Suppression comment: `// Allow boxing [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0030__MD_TITLE__" xml:space="preserve">
     <value>Struct Analysis</value>
   </data>
   <data name="SMA0030_Description" xml:space="preserve">
-    <value>Constructor has declared explicitly so should not use parameter-less one.</value>
+    <value>Use the explicit constructor for '{0}' instead of parameter-less default</value>
   </data>
   <data name="SMA0030_MessageFormat" xml:space="preserve">
     <value>Use the explicit constructor for '{0}' instead of parameter-less default</value>
@@ -306,80 +306,80 @@
     <value>Invalid Struct Constructor</value>
   </data>
   <data name="SMA0031_Description" xml:space="preserve">
-    <value>Mutable struct type should not be set to `readonly` field.</value>
+    <value>Mutable struct type '{0}' should not be set to `readonly` field</value>
   </data>
   <data name="SMA0031_MessageFormat" xml:space="preserve">
-    <value>'{0}' is mutable struct. Don't assign it to a readonly field</value>
+    <value>Mutable struct type '{0}' should not be set to `readonly` field</value>
   </data>
   <data name="SMA0031_Title" xml:space="preserve">
     <value>Mutable Struct Field marked as Read-Only</value>
   </data>
   <data name="SMA0032_Description" xml:space="preserve">
-    <value>Implicit conversion from struct to reference type (including interface) causes boxing.</value>
+    <value>Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0032_MessageFormat" xml:space="preserve">
-    <value>Implicit boxing from '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [Reason(optional)]`</value>
+    <value>Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
   </data>
   <data name="SMA0040__MD_DESC__" xml:space="preserve">
     <value>Analyzes `IDisposable` implementation and usage patterns to ensure proper resource management and disposal.
-&gt; Suppression comment: `// Don't dispose [Reason(optional)]`</value>
+&gt; Suppression comment: `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0040__MD_TITLE__" xml:space="preserve">
     <value>Disposable Analysis</value>
   </data>
   <data name="SMA0040_Description" xml:space="preserve">
-    <value>Instance that implements IDisposable pattern should be wrapped with `using` statement.</value>
+    <value>Type '{0}' implements `IDisposable` pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>'{0}' implements IDisposable pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [Reason(optional)]`</value>
+    <value>Type '{0}' implements `IDisposable` pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
   </data>
   <data name="SMA0041_Description" xml:space="preserve">
-    <value>Disposable object is assigned null without a preceding `.Dispose()` or `?.Dispose()` call.</value>
+    <value>Disposable object '{0}' is assigned `null` without a preceding `.Dispose()` or `?.Dispose()` call</value>
   </data>
   <data name="SMA0041_MessageFormat" xml:space="preserve">
-    <value>Call .Dispose() on '{0}' before assigning null</value>
+    <value>Disposable object '{0}' is assigned `null` without a preceding `.Dispose()` or `?.Dispose()` call</value>
   </data>
   <data name="SMA0041_Title" xml:space="preserve">
     <value>Null Assignment to Disposable</value>
   </data>
   <data name="SMA0042_Description" xml:space="preserve">
-    <value>A locally declared disposable object must be returned on all code paths.</value>
+    <value>Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0042_MessageFormat" xml:space="preserve">
-    <value>Disposable '{0}' is not returned on all code paths. May leak. Can suppress with comment `// Don't dispose [Reason(optional)]`</value>
+    <value>Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0042_Title" xml:space="preserve">
     <value>Not All Code Paths Return a Value</value>
   </data>
   <data name="SMA0043_Description" xml:space="preserve">
-    <value>Disposable field is not disposed in the Dispose method.</value>
+    <value>Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
-    <value>'{0}' is not disposed. Add disposal in Dispose method. Can suppress with comment `// Don't dispose [Reason(optional)]`</value>
+    <value>Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0043_Title" xml:space="preserve">
     <value>Undisposed Member</value>
   </data>
   <data name="SMA0044_Description" xml:space="preserve">
-    <value>Types that own disposable fields should implement the IDisposable pattern.</value>
+    <value>Type '{0}' owns disposable members but does not implement `Dispose` method</value>
   </data>
   <data name="SMA0044_MessageFormat" xml:space="preserve">
-    <value>'{0}' owns disposable members. Implement Dispose method</value>
+    <value>Type '{0}' owns disposable members but does not implement `Dispose` method</value>
   </data>
   <data name="SMA0044_Title" xml:space="preserve">
     <value>Missing Dispose Implementation</value>
   </data>
   <data name="SMA0045_Description" xml:space="preserve">
-    <value>Types that own disposable fields should implement IDisposable interface.</value>
+    <value>Type '{0}' owns disposable members. Implement `IDisposable` interface</value>
   </data>
   <data name="SMA0045_MessageFormat" xml:space="preserve">
-    <value>'{0}' owns disposable members. Implement IDisposable interface</value>
+    <value>Type '{0}' owns disposable members. Implement `IDisposable` interface</value>
   </data>
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
@@ -391,10 +391,10 @@
     <value>File Structure Analysis</value>
   </data>
   <data name="SMA0050_Description" xml:space="preserve">
-    <value>File should start with a header comment such as `//` or `/*`.</value>
+    <value>File should start with a header comment (`//` or `/* ... */`)</value>
   </data>
   <data name="SMA0050_MessageFormat" xml:space="preserve">
-    <value>Add a file header comment (// or /*) at the top</value>
+    <value>File should start with a header comment (`//` or `/* ... */`)</value>
   </data>
   <data name="SMA0050_Title" xml:space="preserve">
     <value>Missing File Header Comment</value>
@@ -406,7 +406,7 @@
     <value>Read-Only Variable Analysis</value>
   </data>
   <data name="SMA0060_Description" xml:space="preserve">
-    <value>Avoid assignments to locals unless the local is intentionally mutable.</value>
+    <value>Local '{0}' is immutable. Rename to 'mut_{0}' to allow reassignment</value>
   </data>
   <data name="SMA0060_MessageFormat" xml:space="preserve">
     <value>Local '{0}' is immutable. Rename to 'mut_{0}' to allow reassignment</value>
@@ -415,7 +415,7 @@
     <value>Avoid Reassigning Locals</value>
   </data>
   <data name="SMA0061_Description" xml:space="preserve">
-    <value>Avoid assignments to parameters unless the parameter is intentionally mutable.</value>
+    <value>Parameter '{0}' is immutable. Rename to 'mut_{0}' to allow reassignment</value>
   </data>
   <data name="SMA0061_MessageFormat" xml:space="preserve">
     <value>Parameter '{0}' is immutable. Rename to 'mut_{0}' to allow reassignment</value>
@@ -424,53 +424,53 @@
     <value>Avoid Reassigning Parameters</value>
   </data>
   <data name="SMA0062_Description" xml:space="preserve">
-    <value>Avoid passing local/parameter-rooted variables to method/indexer calls in writable forms unless explicitly mutable.</value>
+    <value>Variable '{0}' is immutable. Cannot pass as writable argument</value>
   </data>
   <data name="SMA0062_MessageFormat" xml:space="preserve">
-    <value>'{0}' is immutable. Cannot pass as writable argument</value>
+    <value>Variable '{0}' is immutable. Cannot pass as writable argument</value>
   </data>
   <data name="SMA0062_Title" xml:space="preserve">
     <value>Avoid Passing Writable Variables to Calls</value>
   </data>
   <data name="SMA0063_Description" xml:space="preserve">
-    <value>Avoid accessing properties of immutable variables as it can change their internal state.</value>
+    <value>Property '{0}' may mutate immutable '{1}'. Rename to 'mut_{1}' to allow access</value>
   </data>
   <data name="SMA0063_MessageFormat" xml:space="preserve">
-    <value>Property '{0}' may mutate immutable '{1}'. Rename to 'mut_{1}' to allow</value>
+    <value>Property '{0}' may mutate immutable '{1}'. Rename to 'mut_{1}' to allow access</value>
   </data>
   <data name="SMA0063_Title" xml:space="preserve">
-    <value>Property Access Can Change State</value>
+    <value>Property Access May Change State</value>
   </data>
   <data name="SMA0064_Description" xml:space="preserve">
-    <value>Avoid calling methods of immutable variables as it can change their internal state.</value>
+    <value>Method '{0}' may mutate immutable '{1}'. Rename to 'mut_{1}' to allow invocation</value>
   </data>
   <data name="SMA0064_MessageFormat" xml:space="preserve">
-    <value>Method '{0}' may mutate immutable '{1}'. Rename to 'mut_{1}' to allow</value>
+    <value>Method '{0}' may mutate immutable '{1}'. Rename to 'mut_{1}' to allow invocation</value>
   </data>
   <data name="SMA0064_Title" xml:space="preserve">
-    <value>Method Call Can Change State</value>
+    <value>Method Invocation May Change State</value>
   </data>
   <data name="SMA0070__MD_DESC__" xml:space="preserve">
     <value>Analyzes asynchronous task usage to ensure tasks are properly awaited or returned.
-&gt; Suppression comment: `// Don't await [Reason(optional)]`</value>
+&gt; Suppression comment: `// Don't await [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0070__MD_TITLE__" xml:space="preserve">
     <value>Async Context Analysis</value>
   </data>
   <data name="SMA0070_Description" xml:space="preserve">
-    <value>Task local variable should be awaited or returned.</value>
+    <value>Task type '{0}' is not awaited. Add `await` or `return`. Can suppress with comment `// Don't await [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited. Add `await` or return it. Can suppress with comment `// Don't await [Reason(optional)]`</value>
+    <value>Task type '{0}' is not awaited. Add `await` or `return`. Can suppress with comment `// Don't await [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
   </data>
   <data name="SMA0071_Description" xml:space="preserve">
-    <value>Task local variable should be awaited or returned on all code paths.</value>
+    <value>Task type '{0}' is not awaited on all code paths. Can suppress with comment `// Don't await [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0071_MessageFormat" xml:space="preserve">
-    <value>Task '{0}' is not awaited on all code paths. May fire-and-forget. Can suppress with comment `// Don't await [Reason(optional)]`</value>
+    <value>Task type '{0}' is not awaited on all code paths. Can suppress with comment `// Don't await [ Reason (optional) ]`</value>
   </data>
   <data name="SMA0071_Title" xml:space="preserve">
     <value>Task Not Awaited on All Paths</value>
@@ -482,13 +482,13 @@
     <value>Project Structure Analysis</value>
   </data>
   <data name="SMA0080_Description" xml:space="preserve">
-    <value>Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)</value>
+    <value>Cannot access internal member '{0}' declared in namespace '{2}' from namespace '{1}'. Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)</value>
   </data>
   <data name="SMA0080_MessageFormat" xml:space="preserve">
-    <value>Cannot access internal '{0}' declared in '{2}' from namespace '{1}'</value>
+    <value>Cannot access internal member '{0}' declared in namespace '{2}' from namespace '{1}'. Internal types and members must not be accessed from a different namespace, including parent or sibling namespaces. (Exceptions: `Core` leaf namespace and `SR` type)</value>
   </data>
   <data name="SMA0080_Title" xml:space="preserve">
-    <value>Internal cross-namespace access</value>
+    <value>Internal Cross-Namespace Access</value>
   </data>
   <data name="SMA0090__MD_DESC__" xml:space="preserve">
     <value>Analyzes move-only or `NoCopyAttribute`-marked types to enforce single-ownership semantics and prevent prohibited copies, assignments, casts, or captures.</value>
@@ -497,277 +497,277 @@
     <value>`MoveOnly` / `NoCopy` Type Analysis</value>
   </data>
   <data name="SMA0090_Description" xml:space="preserve">
-    <value>MoveOnly type must declare a public instance `Move()` method returning the containing type.</value>
+    <value>MoveOnly type '{0}' must declare a public instance `Move()` method returning the containing type</value>
   </data>
   <data name="SMA0090_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' must declare a public instance `Move()` method returning the containing type.</value>
+    <value>MoveOnly type '{0}' must declare a public instance `Move()` method returning the containing type</value>
   </data>
   <data name="SMA0090_Title" xml:space="preserve">
     <value>Invalid MoveOnly Type</value>
   </data>
   <data name="SMA0091_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be copied or assigned without `Move()`.</value>
+    <value>MoveOnly type '{0}' cannot be copied or assigned without calling `Move()`</value>
   </data>
   <data name="SMA0091_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be copied or assigned without calling `Move()`.</value>
+    <value>MoveOnly type '{0}' cannot be copied or assigned without calling `Move()`</value>
   </data>
   <data name="SMA0091_Title" xml:space="preserve">
     <value>Prohibited Copy of MoveOnly Type</value>
   </data>
   <data name="SMA0092_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be passed by `ref`, `in` or `out` in `async` methods.</value>
+    <value>MoveOnly type '{0}' cannot be passed by `ref`, `in` or `out` in `async` methods</value>
   </data>
   <data name="SMA0092_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be passed by `ref`, `in` or `out` in `async` methods.</value>
+    <value>MoveOnly type '{0}' cannot be passed by `ref`, `in` or `out` in `async` methods</value>
   </data>
   <data name="SMA0092_Title" xml:space="preserve">
     <value>Prohibited Ref/In/Out Parameter of MoveOnly Type in Async Method</value>
   </data>
   <data name="SMA0093_Description" xml:space="preserve">
-    <value>MoveOnly type must be a struct.</value>
+    <value>MoveOnly type '{0}' must be a struct</value>
   </data>
   <data name="SMA0093_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' must be a struct.</value>
+    <value>MoveOnly type '{0}' must be a struct</value>
   </data>
   <data name="SMA0093_Title" xml:space="preserve">
     <value>Invalid MoveOnly Declaration</value>
   </data>
   <data name="SMA0094_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be cast to any type without `Move()`.</value>
+    <value>MoveOnly type '{0}' cannot be cast to '{1}' without calling `Move()`</value>
   </data>
   <data name="SMA0094_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be cast to '{1}' without calling `Move()`.</value>
+    <value>MoveOnly type '{0}' cannot be cast to '{1}' without calling `Move()`</value>
   </data>
   <data name="SMA0094_Title" xml:space="preserve">
     <value>Prohibited Cast of MoveOnly Type</value>
   </data>
   <data name="SMA0095_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be captured in a lambda expression.</value>
+    <value>MoveOnly type '{0}' cannot be captured in a lambda expression</value>
   </data>
   <data name="SMA0095_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be captured in a lambda expression.</value>
+    <value>MoveOnly type '{0}' cannot be captured in a lambda expression</value>
   </data>
   <data name="SMA0095_Title" xml:space="preserve">
     <value>Prohibited Lambda Capture of MoveOnly Type</value>
   </data>
   <data name="SMA0096_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be declared as an `out` parameter.</value>
+    <value>MoveOnly type '{0}' cannot be declared as an `out` parameter</value>
   </data>
   <data name="SMA0096_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be declared as an `out` parameter.</value>
+    <value>MoveOnly type '{0}' cannot be declared as an `out` parameter</value>
   </data>
   <data name="SMA0096_Title" xml:space="preserve">
     <value>Prohibited Out Parameter of MoveOnly Type</value>
   </data>
   <data name="SMA0097_Description" xml:space="preserve">
-    <value>MoveOnly type cannot be returned without `ref` outside its `Move()` method.</value>
+    <value>MoveOnly type '{0}' cannot be returned without `ref` outside its `Move()` method</value>
   </data>
   <data name="SMA0097_MessageFormat" xml:space="preserve">
-    <value>MoveOnly type '{0}' cannot be returned without `ref` outside its `Move()` method.</value>
+    <value>MoveOnly type '{0}' cannot be returned without `ref` outside its `Move()` method</value>
   </data>
   <data name="SMA0097_Title" xml:space="preserve">
     <value>Prohibited Return of MoveOnly Type</value>
   </data>
   <data name="SMA7000__MD_DESC__" xml:space="preserve">
     <value>Provides rules and assistance to improve runtime efficiency, avoid delegate allocations, and ensure NativeAOT compatibility.
-&gt; Suppression comment: `// Allow allocation [Reason(optional)]`</value>
+&gt; Suppression comment: `// Allow allocation [ Reason (optional) ]`</value>
   </data>
   <data name="SMA7000__MD_TITLE__" xml:space="preserve">
     <value>Coding Assistance</value>
   </data>
   <data name="SMA7000_Description" xml:space="preserve">
-    <value>Lambda declaration should add `static` keyword for clarity.</value>
+    <value>Lambda declaration can be `static`</value>
   </data>
   <data name="SMA7000_MessageFormat" xml:space="preserve">
     <value>Lambda declaration can be `static`</value>
   </data>
   <data name="SMA7000_Title" xml:space="preserve">
-    <value>Lambda can be static</value>
+    <value>Unmarked Static Lambda</value>
   </data>
   <data name="SMA7001_Description" xml:space="preserve">
-    <value>Older runtime inefficiently handle direct passing of method.</value>
+    <value>Implicit conversion to '{0}' delegate is handled inefficiently on older runtime</value>
   </data>
   <data name="SMA7001_MessageFormat" xml:space="preserve">
-    <value>Implicit conversion to '{0}' delegate causes allocation on older runtime</value>
+    <value>Implicit conversion to '{0}' delegate is handled inefficiently on older runtime</value>
   </data>
   <data name="SMA7001_Title" xml:space="preserve">
-    <value>Inefficient delegate declaration</value>
+    <value>Inefficient Delegate Declaration</value>
   </data>
   <data name="SMA7002_Description" xml:space="preserve">
-    <value>Non-static lambda declaration and implicit conversion causes allocation.</value>
+    <value>Non-static lambda causes allocation. Make it static or cache if possible. Can suppress with comment `// Allow allocation [ Reason (optional) ]`</value>
   </data>
   <data name="SMA7002_MessageFormat" xml:space="preserve">
-    <value>Non-static lambda causes allocation. Make it static or cache. Can suppress with comment `// Allow allocation [Reason(optional)]`</value>
+    <value>Non-static lambda causes allocation. Make it static or cache if possible. Can suppress with comment `// Allow allocation [ Reason (optional) ]`</value>
   </data>
   <data name="SMA7002_Title" xml:space="preserve">
-    <value>Lambda allocation</value>
+    <value>Lambda Allocation</value>
   </data>
   <data name="SMA7010_Description" xml:space="preserve">
-    <value>Access to members of types from `System.Reflection` is not NativeAOT-friendly.</value>
+    <value>Reflection operation '{0}' involves type '{1}'. Access to members of types from `System.Reflection` is not NativeAOT-friendly</value>
   </data>
   <data name="SMA7010_MessageFormat" xml:space="preserve">
-    <value>Reflection operation '{0}' involves type '{1}'</value>
+    <value>Reflection operation '{0}' involves type '{1}'. Access to members of types from `System.Reflection` is not NativeAOT-friendly</value>
   </data>
   <data name="SMA7010_Title" xml:space="preserve">
     <value>Reflection Access</value>
   </data>
   <data name="SMA7011_Description" xml:space="preserve">
-    <value>Local variables declared with types from `System.Reflection` are not NativeAOT-friendly.</value>
+    <value>Variable '{0}' is declared with reflection type '{1}'. This operation is not NativeAOT-friendly</value>
   </data>
   <data name="SMA7011_MessageFormat" xml:space="preserve">
-    <value>Variable '{0}' is declared with reflection type '{1}'</value>
+    <value>Variable '{0}' is declared with reflection type '{1}'. This operation is not NativeAOT-friendly</value>
   </data>
   <data name="SMA7011_Title" xml:space="preserve">
     <value>Reflection Type Variable</value>
   </data>
   <data name="SMA7020_Description" xml:space="preserve">
-    <value>`AggressiveInlining` to public members may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc.</value>
+    <value>Avoid applying `AggressiveInlining` to public member '{0}' that may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc</value>
   </data>
   <data name="SMA7020_MessageFormat" xml:space="preserve">
-    <value>Avoid applying `AggressiveInlining` to public member '{0}' that may cause unpredictable side effects on consumer side.</value>
+    <value>Avoid applying `AggressiveInlining` to public member '{0}' that may cause unpredictable side effects on consumer side. Potential downsides include code bloat, increased instruction cache misses, reduced branch prediction accuracy, performance gains limited to microbenchmarks, etc</value>
   </data>
   <data name="SMA7020_Title" xml:space="preserve">
-    <value>`AggressiveInlining` to public member</value>
+    <value>Avoid `AggressiveInlining` to Public Member</value>
   </data>
   <data name="SMA7030_Description" xml:space="preserve">
-    <value>Implicit params array allocation hides actual overhead from source code representation. Use explicit array allocation.</value>
+    <value>Implicit `params` array allocation for '{0}' hides actual overhead from source code representation. Use explicit array allocation</value>
   </data>
   <data name="SMA7030_MessageFormat" xml:space="preserve">
-    <value>Implicit params array allocation for '{0}'</value>
+    <value>Implicit `params` array allocation for '{0}' hides actual overhead from source code representation. Use explicit array allocation</value>
   </data>
   <data name="SMA7030_Title" xml:space="preserve">
-    <value>Implicit params array allocation</value>
+    <value>Implicit `params` Array Allocation</value>
   </data>
   <data name="SMA7040_Description" xml:space="preserve">
-    <value>Anonymous object creation should be avoided. Use tuple instead.</value>
+    <value>Prefer tuple instead of anonymous object</value>
   </data>
   <data name="SMA7040_MessageFormat" xml:space="preserve">
     <value>Prefer tuple instead of anonymous object</value>
   </data>
   <data name="SMA7040_Title" xml:space="preserve">
-    <value>Anonymous Object Creation</value>
+    <value>Avoid Anonymous Object Creation</value>
   </data>
   <data name="SMA8000__MD_DESC__" xml:space="preserve">
     <value>Provides rules for argument readability, explicit typing, exception handling, and branch condition safety.
 &gt; Suppression comment: `// Ignore exception: Reason (required)`
-&gt; Marker comment: `// Early exit [Description(optional)]`</value>
+&gt; Marker comment: `// Early exit [ Description (optional) ]`</value>
   </data>
   <data name="SMA8000__MD_TITLE__" xml:space="preserve">
     <value>Reliability and Maintainability Analysis</value>
   </data>
   <data name="SMA8000_Description" xml:space="preserve">
-    <value>Literal arguments should be passed as named arguments to express their meaning. (Exception: methods in the System namespace with only one argument are exempt)</value>
+    <value>Pass literal for '{0}' as named argument to express their meaning (Methods in the System namespace with only one argument are exempt)</value>
   </data>
   <data name="SMA8000_MessageFormat" xml:space="preserve">
-    <value>Pass literal for '{0}' as named argument for readability</value>
+    <value>Pass literal for '{0}' as named argument to express their meaning (Methods in the System namespace with only one argument are exempt)</value>
   </data>
   <data name="SMA8000_Title" xml:space="preserve">
-    <value>Literal should be passed as named argument</value>
+    <value>Literal Should Be Passed as Named Argument</value>
   </data>
   <data name="SMA8001_Description" xml:space="preserve">
-    <value>All system primitive numbers, from byte to decimal, should be declared explicitly typed.</value>
+    <value>Declare system number primitive '{0}' with explicit type instead of `var`</value>
   </data>
   <data name="SMA8001_MessageFormat" xml:space="preserve">
-    <value>Declare '{0}' with explicit number type instead of `var`</value>
+    <value>Declare system number primitive '{0}' with explicit type instead of `var`</value>
   </data>
   <data name="SMA8001_Title" xml:space="preserve">
-    <value>Explicit number declaration</value>
+    <value>Explicit Number Declaration</value>
   </data>
   <data name="SMA8002_Description" xml:space="preserve">
-    <value>Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check.</value>
+    <value>Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check</value>
   </data>
   <data name="SMA8002_MessageFormat" xml:space="preserve">
-    <value>Fence `!` with 3 parentheses, or use `Debug.Assert({0} is not null)` instead</value>
+    <value>Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check</value>
   </data>
   <data name="SMA8002_Title" xml:space="preserve">
-    <value>Null suppression operation</value>
+    <value>Clearer Null Suppression Operation</value>
   </data>
   <data name="SMA8003_Description" xml:space="preserve">
-    <value>Avoid using debug-only validation in public API surfaces, as it can lead to undefined behavior in Release builds.</value>
+    <value>Avoid using debug-only assertion in public API surfaces, as it can lead to undefined behavior in Release builds</value>
   </data>
   <data name="SMA8003_MessageFormat" xml:space="preserve">
-    <value>Do not use debug-only `Assert` in public API surface</value>
+    <value>Avoid using debug-only assertion in public API surfaces, as it can lead to undefined behavior in Release builds</value>
   </data>
   <data name="SMA8003_Title" xml:space="preserve">
     <value>Debug-only Assert in Public API</value>
   </data>
   <data name="SMA8004_Description" xml:space="preserve">
-    <value>Omittable arguments should be passed as named arguments to express their meaning.</value>
+    <value>Pass omittable argument for '{0}' as named argument to express their meaning</value>
   </data>
   <data name="SMA8004_MessageFormat" xml:space="preserve">
-    <value>Pass argument for '{0}' as named argument</value>
+    <value>Pass omittable argument for '{0}' as named argument to express their meaning</value>
   </data>
   <data name="SMA8004_Title" xml:space="preserve">
-    <value>Omittable argument should be passed as named argument</value>
+    <value>Omittable Argument Should Be Passed as Named Argument</value>
   </data>
   <data name="SMA8010_Description" xml:space="preserve">
-    <value>Catch block should contain a `throw` statement.</value>
+    <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: Reason (required)`</value>
   </data>
   <data name="SMA8010_MessageFormat" xml:space="preserve">
     <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: Reason (required)`</value>
   </data>
   <data name="SMA8010_Title" xml:space="preserve">
-    <value>Catch Block Without Throw</value>
+    <value>Catch Block without Throw</value>
   </data>
   <data name="SMA8011_Description" xml:space="preserve">
-    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions.</value>
+    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead</value>
   </data>
   <data name="SMA8011_MessageFormat" xml:space="preserve">
-    <value>Catch-all block does not contain a `throw` statement</value>
+    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead</value>
   </data>
   <data name="SMA8011_Title" xml:space="preserve">
-    <value>Catch-All Block Without Throw</value>
+    <value>Catch-All Block without Throw</value>
   </data>
   <data name="SMA8020_Description" xml:space="preserve">
-    <value>Avoid hardcoded literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`)</value>
   </data>
   <data name="SMA8020_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`)</value>
   </data>
   <data name="SMA8020_Title" xml:space="preserve">
-    <value>Literal branch number</value>
+    <value>Literal Branch Number</value>
   </data>
   <data name="SMA8021_Description" xml:space="preserve">
-    <value>Avoid hardcoded zero in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`)</value>
   </data>
   <data name="SMA8021_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`)</value>
   </data>
   <data name="SMA8021_Title" xml:space="preserve">
-    <value>Literal branch zero</value>
+    <value>Literal Branch Zero</value>
   </data>
   <data name="SMA8022_Description" xml:space="preserve">
-    <value>Avoid hardcoded string literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded string literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`)</value>
   </data>
   <data name="SMA8022_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded string literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`)</value>
   </data>
   <data name="SMA8022_Title" xml:space="preserve">
-    <value>Literal branch string</value>
+    <value>Literal Branch String</value>
   </data>
   <data name="SMA8023_Description" xml:space="preserve">
-    <value>Avoid hardcoded char literals in comparison or branch conditions for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal char '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`)</value>
   </data>
   <data name="SMA8023_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}'. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`).</value>
+    <value>Use named constants or configuration instead of hardcoded literal char '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`)</value>
   </data>
   <data name="SMA8023_Title" xml:space="preserve">
-    <value>Literal branch char</value>
+    <value>Literal Branch Char</value>
   </data>
   <data name="SMA8030_Description" xml:space="preserve">
-    <value>Avoid inserting a control flow exit into the middle of the main flow unless it has exits in all code paths.</value>
+    <value>Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue` in the middle of the main control flow. Instead, use a complete `if-else` statements without, or with exits in all code paths, or extract methods to clarify the control flow. If `if-only` statement is not detected as early exit block unexpectedly, add marker comment before `if` keyword to avoid error: `// Early exit [ Description (optional) ]`</value>
   </data>
   <data name="SMA8030_MessageFormat" xml:space="preserve">
-    <value>Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue` in the middle of the main control flow. Instead, use a complete `if-else` statements without, or with exits in all code paths, or extract methods to clarify the control flow. If `if-only` statement is not detected as early exit block unexpectedly, add marker comment before `if` keyword to avoid error: `// Early exit [Description(optional)]`</value>
+    <value>Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue` in the middle of the main control flow. Instead, use a complete `if-else` statements without, or with exits in all code paths, or extract methods to clarify the control flow. If `if-only` statement is not detected as early exit block unexpectedly, add marker comment before `if` keyword to avoid error: `// Early exit [ Description (optional) ]`</value>
   </data>
   <data name="SMA8030_Title" xml:space="preserve">
     <value>Incomplete Mid-Flow Branch</value>
   </data>
   <data name="SMA8031_Description" xml:space="preserve">
-    <value>Early exit block should not contain state-changing operations before exiting.</value>
+    <value>Avoid state changes in the early exit block. Declarations of local variables and up to 1 method call that is not expected to have any side effects are permitted. Use a helper method to combine multiple method calls into one and decrease the number of calls</value>
   </data>
   <data name="SMA8031_MessageFormat" xml:space="preserve">
-    <value>Avoid state changes in the early exit block. Declarations of local variables and up to 1 method call that is not expected to have any side effects are permitted. Use a helper method to combine multiple method calls into one and decrease the number of calls.</value>
+    <value>Avoid state changes in the early exit block. Declarations of local variables and up to 1 method call that is not expected to have any side effects are permitted. Use a helper method to combine multiple method calls into one and decrease the number of calls</value>
   </data>
   <data name="SMA8031_Title" xml:space="preserve">
     <value>State Change in Early Exit</value>
@@ -779,7 +779,7 @@
     <value>`Obsolete` Annotating and Underling</value>
   </data>
   <data name="SMA9000_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9000_MessageFormat" xml:space="preserve">
     <value>[identifier] {0}
@@ -789,7 +789,7 @@
     <value>Underlining on Identifier Symbols</value>
   </data>
   <data name="SMA9001_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9001_MessageFormat" xml:space="preserve">
     <value>[localvar] {0}
@@ -799,7 +799,7 @@
     <value>Underlining on Local Variables</value>
   </data>
   <data name="SMA9002_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9002_MessageFormat" xml:space="preserve">
     <value>[param] {0}
@@ -809,7 +809,7 @@
     <value>Underlining on Method or Lambda Parameters</value>
   </data>
   <data name="SMA9010_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9010_MessageFormat" xml:space="preserve">
     <value>[declaration] {0}
@@ -819,7 +819,7 @@
     <value>Underlining on Declarations</value>
   </data>
   <data name="SMA9015_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9015_MessageFormat" xml:space="preserve">
     <value>[designated] {0}
@@ -829,7 +829,7 @@
     <value>Underlining only on Designated Type</value>
   </data>
   <data name="SMA9020_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9020_MessageFormat" xml:space="preserve">
     <value>[linehead] {0}
@@ -839,7 +839,7 @@
     <value>Underlining at Line Head</value>
   </data>
   <data name="SMA9021_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9021_MessageFormat" xml:space="preserve">
     <value>[linelead] {0}
@@ -849,7 +849,7 @@
     <value>Underlining at Line Leading</value>
   </data>
   <data name="SMA9022_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9022_MessageFormat" xml:space="preserve">
     <value>[linefill] {0}
@@ -859,7 +859,7 @@
     <value>Underlining on Identifier</value>
   </data>
   <data name="SMA9023_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9023_MessageFormat" xml:space="preserve">
     <value>[lineend] {0}
@@ -869,7 +869,7 @@
     <value>Underlining at Line End</value>
   </data>
   <data name="SMA9100_Description" xml:space="preserve">
-    <value>Draw underline in IDE.</value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9100_MessageFormat" xml:space="preserve">
     <value>{1} ({0})</value>
