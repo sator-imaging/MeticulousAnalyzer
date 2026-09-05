@@ -116,7 +116,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_ExplicitNumber,
                     typeNode.GetLocation(),
-                    identifier.Text));
+                    identifier.Text,
+                    type.ToDiagnosticMessageName()));
             }
         }
 

@@ -180,7 +180,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                 foreach (var loc in refOp.Member.Locations)
                                 {
                                     context.ReportDiagnostic(
-                                        Diagnostic.Create(Rule_LateDeclare, loc, declaredWithInitializerSymbolList[i].ToDiagnosticMessageName()));
+                                        Diagnostic.Create(Rule_LateDeclare, loc, declaredWithInitializerSymbolList[i].ToDiagnosticMessageName(), refOp.Member.ToDiagnosticMessageName()));
                                 }
                             }
                         }

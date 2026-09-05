@@ -40,19 +40,19 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("v_sbyte"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("v_byte"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("v_short"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(3).WithArguments("v_ushort"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(4).WithArguments("v_int"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(5).WithArguments("v_uint"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(6).WithArguments("v_long"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(7).WithArguments("v_ulong"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(8).WithArguments("v_float"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(9).WithArguments("v_double"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(10).WithArguments("v_decimal"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(11).WithArguments("v_nint"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(12).WithArguments("v_nuint")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("v_sbyte", "sbyte"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("v_byte", "byte"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("v_short", "short"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(3).WithArguments("v_ushort", "ushort"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(4).WithArguments("v_int", "int"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(5).WithArguments("v_uint", "uint"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(6).WithArguments("v_long", "long"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(7).WithArguments("v_ulong", "ulong"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(8).WithArguments("v_float", "float"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(9).WithArguments("v_double", "double"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(10).WithArguments("v_decimal", "decimal"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(11).WithArguments("v_nint", "nint"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(12).WithArguments("v_nuint", "nuint")
             );
         }
 
@@ -175,9 +175,9 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("foo"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("bar"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("baz")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("foo", "int"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("bar", "float"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(2).WithArguments("baz", "decimal")
             );
         }
 
@@ -201,7 +201,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("value")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("value", "int")
             );
         }
 
@@ -223,7 +223,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("item")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("item", "int")
             );
         }
 
@@ -243,8 +243,8 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("a"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("a", "int"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b", "double")
             );
         }
 
@@ -266,8 +266,8 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("y")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x", "int"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("y", "int")
             );
         }
 
@@ -289,7 +289,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x", "int")
             );
         }
 
@@ -311,8 +311,8 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("x")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_", "int"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(1).WithArguments("x", "int")
             );
         }
 
@@ -332,8 +332,8 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_"),
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_", "int"),
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("b", "int")
             );
         }
 
@@ -357,7 +357,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_", "int")
             );
         }
 
@@ -379,7 +379,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_", "int")
             );
         }
 
@@ -399,7 +399,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("_", "int")
             );
         }
 
@@ -419,7 +419,7 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x")
+                VerifyCS.Diagnostic(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber).WithLocation(0).WithArguments("x", "int")
             );
         }
 
