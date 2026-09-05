@@ -581,20 +581,38 @@ if (foo.Length != 0)
 
 ## Mid-flow Branch
 
-Do not introduce a new control flow branch in the middle of the main flow. Early exits (such as return, continue, break) are fine, but state-changing operations before exiting will cause an error (only assignments to `out` parameters are permitted).
+Do not introduce a new control flow branch in the middle of the main flow. Early exits (such as `return`, `continue`, `break`, `yield`, `throw`, `goto`) before the main flow begins are permitted, but state-changing operations before exiting are restricted.
+
+### Early Exit Block Restrictions (SMA8031)
+In an early exit block before the main flow starts, only the following statements are permitted before the exit statement:
+- Local variable declarations
+- Tuple declarations
+- Assignments to `out` parameters
+- Up to 1 method call (e.g., logging or side-effect-free call)
+
+Performing state modifications (such as reassignments or field updates) or calling multiple methods before exiting will trigger an error (**SMA8031**).
+
+### Mid-flow Exits (SMA8030)
+Once the main flow has started, exiting inside an incomplete branch (an `if` statement that does not exit in all code paths) is prohibited (**SMA8030**).
 
 ```cs
 if (!IsValid()) return;  // Early return is allowed.
 
+// Local declarations and up to 1 method call in early return block are allowed:
+if (NeedsLogging())
+{
+    Log("exiting"); // 1 method call allowed
+    return;
+}
+
 // Some operations after early return...
-// ...
 // ...
 
 if (foo)
 {
     Foo();
     return;
-    ~~~~~~ // Error: Exiting in the middle of the main flow.
+    ~~~~~~ // Error (SMA8030): Exiting in the middle of the main flow.
 }
 
 Alpha();
@@ -631,7 +649,7 @@ foreach (var item in items)
     if (item.Length == 0)
     {
         continue;
-        ~~~~~~~~ // Error: Continuing in the middle of the loop flow.
+        ~~~~~~~~ // Error (SMA8030): Continuing in the middle of the loop flow.
     }
 
     DoSomething(item);
@@ -653,6 +671,9 @@ foreach (var item in items)
     }
 }
 ```
+
+> [!TIP]
+> If an else-less `if` statement is unexpectedly detected as a mid-flow branch, you can place a comment starting with `// Early exit` (e.g., `// Early exit: Description (optional)`) immediately before the `if` keyword to treat it as an early exit block.
 
 
 
