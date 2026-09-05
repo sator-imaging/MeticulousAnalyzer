@@ -195,5 +195,35 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0092_Violation_CloneNotExemptInAsyncMethod()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+
+        public Task AsyncFoo(ref MoveOnlyStruct item) => Task.CompletedTask;
+
+        public async Task Clone()
+        {
+            MoveOnlyStruct local = default;
+            AsyncFoo({|#0:ref local|});
+            await Task.CompletedTask;
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedRefOutInAsync)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
     }
 }

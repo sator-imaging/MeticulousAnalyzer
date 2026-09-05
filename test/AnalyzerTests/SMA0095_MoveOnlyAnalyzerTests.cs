@@ -189,5 +189,44 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0095_Violation_CloneNotExemptFromLambdaCaptureCheck()
+        {
+            var test = @"
+namespace Test
+{
+    using System;
+
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+        public MoveOnlyStruct Clone() => {|#0:this|};
+    }
+
+    class Program
+    {
+        void Method(MoveOnlyStruct param)
+        {
+            Action act = () =>
+            {
+                var x = {|#1:{|#2:param|}.Clone()|};
+            };
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedLambdaCapture)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
     }
 }

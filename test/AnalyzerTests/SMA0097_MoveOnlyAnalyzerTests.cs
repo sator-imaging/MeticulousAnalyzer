@@ -149,5 +149,33 @@ class Program
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
         }
+
+        [TestMethod]
+        public async Task SMA0097_Violation_CloneNotExemptFromReturnCheck()
+        {
+            var test = @"
+struct MoveOnlyStruct
+{
+    public MoveOnlyStruct Move() => this;
+    public MoveOnlyStruct Clone() => {|#0:this|};
+}
+
+class Program
+{
+    MoveOnlyStruct Method(MoveOnlyStruct item)
+    {
+        return {|#1:item.Clone()|};
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }

@@ -116,5 +116,27 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0090_Violation_CloneMethodDoesNotSatisfyMoveMethod()
+        {
+            var test = @"
+namespace Test
+{
+    struct {|#0:MoveOnlyStruct|}
+    {
+        public MoveOnlyStruct Clone() => {|#1:this|};
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_MissingMoveMethod)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
