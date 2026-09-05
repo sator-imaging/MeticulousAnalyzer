@@ -839,7 +839,7 @@
     <value>Underlining at Line Head</value>
   </data>
   <data name="SMA9021_Description" xml:space="preserve">
-    <value>Draw underline in IDE/value>
+    <value>Draw underline in IDE</value>
   </data>
   <data name="SMA9021_MessageFormat" xml:space="preserve">
     <value>[linelead] {0}
