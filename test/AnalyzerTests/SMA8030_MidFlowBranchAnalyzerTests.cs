@@ -161,6 +161,43 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_UsingVarDeclarationsBeforeIfBranch()
+        {
+            var test = @"
+using System;
+using System.IO;
+using System.Threading.Tasks;
+
+class C
+{
+    int M(bool foo)
+    {
+        using var stream = new MemoryStream();
+
+        if (foo)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    async Task<int> MAsync(bool foo)
+    {
+        await using var stream = new MemoryStream();
+
+        if (foo)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Compliant_VoidReturningMethod()
         {
             var test = @"

@@ -436,5 +436,40 @@ class C
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_UsingVarAndAwaitUsingVarInEarlyReturnBlock()
+        {
+            var test = @"
+using System;
+using System.IO;
+using System.Threading.Tasks;
+
+class C
+{
+    int M(bool cond)
+    {
+        if (cond)
+        {
+            using var stream = new MemoryStream();
+            return 1;
+        }
+
+        return 0;
+    }
+
+    async Task<int> MAsync(bool cond)
+    {
+        if (cond)
+        {
+            await using var stream = new MemoryStream();
+            return 1;
+        }
+
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
