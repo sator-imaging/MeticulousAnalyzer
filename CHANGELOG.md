@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.2.0-rc.12](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.12) (2026-09-05)
+
+### 📖 Documentation
+* docs: update MidFlowBranch documentation in READMEs (en/ja/zh) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#605](https://github.com/sator-imaging/MeticulousAnalyzer/pull/605)
+* docs: update for AI agents by [@sator-imaging](https://github.com/sator-imaging) in [#607](https://github.com/sator-imaging/MeticulousAnalyzer/pull/607)
+### 📚 Other Changes
+* Add tests for using var and await using var local declarations in MidFlowBranch analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#606](https://github.com/sator-imaging/MeticulousAnalyzer/pull/606)
+* Update SMA0004 and SMA8001 diagnostic messages by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#608](https://github.com/sator-imaging/MeticulousAnalyzer/pull/608)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.11...v5.2.0-rc.12
+
+
 ## [5.2.0-rc.11](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.11) (2026-09-04)
 
 ### ✨ Bug Fixes
