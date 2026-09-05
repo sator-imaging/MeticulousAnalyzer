@@ -57,9 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterSyntaxNodeAction(AnalyzeNonLocalExitInLoop,
                 SyntaxKind.ReturnStatement,
                 SyntaxKind.ThrowStatement,
-                SyntaxKind.ThrowExpression,
-                SyntaxKind.YieldReturnStatement,
-                SyntaxKind.YieldBreakStatement);
+                SyntaxKind.ThrowExpression);
         }
 
         private static void AnalyzeBlock(SyntaxNodeAnalysisContext context)

@@ -2075,22 +2075,31 @@ class C
             string s = item ?? {|#2:throw|} new ArgumentNullException();
         }
     }
-
-    IEnumerable<int> YieldInDoWhileLoop(bool cond)
-    {
-        do
-        {
-            {|#3:yield|} return 1;
-            {|#4:yield|} break;
-        } while (cond);
-    }
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
             var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(1);
             var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(2);
-            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(3);
-            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(4);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_YieldInLoop()
+        {
+            var test = @"
+using System.Collections.Generic;
+
+class C
+{
+    IEnumerable<int> YieldInDoWhileLoop(bool cond)
+    {
+        do
+        {
+            yield return 1;
+            yield break;
+        } while (cond);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
