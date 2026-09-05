@@ -50,7 +50,7 @@ namespace Test
 
         public void M()
         {
-            var {|#0:m|} = {|#1:GetIt()|};
+            {|#0:var|} m = {|#1:GetIt()|};
         }
     }
 }
@@ -71,7 +71,7 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var {|#0:methods|} = type?{|#1:.GetMethods()|};
+            {|#0:var|} methods = type?{|#1:.GetMethods()|};
         }
     }
 }
@@ -92,7 +92,7 @@ namespace Test
     {
         public void M(System.Type type)
         {
-            var {|#0:asm|} = {|#1:type.Assembly|};
+            {|#0:var|} asm = {|#1:type.Assembly|};
         }
     }
 }
@@ -139,7 +139,7 @@ namespace Test
     {
         public void M()
         {
-            System.Func<MemberInfo[]> {|#0:f|} = {|#1:typeof(C).GetMembers|};
+            {|#0:System.Func<MemberInfo[]>|} f = {|#1:typeof(C).GetMembers|};
         }
     }
 }

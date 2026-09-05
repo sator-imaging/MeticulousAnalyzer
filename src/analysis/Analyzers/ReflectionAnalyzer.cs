@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -125,10 +126,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // VariableDeclarator fires per name (var a, b = ...); [0] covers a and b — [1] is not required.
-            var location = declarator.Symbol.Locations is { Length: > 0 } locations
-                ? locations[0]
-                : declarator.Syntax.GetLocation();
+            var location = declarator.Syntax is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax varDecl }
+                ? varDecl.Type.GetLocation()
+                : (declarator.Symbol.Locations is { Length: > 0 } locations
+                    ? locations[0]
+                    : declarator.Syntax.GetLocation());
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionVariable,
