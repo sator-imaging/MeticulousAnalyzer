@@ -2187,5 +2187,36 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_EarlyBreakAndGoto()
+        {
+            var test = @"
+class C
+{
+    void M(bool cond1, bool cond2)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (cond1) break;
+
+            int x = i;
+            x++;
+        }
+
+        while (cond1)
+        {
+            if (cond2) goto END;
+
+            int y = 0;
+            y++;
+        }
+
+    END:
+        return;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
