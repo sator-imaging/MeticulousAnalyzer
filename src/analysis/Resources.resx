@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="SMA0001__MD_DESC__" xml:space="preserve">
-    <value>Analyzes static field declarations and initialization order to prevent reading uninitialized or cross-referenced static values</value>
+    <value>Analyzes static field declarations and initialization order to prevent reading uninitialized or cross-referenced static values.</value>
   </data>
   <data name="SMA0001__MD_TITLE__" xml:space="preserve">
     <value>Static Field Analysis</value>
@@ -160,7 +160,7 @@
     <value>Late Declaration</value>
   </data>
   <data name="SMA0010__MD_DESC__" xml:space="preserve">
-    <value>Analyzes `TSelf` generic type arguments and constraints to ensure self-referencing type parameters are correctly declared</value>
+    <value>Analyzes `TSelf` generic type arguments and constraints to ensure self-referencing type parameters are correctly declared.</value>
   </data>
   <data name="SMA0010__MD_TITLE__" xml:space="preserve">
     <value>`TSelf` Type Arg Analysis</value>
@@ -385,7 +385,7 @@
     <value>Missing IDisposable Interface</value>
   </data>
   <data name="SMA0050__MD_DESC__" xml:space="preserve">
-    <value>Analyzes source file headers and file structural conventions</value>
+    <value>Analyzes source file headers and file structural conventions.</value>
   </data>
   <data name="SMA0050__MD_TITLE__" xml:space="preserve">
     <value>File Structure Analysis</value>
@@ -400,7 +400,7 @@
     <value>Missing File Header Comment</value>
   </data>
   <data name="SMA0060__MD_DESC__" xml:space="preserve">
-    <value>Analyzes local variables and parameters to enforce immutability and prevent unintentional reassignments or mutations</value>
+    <value>Analyzes local variables and parameters to enforce immutability and prevent unintentional reassignments or mutations.</value>
   </data>
   <data name="SMA0060__MD_TITLE__" xml:space="preserve">
     <value>Read-Only Variable Analysis</value>
@@ -476,7 +476,7 @@
     <value>Task Not Awaited on All Paths</value>
   </data>
   <data name="SMA0080__MD_DESC__" xml:space="preserve">
-    <value>Analyzes cross-namespace access restrictions to enforce internal architecture boundaries</value>
+    <value>Analyzes cross-namespace access restrictions to enforce internal architecture boundaries.</value>
   </data>
   <data name="SMA0080__MD_TITLE__" xml:space="preserve">
     <value>Project Structure Analysis</value>
@@ -491,7 +491,7 @@
     <value>Internal Cross-Namespace Access</value>
   </data>
   <data name="SMA0090__MD_DESC__" xml:space="preserve">
-    <value>Analyzes move-only or `NoCopyAttribute`-marked types to enforce single-ownership semantics and prevent prohibited copies, assignments, casts, or captures</value>
+    <value>Analyzes move-only or `NoCopyAttribute`-marked types to enforce single-ownership semantics and prevent prohibited copies, assignments, casts, or captures.</value>
   </data>
   <data name="SMA0090__MD_TITLE__" xml:space="preserve">
     <value>`MoveOnly` / `NoCopy` Type Analysis</value>
@@ -773,7 +773,7 @@
     <value>State Change in Early Exit</value>
   </data>
   <data name="SMA9000__MD_DESC__" xml:space="preserve">
-    <value>Analyzes for IDE underlining and visual annotations</value>
+    <value>Analyzes for IDE underlining and visual annotations.</value>
   </data>
   <data name="SMA9000__MD_TITLE__" xml:space="preserve">
     <value>`Obsolete` Annotating and Underling</value>
