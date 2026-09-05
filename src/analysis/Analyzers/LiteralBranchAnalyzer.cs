@@ -28,7 +28,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA8020_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8020_Description), Resources.ResourceManager, typeof(Resources), "$value"));
 
         private static readonly DiagnosticDescriptor Rule_LiteralBranchZero = new(
             RuleId_LiteralBranchZero,
@@ -37,7 +37,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Info,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA8021_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8021_Description), Resources.ResourceManager, typeof(Resources), "$value"));
 
         private static readonly DiagnosticDescriptor Rule_LiteralBranchString = new(
             RuleId_LiteralBranchString,
@@ -46,7 +46,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA8022_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8022_Description), Resources.ResourceManager, typeof(Resources), "$value"));
 
         private static readonly DiagnosticDescriptor Rule_LiteralBranchChar = new(
             RuleId_LiteralBranchChar,
@@ -55,7 +55,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(LiteralBranchAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA8023_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8023_Description), Resources.ResourceManager, typeof(Resources), "$value"));
 
         private static readonly char[] TrimCommentChars = new[] { '/', '*', ' ' };  // Ignore TAB, CR, LF, etc.
 

@@ -23,7 +23,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(OmittableArgumentAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA8004_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8004_Description), Resources.ResourceManager, typeof(Resources), "$parameter"));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_OmittableArgument);
 

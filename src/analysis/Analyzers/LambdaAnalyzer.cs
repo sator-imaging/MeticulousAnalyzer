@@ -34,7 +34,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(LambdaAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA7001_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA7001_Description), Resources.ResourceManager, typeof(Resources), "$type"));
 
         public const string RuleId_LambdaAllocation = "SMA7002";
         private static readonly DiagnosticDescriptor Rule_LambdaAllocation = new(

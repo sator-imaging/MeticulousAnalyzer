@@ -29,7 +29,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(TSelfTypeParameterAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0010_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0010_Description), Resources.ResourceManager, typeof(Resources), "$type"));
 
         public const string RuleId_TSelfCovariant = "SMA0011";
         private static readonly DiagnosticDescriptor Rule_TSelfCovariant = new(
@@ -39,7 +39,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(TSelfTypeParameterAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0011_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0011_Description), Resources.ResourceManager, typeof(Resources), "$type"));
 
         public const string RuleId_TSelfContravariant = "SMA0012";
         private static readonly DiagnosticDescriptor Rule_TSelfContravariant = new(
@@ -49,7 +49,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(TSelfTypeParameterAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0012_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0012_Description), Resources.ResourceManager, typeof(Resources), "$type"));
 
 
         public const string RuleId_TSelfPointingOther = "SMA0015";
@@ -60,7 +60,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(TSelfTypeParameterAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0015_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0015_Description), Resources.ResourceManager, typeof(Resources), "$type"));
 
         #endregion
 

@@ -22,7 +22,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ExplicitNumberDeclarationAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA8001_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA8001_Description), Resources.ResourceManager, typeof(Resources), "$variable", "$type"));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_ExplicitNumber);
 

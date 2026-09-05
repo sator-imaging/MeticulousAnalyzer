@@ -23,7 +23,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReflectionAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA7010_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA7010_Description), Resources.ResourceManager, typeof(Resources), "$operation", "$type"));
 
         private static readonly DiagnosticDescriptor Rule_SystemReflectionVariable = new(
             RuleId_SystemReflectionVariable,
@@ -32,7 +32,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(ReflectionAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA7011_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA7011_Description), Resources.ResourceManager, typeof(Resources), "$variable", "$type"));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             Rule_SystemReflectionUsage,
