@@ -154,7 +154,7 @@ Provides rules for argument readability, explicit typing, exception handling, an
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
 | SMA8000 | Literal Should Be Passed as Named Argument                       | Pass literal for '{0}' as named argument to express their meaning (Methods in the System namespace with only one argument are exempt)
-| SMA8001 | Explicit Number Declaration                                      | Declare explicit system number primitive type '{1}' for '{0}' instead of `var`
+| SMA8001 | Explicit Number Declaration                                      | Declare system number primitive '{0}' with explicit type '{1}' instead of `var`
 | SMA8002 | Clearer Null Suppression Operation                               | Null suppression should be fenced with 3 parentheses for visibility, or use `Debug.Assert({0} is not null);` for safe null check
 | SMA8003 | Debug-only Assert in Public API                                  | Avoid using debug-only assertion in public API surfaces, as it can lead to undefined behavior in Release builds
 | SMA8004 | Omittable Argument Should Be Passed as Named Argument            | Pass omittable argument for '{0}' as named argument to express their meaning
