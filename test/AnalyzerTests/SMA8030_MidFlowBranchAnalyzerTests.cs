@@ -808,7 +808,7 @@ class C
     }
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
@@ -1630,7 +1630,7 @@ class C
 
         while (cond1)
         {
-            if (cond2) goto END;
+            if (cond2) {|#0:goto|} END;
 
             int y = 0;
             y++;
@@ -1640,7 +1640,8 @@ class C
         return;
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
@@ -2041,14 +2042,15 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8032_Violation_ReturnInLoops()
+        public async Task SMA8032_Violation_NonLocalExitInLoops()
         {
             var test = @"
 using System;
+using System.Collections.Generic;
 
 class C
 {
-    int ForLoop(int[] items)
+    int ReturnInForLoop(int[] items)
     {
         for (int i = 0; i < items.Length; i++)
         {
@@ -2060,46 +2062,56 @@ class C
         return -1;
     }
 
-    int ForeachLoop(int[] items)
-    {
-        foreach (var item in items)
-        {
-            if (item == 0)
-            {
-                {|#1:return|} item;
-            }
-        }
-        return -1;
-    }
-
-    void WhileLoop(ref bool cond)
+    void ThrowStatementInWhileLoop(bool cond)
     {
         while (cond)
         {
-            {|#2:return|};
+            {|#1:throw|} new InvalidOperationException();
         }
     }
 
-    void DoWhileLoop(ref bool cond)
+    void ThrowExpressionInForeachLoop(string[] items)
+    {
+        foreach (var item in items)
+        {
+            string s = item ?? {|#2:throw|} new ArgumentNullException();
+        }
+    }
+
+    IEnumerable<int> YieldInDoWhileLoop(bool cond)
     {
         do
         {
-            {|#3:return|};
+            {|#3:yield|} return 1;
+            {|#4:yield|} break;
         } while (cond);
     }
+
+    void GotoInForLoop(int[] items)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            {|#5:goto|} END;
+        }
+    END:
+        return;
+    }
 }";
-            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(1);
-            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(2);
-            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_ReturnInLoop).WithLocation(3);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(2);
+            var expected3 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(3);
+            var expected4 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(4);
+            var expected5 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(5);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5);
         }
 
         [TestMethod]
-        public async Task SMA8032_Compliant_ReturnInLoopsSuppressed()
+        public async Task SMA8032_Compliant_NonLocalExitInLoopsSuppressed()
         {
             var test = @"
 using System;
+using System.Collections.Generic;
 
 class C
 {
@@ -2109,7 +2121,7 @@ class C
         {
             if (items[i] == 0)
             {
-                // Allow return
+                // Allow non-local exit from loop
                 return i;
             }
         }
@@ -2122,7 +2134,7 @@ class C
         {
             if (item == 0)
             {
-                // Allow return [ Early exit when zero is found ]
+                // Allow non-local exit from loop [ Early exit when zero is found ]
                 return item;
             }
         }
@@ -2133,8 +2145,17 @@ class C
     {
         while (cond)
         {
-            // allow return
-            return;
+            // allow non-local exit from loop
+            throw new Exception();
+        }
+    }
+
+    IEnumerable<int> YieldLoop(bool cond)
+    {
+        while (cond)
+        {
+            // Allow non-local exit from loop
+            yield return 1;
         }
     }
 }";
@@ -2142,7 +2163,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8032_Compliant_ReturnInLambdaOrLocalFunctionInsideLoop()
+        public async Task SMA8032_Compliant_NonLocalExitInLambdaOrLocalFunctionInsideLoop()
         {
             var test = @"
 using System;

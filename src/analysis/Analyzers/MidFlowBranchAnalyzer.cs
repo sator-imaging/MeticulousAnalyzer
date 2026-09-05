@@ -14,10 +14,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     {
         public const string RuleId_MidFlowBranch = "SMA8030";
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
-        public const string RuleId_ReturnInLoop = "SMA8032";
+        public const string RuleId_NonLocalExitFromLoop = "SMA8032";
 
         private const string MarkerComment = "// Early exit";
-        private const string SuppressionComment_ReturnInLoop = "// Allow return";
+        private const string SuppressionComment_NonLocalExitFromLoop = "// Allow non-local exit from loop";
 
         private static readonly DiagnosticDescriptor Rule = new(
             RuleId_MidFlowBranch,
@@ -37,8 +37,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8031_Description), Resources.ResourceManager, typeof(Resources)));
 
-        private static readonly DiagnosticDescriptor Rule_ReturnInLoop = new(
-            RuleId_ReturnInLoop,
+        private static readonly DiagnosticDescriptor Rule_NonLocalExitFromLoop = new(
+            RuleId_NonLocalExitFromLoop,
             new LocalizableResourceString(nameof(Resources.SMA8032_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA8032_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.CategoryPrefix + nameof(MidFlowBranchAnalyzer),
@@ -46,7 +46,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA8032_Description), Resources.ResourceManager, typeof(Resources)));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, Rule_StateChangeInEarlyReturn, Rule_ReturnInLoop);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, Rule_StateChangeInEarlyReturn, Rule_NonLocalExitFromLoop);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -54,7 +54,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeBlock, SyntaxKind.Block);
-            context.RegisterSyntaxNodeAction(AnalyzeReturnStatement, SyntaxKind.ReturnStatement);
+            context.RegisterSyntaxNodeAction(AnalyzeNonLocalExitInLoop,
+                SyntaxKind.ReturnStatement,
+                SyntaxKind.ThrowStatement,
+                SyntaxKind.ThrowExpression,
+                SyntaxKind.YieldReturnStatement,
+                SyntaxKind.YieldBreakStatement,
+                SyntaxKind.GotoStatement);
         }
 
         private static void AnalyzeBlock(SyntaxNodeAnalysisContext context)
@@ -129,18 +135,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void AnalyzeReturnStatement(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeNonLocalExitInLoop(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is not ReturnStatementSyntax returnStmt)
+            if (!IsInsideLoop(context.Node))
                 return;
 
-            if (!IsInsideLoop(returnStmt))
+            if (HasNonLocalExitSuppression(context.Node))
                 return;
 
-            if (HasReturnInLoopSuppression(returnStmt))
-                return;
-
-            context.ReportDiagnostic(Diagnostic.Create(Rule_ReturnInLoop, returnStmt.ReturnKeyword.GetLocation()));
+            var location = GetBranchLocation(context.Node);
+            if (location != null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule_NonLocalExitFromLoop, location));
+            }
         }
 
         private static bool IsInsideLoop(SyntaxNode node)
@@ -168,12 +175,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool HasReturnInLoopSuppression(ReturnStatementSyntax returnStmt)
+        private static bool HasNonLocalExitSuppression(SyntaxNode node)
         {
-            var comment = Core.GetFirstSingleLineCommentTrivia(returnStmt);
+            var comment = Core.GetFirstSingleLineCommentTrivia(node);
+            if (comment == default && node is ThrowExpressionSyntax)
+            {
+                var stmt = node.FirstAncestorOrSelf<StatementSyntax>();
+                if (stmt != null)
+                {
+                    comment = Core.GetFirstSingleLineCommentTrivia(stmt);
+                }
+            }
 
-            return comment.Span.Length >= SuppressionComment_ReturnInLoop.Length
-                && comment.ToString().StartsWith(SuppressionComment_ReturnInLoop, System.StringComparison.OrdinalIgnoreCase);
+            return comment.Span.Length >= SuppressionComment_NonLocalExitFromLoop.Length
+                && comment.ToString().StartsWith(SuppressionComment_NonLocalExitFromLoop, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool HasEarlyExitMarker(IfStatementSyntax ifStmt)
