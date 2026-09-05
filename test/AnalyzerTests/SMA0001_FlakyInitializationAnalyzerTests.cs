@@ -82,5 +82,83 @@ public class CTest
             var c2 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1513").WithSpan(8, 2, 8, 2);
             await VerifyCS.VerifyAnalyzerAsync(test, c1, expected0, expected1, c2);
         }
+
+        [TestMethod]
+        public async Task SMA0001_Violation_Struct_BlockNamespace()
+        {
+            var test = @"
+namespace Test
+{
+    public struct STest
+    {
+        public static int A = {|#0:B|};
+        public static int {|#1:B|} = 10;
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA0001_Violation_Struct_FileScopedNamespace()
+        {
+            var test = @"
+namespace Test;
+
+public struct STest
+{
+    public static int A = {|#0:B|};
+    public static int {|#1:B|} = 10;
+}
+";
+            // TODO: Roslyn 3.8.0 defaults to C# 9.0 and does not natively support C# 10 file-scoped namespace syntax,
+            // resulting in C# compiler errors during parsing while still allowing the analyzer to run.
+            var c1 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1514").WithSpan(2, 15, 2, 16);
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
+            var c2 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1513").WithSpan(8, 2, 8, 2);
+            await VerifyCS.VerifyAnalyzerAsync(test, c1, expected0, expected1, c2);
+        }
+
+        [TestMethod]
+        public async Task SMA0001_Violation_Record_BlockNamespace()
+        {
+            var test = @"
+namespace Test
+{
+    public record RTest
+    {
+        public static int A = {|#0:B|};
+        public static int {|#1:B|} = 10;
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA0001_Violation_Record_FileScopedNamespace()
+        {
+            var test = @"
+namespace Test;
+
+public record RTest
+{
+    public static int A = {|#0:B|};
+    public static int {|#1:B|} = 10;
+}
+";
+            // TODO: Roslyn 3.8.0 defaults to C# 9.0 and does not natively support C# 10 file-scoped namespace syntax,
+            // resulting in C# compiler errors during parsing while still allowing the analyzer to run.
+            var c1 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1514").WithSpan(2, 15, 2, 16);
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
+            var c2 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1513").WithSpan(8, 2, 8, 2);
+            await VerifyCS.VerifyAnalyzerAsync(test, c1, expected0, expected1, c2);
+        }
     }
 }
