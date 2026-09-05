@@ -74,6 +74,8 @@ public class CTest
     public static int {|#1:B|} = 10;
 }
 ";
+            // TODO: Roslyn 3.8.0 defaults to C# 9.0 and does not natively support C# 10 file-scoped namespace syntax,
+            // resulting in C# compiler errors during parsing while still allowing the analyzer to run.
             var c1 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1514").WithSpan(2, 15, 2, 16);
             var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
             var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
