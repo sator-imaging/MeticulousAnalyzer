@@ -61,5 +61,24 @@ namespace Test
             var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0001_Violation_FileScopedNamespace()
+        {
+            var test = @"
+namespace Test;
+
+public class CTest
+{
+    public static int A = {|#0:B|};
+    public static int {|#1:B|} = 10;
+}
+";
+            var c1 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1514").WithSpan(2, 15, 2, 16);
+            var expected0 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_WrongInit).WithLocation(markupKey: 0).WithArguments("B");
+            var expected1 = VerifyCS.Diagnostic(FlakyInitializationAnalyzer.RuleId_LateDeclare).WithLocation(markupKey: 1).WithArguments("A", "B");
+            var c2 = Microsoft.CodeAnalysis.Testing.DiagnosticResult.CompilerError("CS1513").WithSpan(8, 2, 8, 2);
+            await VerifyCS.VerifyAnalyzerAsync(test, c1, expected0, expected1, c2);
+        }
     }
 }
