@@ -1613,7 +1613,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Compliant_EarlyBreakAndContinue()
+        public async Task SMA8030_Compliant_EarlyBreakAndGoto()
         {
             var test = @"
 class C
@@ -1630,12 +1630,13 @@ class C
 
         while (cond1)
         {
-            if (cond2) continue;
+            if (cond2) goto END;
 
             int y = 0;
             y++;
         }
 
+    END:
         return;
     }
 }";
@@ -2183,37 +2184,6 @@ class C
             f();
             LocalFunc();
         }
-    }
-}";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA8030_Compliant_EarlyBreakAndGoto()
-        {
-            var test = @"
-class C
-{
-    void M(bool cond1, bool cond2)
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            if (cond1) break;
-
-            int x = i;
-            x++;
-        }
-
-        while (cond1)
-        {
-            if (cond2) goto END;
-
-            int y = 0;
-            y++;
-        }
-
-    END:
-        return;
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
