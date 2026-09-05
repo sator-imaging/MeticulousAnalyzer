@@ -31,7 +31,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(FlakyInitializationAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0001_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0001_Description), Resources.ResourceManager, typeof(Resources), "$variable"));
 
         public const string RuleId_CrossRef = "SMA0002";
         private static readonly DiagnosticDescriptor Rule_CrossRef = new(
@@ -41,7 +41,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(FlakyInitializationAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0002_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0002_Description), Resources.ResourceManager, typeof(Resources), "$variable", "$type"));
 
         public const string RuleId_AnotherFile = "SMA0003";
         private static readonly DiagnosticDescriptor Rule_AnotherFile = new(
@@ -51,7 +51,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(FlakyInitializationAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0003_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0003_Description), Resources.ResourceManager, typeof(Resources), "$variable"));
 
         public const string RuleId_LateDeclare = "SMA0004";
         private static readonly DiagnosticDescriptor Rule_LateDeclare = new(
@@ -61,7 +61,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Core.CategoryPrefix + nameof(FlakyInitializationAnalyzer),
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: new LocalizableResourceString(nameof(Resources.SMA0004_Description), Resources.ResourceManager, typeof(Resources)));
+            description: new LocalizableResourceString(nameof(Resources.SMA0004_Description), Resources.ResourceManager, typeof(Resources), "$variable1", "$variable2"));
 
         #endregion
 
