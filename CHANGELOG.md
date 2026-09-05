@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.2.0-rc.13](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.13) (2026-09-05)
+
+### ✨ Bug Fixes
+* Support file-scoped namespaces in FlakyInitializationAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#611](https://github.com/sator-imaging/MeticulousAnalyzer/pull/611)
+### 📚 Other Changes
+* Add format arguments to LocalizableResourceString for diagnostic descriptor descriptions by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#610](https://github.com/sator-imaging/MeticulousAnalyzer/pull/610)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0-rc.12...v5.2.0-rc.13
+
+
 ## [5.2.0-rc.12](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0-rc.12) (2026-09-05)
 
 ### 📖 Documentation
