@@ -2377,11 +2377,13 @@ class C
             var test = @"
 class C
 {
+    int GetDefaultValue() => 10;
+
     void M(int val)
     {
         if (val == 0)
         {
-            val = 10;
+            val = GetDefaultValue();
         }
 
         if (val == 0)
