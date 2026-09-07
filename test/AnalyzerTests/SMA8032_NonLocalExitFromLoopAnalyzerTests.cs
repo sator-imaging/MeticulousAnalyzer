@@ -188,5 +188,78 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_NestedIfInLoop()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    int M(string[] items, bool foo, bool bar, bool baz)
+    {
+        foreach (var item in items)
+        {
+            if (foo)
+            {
+                if (bar)
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (baz)
+                {
+                    throw new Exception();
+                }
+            }
+        }
+        return 0;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Violation_NestedIfInLoopFollowedByEmptyStatement()
+        {
+            var test = @"
+using System;
+using System.Collections.Generic;
+
+class C
+{
+    int M(string[] items, bool foo, bool bar, bool baz)
+    {
+        foreach (var item in items)
+        {
+            if (foo)
+            {
+                if (bar)
+                {
+                    {|#0:return|} 1;
+                }
+            }
+            else
+            {
+                if (baz)
+                {
+                    {|#1:throw|} new Exception();
+                }
+            }
+            ;  // empty statement breaks the requirement
+        }
+        return 0;
+    }
+}";
+            var expected0_8030 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected0_8032 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
+            var expected1_8030 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            var expected1_8032 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0_8030, expected0_8032, expected1_8030, expected1_8032);
+        }
     }
 }
