@@ -133,10 +133,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         {
                             hasDeclarationInCurrentSequence = false;
                         }
-                        else
-                        {
-                            isMainFlowStarted = true;
-                        }
                     }
                 }
                 else
