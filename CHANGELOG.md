@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.2.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.1) (2026-09-07)
+
+### ✨ Bug Fixes
+* Fix `SMA8030` misdetection on consecutive early exit if statements by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#635](https://github.com/sator-imaging/MeticulousAnalyzer/pull/635)
+### 📚 Other Changes
+* Add nested if unit tests for MidFlowBranch analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#636](https://github.com/sator-imaging/MeticulousAnalyzer/pull/636)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.0...v5.2.1
+
+
 ## [5.2.0](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.0) (2026-09-07)
 
 ### 🚀 Features
