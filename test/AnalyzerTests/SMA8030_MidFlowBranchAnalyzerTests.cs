@@ -2370,5 +2370,29 @@ class C
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ConsecutiveEarlyIfStatements_FirstWithoutExit()
+        {
+            var test = @"
+class C
+{
+    void M(int val)
+    {
+        if (val == 0)
+        {
+            val = 10;
+        }
+
+        if (val == 0)
+        {
+            return;
+        }
+
+        int result = val * 2;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
