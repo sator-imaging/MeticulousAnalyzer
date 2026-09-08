@@ -144,26 +144,17 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA9000 | Underlining on Identifier Symbols                                | [identifier] {0}
-> {1}
-| SMA9001 | Underlining on Local Variables                                   | [localvar] {0}
-> {1}
-| SMA9002 | Underlining on Method or Lambda Parameters                       | [param] {0}
-> {1}
+| SMA9000 | Underlining on Identifier Symbols                                | [identifier] {0} > {1}
+| SMA9001 | Underlining on Local Variables                                   | [localvar] {0} > {1}
+| SMA9002 | Underlining on Method or Lambda Parameters                       | [param] {0} > {1}
 | | | |
-| SMA9010 | Underlining on Declarations                                      | [declaration] {0}
-> {1}
+| SMA9010 | Underlining on Declarations                                      | [declaration] {0} > {1}
 | | | |
-| SMA9015 | Underlining only on Designated Type                              | [designated] {0}
-> {1}
+| SMA9015 | Underlining only on Designated Type                              | [designated] {0} > {1}
 | | | |
-| SMA9020 | Underlining at Line Head                                         | [linehead] {0}
-> {1}
-| SMA9021 | Underlining at Line Leading                                      | [linelead] {0}
-> {1}
-| SMA9022 | Underlining on Identifier                                        | [linefill] {0}
-> {1}
-| SMA9023 | Underlining at Line End                                          | [lineend] {0}
-> {1}
+| SMA9020 | Underlining at Line Head                                         | [linehead] {0} > {1}
+| SMA9021 | Underlining at Line Leading                                      | [linelead] {0} > {1}
+| SMA9022 | Underlining on Identifier                                        | [linefill] {0} > {1}
+| SMA9023 | Underlining at Line End                                          | [lineend] {0} > {1}
 | | | |
 | SMA9100 | Underlining as Warning                                           | {1} ({0})
