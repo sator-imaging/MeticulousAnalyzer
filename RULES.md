@@ -11,10 +11,10 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA0001 | Reading Uninitialized Value                                      | Reading '{0}' before initialization. Reorder declarations
+| SMA0001 | Reading Uninitialized Value                                      | Reading '{0}' before its initialization. Reorder declarations to avoid reading the default value
 | SMA0002 | Cross Referencing across Type                                    | Reading '{0}' that cross-references static field in '{1}'. Initialization order is undefined and value is unstable
 | SMA0003 | Static Member Declared in Another File                           | Reading '{0}' that is declared in another partial file. Initialization order is undefined and value is unstable
-| SMA0004 | Late Declaration                                                 | Earlier-declared '{0}' reads '{1}' before declaration. Move it after that
+| SMA0004 | Late Declaration                                                 | Earlier-declared '{0}' reads '{1}' before its declaration. Reorder declarations to avoid reading the default value
 
 ## `TSelf` Type Arg Analysis
 
@@ -45,7 +45,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
 | SMA0030 | Invalid Struct Constructor                                       | Use the explicit constructor for '{0}' instead of parameter-less default
-| SMA0031 | Mutable Struct Field marked as Read-Only                         | Mutable struct type '{0}' should not be set to `readonly` field
+| SMA0031 | Mutable Struct Field Marked as Read-Only                         | Mutable struct type '{0}' should not be set to `readonly` field
 | SMA0032 | Implicit Boxing Conversion                                       | Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [ Reason (optional) ]`
 
 ## Disposable Analysis
@@ -63,7 +63,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA0050 | Missing File Header Comment                                      | File should start with a header comment (`//` or `/* ... */`)
+| SMA0050 | Missing File Header Comment                                      | File should start with a header comment (`//` or `/*`)
 
 ## Read-Only Variable Analysis
 
@@ -144,26 +144,17 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA9000 | Underlining on Identifier Symbols                                | [identifier] {0}
-> {1}
-| SMA9001 | Underlining on Local Variables                                   | [localvar] {0}
-> {1}
-| SMA9002 | Underlining on Method or Lambda Parameters                       | [param] {0}
-> {1}
+| SMA9000 | Underlining on Identifier Symbols                                | [identifier] {0} > {1}
+| SMA9001 | Underlining on Local Variables                                   | [localvar] {0} > {1}
+| SMA9002 | Underlining on Method or Lambda Parameters                       | [param] {0} > {1}
 | | | |
-| SMA9010 | Underlining on Declarations                                      | [declaration] {0}
-> {1}
+| SMA9010 | Underlining on Declarations                                      | [declaration] {0} > {1}
 | | | |
-| SMA9015 | Underlining only on Designated Type                              | [designated] {0}
-> {1}
+| SMA9015 | Underlining only on Designated Type                              | [designated] {0} > {1}
 | | | |
-| SMA9020 | Underlining at Line Head                                         | [linehead] {0}
-> {1}
-| SMA9021 | Underlining at Line Leading                                      | [linelead] {0}
-> {1}
-| SMA9022 | Underlining on Identifier                                        | [linefill] {0}
-> {1}
-| SMA9023 | Underlining at Line End                                          | [lineend] {0}
-> {1}
+| SMA9020 | Underlining at Line Head                                         | [linehead] {0} > {1}
+| SMA9021 | Underlining at Line Leading                                      | [linelead] {0} > {1}
+| SMA9022 | Underlining on Identifier                                        | [linefill] {0} > {1}
+| SMA9023 | Underlining at Line End                                          | [lineend] {0} > {1}
 | | | |
 | SMA9100 | Underlining as Warning                                           | {1} ({0})

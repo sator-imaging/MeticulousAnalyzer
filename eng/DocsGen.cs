@@ -60,7 +60,8 @@ foreach (var node in root.Elements())
     }
     else if (name.EndsWith(SUFFIX_MESSAGE_FORMAT))
     {
-        data.description = node.Element(name: "value")?.Value ?? throw new NullReferenceException();
+        var val = node.Element(name: "value")?.Value ?? throw new NullReferenceException();
+        data.description = val.Replace("\r\n", " ").Replace("\n", " ").Replace("\r", " ");
         analyzerInfo[id] = data;
     }
     //category
