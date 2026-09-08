@@ -200,7 +200,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             int count = parentBlock.Statements.Count;
             if (count < 2 || parentBlock.Statements[count - 2] != loopStatement)
+            {
+                if (count >= 1 && parentBlock.Statements[count - 1] == loopStatement && IsMethodLikeOrLoopSyntax(parentBlock.Parent))
+                    return true;
+
                 return false;
+            }
 
             var nextStatement = parentBlock.Statements[count - 1];
 

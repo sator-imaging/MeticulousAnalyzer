@@ -2220,6 +2220,7 @@ class C
                 {|#0:return|};
             }
         }
+        Console.WriteLine();
     }
 
     void MThrowStatement(int[] items)
@@ -2233,6 +2234,7 @@ class C
                 {|#1:throw|} new InvalidOperationException();
             }
         }
+        Console.WriteLine();
     }
 
     void MThrowExpression(int[] items)
@@ -2246,6 +2248,7 @@ class C
                 _ = items[i] != 0 ? items[i] : {|#2:throw|} new InvalidOperationException();
             }
         }
+        Console.WriteLine();
     }
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
@@ -2354,6 +2357,8 @@ class C
         public async Task SMA8032_NonLocalExitFromLoop_FallbackLocation()
         {
             var test = @"
+using System;
+
 class C
 {
     void M()
@@ -2365,6 +2370,7 @@ class C
                 {|#0:return|};
             }
         }
+        Console.WriteLine();
     }
 }";
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);

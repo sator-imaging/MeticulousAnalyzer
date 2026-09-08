@@ -39,6 +39,7 @@ class C
         {
             {|#1:throw|} new InvalidOperationException();
         }
+        Console.WriteLine();
     }
 
     void ThrowExpressionInForeachLoop(string[] items)
@@ -47,6 +48,7 @@ class C
         {
             string s = item ?? {|#2:throw|} new ArgumentNullException();
         }
+        Console.WriteLine();
     }
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
@@ -260,6 +262,34 @@ class C
             var expected1_8030 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
             var expected1_8032 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(1);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0_8030, expected0_8032, expected1_8030, expected1_8032);
+        }
+
+        [TestMethod]
+        public async Task SMA8032_Compliant_LoopIsLastStatementInMethodOrLoopRootBlock()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void Quit()
+    {
+        StopBackgroundTasks();
+
+        int startAt = 0;
+        while (!EnsureBackgroundTasksComplete())
+        {
+            if (startAt > 30)
+            {
+                throw new Exception();
+            }
+        }
+    }
+
+    void StopBackgroundTasks() { }
+    bool EnsureBackgroundTasksComplete() => false;
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
