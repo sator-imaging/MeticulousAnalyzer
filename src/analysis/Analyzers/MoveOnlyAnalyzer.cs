@@ -266,19 +266,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return containingSymbol is IMethodSymbol methodSymbol && methodSymbol.IsAsync;
         }
 
-        private static bool IsDisposableOrAsyncDisposable(ITypeSymbol? type)
+        private static bool IsMoveOnlyDisposable(ITypeSymbol? type)
         {
-            if (type == null)
+            if (type == null || !IsMoveOnlyType(type))
                 return false;
-
-            if (type.SpecialType == SpecialType.System_IDisposable)
-                return true;
-
-            if (type.Name == "IAsyncDisposable" &&
-                type.ContainingNamespace is INamespaceSymbol { Name: "System", ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true } })
-            {
-                return true;
-            }
 
             foreach (var iface in type.AllInterfaces)
             {
@@ -308,9 +299,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     parameter.Type.ToDiagnosticMessageName()));
             }
 
-            if (parameter.RefKind == RefKind.None &&
-                IsMoveOnlyType(parameter.Type) &&
-                IsDisposableOrAsyncDisposable(parameter.Type))
+            if (parameter.RefKind == RefKind.None && IsMoveOnlyDisposable(parameter.Type))
             {
                 AnalyzeDisposableMoveOnlyParameter(context, parameter);
             }
@@ -321,62 +310,32 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (parameter.ContainingSymbol is not IMethodSymbol method)
                 return;
 
-            if (method.IsAbstract || method.IsExtern || (method.ContainingType != null && method.ContainingType.TypeKind == TypeKind.Interface))
-            {
-                return;
-            }
-
-            var syntaxRef = parameter.DeclaringSyntaxReferences.FirstOrDefault();
-            if (syntaxRef == null)
+            if (method.IsAbstract || method.IsExtern)
                 return;
 
-            var paramSyntax = syntaxRef.GetSyntax();
-            var methodSyntax = paramSyntax.Ancestors().FirstOrDefault(node =>
-                node is BaseMethodDeclarationSyntax ||
-                node is LocalFunctionStatementSyntax ||
-                node is AccessorDeclarationSyntax ||
-                node is AnonymousFunctionExpressionSyntax);
-
-            if (methodSyntax == null)
-                return;
-
-            BlockSyntax? bodyBlock = methodSyntax switch
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
-                BaseMethodDeclarationSyntax m => m.Body,
-                LocalFunctionStatementSyntax l => l.Body,
-                AccessorDeclarationSyntax a => a.Body,
-                AnonymousFunctionExpressionSyntax f => f.Body as BlockSyntax,
-                _ => null
-            };
+                var methodSyntax = syntaxRef.GetSyntax();
 
-            if (bodyBlock == null)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_DisposableParameterMissingUsing,
-                    parameter.Locations[0],
-                    parameter.Name));
-                return;
-            }
-
-            var semanticModel = context.Compilation.GetSemanticModel(methodSyntax.SyntaxTree);
-
-            foreach (var stmt in bodyBlock.Statements)
-            {
-                if (stmt is LocalDeclarationStatementSyntax localDecl && localDecl.UsingKeyword != default)
+                BlockSyntax? bodyBlock = methodSyntax switch
                 {
-                    foreach (var variable in localDecl.Declaration.Variables)
-                    {
-                        if (ReferencesParameter(variable.Initializer?.Value, parameter, semanticModel))
-                        {
-                            return;
-                        }
-                    }
-                }
-                else if (stmt is UsingStatementSyntax usingStmt)
+                    BaseMethodDeclarationSyntax m => m.Body,
+                    LocalFunctionStatementSyntax l => l.Body,
+                    AccessorDeclarationSyntax a => a.Body,
+                    AnonymousFunctionExpressionSyntax f => f.Body as BlockSyntax,
+                    _ => null
+                };
+
+                if (bodyBlock == null)
+                    continue;
+
+                var semanticModel = context.Compilation.GetSemanticModel(methodSyntax.SyntaxTree);
+
+                foreach (var stmt in bodyBlock.Statements)
                 {
-                    if (usingStmt.Declaration != null)
+                    if (stmt is LocalDeclarationStatementSyntax localDecl && localDecl.UsingKeyword != default)
                     {
-                        foreach (var variable in usingStmt.Declaration.Variables)
+                        foreach (var variable in localDecl.Declaration.Variables)
                         {
                             if (ReferencesParameter(variable.Initializer?.Value, parameter, semanticModel))
                             {
@@ -384,11 +343,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             }
                         }
                     }
-                    if (usingStmt.Expression != null)
+                    else if (stmt is UsingStatementSyntax usingStmt)
                     {
-                        if (ReferencesParameter(usingStmt.Expression, parameter, semanticModel))
+                        if (usingStmt.Declaration != null)
                         {
-                            return;
+                            foreach (var variable in usingStmt.Declaration.Variables)
+                            {
+                                if (ReferencesParameter(variable.Initializer?.Value, parameter, semanticModel))
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                        if (usingStmt.Expression != null)
+                        {
+                            if (ReferencesParameter(usingStmt.Expression, parameter, semanticModel))
+                            {
+                                return;
+                            }
                         }
                     }
                 }
