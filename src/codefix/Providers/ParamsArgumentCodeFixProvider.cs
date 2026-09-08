@@ -65,16 +65,16 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             if (argumentList == null) return document;
 
             // Determine which arguments are params arguments by checking which ones fall within the diagnostic span.
-            var paramsArgs = new List<ArgumentSyntax>();
+            List<ArgumentSyntax>? paramsArgs = null;
             foreach (var arg in argumentList.Arguments)
             {
                 if (arg.Span.Start >= diagnosticSpan.Start && arg.Span.End <= diagnosticSpan.End)
                 {
-                    paramsArgs.Add(arg);
+                    (paramsArgs ??= new()).Add(arg);
                 }
             }
 
-            if (paramsArgs.Count == 0) return document;
+            if (paramsArgs == null || paramsArgs.Count == 0) return document;
 
             // Get the parameter info from the invocation/creation.
             ITypeSymbol? elementType = null;
@@ -112,12 +112,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
             // Preserve original separators (commas and their trivia) between params arguments.
             var firstParamsIndex = argumentList.Arguments.IndexOf(paramsArgs[0]);
-            var arraySeparators = new List<SyntaxToken>();
+            List<SyntaxToken>? arraySeparators = null;
             for (int i = 0; i < paramsArgs.Count - 1; i++)
             {
-                arraySeparators.Add(argumentList.Arguments.GetSeparator(firstParamsIndex + i));
+                (arraySeparators ??= new()).Add(argumentList.Arguments.GetSeparator(firstParamsIndex + i));
             }
-            var separatedList = SyntaxFactory.SeparatedList(expressions, arraySeparators);
+            var separatedList = SyntaxFactory.SeparatedList(expressions, (IEnumerable<SyntaxToken>?)arraySeparators ?? System.Array.Empty<SyntaxToken>());
 
             var typeSyntax = SyntaxFactory.ParseTypeName(elementType.ToMinimalDisplayString(semanticModel, argumentList.SpanStart));
             var arrayTypeSyntax = SyntaxFactory.ArrayType(typeSyntax)

@@ -215,7 +215,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void ReportIfDisallowedMutation(OperationAnalysisContext context, IOperation mutationOp, IOperation target)
         {
-            var reported = new HashSet<string>();
+            HashSet<string>? reported = null;
             foreach (var (name, isParameter, isOutParameter, location, syntax) in EnumerateAssignedLocalsAndParameters(target))
             {
                 if (HasMutableNamePrefix(name))
@@ -234,7 +234,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 var key = name + "@" + location.SourceSpan.Start;
-                if (!reported.Add(key))
+                if (!(reported ??= new()).Add(key))
                 {
                     continue;
                 }
