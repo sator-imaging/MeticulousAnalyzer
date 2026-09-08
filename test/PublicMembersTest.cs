@@ -42,7 +42,9 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 new StructAnalyzer(),
                 new TaskAnalyzer(),
                 new TSelfTypeParameterAnalyzer(),
+#if STMG_ENABLE_UNDERLINING_ANALYZER
                 new UnderliningAnalyzer(),
+#endif
             };
 
             foreach (var analyzer in analyzers)
@@ -54,21 +56,20 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             // Verify Rule ID Constants
             Assert.IsNotNull(AnonymousObjectCreationAnalyzer.RuleId_AnonymousObject);
 
-            Assert.IsNotNull(ArgumentAnalyzer.RuleId_NamedArgument);
-            Assert.IsNotNull(ArgumentAnalyzer.RuleId_OmittableDefaultArgument);
-            Assert.IsNotNull(ArgumentAnalyzer.RuleId_OmittableParamsArgument);
+            Assert.IsNotNull(ArgumentAnalyzer.RuleId_LiteralArgument);
 
             Assert.IsNotNull(CatchAnalyzer.RuleId_CatchWithoutThrow);
             Assert.IsNotNull(CatchAnalyzer.RuleId_CatchAll);
 
-            Assert.IsNotNull(DebugAssertAnalyzer.RuleId_DebugAssertUsage);
+            Assert.IsNotNull(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi);
 
-            Assert.IsNotNull(DisposableAnalyzer.RuleId_UndisposedVariable);
-            Assert.IsNotNull(DisposableAnalyzer.RuleId_UndisposedParameter);
-            Assert.IsNotNull(DisposableAnalyzer.RuleId_UndisposedField);
+            Assert.IsNotNull(DisposableAnalyzer.RuleId_MissingUsing);
+            Assert.IsNotNull(DisposableAnalyzer.RuleId_NullAssignmentToDisposable);
+            Assert.IsNotNull(DisposableAnalyzer.RuleId_NotAllCodePathsReturn);
 
-            Assert.IsNotNull(DisposableMethodImplAnalyzer.RuleId_DisposableStructWithoutAggressiveInlining);
-            Assert.IsNotNull(DisposableMethodImplAnalyzer.RuleId_DisposableStructMethodWithoutAggressiveInlining);
+            Assert.IsNotNull(DisposableMethodImplAnalyzer.RuleId_UndisposedMember);
+            Assert.IsNotNull(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation);
+            Assert.IsNotNull(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface);
 
             Assert.IsNotNull(EnumAnalyzer.RuleId_CastToEnum);
             Assert.IsNotNull(EnumAnalyzer.RuleId_CastFromEnum);
@@ -80,7 +81,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             Assert.IsNotNull(EnumAnalyzer.RuleId_UnusualEnum);
             Assert.IsNotNull(EnumAnalyzer.RuleId_EnumLike);
 
-            Assert.IsNotNull(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumberDeclaration);
+            Assert.IsNotNull(ExplicitNumberDeclarationAnalyzer.RuleId_ExplicitNumber);
 
             Assert.IsNotNull(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment);
 
@@ -144,6 +145,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             Assert.IsNotNull(TSelfTypeParameterAnalyzer.RuleId_TSelfContravariant);
             Assert.IsNotNull(TSelfTypeParameterAnalyzer.RuleId_TSelfPointingOther);
 
+#if STMG_ENABLE_UNDERLINING_ANALYZER
             Assert.IsNotNull(UnderliningAnalyzer.RuleId_UnderlineIdentifierSymbol);
             Assert.IsNotNull(UnderliningAnalyzer.RuleId_UnderlineLocalVar);
             Assert.IsNotNull(UnderliningAnalyzer.RuleId_UnderlineParameter);
@@ -154,6 +156,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             Assert.IsNotNull(UnderliningAnalyzer.RuleId_UnderlineLineFill);
             Assert.IsNotNull(UnderliningAnalyzer.RuleId_UnderlineLineEnd);
             Assert.IsNotNull(UnderliningAnalyzer.RuleId_UnderlineWarning);
+#endif
         }
 
         [TestMethod]
