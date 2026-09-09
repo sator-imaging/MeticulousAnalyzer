@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
@@ -373,5 +374,44 @@ public class BurstLinqBenchmarks
     {
         return System.Linq.Enumerable.FirstOrDefault(
             System.Linq.Enumerable.Where(_roList, static x => x > 50.0));
+    }
+
+
+    /*  IsMatchingMemberName  ================================================================ */
+
+    private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
+        @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static bool IsMatchingMemberName(string name)
+    {
+        return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Exchange", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool IsMatchingMemberName_Regex(string name)
+    {
+        return s_isMatchingMemberNameRegex.IsMatch(name);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark(Baseline = true)]
+    public bool IsMatchingMemberName_IndexOf()
+    {
+        return IsMatchingMemberName(_string);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
+    public bool IsMatchingMemberName_Regex()
+    {
+        return IsMatchingMemberName_Regex(_string);
     }
 }
