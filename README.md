@@ -714,7 +714,7 @@ Enforces C++-style move semantics on C# struct types to prevent accidental copie
 - **SMA0094**: MoveOnly type cannot be cast to any type without calling `Move()`.
 - **SMA0095**: MoveOnly type cannot be captured in a lambda expression.
 - **SMA0096**: MoveOnly type cannot be declared as an `out` parameter.
-- **SMA0097**: MoveOnly type cannot be returned by value outside its `Move()` method, even when `Move()` is called in the `return` expression. Reference returns are allowed.
+- **SMA0097**: MoveOnly type cannot be returned by value outside its `Move()` method, even when `Move()` is called in the `return` statement. Reference returns are allowed.
 
 ```cs
 public struct MoveOnlyBuffer
