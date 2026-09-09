@@ -278,11 +278,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     return false;
 
                 case < 6:
-                    return name.Contains("Count") ||
+                    return name == "Count" ||
+                           name == "Index" ||
+                           name.Contains("Add");
+
+                case 6:
+                    return name == "Length" ||
+                           name == "Remove" ||
+                           name == "Search" ||
+                           name.Contains("Count") ||
                            name.Contains("Index") ||
                            name.Contains("Add");
 
-                case < 8:
+                case 7:
                     return name.Contains("Length") ||
                            name.Contains("Count") ||
                            name.Contains("Index") ||
@@ -290,14 +298,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                            name.Contains("Search") ||
                            name.Contains("Add");
 
-                case < 9:
-                    return name.Contains("Length") ||
+                case 8:
+                    return name == "Exchange" ||
+                           name.Contains("Length") ||
                            name.Contains("Count") ||
                            name.Contains("Index") ||
                            name.Contains("Remove") ||
                            name.Contains("Search") ||
-                           name.Contains("Add") ||
-                           name.Contains("Exchange");
+                           name.Contains("Add");
 
                 default:
                     return name.Contains("Length") ||
