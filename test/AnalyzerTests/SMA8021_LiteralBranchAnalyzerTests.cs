@@ -229,11 +229,11 @@ namespace Test
 {
     public class C
     {
-        public void M(object obj, int count)
+        public void M(object obj, int val)
         {
             switch (obj)
             {
-                case string s when count == {|#0:0|}:
+                case string s when val == {|#0:0|}:
                     break;
             }
         }
@@ -319,9 +319,9 @@ namespace Test
 {
     public class C
     {
-        public string M(object obj, int count) => obj switch
+        public string M(object obj, int val) => obj switch
         {
-            string s when count == {|#0:0|} => ""zero"",
+            string s when val == {|#0:0|} => ""zero"",
             _ => ""other""
         };
     }
@@ -870,8 +870,8 @@ namespace Test
             {
             }
 
-            int charIndex2 = 5;
-            if (charIndex2 > 0)
+            int index = 5;
+            if (index > 0)
             {
             }
 

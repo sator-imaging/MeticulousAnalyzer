@@ -567,7 +567,7 @@ if (pos >= 0)
 {
 }
 
-// Allowed: Left-hand side contains Index access
+// Allowed: Left-hand side expression includes Index
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }
