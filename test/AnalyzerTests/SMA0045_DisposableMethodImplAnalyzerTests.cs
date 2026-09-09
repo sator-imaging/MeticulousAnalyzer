@@ -35,5 +35,31 @@ class {|#0:TestClass|}
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+        [TestMethod]
+        public async Task SMA0045_AsyncDisposable_Violation_MissingIAsyncDisposableInterface()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class {|#0:TestClass|}
+{
+    private MyAsyncDisposable _field = new MyAsyncDisposable();
+
+    public async ValueTask DisposeAsync()
+    {
+        await _field.DisposeAsync();
+    }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
