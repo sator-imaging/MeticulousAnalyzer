@@ -870,8 +870,8 @@ namespace Test
             {
             }
 
-            int index = 5;
-            if (index > 0)
+            int charIndex2 = 5;
+            if (charIndex2 > 0)
             {
             }
 
