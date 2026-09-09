@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.3.0-rc.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.1) (2026-09-09)
+
+### 🚀 Features
+* Allow non-local exit in loop when loop is last statement in method/loop root block by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#642](https://github.com/sator-imaging/MeticulousAnalyzer/pull/642)
+### 📖 Documentation
+* Replace newlines with spaces in DocsGen messageFormat by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#639](https://github.com/sator-imaging/MeticulousAnalyzer/pull/639)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.2.1...v5.3.0-rc.1
+
+
 ## [5.2.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.2.1) (2026-09-07)
 
 ### ✨ Bug Fixes
