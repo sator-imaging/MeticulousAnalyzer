@@ -272,15 +272,47 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsMatchingMemberName(string name)
         {
-            return name.Contains("Length") ||
-                   name.Contains("Count") ||
-                   name.Contains("Index") ||
-                   name.Contains("Remove") ||
-                   name.Contains("Search") ||
-                   name.Contains("Add") ||
-                   name.Contains("Exchange") ||
-                   name.Contains("Decrement") ||
-                   name.Contains("Increment");
+            switch (name.Length)
+            {
+                case < 3:
+                    return false;
+
+                case < 5:
+                    return name.Contains("Add");
+
+                case < 6:
+                    return name.Contains("Count") ||
+                           name.Contains("Index") ||
+                           name.Contains("Add");
+
+                case < 8:
+                    return name.Contains("Length") ||
+                           name.Contains("Count") ||
+                           name.Contains("Index") ||
+                           name.Contains("Remove") ||
+                           name.Contains("Search") ||
+                           name.Contains("Add");
+
+                case < 9:
+                    return name.Contains("Length") ||
+                           name.Contains("Count") ||
+                           name.Contains("Index") ||
+                           name.Contains("Remove") ||
+                           name.Contains("Search") ||
+                           name.Contains("Add") ||
+                           name.Contains("Exchange");
+
+                default:
+                    return name.Contains("Length") ||
+                           name.Contains("Count") ||
+                           name.Contains("Index") ||
+                           name.Contains("Remove") ||
+                           name.Contains("Search") ||
+                           name.Contains("Add") ||
+                           name.Contains("Exchange") ||
+                           name.Contains("Decrement") ||
+                           name.Contains("Increment");
+            }
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
