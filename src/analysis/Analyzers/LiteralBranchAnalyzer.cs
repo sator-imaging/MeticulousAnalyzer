@@ -272,15 +272,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsMatchingMemberName(string name)
         {
-            return name.Contains("Length") ||
-                   name.Contains("Count") ||
-                   name.Contains("Index") ||
-                   name.Contains("Remove") ||
-                   name.Contains("Search") ||
-                   name.Contains("Add") ||
-                   name.Contains("Exchange") ||
-                   name.Contains("Decrement") ||
-                   name.Contains("Increment");
+            return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Exchange", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
@@ -292,6 +292,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 IMemberReferenceOperation memberRef => memberRef.Member?.Name,
                 IInvocationOperation invocation => invocation.TargetMethod?.Name,
                 IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                ILocalReferenceOperation localRef => localRef.Local?.Name,
+                IParameterReferenceOperation paramRef => paramRef.Parameter?.Name,
                 _ => null
             };
 

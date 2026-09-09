@@ -229,11 +229,11 @@ namespace Test
 {
     public class C
     {
-        public void M(object obj, int count)
+        public void M(object obj, int val)
         {
             switch (obj)
             {
-                case string s when count == {|#0:0|}:
+                case string s when val == {|#0:0|}:
                     break;
             }
         }
@@ -319,9 +319,9 @@ namespace Test
 {
     public class C
     {
-        public string M(object obj, int count) => obj switch
+        public string M(object obj, int val) => obj switch
         {
-            string s when count == {|#0:0|} => ""zero"",
+            string s when val == {|#0:0|} => ""zero"",
             _ => ""other""
         };
     }
@@ -843,6 +843,40 @@ namespace Test
             }
 
             if (container is { IncrementCount: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_LocalAndParameter_MatchingName()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int index, int count)
+        {
+            if (index >= 0)
+            {
+            }
+
+            if (count == 0)
+            {
+            }
+
+            int charIndex = 5;
+            if (charIndex > 0)
+            {
+            }
+
+            int totalLength = 10;
+            if (totalLength is 0)
             {
             }
         }

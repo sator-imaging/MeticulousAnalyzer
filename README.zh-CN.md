@@ -567,7 +567,7 @@ if (pos >= 0)
 {
 }
 
-// 允许：左侧包含 IndexOf 访问
+// 允许：左侧表达式包含 Index
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }
