@@ -292,6 +292,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 IMemberReferenceOperation memberRef => memberRef.Member?.Name,
                 IInvocationOperation invocation => invocation.TargetMethod?.Name,
                 IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                ILocalReferenceOperation localRef => localRef.Local?.Name,
+                IParameterReferenceOperation paramRef => paramRef.Parameter?.Name,
                 _ => null
             };
 

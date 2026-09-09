@@ -567,7 +567,7 @@ if (pos >= 0)
 {
 }
 
-// 許可: 左辺に IndexOf のアクセスを含む
+// 許可: 左辺に Index のアクセスを含む
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }

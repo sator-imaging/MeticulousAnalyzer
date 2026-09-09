@@ -567,7 +567,7 @@ if (pos >= 0)
 {
 }
 
-// Allowed: Left-hand side contains IndexOf access
+// Allowed: Left-hand side contains Index access
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }

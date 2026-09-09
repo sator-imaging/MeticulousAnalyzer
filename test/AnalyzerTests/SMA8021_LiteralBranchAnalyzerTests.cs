@@ -851,5 +851,39 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_LocalAndParameter_MatchingName()
+        {
+            var test = @"
+namespace Test
+{
+    public class C
+    {
+        public void M(int charIndex, int itemCount)
+        {
+            if (charIndex >= 0)
+            {
+            }
+
+            if (itemCount == 0)
+            {
+            }
+
+            int charIndex2 = 5;
+            if (charIndex2 > 0)
+            {
+            }
+
+            int totalLength = 10;
+            if (totalLength is 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
