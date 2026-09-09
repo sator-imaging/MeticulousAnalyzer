@@ -147,7 +147,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!IsInsideLoop(context.Node, out bool isLastStatement, out var loopStatement))
                 return;
 
-            if (isLastStatement && IsFollowedByNonLocalExit(loopStatement))
+            if (isLastStatement && IsFollowedByNonLocalExitOrLastStatement(loopStatement))
                 return;
 
             if (HasNonLocalExitSuppression(context.Node))
@@ -193,14 +193,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return false;
         }
 
-        private static bool IsFollowedByNonLocalExit(StatementSyntax? loopStatement)
+        private static bool IsFollowedByNonLocalExitOrLastStatement(StatementSyntax? loopStatement)
         {
             if (loopStatement?.Parent is not BlockSyntax parentBlock)
                 return false;
 
             int count = parentBlock.Statements.Count;
             if (count < 2 || parentBlock.Statements[count - 2] != loopStatement)
+            {
+                if (count != 0 && parentBlock.Statements[count - 1] == loopStatement && IsMethodLikeOrLoopSyntax(parentBlock.Parent))
+                    return true;
+
                 return false;
+            }
 
             var nextStatement = parentBlock.Statements[count - 1];
 
