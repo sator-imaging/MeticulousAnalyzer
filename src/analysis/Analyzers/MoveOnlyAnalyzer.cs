@@ -379,19 +379,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             var unwrapped = expr.UnwrapParentheses();
 
-            while (unwrapped is PostfixUnaryExpressionSyntax postfix && postfix.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+            if (unwrapped is InvocationExpressionSyntax invocation &&
+                invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                memberAccess.Name.Identifier.Text == MoveMethodName)
             {
-                unwrapped = postfix.Operand.UnwrapParentheses();
+                unwrapped = memberAccess.Expression.UnwrapParentheses();
             }
 
-            if (unwrapped is InvocationExpressionSyntax invocation)
-            {
-                if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-                    memberAccess.Name.Identifier.Text == MoveMethodName)
-                {
-                    unwrapped = memberAccess.Expression.UnwrapParentheses();
-                }
-            }
+            if (unwrapped is not IdentifierNameSyntax)
+                return false;
 
             var symbolInfo = semanticModel.GetSymbolInfo(unwrapped);
             var symbol = symbolInfo.Symbol ?? (symbolInfo.CandidateSymbols.Length == 1 ? symbolInfo.CandidateSymbols[0] : null);
