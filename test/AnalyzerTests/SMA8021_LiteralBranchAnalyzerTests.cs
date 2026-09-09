@@ -860,18 +860,18 @@ namespace Test
 {
     public class C
     {
-        public void M(int charIndex, int itemCount)
+        public void M(int index, int count)
         {
-            if (charIndex >= 0)
+            if (index >= 0)
             {
             }
 
-            if (itemCount == 0)
+            if (count == 0)
             {
             }
 
-            int charIndex2 = 5;
-            if (charIndex2 > 0)
+            int charIndex = 5;
+            if (charIndex > 0)
             {
             }
 
