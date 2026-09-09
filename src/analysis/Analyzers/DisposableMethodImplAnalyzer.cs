@@ -61,10 +61,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeDisposable, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeAsyncDisposable, SymbolKind.NamedType);
         }
 
-        private static void AnalyzeNamedType(SymbolAnalysisContext context)
+        private static void AnalyzeDisposable(SymbolAnalysisContext context)
         {
             if (context.Symbol is not INamedTypeSymbol typeSymbol)
             {
@@ -76,12 +77,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            AnalyzeDisposable(context, typeSymbol);
-            AnalyzeAsyncDisposable(context, typeSymbol);
-        }
-
-        private static void AnalyzeDisposable(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol)
-        {
             var disposableMemberSet = GetDisposableMembers(typeSymbol);
             if (disposableMemberSet == null)
             {
@@ -149,8 +144,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static void AnalyzeAsyncDisposable(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol)
+        private static void AnalyzeAsyncDisposable(SymbolAnalysisContext context)
         {
+            if (context.Symbol is not INamedTypeSymbol typeSymbol)
+            {
+                return;
+            }
+
+            if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+            {
+                return;
+            }
+
             var asyncDisposableMemberSet = GetAsyncDisposableMembers(typeSymbol);
             if (asyncDisposableMemberSet == null)
             {
