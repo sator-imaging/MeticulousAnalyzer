@@ -714,7 +714,7 @@ for (int i = 0; i < items.Length; i++)
 - **SMA0094**: MoveOnly 类型在未调用 `Move()` 的情况下禁止转换（cast）为任何其他类型。
 - **SMA0095**: MoveOnly 类型禁止在 Lambda 表达式中被捕获。
 - **SMA0096**: MoveOnly 类型不能声明为 `out` 参数。
-- **SMA0097**: MoveOnly 类型不能在 `Move()` 之外按值返回，即使对返回值调用了 `Move()` 也不允许；按引用返回则允许。
+- **SMA0097**: `MoveOnly` 类型不能在 `Move()` 方法以外按值返回，即使在 `return` 表达式中调用了 `Move()` 也不允许；按引用返回则允许。
 
 ```cs
 public struct MoveOnlyBuffer
