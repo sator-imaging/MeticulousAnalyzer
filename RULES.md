@@ -100,6 +100,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA0095 | Prohibited Lambda Capture of MoveOnly Type                       | MoveOnly type '{0}' cannot be captured in a lambda expression
 | SMA0096 | Prohibited Out Parameter of MoveOnly Type                        | MoveOnly type '{0}' cannot be declared as an `out` parameter
 | SMA0097 | Prohibited Return of MoveOnly Type                               | MoveOnly type '{0}' cannot be returned without `ref` outside its `Move()` method
+| SMA0098 | Disposable MoveOnly Parameter Missing Using                      | Disposable MoveOnly parameter '{0}' must be bound to `using` or `await using` statement at method root level
 
 ## Coding Assistance
 
