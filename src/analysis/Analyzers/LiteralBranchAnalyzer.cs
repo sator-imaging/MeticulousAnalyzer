@@ -290,23 +290,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                            name.Contains("Index") ||
                            name.Contains("Add");
 
-                case 7:
-                    return name.Contains("Length") ||
-                           name.Contains("Count") ||
-                           name.Contains("Index") ||
-                           name.Contains("Remove") ||
-                           name.Contains("Search") ||
-                           name.Contains("Add");
-
-                case 8:
-                    return name == "Exchange" ||
-                           name.Contains("Length") ||
-                           name.Contains("Count") ||
-                           name.Contains("Index") ||
-                           name.Contains("Remove") ||
-                           name.Contains("Search") ||
-                           name.Contains("Add");
-
                 default:
                     return name.Contains("Length") ||
                            name.Contains("Count") ||
