@@ -150,8 +150,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
-            if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
+            if (op.TargetMethod.ContainingType is ITypeSymbol
+                {
+                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            },
+                        },
+                    },
+                })
             {
                 return;
             }
@@ -546,7 +557,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                     },
                                 })
                             {
-                                // Allowed argument for GC.SuppressFinalize
+                                // Allowed for GC.SuppressFinalize
                             }
                             else
                             {
