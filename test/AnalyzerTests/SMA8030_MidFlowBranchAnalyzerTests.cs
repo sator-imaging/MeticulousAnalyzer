@@ -2402,5 +2402,77 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_StaticThrowMethodCallBeforeIfStatement()
+        {
+            var test = @"
+class ArgumentNullException
+{
+    public static void ThrowIfNull(object obj) { }
+}
+
+class C
+{
+    void M(object instance, object target, object replacement, bool some)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(replacement);
+
+        if (some)
+        {
+            return;
+        }
+
+        int x = 1;
+        x++;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_NonStaticThrowMethodOrCaseMismatchMethodStartsMainFlow()
+        {
+            var test = @"
+class ThrowHelper
+{
+    public static void throwLower(object obj) { }
+    public void ThrowInstance(object obj) { }
+}
+
+class C
+{
+    void M1(object instance, bool some, ThrowHelper helper)
+    {
+        helper.ThrowInstance(instance);
+
+        if (some)
+        {
+            {|#0:return|};
+        }
+
+        int x = 1;
+        x++;
+    }
+
+    void M2(object instance, bool some)
+    {
+        ThrowHelper.throwLower(instance);
+
+        if (some)
+        {
+            {|#1:return|};
+        }
+
+        int x = 1;
+        x++;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }

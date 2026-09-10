@@ -101,6 +101,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (statement is ExpressionStatementSyntax staticThrowExprStmt && IsStaticThrowMethodCall(context, staticThrowExprStmt.Expression))
+                {
+                    continue;
+                }
+
                 if (statement is IfStatementSyntax ifStmt)
                 {
                     hasSeenIf = true;
@@ -359,6 +364,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             var symbol = context.SemanticModel.GetSymbolInfo(assign.Left).Symbol;
             return symbol is IParameterSymbol param && param.RefKind == RefKind.Out;
+        }
+
+        private static bool IsStaticThrowMethodCall(SyntaxNodeAnalysisContext context, ExpressionSyntax expression)
+        {
+            if (expression is not InvocationExpressionSyntax invocation)
+                return false;
+
+            var symbol = context.SemanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+            if (symbol == null || !symbol.IsStatic)
+                return false;
+
+            return symbol.Name.StartsWith("Throw", System.StringComparison.Ordinal);
         }
 
         private static bool IsTupleDeclaration(AssignmentExpressionSyntax syntax)
