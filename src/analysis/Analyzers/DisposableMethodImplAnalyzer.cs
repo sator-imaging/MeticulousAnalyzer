@@ -61,6 +61,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
+            // Intentionally splitted to allow analyzing concurrently.
             context.RegisterSymbolAction(AnalyzeDisposable, SymbolKind.NamedType);
             context.RegisterSymbolAction(AnalyzeAsyncDisposable, SymbolKind.NamedType);
         }
