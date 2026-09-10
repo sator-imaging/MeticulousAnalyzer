@@ -320,8 +320,9 @@ d = (new object()) as IDisposable;
 
 
 次の条件では警告を出しません:
-- `return` 文でインスタンスを生成
+- `return` 文やアロー式 (`=>`) でインスタンスを生成
     - `return new Disposable();`
+    - `() => new Disposable();`
 - フィールド/プロパティへの代入
     - `m_field = new Disposable();`
 - `IDisposable` 型同士のキャスト

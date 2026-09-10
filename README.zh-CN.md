@@ -320,8 +320,9 @@ d = (new object()) as IDisposable;
 
 
 以下情况不会报警：
-- 在 `return` 语句中创建实例
+- 在 `return` 语句或 Lambda/箭头表达式 (`=>`) 中创建实例
     - `return new Disposable();`
+    - `() => new Disposable();`
 - 赋值给字段或属性
     - `m_field = new Disposable();`
 - 在可释放类型之间转换
