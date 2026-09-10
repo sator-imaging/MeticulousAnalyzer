@@ -383,6 +383,10 @@ public class BurstLinqBenchmarks
         @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex s_isMatchingMemberNameDeInRegex = new Regex(
+        @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     private static bool IsMatchingMemberName(string name)
     {
         return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -401,6 +405,11 @@ public class BurstLinqBenchmarks
         return s_isMatchingMemberNameRegex.IsMatch(name);
     }
 
+    private static bool IsMatchingMemberName_Regex_DeIn(string name)
+    {
+        return s_isMatchingMemberNameDeInRegex.IsMatch(name);
+    }
+
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark(Baseline = true)]
     public bool IsMatchingMemberName_IndexOf()
@@ -413,5 +422,12 @@ public class BurstLinqBenchmarks
     public bool IsMatchingMemberName_Regex()
     {
         return IsMatchingMemberName_Regex(_string);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
+    public bool IsMatchingMemberName_Regex_DeIn()
+    {
+        return IsMatchingMemberName_Regex_DeIn(_string);
     }
 }

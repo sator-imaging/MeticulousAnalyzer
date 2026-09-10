@@ -272,7 +272,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-            @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
+            @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static bool IsMatchingMemberName(string name)
