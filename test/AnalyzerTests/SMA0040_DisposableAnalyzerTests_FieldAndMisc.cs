@@ -233,5 +233,35 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_GC_SuppressFinalize()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    class Program
+    {
+        void Method(MyDisposable disposable)
+        {
+            GC.SuppressFinalize(disposable);
+            GC.SuppressFinalize(new MyDisposable());
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

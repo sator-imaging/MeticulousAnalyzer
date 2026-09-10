@@ -150,8 +150,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
-            if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
+            var targetType = op.TargetMethod.ContainingType;
+            if (targetType != null && targetType.Name is nameof(Interlocked) or nameof(GC))
             {
                 return;
             }
@@ -588,6 +588,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
 
+            if (IsAllowedArgument(focusedOp))
+            {
+                goto NO_WARN;
+            }
+
+
             // No 'using' and 'foreach' found.
             // Report untracked cast operation here.
             if (untrackedCastOperandType is not null)
@@ -628,8 +634,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                         if (argumentOp.Parent is IInvocationOperation invocationOp)
                         {
-                            // Interlocked methods are intentionally allowed.
-                            if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
+                            // Interlocked and System.GC.SuppressFinalize methods are intentionally allowed.
+                            var containingType = invocationOp.TargetMethod.ContainingType;
+                            if (containingType is ITypeSymbol
                                 {
                                     Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
                                     {
@@ -639,6 +646,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                             {
                                                 IsGlobalNamespace: true,
                                             },
+                                        },
+                                    },
+                                })
+                            {
+                                return true;
+                            }
+
+                            if (invocationOp.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
+                                containingType is ITypeSymbol
+                                {
+                                    Name: nameof(GC), ContainingNamespace: INamespaceSymbol
+                                    {
+                                        Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                                        {
+                                            IsGlobalNamespace: true,
                                         },
                                     },
                                 })
@@ -895,6 +917,59 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         NO_WARN:
 
             return;
+        }
+
+        private static bool IsAllowedArgument(IOperation op)
+        {
+            var current = op;
+            while (current.Parent is IConversionOperation parentConv)
+            {
+                current = parentConv;
+            }
+
+            if (current.Parent is IArgumentOperation argOp && argOp.Parent is IInvocationOperation invocationOp)
+            {
+                var targetMethod = invocationOp.TargetMethod;
+                var containingType = targetMethod.ContainingType;
+                if (containingType is null)
+                {
+                    return false;
+                }
+
+                if (containingType is ITypeSymbol
+                    {
+                        Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true,
+                                },
+                            },
+                        },
+                    })
+                {
+                    return true;
+                }
+
+                if (targetMethod.Name == nameof(GC.SuppressFinalize) &&
+                    containingType is ITypeSymbol
+                    {
+                        Name: nameof(GC), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            },
+                        },
+                    })
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsLocalVariableReturned(OperationAnalysisContext context, VariableDeclaratorSyntax variableDeclarator, out bool inAllCodePaths)
