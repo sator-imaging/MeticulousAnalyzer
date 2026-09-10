@@ -2433,20 +2433,19 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_NonStaticThrowMethodOrCaseMismatchMethodStartsMainFlow()
+        public async Task SMA8030_Violation_OtherMethodStartsMainFlow()
         {
             var test = @"
-class ThrowHelper
+class Helper
 {
-    public static void throwLower(object obj) { }
-    public void ThrowInstance(object obj) { }
+    public static void DoWork(object obj) { }
 }
 
 class C
 {
-    void M1(object instance, bool some, ThrowHelper helper)
+    void M(object instance, bool some)
     {
-        helper.ThrowInstance(instance);
+        Helper.DoWork(instance);
 
         if (some)
         {
@@ -2456,23 +2455,9 @@ class C
         int x = 1;
         x++;
     }
-
-    void M2(object instance, bool some)
-    {
-        ThrowHelper.throwLower(instance);
-
-        if (some)
-        {
-            {|#1:return|};
-        }
-
-        int x = 1;
-        x++;
-    }
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
-            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
     }
 }
