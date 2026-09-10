@@ -213,19 +213,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (fullDisposeAsyncMethod != null)
-            {
-                AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, fullDisposeAsyncMethod, asyncDisposableMemberSet);
-            }
-            if (publicDisposeAsyncMethod != null && asyncDisposableMemberSet.Count != 0)
-            {
-                AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, publicDisposeAsyncMethod, asyncDisposableMemberSet);
-            }
-            if (explicitImplMethod != null && asyncDisposableMemberSet.Count != 0)
-            {
-                AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, explicitImplMethod, asyncDisposableMemberSet);
-            }
-
+            AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, targetMethod, asyncDisposableMemberSet);
             if (asyncDisposableMemberSet.Count != 0)
             {
                 ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet);
