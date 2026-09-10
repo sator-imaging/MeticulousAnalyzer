@@ -320,8 +320,9 @@ d = (new object()) as IDisposable;
 
 
 Analyzer won't show warning in the following condition:
-- instance is created on `return` statement
+- instance is created on `return` statement or arrow expression (`=>`)
     - `return new Disposable();`
+    - `() => new Disposable();`
 - assign instance to field or property
     - `m_field = new Disposable();`
 - cast between disposable types

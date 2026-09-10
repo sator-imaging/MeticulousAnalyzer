@@ -1793,5 +1793,49 @@ namespace Test
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_DelegateArrowReturn_NewInstance()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        void Method()
+        {
+            Func<MyDisposable> f1 = () => new MyDisposable();
+            Func<int, MyDisposable> f2 = x => new MyDisposable();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_DelegateArrowReturn_Invocation()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+    class Program
+    {
+        MyDisposable Create() => new MyDisposable();
+        void Method()
+        {
+            Func<MyDisposable> f = () => Create();
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

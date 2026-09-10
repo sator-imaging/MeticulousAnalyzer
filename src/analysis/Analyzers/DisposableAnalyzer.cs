@@ -576,8 +576,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     || (
                         parentOp is IReturnOperation ret &&
                         ret.Parent is IBlockOperation block &&
-                        block.Parent is IMethodBodyBaseOperation method &&
-                        method.ExpressionBody == block
+                        (
+                            (block.Parent is IMethodBodyBaseOperation method && method.ExpressionBody == block) ||
+                            block.Parent is IAnonymousFunctionOperation
+                        )
                     )
                 )
                 {
@@ -747,7 +749,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 // --> Method() => new Disposable();
                 // --> Method() { return new Disposable(); }
                 {
-                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax or YieldStatementSyntax)
+                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax or YieldStatementSyntax or LambdaExpressionSyntax)
                     {
                         return true;
                     }
