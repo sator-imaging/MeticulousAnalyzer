@@ -860,13 +860,41 @@ namespace Test
 {
     public class C
     {
-        public void M(int index, int count)
+        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment)
         {
             if (index >= 0)
             {
             }
 
             if (count == 0)
+            {
+            }
+
+            if (length == 0)
+            {
+            }
+
+            if (remove == 0)
+            {
+            }
+
+            if (search == 0)
+            {
+            }
+
+            if (add == 0)
+            {
+            }
+
+            if (exchange == 0)
+            {
+            }
+
+            if (decrement == 0)
+            {
+            }
+
+            if (increment == 0)
             {
             }
 
