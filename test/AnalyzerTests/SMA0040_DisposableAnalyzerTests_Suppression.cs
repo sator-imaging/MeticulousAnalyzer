@@ -45,5 +45,33 @@ namespace Test
                 .WithArguments("OtherDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0040_NoViolation_GC_SuppressFinalize()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable { public void Dispose() { } }
+
+    class Program
+    {
+        void Method()
+        {
+            GC.SuppressFinalize(new MyDisposable());
+        }
+
+        void Method2(MyDisposable d)
+        {
+            GC.SuppressFinalize(d);
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

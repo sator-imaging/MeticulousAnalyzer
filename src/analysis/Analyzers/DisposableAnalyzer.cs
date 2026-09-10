@@ -114,6 +114,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var parentOp = op.Parent;
+            while (parentOp is IConversionOperation parentCast)
+            {
+                parentOp = parentCast.Parent;
+            }
+
+            if (parentOp is IArgumentOperation argOp &&
+                argOp.Parent is IInvocationOperation invOp &&
+                IsAllowedArgumentMethod(invOp.TargetMethod))
+            {
+                return;
+            }
+
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
 
@@ -150,8 +163,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
-            if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
+            if (op.TargetMethod.ContainingType is { } containingType && IsAllowedArgumentTarget(containingType))
             {
                 return;
             }
@@ -363,6 +375,36 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         IsGlobalNamespace: true,
                     }
                 };
+        }
+
+        private static bool IsAllowedArgumentTarget(ITypeSymbol? typeSymbol)
+        {
+            if (typeSymbol is INamedTypeSymbol namedType)
+            {
+                if (namedType.Name == nameof(Interlocked) &&
+                    namedType.ContainingNamespace is { Name: "Threading", ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } } })
+                {
+                    return true;
+                }
+
+                if (namedType.Name == nameof(GC) &&
+                    namedType.ContainingNamespace is { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } })
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsAllowedArgumentMethod(IMethodSymbol? methodSymbol)
+        {
+            if (methodSymbol?.ContainingType is { } containingType)
+            {
+                return IsAllowedArgumentTarget(containingType);
+            }
+
+            return false;
         }
 
         private static bool IsDisposable(OperationAnalysisContext context, ITypeSymbol? disposableSymbol)
@@ -592,6 +634,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // Report untracked cast operation here.
             if (untrackedCastOperandType is not null)
             {
+                var argParent = focusedOp.Parent;
+                while (argParent is IConversionOperation conv)
+                {
+                    argParent = conv.Parent;
+                }
+
+                if (argParent is IArgumentOperation argOp &&
+                    argOp.Parent is IInvocationOperation invOp &&
+                    IsAllowedArgumentMethod(invOp.TargetMethod))
+                {
+                    untrackedCastOperandType = null;
+                }
+            }
+
+            if (untrackedCastOperandType is not null)
+            {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
                     var reportType = IsDisposable(context, disposableSymbol)
@@ -619,32 +677,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 // Method argument?
                 {
-                    if (focusedOp.Parent is IArgumentOperation argumentOp)
+                    var parentOp = focusedOp.Parent;
+                    while (parentOp is IConversionOperation conversionOp)
                     {
-                        if (!isCreationOp)
+                        parentOp = conversionOp.Parent;
+                    }
+
+                    if (parentOp is IArgumentOperation argumentOp)
+                    {
+                        if (!isCreationOp && focusedOp is not IObjectCreationOperation)
                         {
                             return true;
                         }
 
-                        if (argumentOp.Parent is IInvocationOperation invocationOp)
+                        if (argumentOp.Parent is IInvocationOperation invocationOp &&
+                            IsAllowedArgumentMethod(invocationOp.TargetMethod))
                         {
-                            // Interlocked methods are intentionally allowed.
-                            if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
-                                {
-                                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
-                                    {
-                                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
-                                        {
-                                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
-                                            {
-                                                IsGlobalNamespace: true,
-                                            },
-                                        },
-                                    },
-                                })
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
