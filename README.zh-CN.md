@@ -681,7 +681,7 @@ foreach (var item in items)
 禁止从循环内部进行非局部退出（使用 `return`、`throw` 或 `throw` 表达式）（**SMA8032**）。请改用 `break`、`continue` 或 `goto` 等局部退出语句，以保持控制流清晰且可预测。
 
 > [!NOTE]
-> 循环内部的 `yield return` 和 `yield break` 语句，以及在循环内部声明的局部函数或 Lambda 表达式内部的非局部退出均不受此规则限制。当非局部退出是控制流的最后一条语句时，紧随 `return` 或 `throw` 语句之前的循环，或者作为方法或循环根级块最后一条语句的循环中的非局部退出，也免受此规则限制。
+> 循环内部的 `yield return` 和 `yield break` 语句，以及在循环内部声明的局部函数或 Lambda 表达式内部的非局部退出均不受此规则限制。当非局部退出是控制流的最后一条语句时，紧随 `return` 或 `throw` 语句之前的循环，或者作为方法根级块最后一条语句的循环中的非局部退出，也免受此规则限制。
 
 ```cs
 for (int i = 0; i < items.Length; i++)
