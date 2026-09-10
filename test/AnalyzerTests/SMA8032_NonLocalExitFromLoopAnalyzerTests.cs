@@ -291,5 +291,32 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8032_Violation_LoopIsLastStatementInLoopRootBlock()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool outerCond, bool innerCond, int startAt)
+    {
+        while (outerCond)
+        {
+            Console.WriteLine();
+            while (innerCond)
+            {
+                if (startAt > 30)
+                {
+                    {|#0:throw|} new Exception();
+                }
+            }
+        }
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
     }
 }
