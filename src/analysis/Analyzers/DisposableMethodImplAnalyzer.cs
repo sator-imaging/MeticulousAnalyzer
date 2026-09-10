@@ -68,12 +68,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeDisposable(SymbolAnalysisContext context)
         {
-            if (context.Symbol is not INamedTypeSymbol typeSymbol)
-            {
-                return;
-            }
-
-            if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+            if (context.Symbol is not INamedTypeSymbol typeSymbol ||
+                typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
             {
                 return;
             }
@@ -91,6 +87,57 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 // Don't return. Always analyze Disposable method impl also.
             }
 
+            var targetMethod = GetTargetDisposeMethod(typeSymbol);
+            if (targetMethod == null)
+            {
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                return;
+            }
+
+            AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
+            if (disposableMemberSet.Count != 0)
+            {
+                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet);
+            }
+        }
+
+        private static void AnalyzeAsyncDisposable(SymbolAnalysisContext context)
+        {
+            if (context.Symbol is not INamedTypeSymbol typeSymbol ||
+                typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+            {
+                return;
+            }
+
+            var asyncDisposableMemberSet = GetAsyncDisposableMembers(typeSymbol);
+            if (asyncDisposableMemberSet == null)
+            {
+                return;
+            }
+
+            if (!typeSymbol.AllInterfaces.Any(IsAsyncDisposableInterface))
+            {
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+
+                // Don't return. Always analyze Disposable method impl also.
+            }
+
+            var targetMethod = GetTargetDisposeAsyncMethod(typeSymbol);
+            if (targetMethod == null)
+            {
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                return;
+            }
+
+            AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, targetMethod, asyncDisposableMemberSet);
+            if (asyncDisposableMemberSet.Count != 0)
+            {
+                ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet);
+            }
+        }
+
+        private static IMethodSymbol? GetTargetDisposeMethod(INamedTypeSymbol typeSymbol)
+        {
             IMethodSymbol? fullDisposeMethod = null;
             IMethodSymbol? publicDisposeMethod = null;
             IMethodSymbol? explicitImplMethod = null;
@@ -131,45 +178,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
-            if (targetMethod == null)
-            {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
-                return;
-            }
-
-            AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
-            if (disposableMemberSet.Count != 0)
-            {
-                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet);
-            }
+            return fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
         }
 
-        private static void AnalyzeAsyncDisposable(SymbolAnalysisContext context)
+        private static IMethodSymbol? GetTargetDisposeAsyncMethod(INamedTypeSymbol typeSymbol)
         {
-            if (context.Symbol is not INamedTypeSymbol typeSymbol)
-            {
-                return;
-            }
-
-            if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
-            {
-                return;
-            }
-
-            var asyncDisposableMemberSet = GetAsyncDisposableMembers(typeSymbol);
-            if (asyncDisposableMemberSet == null)
-            {
-                return;
-            }
-
-            if (!typeSymbol.AllInterfaces.Any(IsAsyncDisposableInterface))
-            {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
-
-                // Don't return. Always analyze Disposable method impl also.
-            }
-
             IMethodSymbol? fullDisposeAsyncMethod = null;
             IMethodSymbol? publicDisposeAsyncMethod = null;
             IMethodSymbol? explicitImplMethod = null;
@@ -207,18 +220,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            var targetMethod = fullDisposeAsyncMethod ?? publicDisposeAsyncMethod ?? explicitImplMethod;
-            if (targetMethod == null)
-            {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
-                return;
-            }
-
-            AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, targetMethod, asyncDisposableMemberSet);
-            if (asyncDisposableMemberSet.Count != 0)
-            {
-                ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet);
-            }
+            return fullDisposeAsyncMethod ?? publicDisposeAsyncMethod ?? explicitImplMethod;
         }
 
         private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers)
