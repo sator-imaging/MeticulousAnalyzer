@@ -102,13 +102,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 if (statement is ExpressionStatementSyntax staticThrowExprStmt &&
-                    staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv)
+                    staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv &&
+                    staticThrowInv.Expression is MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Name.ToString().StartsWith("Throw", System.StringComparison.Ordinal))
                 {
-                    var name = staticThrowInv.Expression.ToString();
-                    if (name.StartsWith("Throw", System.StringComparison.Ordinal) || name.Contains(".Throw"))
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 if (statement is IfStatementSyntax ifStmt)
