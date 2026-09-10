@@ -277,6 +277,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsMatchingMemberName(string name)
         {
+            if (name.Length < 3)
+                return false;
+
             return s_isMatchingMemberNameRegex.IsMatch(name);
         }
 
