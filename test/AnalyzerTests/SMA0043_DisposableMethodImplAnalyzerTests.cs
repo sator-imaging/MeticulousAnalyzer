@@ -292,5 +292,156 @@ class MyDisposable : IDisposable
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_Violation_UndisposedField()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IAsyncDisposable
+{
+    private MyAsyncDisposable {|#0:_field|} = new MyAsyncDisposable();
+
+    public ValueTask DisposeAsync() => default;
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_field");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_Compliant_DisposedField()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IAsyncDisposable
+{
+    private MyAsyncDisposable _field = new MyAsyncDisposable();
+
+    public async ValueTask DisposeAsync()
+    {
+        await _field.DisposeAsync();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_DisposeAsyncCallsDispose_IDisposableMarkedDisposed_IAsyncDisposableNotMarked()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyDisposable : IDisposable
+{
+    public void Dispose() { }
+}
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IDisposable, IAsyncDisposable
+{
+    private MyDisposable _field1 = new MyDisposable();
+    private MyAsyncDisposable {|#0:_field2|} = new MyAsyncDisposable();
+
+    public void Dispose()
+    {
+        _field1.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+    }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_field2");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_DisposeAsyncCallsDispose_BothDisposed()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyDisposable : IDisposable
+{
+    public void Dispose() { }
+}
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IDisposable, IAsyncDisposable
+{
+    private MyDisposable _field1 = new MyDisposable();
+    private MyAsyncDisposable _field2 = new MyAsyncDisposable();
+
+    public void Dispose()
+    {
+        _field1.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+        await _field2.DisposeAsync();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_BothInterfacesImplemented_FieldsDisposed()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyBothDisposable : IDisposable, IAsyncDisposable
+{
+    public void Dispose() { }
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IDisposable, IAsyncDisposable
+{
+    private MyBothDisposable _field = new MyBothDisposable();
+
+    public void Dispose()
+    {
+        _field.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
