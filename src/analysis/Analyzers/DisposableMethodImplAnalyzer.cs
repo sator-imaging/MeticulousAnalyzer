@@ -68,8 +68,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeDisposable(SymbolAnalysisContext context)
         {
-            if (context.Symbol is not INamedTypeSymbol typeSymbol ||
-                typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+            if (context.Symbol is not INamedTypeSymbol typeSymbol)
+            {
+                return;
+            }
+
+            if (typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
             {
                 return;
             }
@@ -87,7 +91,47 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 // Don't return. Always analyze Disposable method impl also.
             }
 
-            var targetMethod = GetTargetDisposeMethod(typeSymbol);
+            IMethodSymbol? fullDisposeMethod = null;
+            IMethodSymbol? publicDisposeMethod = null;
+            IMethodSymbol? explicitImplMethod = null;
+
+            foreach (var member in typeSymbol.GetMembers())
+            {
+                if (member is not IMethodSymbol method)
+                {
+                    continue;
+                }
+
+                if (method.Name == DisposeMethodName)
+                {
+                    if (method.Parameters.Length == 1 &&
+                        method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
+                    {
+                        fullDisposeMethod = method;
+                        break;
+                    }
+
+                    if (publicDisposeMethod == null &&
+                        method.Parameters.Length == 0 &&
+                        method.DeclaredAccessibility == Accessibility.Public &&
+                        method.ReturnType.SpecialType == SpecialType.System_Void)
+                    {
+                        publicDisposeMethod = method;
+                    }
+                }
+
+                if (explicitImplMethod == null &&
+                    method.ExplicitInterfaceImplementations.Any(static e =>
+                    {
+                        return e.ContainingType.SpecialType == SpecialType.System_IDisposable
+                            && e.Name == DisposeMethodName;
+                    }))
+                {
+                    explicitImplMethod = method;
+                }
+            }
+
+            var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
                 ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
@@ -134,51 +178,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet);
             }
-        }
-
-        private static IMethodSymbol? GetTargetDisposeMethod(INamedTypeSymbol typeSymbol)
-        {
-            IMethodSymbol? fullDisposeMethod = null;
-            IMethodSymbol? publicDisposeMethod = null;
-            IMethodSymbol? explicitImplMethod = null;
-
-            foreach (var member in typeSymbol.GetMembers())
-            {
-                if (member is not IMethodSymbol method)
-                {
-                    continue;
-                }
-
-                if (method.Name == DisposeMethodName)
-                {
-                    if (method.Parameters.Length == 1 &&
-                        method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
-                    {
-                        fullDisposeMethod = method;
-                        break;
-                    }
-
-                    if (publicDisposeMethod == null &&
-                        method.Parameters.Length == 0 &&
-                        method.DeclaredAccessibility == Accessibility.Public &&
-                        method.ReturnType.SpecialType == SpecialType.System_Void)
-                    {
-                        publicDisposeMethod = method;
-                    }
-                }
-
-                if (explicitImplMethod == null &&
-                    method.ExplicitInterfaceImplementations.Any(static e =>
-                    {
-                        return e.ContainingType.SpecialType == SpecialType.System_IDisposable
-                            && e.Name == DisposeMethodName;
-                    }))
-                {
-                    explicitImplMethod = method;
-                }
-            }
-
-            return fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
         }
 
         private static IMethodSymbol? GetTargetDisposeAsyncMethod(INamedTypeSymbol typeSymbol)
