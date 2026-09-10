@@ -156,6 +156,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var gcType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.GC");
+            if (gcType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, gcType))
+            {
+                return;
+            }
+
             var returnSymbol = op.TargetMethod.ReturnType;
             if (!IsDisposable(context, returnSymbol))
             {
@@ -628,36 +634,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                         if (argumentOp.Parent is IInvocationOperation invocationOp)
                         {
-                            // Interlocked and System.GC.SuppressFinalize methods are intentionally allowed.
+                            // Interlocked and System.GC methods are intentionally allowed.
                             var containingType = invocationOp.TargetMethod.ContainingType;
-                            if (containingType is ITypeSymbol
-                                {
-                                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
-                                    {
-                                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
-                                        {
-                                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
-                                            {
-                                                IsGlobalNamespace: true,
-                                            },
-                                        },
-                                    },
-                                })
+                            var interlockedType = context.Compilation.GetTypeByMetadataName("System.Threading.Interlocked");
+                            if (interlockedType != null && SymbolEqualityComparer.Default.Equals(containingType, interlockedType))
                             {
                                 return true;
                             }
 
-                            if (invocationOp.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
-                                containingType is ITypeSymbol
-                                {
-                                    Name: nameof(GC), ContainingNamespace: INamespaceSymbol
-                                    {
-                                        Name: nameof(System), ContainingNamespace: INamespaceSymbol
-                                        {
-                                            IsGlobalNamespace: true,
-                                        },
-                                    },
-                                })
+                            var gcType = context.Compilation.GetTypeByMetadataName("System.GC");
+                            if (gcType != null && SymbolEqualityComparer.Default.Equals(containingType, gcType))
                             {
                                 return true;
                             }

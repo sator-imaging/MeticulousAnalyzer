@@ -246,7 +246,7 @@ namespace Test
     {
         public void Dispose()
         {
-            GC.SuppressFinalize({|#0:this|});
+            GC.SuppressFinalize(this);
         }
     }
 
@@ -254,19 +254,14 @@ namespace Test
     {
         void Method(MyDisposable disposable)
         {
-            GC.SuppressFinalize({|#1:disposable|});
+            GC.SuppressFinalize(disposable);
+            GC.SuppressFinalize(new MyDisposable());
         }
     }
 }
 ";
 
-            var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable");
-            var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithLocation(markupKey: 1)
-                .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
