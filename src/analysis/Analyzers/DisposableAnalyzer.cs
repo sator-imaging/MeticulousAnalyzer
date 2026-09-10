@@ -543,30 +543,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         if (focusedOp.Parent is not IBinaryOperation
                                             and not IIsPatternOperation)
                         {
-                            var argOp = focusedOp.Parent as IArgumentOperation;
-                            if (argOp?.Parent is IInvocationOperation invOp &&
-                                invOp.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
-                                invOp.TargetMethod.ContainingType is ITypeSymbol
-                                {
-                                    Name: nameof(GC), ContainingNamespace: INamespaceSymbol
-                                    {
-                                        Name: nameof(System), ContainingNamespace: INamespaceSymbol
-                                        {
-                                            IsGlobalNamespace: true,
-                                        },
-                                    },
-                                })
-                            {
-                                // Allowed for GC.SuppressFinalize
-                            }
-                            else
-                            {
-                                // NOTE: Don't exit here.
-                                //       Need to check parent operation for:
-                                //       - using var ...
-                                //       - foreach (var item in ...
-                                untrackedCastOperandType = castOp.Operand.Type;
-                            }
+                            // NOTE: Don't exit here.
+                            //       Need to check parent operation for:
+                            //       - using var ...
+                            //       - foreach (var item in ...
+                            untrackedCastOperandType = castOp.Operand.Type;
                         }
                     }
                 }
