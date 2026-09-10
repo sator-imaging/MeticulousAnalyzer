@@ -62,11 +62,6 @@ namespace Test
         {
             GC.SuppressFinalize(new MyDisposable());
         }
-
-        void Method2(MyDisposable d)
-        {
-            GC.SuppressFinalize(d);
-        }
     }
 }
 ";
