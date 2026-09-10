@@ -1791,6 +1791,39 @@ class C
         int x = 1;
         x++;
     }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_StaticThrowMethodCallAfterIfStatementStartsMainFlow()
+        {
+            var test = @"
+class ArgumentNullException
+{
+    public static void ThrowIfNull(object obj) { }
+}
+
+class C
+{
+    void M(object instance, bool cond1, bool cond2)
+    {
+        if (cond1)
+        {
+            return;
+        }
+
+        ArgumentNullException.ThrowIfNull(instance);
+
+        if (cond2)
+        {
+            {|#0:return|};
+        }
+
+        int x = 1;
+        x++;
+    }
 
     void M2(bool foo, bool bar)
     {
