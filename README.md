@@ -682,7 +682,7 @@ foreach (var item in items)
 Exiting non-locally from inside a loop (using `return`, `throw`, or `throw` expression) is prohibited (**SMA8032**). Use local exits such as `break`, `continue`, or `goto` instead to keep control flow clear and predictable.
 
 > [!NOTE]
-> `yield return` and `yield break` statements inside loops, as well as non-local exits inside local functions or lambdas declared within loops, are exempted. When a non-local exit is the last statement of control flow, non-local exits in loops followed by a `return` or `throw` statement, or loops that are the last statement of a method or loop root-level block, are also exempted.
+> `yield return` and `yield break` statements inside loops, as well as non-local exits inside local functions or lambdas declared within loops, are exempted. When a non-local exit is the last statement of control flow, non-local exits in loops followed by a `return` or `throw` statement, or loops that are the last statement of a method root block, are also exempted.
 
 ```cs
 for (int i = 0; i < items.Length; i++)
