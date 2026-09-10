@@ -2402,5 +2402,122 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_LastIfInTryStatement_TryIsLastInMethodLikeBlock()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        int x = 1;
+        x++;
+
+        try
+        {
+            int y = 2;
+            y++;
+            if (cond)
+            {
+                return;
+            }
+            else
+            {
+                y--;
+            }
+        }
+        catch (Exception)
+        {
+            int z = 3;
+            z++;
+            if (cond)
+            {
+                return;
+            }
+            else
+            {
+                z--;
+            }
+        }
+        finally
+        {
+            int w = 4;
+            w++;
+            if (cond)
+            {
+                throw new InvalidOperationException();
+            }
+            else
+            {
+                w--;
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_LastIfInTryStatement_TryIsNotLastInMethodLikeBlock()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        try
+        {
+            int y = 2;
+            y++;
+            if (cond)
+            {
+                {|#0:return|};
+            }
+        }
+        catch (Exception)
+        {
+        }
+
+        int x = 1;
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_IfIsNotLastInTryBlock_TryIsLastInMethodLikeBlock()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool cond)
+    {
+        try
+        {
+            int y = 2;
+            y++;
+            if (cond)
+            {
+                {|#0:return|};
+            }
+
+            int z = 3;
+        }
+        catch (Exception)
+        {
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
