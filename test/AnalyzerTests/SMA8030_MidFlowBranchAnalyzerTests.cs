@@ -2424,6 +2424,10 @@ class C
             {
                 return;
             }
+            else
+            {
+                y--;
+            }
         }
         catch (Exception)
         {
@@ -2433,6 +2437,10 @@ class C
             {
                 return;
             }
+            else
+            {
+                z--;
+            }
         }
         finally
         {
@@ -2441,6 +2449,10 @@ class C
             if (cond)
             {
                 throw new InvalidOperationException();
+            }
+            else
+            {
+                w--;
             }
         }
     }
