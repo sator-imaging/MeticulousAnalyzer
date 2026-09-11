@@ -101,7 +101,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (statement is ExpressionStatementSyntax staticThrowExprStmt &&
+                if (!hasSeenIf &&
+                    statement is ExpressionStatementSyntax staticThrowExprStmt &&
                     staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv &&
                     staticThrowInv.Expression is MemberAccessExpressionSyntax memberAccess &&
                     memberAccess.Name.ToString().StartsWith("Throw", System.StringComparison.Ordinal))
