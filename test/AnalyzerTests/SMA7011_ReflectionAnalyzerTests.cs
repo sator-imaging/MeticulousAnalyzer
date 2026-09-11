@@ -24,7 +24,7 @@ namespace Test
     {
         public void M()
         {
-            {|#0:MethodInfo|} method = null;
+            MethodInfo {|#0:method|} = null;
             _ = method;
         }
     }
@@ -49,7 +49,7 @@ namespace Test
 
         public void M()
         {
-            {|#0:{|#1:MethodInfo|}|} a, b = {|#2:GetIt()|};
+            MethodInfo {|#0:a|}, {|#1:b|} = {|#2:GetIt()|};
         }
     }
 }
@@ -99,8 +99,8 @@ namespace Test
 
         public void M()
         {
-            {|#0:var|} (a, b) = {|#1:GetTuple()|};
-            ({|#2:MethodInfo|} mi, {|#3:PropertyInfo|} pi) = {|#4:GetTuple()|};
+            var {|#0:(a, b)|} = {|#1:GetTuple()|};
+            (MethodInfo {|#2:mi|}, PropertyInfo {|#3:pi|}) = {|#4:GetTuple()|};
         }
     }
 }

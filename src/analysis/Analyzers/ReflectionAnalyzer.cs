@@ -70,7 +70,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_SystemReflectionVariable,
-                    declExprSyntax.Type.GetLocation(),
+                    declExprSyntax.Designation.GetLocation(),
                     declExprSyntax.Designation.ToString(),
                     type.ToDiagnosticMessageName()));
             }
@@ -152,13 +152,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             Location location;
-            if (declarator.Syntax is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax varDecl })
+            if (declarator.Syntax is VariableDeclaratorSyntax varDecl)
             {
-                location = varDecl.Type.GetLocation();
-            }
-            else if (declarator.Syntax.Ancestors().OfType<DeclarationExpressionSyntax>().FirstOrDefault() is { } declExpr)
-            {
-                location = declExpr.Type.GetLocation();
+                location = varDecl.Identifier.GetLocation();
             }
             else if (declarator.Symbol.Locations is { Length: > 0 } locations)
             {
