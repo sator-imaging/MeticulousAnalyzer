@@ -722,7 +722,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             static bool IsAllowedDisposableArgumentInvocation(IInvocationOperation invocationOp)
             {
-                // Interlocked methods are intentionally allowed.
+                // Intentionally allowed sinks for disposable arguments.
+                // Interlocked transfers ownership; GC.SuppressFinalize is part of the dispose pattern.
                 if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
                     {
                         Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
