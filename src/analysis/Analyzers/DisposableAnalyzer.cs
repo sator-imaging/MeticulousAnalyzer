@@ -636,7 +636,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 // Method argument?
                 {
-                    if (focusedOp.Parent is IArgumentOperation argumentOp)
+                    var parentOp = focusedOp.Parent;
+                    if (parentOp is IConversionOperation parentCastOp)
+                    {
+                        parentOp = parentCastOp.Parent;
+                    }
+
+                    if (parentOp is IArgumentOperation argumentOp)
                     {
                         if (!isCreationOp)
                         {
@@ -714,7 +720,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 goto NO_WARN;
             }
 
-            private static bool IsAllowedDisposableArgumentInvocation(IInvocationOperation invocationOp)
+            static bool IsAllowedDisposableArgumentInvocation(IInvocationOperation invocationOp)
             {
                 // Interlocked methods are intentionally allowed.
                 if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
