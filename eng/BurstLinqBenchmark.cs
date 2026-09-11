@@ -47,10 +47,24 @@ public class BurstLinqBenchmarks
     IEnumerable<double> _enumerable = null!;
     IEnumerable<object> _objEnumerable = null!;
 
+    string _randomString = null!;
+
     [GlobalSetup]
     public void Setup()
     {
         _string = new string('0', Size) + "Target";
+
+        int charCount = Size switch
+        {
+            0 => 5,
+            10 => 10,
+            _ => 25,
+        };
+        var random = new Random(42);
+        char[] chars = new char[charCount];
+        for (int i = 0; i < charCount; i++)
+            chars[i] = (char)random.Next('a', 'z' + 1);
+        _randomString = new string(chars);
 
         _stringArray = new string[Size];
         for (int i = 0; i < Size; i++)
@@ -414,20 +428,20 @@ public class BurstLinqBenchmarks
     [Benchmark(Baseline = true)]
     public bool IsMatchingMemberName_IndexOf()
     {
-        return IsMatchingMemberName(_string);
+        return IsMatchingMemberName(_randomString);
     }
 
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark]
     public bool IsMatchingMemberName_Regex()
     {
-        return IsMatchingMemberName_Regex(_string);
+        return IsMatchingMemberName_Regex(_randomString);
     }
 
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark]
     public bool IsMatchingMemberName_Regex_DeIn()
     {
-        return IsMatchingMemberName_Regex_DeIn(_string);
+        return IsMatchingMemberName_Regex_DeIn(_randomString);
     }
 }
