@@ -182,6 +182,32 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0040_Compliant_GcSuppressFinalize_NewCreation()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        void Method()
+        {
+            GC.SuppressFinalize(new MyDisposable());
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA0040_Compliant_NullSuppression_Parenthesized()
         {
             var test = @"

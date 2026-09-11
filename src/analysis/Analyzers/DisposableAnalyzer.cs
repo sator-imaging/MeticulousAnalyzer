@@ -656,6 +656,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             {
                                 return true;
                             }
+
+                            if (invocationOp.TargetMethod is IMethodSymbol
+                                {
+                                    Name: nameof(GC.SuppressFinalize),
+                                    ContainingType: ITypeSymbol
+                                    {
+                                        Name: nameof(GC),
+                                        ContainingNamespace: INamespaceSymbol
+                                        {
+                                            Name: nameof(System),
+                                            ContainingNamespace: INamespaceSymbol
+                                            {
+                                                IsGlobalNamespace: true,
+                                            },
+                                        },
+                                    },
+                                })
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
