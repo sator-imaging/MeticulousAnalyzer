@@ -603,6 +603,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // Report untracked cast operation here.
             if (untrackedCastOperandType is not null)
             {
+                if (focusedOp.Parent is IArgumentOperation { Parent: IInvocationOperation invocationOp }
+                    && IsAllowedDisposableArgumentInvocation(invocationOp))
+                {
+                    return;
+                }
+
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
                     var reportType = IsDisposable(context, disposableSymbol)
@@ -637,42 +643,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             return true;
                         }
 
-                        if (argumentOp.Parent is IInvocationOperation invocationOp)
-                        {
-                            // Interlocked methods are intentionally allowed.
-                            if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
-                                {
-                                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
-                                    {
-                                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
-                                        {
-                                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
-                                            {
-                                                IsGlobalNamespace: true,
-                                            },
-                                        },
-                                    },
-                                })
-                            {
-                                return true;
-                            }
-
-                            if (invocationOp.TargetMethod is IMethodSymbol
-                                {
-                                    Name: nameof(GC.SuppressFinalize),
-                                    ContainingType: ITypeSymbol
-                                    {
-                                        Name: nameof(GC),
-                                        ContainingNamespace: INamespaceSymbol
-                                        {
-                                            Name: nameof(System),
-                                            ContainingNamespace: INamespaceSymbol
-                                            {
-                                                IsGlobalNamespace: true,
-                                            },
-                                        },
-                                    },
-                                })
+                       if (argumentOp.Parent is IInvocationOperation invocationOp)
+                       {
+                           if (IsAllowedDisposableArgumentInvocation(invocationOp))
                             {
                                 return true;
                             }
@@ -739,6 +712,49 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (IsSyntaxIgnorable(context, isCreationOp, ref syntax, ref focusedOp, ref focusedSymbol))
             {
                 goto NO_WARN;
+            }
+
+            private static bool IsAllowedDisposableArgumentInvocation(IInvocationOperation invocationOp)
+            {
+                // Interlocked methods are intentionally allowed.
+                if (invocationOp.TargetMethod.ContainingType is ITypeSymbol
+                    {
+                        Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true,
+                                },
+                            },
+                        },
+                    })
+                {
+                    return true;
+                }
+
+                if (invocationOp.TargetMethod is IMethodSymbol
+                    {
+                        Name: nameof(GC.SuppressFinalize),
+                        ContainingType: ITypeSymbol
+                        {
+                            Name: nameof(GC),
+                            ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: nameof(System),
+                                ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true,
+                                },
+                            },
+                        },
+                    })
+                {
+                    return true;
+                }
+
+                return false;
             }
 
             static bool IsSyntaxIgnorable(
