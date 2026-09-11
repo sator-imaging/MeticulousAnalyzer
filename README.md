@@ -588,6 +588,7 @@ Do not introduce a new control flow branch in the middle of the main flow. Early
 In an early exit block before the main flow starts, only the following statements are permitted before the exit statement:
 - Local variable declarations (including tuple declarations, `using var...`, and `await using var...`)
 - Assignments to `out` parameters
+- Invocations of static methods whose method name starts with `Throw` (e.g., `ArgumentNullException.ThrowIfNull(...)`)
 - Up to 1 method call (e.g., logging or side-effect-free call)
 
 Performing state modifications (such as reassignments or field updates) or calling multiple methods before exiting will trigger an error (**SMA8031**).
