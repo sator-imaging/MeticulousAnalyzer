@@ -150,7 +150,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
+            var descriptor = (isSourceDisposable && !isResultDisposable)
+                ? Rule_CastFromDisposableToNonDisposable
+                : Rule_MissingUsing;
+
+            CheckAssignmentAndUsingStatementExistence(context, op, op.Type, descriptor);
         }
 
 
@@ -527,7 +531,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void CheckAssignmentAndUsingStatementExistence(
             OperationAnalysisContext context,
             IOperation operation,
-            ITypeSymbol disposableSymbol
+            ITypeSymbol disposableSymbol,
+            DiagnosticDescriptor? descriptor = null
         )
         {
             var focusedSymbol = disposableSymbol;
@@ -610,25 +615,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
 
+            var rule = descriptor ?? Rule_MissingUsing;
+
             // No 'using' and 'foreach' found.
             // Report untracked cast operation here.
             if (untrackedCastOperandType is not null)
             {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
-                    var isSourceDisposable = IsDisposable(context, untrackedCastOperandType);
-                    var isTargetDisposable = IsDisposable(context, disposableSymbol);
-
-                    var descriptor = (isSourceDisposable && !isTargetDisposable)
-                        ? Rule_CastFromDisposableToNonDisposable
-                        : Rule_MissingUsing;
-
-                    var reportType = isTargetDisposable
-                        ? disposableSymbol
-                        : untrackedCastOperandType;
+                    var reportType = (rule == Rule_CastFromDisposableToNonDisposable)
+                        ? untrackedCastOperandType
+                        : disposableSymbol;
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        descriptor, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
+                        rule, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
                 }
 
                 return;
@@ -916,7 +916,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // !! REPORT !!
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_MissingUsing, syntax.GetLocation(), disposableSymbol.ToDiagnosticMessageName()));
+                rule, syntax.GetLocation(), disposableSymbol.ToDiagnosticMessageName()));
 
             return;
 
