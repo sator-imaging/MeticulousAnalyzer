@@ -43,14 +43,14 @@ namespace Test
 
             // The analyzer reports multiple diagnostics:
             // - switch expression arm creating disposable (reported twice - for switch and for assignment)
-            // - the cast to object also triggers
+            // - the cast to object triggers SMA0046
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
-            var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);

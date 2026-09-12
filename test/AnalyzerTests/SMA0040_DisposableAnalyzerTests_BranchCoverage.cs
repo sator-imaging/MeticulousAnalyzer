@@ -99,7 +99,7 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -217,7 +217,7 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
                 .WithArguments("IDisposable");
-            var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 1)
                 .WithArguments("MyDisposable");
             var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
