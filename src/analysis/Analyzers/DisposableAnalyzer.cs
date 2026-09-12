@@ -150,6 +150,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (isSourceDisposable && !isResultDisposable)
+            {
+                if (!Core.IsSuppressedByComment(op, SuppressionComment))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_CastFromDisposableToNonDisposable,
+                        op.Syntax.GetLocation(),
+                        op.Operand.Type.ToDiagnosticMessageName()));
+                }
+
+                return;
+            }
+
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
 
