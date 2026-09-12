@@ -599,6 +599,10 @@ if (foo.Length != 0)
 > メソッドまたはループのルートレベルで最後の文である `if` 文（`else` 節の有無にかかわらず）は、この脱出完全性チェックの対象外となります。
 
 ```cs
+// "Throw" で始まるメソッドは最初の if 文より前に呼び出すことができます。
+ArgumentNullException.ThrowIfNull(first);
+ArgumentNullException.ThrowIfNull(second);
+
 if (!IsValid()) return;  // 早期 return は許可されます。
 
 // 早期 return ブロック内でのローカル宣言と最大1回のメソッド呼び出しは許可されます:

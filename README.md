@@ -599,6 +599,10 @@ Once the main flow has started, exiting inside an incomplete branch (an `if` sta
 > An `if` statement (with or without an `else` clause) that is the last statement at the method root level or loop root level is exempted from this exit completeness check.
 
 ```cs
+// Methods starting with "Throw" can be called before the first if statement.
+ArgumentNullException.ThrowIfNull(first);
+ArgumentNullException.ThrowIfNull(second);
+
 if (!IsValid()) return;  // Early return is allowed.
 
 // Local declarations and up to 1 method call in early return block are allowed:
