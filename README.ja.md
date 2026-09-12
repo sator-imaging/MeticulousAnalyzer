@@ -599,8 +599,9 @@ if (foo.Length != 0)
 > メソッドまたはループのルートレベルで最後の文である `if` 文（`else` 節の有無にかかわらず）は、この脱出完全性チェックの対象外となります。
 
 ```cs
-// "Throw" で始まるメソッド呼び出し（ArgumentNullException.ThrowIfNull など）は最初の if 文より前に呼び出すことができます。
-ArgumentNullException.ThrowIfNull(arg);
+// "Throw" で始まるメソッド呼び出しは最初の if 文より前に呼び出すことができます。
+ArgumentNullException.ThrowIfNull(first);
+ArgumentNullException.ThrowIfNull(second);
 
 if (!IsValid()) return;  // 早期 return は許可されます。
 

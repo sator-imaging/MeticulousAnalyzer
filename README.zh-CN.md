@@ -599,8 +599,9 @@ if (foo.Length != 0)
 > 作为方法根层级或循环根层级中最后一个语句的 `if` 语句（无论是否带有 `else` 子句），均免于此退出完整性检查。
 
 ```cs
-// 以 "Throw" 开头的方法调用（例如 ArgumentNullException.ThrowIfNull）可以在首个 if 语句之前调用。
-ArgumentNullException.ThrowIfNull(arg);
+// 以 "Throw" 开头的方法调用可以在首个 if 语句之前调用。
+ArgumentNullException.ThrowIfNull(first);
+ArgumentNullException.ThrowIfNull(second);
 
 if (!IsValid()) return;  // 允许早期 return。
 
