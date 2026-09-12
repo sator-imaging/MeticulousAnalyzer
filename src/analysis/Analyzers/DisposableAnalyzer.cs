@@ -57,6 +57,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0042_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_CastFromDisposableToNonDisposable = "SMA0046";
+        private static readonly DiagnosticDescriptor Rule_CastFromDisposableToNonDisposable = new(
+            RuleId_CastFromDisposableToNonDisposable,
+            new LocalizableResourceString(nameof(Resources.SMA0046_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(DisposableAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
 
@@ -67,7 +77,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 #endif
             Rule_MissingUsing,
             Rule_NullAssignmentToDisposable,
-            Rule_NotAllCodePathsReturn
+            Rule_NotAllCodePathsReturn,
+            Rule_CastFromDisposableToNonDisposable
             );
 
 
@@ -605,12 +616,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
-                    var reportType = IsDisposable(context, disposableSymbol)
+                    var isSourceDisposable = IsDisposable(context, untrackedCastOperandType);
+                    var isTargetDisposable = IsDisposable(context, disposableSymbol);
+
+                    var descriptor = (isSourceDisposable && !isTargetDisposable)
+                        ? Rule_CastFromDisposableToNonDisposable
+                        : Rule_MissingUsing;
+
+                    var reportType = isTargetDisposable
                         ? disposableSymbol
                         : untrackedCastOperandType;
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
+                        descriptor, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
                 }
 
                 return;
