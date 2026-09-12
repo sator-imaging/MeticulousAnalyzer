@@ -401,6 +401,10 @@ public class BurstLinqBenchmarks
         @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex s_isMatchingMemberNameLength6Regex = new Regex(
+        @"Length|Count|Index|Remove|Search|Add",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     private static bool IsMatchingMemberName(string name)
     {
         return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -461,6 +465,15 @@ public class BurstLinqBenchmarks
                    _randomString.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    _randomString.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0;
         }
+        return s_isMatchingMemberNameRegex.IsMatch(_randomString);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
+    public bool IsMatchingMemberName_DualRegex()
+    {
+        if (_randomString.Length <= 6)
+            return s_isMatchingMemberNameLength6Regex.IsMatch(_randomString);
         return s_isMatchingMemberNameRegex.IsMatch(_randomString);
     }
 }
