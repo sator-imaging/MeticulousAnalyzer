@@ -424,13 +424,6 @@ public class BurstLinqBenchmarks
         return s_isMatchingMemberNameDeInRegex.IsMatch(name);
     }
 
-    private static bool IsMatchingMemberName_Mixed(string name)
-    {
-        if (name.Length <= 6)
-            return IsMatchingMemberName(name);
-        return IsMatchingMemberName_Regex(name);
-    }
-
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark(Baseline = true)]
     public bool IsMatchingMemberName_IndexOf()
@@ -456,6 +449,8 @@ public class BurstLinqBenchmarks
     [Benchmark]
     public bool IsMatchingMemberName_Mixed()
     {
-        return IsMatchingMemberName_Mixed(_randomString);
+        if (_randomString.Length <= 6)
+            return IsMatchingMemberName(_randomString);
+        return IsMatchingMemberName_Regex(_randomString);
     }
 }
