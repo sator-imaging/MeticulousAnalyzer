@@ -271,7 +271,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        // TODO: Compiled Regex performance improves significantly on modern .NET runtimes (.NET 7+), making Regex faster across all string lengths.
+        // TODO: Compiled Regex performance improves significantly on modern .NET runtimes (.NET 7+),
+        //       making Regex faster across all string lengths. See benchmark GH action for details.
         private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
             @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
