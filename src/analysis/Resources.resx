@@ -288,6 +288,12 @@
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
   </data>
+  <data name="SMA0046_MessageFormat" xml:space="preserve">
+    <value>Disposable type '{0}' is cast to non-disposable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
+  </data>
+  <data name="SMA0046_Title" xml:space="preserve">
+    <value>Cast from Disposable to Non-Disposable</value>
+  </data>
   <data name="SMA0050__MD_TITLE__" xml:space="preserve">
     <value>File Structure Analysis</value>
   </data>

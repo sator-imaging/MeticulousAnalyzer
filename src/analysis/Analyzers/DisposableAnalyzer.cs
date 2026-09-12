@@ -57,6 +57,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0042_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_CastFromDisposableToNonDisposable = "SMA0046";
+        private static readonly DiagnosticDescriptor Rule_CastFromDisposableToNonDisposable = new(
+            RuleId_CastFromDisposableToNonDisposable,
+            new LocalizableResourceString(nameof(Resources.SMA0046_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(DisposableAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
 
@@ -67,7 +77,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 #endif
             Rule_MissingUsing,
             Rule_NullAssignmentToDisposable,
-            Rule_NotAllCodePathsReturn
+            Rule_NotAllCodePathsReturn,
+            Rule_CastFromDisposableToNonDisposable
             );
 
 
@@ -136,6 +147,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // both are disposable OR both are not disposable
             if (isResultDisposable == isSourceDisposable)
             {
+                return;
+            }
+
+            if (isSourceDisposable && !isResultDisposable)
+            {
+                if (op.Parent is IBinaryOperation or IReturnOperation)
+                {
+                    return;
+                }
+
+                if (Core.IsSuppressedByComment(op, SuppressionComment))
+                {
+                    return;
+                }
+
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_CastFromDisposableToNonDisposable,
+                    op.Syntax.GetLocation(),
+                    op.Operand.Type.ToDiagnosticMessageName(),
+                    op.Type.ToDiagnosticMessageName()));
                 return;
             }
 
