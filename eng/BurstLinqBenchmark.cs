@@ -58,7 +58,7 @@ public class BurstLinqBenchmarks
         {
             0 => 5,
             10 => 10,
-            _ => 25,
+            _ => 15,
         };
         var random = new Random(42);
         char[] chars = new char[charCount];
@@ -450,7 +450,17 @@ public class BurstLinqBenchmarks
     public bool IsMatchingMemberName_Mixed()
     {
         if (_randomString.Length <= 6)
-            return IsMatchingMemberName(_randomString);
-        return IsMatchingMemberName_Regex(_randomString);
+        {
+            return _randomString.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Exchange", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+        return s_isMatchingMemberNameRegex.IsMatch(_randomString);
     }
 }
