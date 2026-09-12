@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
@@ -271,17 +270,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        // This regex is selected based on the benchmark result.
-        private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-            @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
+        // TODO: Compiled Regex is faster on modern .NET runtimes (.NET 7+).
         private static bool IsMatchingMemberName(string name)
         {
             if (name.Length < 3)
                 return false;
 
-            return s_isMatchingMemberNameRegex.IsMatch(name);
+            return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Exchange", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
