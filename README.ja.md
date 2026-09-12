@@ -588,7 +588,6 @@ if (foo.Length != 0)
 メインフロー開始前の早期脱出ブロックでは、脱出文の前に以下の処理のみが許可されます:
 - ローカル変数の宣言（タプル宣言、`using var...` および `await using var...` を含む）
 - `out` パラメーターへの代入
-- `Throw` で始まる静的メソッドの呼び出し（`ArgumentNullException.ThrowIfNull(...)` など）
 - 最大1回までのメソッド呼び出し（ログ出力など副作用のない呼び出し）
 
 脱出前に状態の変更（再代入やフィールドの更新など）を行ったり、複数のメソッド呼び出しを行うとエラー（**SMA8031**）となります。
@@ -600,6 +599,9 @@ if (foo.Length != 0)
 > メソッドまたはループのルートレベルで最後の文である `if` 文（`else` 節の有無にかかわらず）は、この脱出完全性チェックの対象外となります。
 
 ```cs
+// "Throw" で始まる静的メソッド呼び出し（ArgumentNullException.ThrowIfNull など）は最初の if 文より前に呼び出すことができます。
+ArgumentNullException.ThrowIfNull(arg);
+
 if (!IsValid()) return;  // 早期 return は許可されます。
 
 // 早期 return ブロック内でのローカル宣言と最大1回のメソッド呼び出しは許可されます:

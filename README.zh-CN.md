@@ -588,7 +588,6 @@ if (foo.Length != 0)
 在主流程开始前的早期退出块中，退出语句之前仅允许以下语句：
 - 局部变量声明（包含元组声明、`using var...` 与 `await using var...`）
 - 对 `out` 参数的赋值
-- 名称以 `Throw` 开头的静态方法调用（例如 `ArgumentNullException.ThrowIfNull(...)`）
 - 最多 1 次方法调用（如无侧重影响的日志输出等）
 
 在退出前进行状态修改（如重新赋值或字段更新）或调用多个方法将引发错误（**SMA8031**）。
@@ -600,6 +599,9 @@ if (foo.Length != 0)
 > 作为方法根层级或循环根层级中最后一个语句的 `if` 语句（无论是否带有 `else` 子句），均免于此退出完整性检查。
 
 ```cs
+// 以 "Throw" 开头的静态方法调用（例如 ArgumentNullException.ThrowIfNull）可以在首个 if 语句之前调用。
+ArgumentNullException.ThrowIfNull(arg);
+
 if (!IsValid()) return;  // 允许早期 return。
 
 // 早期 return 块中允许局部变量声明和最多 1 次方法调用：

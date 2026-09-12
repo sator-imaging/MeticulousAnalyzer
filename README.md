@@ -588,7 +588,6 @@ Do not introduce a new control flow branch in the middle of the main flow. Early
 In an early exit block before the main flow starts, only the following statements are permitted before the exit statement:
 - Local variable declarations (including tuple declarations, `using var...`, and `await using var...`)
 - Assignments to `out` parameters
-- Invocations of static methods whose method name starts with `Throw` (e.g., `ArgumentNullException.ThrowIfNull(...)`)
 - Up to 1 method call (e.g., logging or side-effect-free call)
 
 Performing state modifications (such as reassignments or field updates) or calling multiple methods before exiting will trigger an error (**SMA8031**).
@@ -600,6 +599,9 @@ Once the main flow has started, exiting inside an incomplete branch (an `if` sta
 > An `if` statement (with or without an `else` clause) that is the last statement at the method root level or loop root level is exempted from this exit completeness check.
 
 ```cs
+// Invocations of static methods starting with "Throw" (e.g., ArgumentNullException.ThrowIfNull) can be called before the first if statement.
+ArgumentNullException.ThrowIfNull(arg);
+
 if (!IsValid()) return;  // Early return is allowed.
 
 // Local declarations and up to 1 method call in early return block are allowed:
