@@ -47,7 +47,7 @@ using System.Text.RegularExpressions;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 
-public static partial class LiteralBranchRegexHelper
+public static partial class RegexHelper
 {
     [GeneratedRegex(@""Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment"", RegexOptions.IgnoreCase)]
     public static partial Regex IsExcemptionNameForZeroComparison();
@@ -55,7 +55,7 @@ public static partial class LiteralBranchRegexHelper
 
 class Program
 {
-    static void Main() => Console.WriteLine(LiteralBranchRegexHelper.IsExcemptionNameForZeroComparison().IsMatch(""Length""));
+    static void Main() => Console.WriteLine(RegexHelper.IsExcemptionNameForZeroComparison().IsMatch(""Length""));
 }";
                 File.WriteAllText(programPath, programContent);
 
@@ -82,7 +82,7 @@ class Program
                 string generatedCode = File.ReadAllText(generatedFile);
 
                 // Strip "file " modifier as required
-                generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
+                generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "private ");
 
                 var dirPath = Path.GetDirectoryName(outputPath);
                 if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))

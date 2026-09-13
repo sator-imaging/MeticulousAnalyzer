@@ -4,7 +4,7 @@
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
-    partial class LiteralBranchRegexHelper
+    partial class RegexHelper
     {
         /// <remarks>
         /// Pattern:<br/>
@@ -100,7 +100,7 @@ namespace System.Text.RegularExpressions.Generated
 
     /// <summary>Custom <see cref="Regex"/>-derived type for the IsExcemptionNameForZeroComparison method.</summary>
     [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "10.0.14.7603")]
-    internal sealed class IsExcemptionNameForZeroComparison_0 : Regex
+    private sealed class IsExcemptionNameForZeroComparison_0 : Regex
     {
         /// <summary>Cached, thread-safe singleton instance.</summary>
         internal static readonly IsExcemptionNameForZeroComparison_0 Instance = new();
@@ -343,7 +343,7 @@ namespace System.Text.RegularExpressions.Generated
 
     /// <summary>Helper methods used by generated <see cref="Regex"/>-derived implementations.</summary>
     [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "10.0.14.7603")]
-    internal static class Utilities
+    private static class Utilities
     {
         /// <summary>Default timeout value set in <see cref="AppContext"/>, or <see cref="Regex.InfiniteMatchTimeout"/> if none was set.</summary>
         internal static readonly TimeSpan s_defaultTimeout = AppContext.GetData("REGEX_DEFAULT_MATCH_TIMEOUT") is TimeSpan timeout ? timeout : Regex.InfiniteMatchTimeout;
