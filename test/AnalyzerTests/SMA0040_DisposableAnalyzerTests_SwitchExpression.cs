@@ -53,7 +53,10 @@ namespace Test
             var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MyDisposable");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            var expected3 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
         [TestMethod]
