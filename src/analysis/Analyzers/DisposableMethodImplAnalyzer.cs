@@ -15,6 +15,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     {
         public const string DisposeMethodName = "Dispose";
         public const string DisposeAsyncMethodName = "DisposeAsync";
+        public const string DisposeAsyncCoreMethodName = "DisposeAsyncCore";
+        public const string IAsyncDisposableInterfaceName = "IAsyncDisposable";
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -61,7 +63,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            // Intentionally splitted to allow analyzing concurrently.
+            // Intentionally split to allow analyzing concurrently.
             context.RegisterSymbolAction(AnalyzeDisposable, SymbolKind.NamedType);
             context.RegisterSymbolAction(AnalyzeAsyncDisposable, SymbolKind.NamedType);
         }
@@ -86,7 +88,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName(), "IDisposable");
 
                 // Don't return. Always analyze Disposable method impl also.
             }
@@ -161,7 +163,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (!typeSymbol.AllInterfaces.Any(IsAsyncDisposableInterface))
             {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName(), IAsyncDisposableInterfaceName);
 
                 // Don't return. Always analyze Disposable method impl also.
             }
@@ -193,9 +195,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (method.Name == "DisposeAsyncCore")
+                if (method.Name == DisposeAsyncCoreMethodName)
                 {
-                    if (method.Parameters.Length == 0)
+                    if (method.Parameters.Length == 0 &&
+                        (method.ReturnType.Name is "ValueTask" or "Task" || method.ReturnType.SpecialType == SpecialType.System_Void))
                     {
                         fullDisposeAsyncMethod = method;
                         break;
@@ -206,7 +209,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     if (publicDisposeAsyncMethod == null &&
                         method.Parameters.Length == 0 &&
-                        method.DeclaredAccessibility == Accessibility.Public)
+                        method.DeclaredAccessibility == Accessibility.Public &&
+                        (method.ReturnType.Name is "ValueTask" or "Task" || method.ReturnType.SpecialType == SpecialType.System_Void))
                     {
                         publicDisposeAsyncMethod = method;
                     }
@@ -408,12 +412,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             if (method.Name == DisposeMethodName && method.Parameters.Length == 0)
             {
-                return true;
+                return IsDisposable(method.ContainingType);
             }
 
             if (method.Name == DisposeAsyncMethodName && method.Parameters.Length == 0)
             {
-                return true;
+                return IsAsyncDisposable(method.ContainingType);
             }
 
             return false;
@@ -516,34 +520,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsAsyncDisposableInterface(INamedTypeSymbol typeSymbol)
         {
-            if (typeSymbol.Name != "IAsyncDisposable")
+            // TODO: Use SpecialType.System_IAsyncDisposable in Roslyn 4.x+ when updated
+            if (typeSymbol.Name != IAsyncDisposableInterfaceName)
             {
                 return false;
             }
 
-            var ns = typeSymbol.ContainingNamespace;
-            if (ns == null)
-            {
-                return false;
-            }
-
-            if (ns.Name == "System" && ns.ContainingNamespace != null && ns.ContainingNamespace.IsGlobalNamespace)
-            {
-                return true;
-            }
-
-            if (ns.Name == "Tasks" &&
-                ns.ContainingNamespace is INamespaceSymbol threadingNs &&
-                threadingNs.Name == "Threading" &&
-                threadingNs.ContainingNamespace is INamespaceSymbol systemNs &&
-                systemNs.Name == "System" &&
-                systemNs.ContainingNamespace != null &&
-                systemNs.ContainingNamespace.IsGlobalNamespace)
-            {
-                return true;
-            }
-
-            return false;
+            return typeSymbol.ContainingNamespace is INamespaceSymbol ns &&
+                   ns.Name == "System" &&
+                   ns.ContainingNamespace != null &&
+                   ns.ContainingNamespace.IsGlobalNamespace;
         }
     }
 }

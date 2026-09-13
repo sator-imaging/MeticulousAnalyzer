@@ -30,7 +30,7 @@ class {|#0:TestClass|}
                 .WithArguments("TestClass");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
                 .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
+                .WithArguments("TestClass", "IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
 
@@ -55,7 +55,7 @@ class {|#0:TestClass|}
                 .WithArguments("TestClass");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
                 .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
+                .WithArguments("TestClass", "IAsyncDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
     }
