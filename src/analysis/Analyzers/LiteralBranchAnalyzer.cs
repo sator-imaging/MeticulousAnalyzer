@@ -282,6 +282,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (name.Length < 3)
                 return false;
 
+            // Note: Accurate length-based branching provides performance gains only in specific cases.
             if (name.Length <= 6)
             {
                 return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
