@@ -82,15 +82,23 @@ class Program
                     proc.WaitForExit();
                 }
 
-                string? generatedFile = Directory.GetFiles(tempDir, "*RegexGenerator.g.cs", SearchOption.AllDirectories).FirstOrDefault();
+                string generatedFilesDir = Path.Combine(tempDir, "obj", "GeneratedFiles");
+                string[] generatedFiles = Directory.Exists(generatedFilesDir)
+                    ? Directory.GetFiles(generatedFilesDir, "*.cs", SearchOption.AllDirectories)
+                    : Directory.GetFiles(tempDir, "*.cs", SearchOption.AllDirectories)
+                        .Where(f => !f.EndsWith("Program.cs") && !f.EndsWith("GlobalUsings.g.cs") && !f.EndsWith("AssemblyInfo.cs") && !f.EndsWith("AssemblyAttributes.cs"))
+                        .ToArray();
+
                 // Early exit
-                if (generatedFile == null)
+                if (generatedFiles.Length == 0)
                 {
-                    Console.Error.WriteLine("Failed to locate generated RegexGenerator.g.cs");
+                    Console.Error.WriteLine("Failed to locate generated files under obj/GeneratedFiles");
                     return 1;
                 }
 
-                string generatedCode = File.ReadAllText(generatedFile).Replace("\r\n", "\n").Replace("\r", "\n");
+                string generatedCode = string.Join("\n\n", generatedFiles.Select(f => File.ReadAllText(f)))
+                    .Replace("\r\n", "\n")
+                    .Replace("\r", "\n");
 
                 // Strip "file " modifier as required
                 generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
