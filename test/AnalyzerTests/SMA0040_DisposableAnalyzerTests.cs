@@ -784,9 +784,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable");
+                .WithArguments("IDisposable", "IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
