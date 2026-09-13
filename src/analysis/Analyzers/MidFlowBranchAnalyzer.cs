@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -104,7 +103,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (!hasSeenIf &&
                     statement is ExpressionStatementSyntax staticThrowExprStmt &&
-                    IsStaticThrowInvocation(context, staticThrowExprStmt))
+                    staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv &&
+                    staticThrowInv.Expression is MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Name.ToString().StartsWith("Throw", System.StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -148,18 +149,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     isMainFlowStarted = true;
                 }
             }
-        }
-
-        private static bool IsStaticThrowInvocation(SyntaxNodeAnalysisContext context, ExpressionStatementSyntax statement)
-        {
-            if (statement.Expression is not InvocationExpressionSyntax invocationSyntax)
-                return false;
-
-            if (context.SemanticModel.GetOperation(invocationSyntax, context.CancellationToken) is not IInvocationOperation invocation)
-                return false;
-
-            return invocation.TargetMethod.IsStatic &&
-                invocation.TargetMethod.Name.StartsWith("Throw", System.StringComparison.Ordinal);
         }
 
         private static void AnalyzeNonLocalExitInLoop(SyntaxNodeAnalysisContext context)

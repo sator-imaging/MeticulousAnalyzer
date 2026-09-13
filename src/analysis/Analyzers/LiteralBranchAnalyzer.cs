@@ -271,8 +271,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        // TODO: Re-evaluate this short-name fast path against compiled Regex performance on modern
-        //       .NET runtimes (.NET 7+). See benchmark GH action for details.
+        // TODO: Compiled Regex performance improves significantly on modern .NET runtimes (.NET 7+),
+        //       making Regex faster across all string lengths. See benchmark GH action for details.
         private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
             @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -282,22 +282,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (name.Length < 3)
                 return false;
 
-            if (name.Length <= 3)
-            {
-                return name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-
-            if (name.Length <= 5)
-            {
-                return name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-
             if (name.Length <= 6)
             {
                 return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
                        name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0;
+                       name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
             }
 
             return s_isMatchingMemberNameRegex.IsMatch(name);
