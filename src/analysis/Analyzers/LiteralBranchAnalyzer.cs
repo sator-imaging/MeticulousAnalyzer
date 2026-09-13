@@ -277,12 +277,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        // Note: Accurate length-based branching provides performance gains only in specific cases.
         private static bool IsMatchingMemberName(string name)
         {
             if (name.Length < 3)
                 return false;
 
+            // Note: Accurate length-based branching provides performance gains only in specific cases.
             if (name.Length <= 6)
             {
                 return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
