@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.3.0-rc.2](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.2) (2026-09-10)
+
+### 🚀 Features
+* Support locals/params for `SMA8021` zero exemption and update docs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#646](https://github.com/sator-imaging/MeticulousAnalyzer/pull/646)
+* perf: Use compiled static Regex for IsMatchingMemberName in `LiteralBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#652](https://github.com/sator-imaging/MeticulousAnalyzer/pull/652)
+* Allow static method calls starting with "Throw" in `MidFlowBranch` analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#658](https://github.com/sator-imaging/MeticulousAnalyzer/pull/658)
+### ✨ Bug Fixes
+* fix: `DisposableAnalyzer` arrow return for delegates/lambdas by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#654](https://github.com/sator-imaging/MeticulousAnalyzer/pull/654)
+* fix: Non-local exit in loop allowance to method root block only by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#653](https://github.com/sator-imaging/MeticulousAnalyzer/pull/653)
+### 📚 Other Changes
+* Update SMA0097 documentation in README files by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#647](https://github.com/sator-imaging/MeticulousAnalyzer/pull/647)
+* Optimize IsSystemPrimitiveNumber in ExplicitNumberDeclarationAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#648](https://github.com/sator-imaging/MeticulousAnalyzer/pull/648)
+* Add IsMatchingMemberName IndexOf vs compiled Regex benchmarks by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#651](https://github.com/sator-imaging/MeticulousAnalyzer/pull/651)
+* Eliminate GetTypeByMetadataName by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#659](https://github.com/sator-imaging/MeticulousAnalyzer/pull/659)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.1...v5.3.0-rc.2
+
+
 ## [5.3.0-rc.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.1) (2026-09-09)
 
 ### 🚀 Features

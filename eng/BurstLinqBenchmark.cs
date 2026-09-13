@@ -47,10 +47,24 @@ public class BurstLinqBenchmarks
     IEnumerable<double> _enumerable = null!;
     IEnumerable<object> _objEnumerable = null!;
 
+    string _randomString = null!;
+
     [GlobalSetup]
     public void Setup()
     {
         _string = new string('0', Size) + "Target";
+
+        int charCount = Size switch
+        {
+            0 => 5,
+            10 => 10,
+            _ => 15,
+        };
+        var random = new Random(42);
+        char[] chars = new char[charCount];
+        for (int i = 0; i < charCount; i++)
+            chars[i] = (char)random.Next('a', 'z' + 1);
+        _randomString = new string(chars);
 
         _stringArray = new string[Size];
         for (int i = 0; i < Size; i++)
@@ -387,6 +401,10 @@ public class BurstLinqBenchmarks
         @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex s_isMatchingMemberNameLength6Regex = new Regex(
+        @"Length|Count|Index|Remove|Search|Add",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     private static bool IsMatchingMemberName(string name)
     {
         return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -414,20 +432,45 @@ public class BurstLinqBenchmarks
     [Benchmark(Baseline = true)]
     public bool IsMatchingMemberName_IndexOf()
     {
-        return IsMatchingMemberName(_string);
+        return IsMatchingMemberName(_randomString);
     }
 
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark]
     public bool IsMatchingMemberName_Regex()
     {
-        return IsMatchingMemberName_Regex(_string);
+        return IsMatchingMemberName_Regex(_randomString);
     }
 
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark]
     public bool IsMatchingMemberName_Regex_DeIn()
     {
-        return IsMatchingMemberName_Regex_DeIn(_string);
+        return IsMatchingMemberName_Regex_DeIn(_randomString);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
+    public bool IsMatchingMemberName_Mixed()
+    {
+        if (_randomString.Length <= 6)
+        {
+            return _randomString.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+        return s_isMatchingMemberNameRegex.IsMatch(_randomString);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
+    public bool IsMatchingMemberName_DualRegex()
+    {
+        if (_randomString.Length <= 6)
+            return s_isMatchingMemberNameLength6Regex.IsMatch(_randomString);
+        return s_isMatchingMemberNameRegex.IsMatch(_randomString);
     }
 }
