@@ -130,9 +130,13 @@ namespace System.Text.RegularExpressions.Generated
             /// <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
             private sealed class Runner : RegexRunner
             {
+                protected override void Go() => throw new NotImplementedException();
+                protected override bool FindFirstChar() => throw new NotImplementedException();
+                protected override void InitTrackCount() { }
+
                 /// <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
-                protected override void Scan(ReadOnlySpan<char> inputSpan)
+                void Scan(ReadOnlySpan<char> inputSpan)
                 {
                     // Search until we can't find a valid starting position, we find a match, or we reach the end of the input.
                     while (TryFindNextPossibleStartingPosition(inputSpan) &&
@@ -194,7 +198,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 0
                         {
                             if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("length", StringComparison.OrdinalIgnoreCase)) // Match the string "length" (ordinal case-insensitive)
+                                !slice.StartsWith("length".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "length" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch;
                             }
@@ -211,7 +215,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 1
                         {
                             if ((uint)slice.Length < 5 ||
-                                !slice.StartsWith("count", StringComparison.OrdinalIgnoreCase)) // Match the string "count" (ordinal case-insensitive)
+                                !slice.StartsWith("count".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "count" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch1;
                             }
@@ -228,7 +232,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 2
                         {
                             if ((uint)slice.Length < 5 ||
-                                !slice.StartsWith("index", StringComparison.OrdinalIgnoreCase)) // Match the string "index" (ordinal case-insensitive)
+                                !slice.StartsWith("index".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "index" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch2;
                             }
@@ -245,7 +249,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 3
                         {
                             if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("remove", StringComparison.OrdinalIgnoreCase)) // Match the string "remove" (ordinal case-insensitive)
+                                !slice.StartsWith("remove".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "remove" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch3;
                             }
@@ -262,7 +266,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 4
                         {
                             if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("search", StringComparison.OrdinalIgnoreCase)) // Match the string "search" (ordinal case-insensitive)
+                                !slice.StartsWith("search".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "search" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch4;
                             }
@@ -279,7 +283,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 5
                         {
                             if ((uint)slice.Length < 3 ||
-                                !slice.StartsWith("add", StringComparison.OrdinalIgnoreCase)) // Match the string "add" (ordinal case-insensitive)
+                                !slice.StartsWith("add".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "add" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch5;
                             }
@@ -296,7 +300,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 6
                         {
                             if ((uint)slice.Length < 8 ||
-                                !slice.StartsWith("exchange", StringComparison.OrdinalIgnoreCase)) // Match the string "exchange" (ordinal case-insensitive)
+                                !slice.StartsWith("exchange".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "exchange" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch6;
                             }
@@ -313,7 +317,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 7
                         {
                             if ((uint)slice.Length < 9 ||
-                                !slice.StartsWith("decrement", StringComparison.OrdinalIgnoreCase)) // Match the string "decrement" (ordinal case-insensitive)
+                                !slice.StartsWith("decrement".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "decrement" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch7;
                             }
@@ -330,7 +334,7 @@ namespace System.Text.RegularExpressions.Generated
                         // Branch 8
                         {
                             if ((uint)slice.Length < 9 ||
-                                !slice.StartsWith("increment", StringComparison.OrdinalIgnoreCase)) // Match the string "increment" (ordinal case-insensitive)
+                                !slice.StartsWith("increment".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "increment" (ordinal case-insensitive)
                             {
                                 return false; // The input didn't match.
                             }

@@ -95,6 +95,21 @@ class Program
                 // Strip "file " modifier as required
                 generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
 
+                // Remove protected from Scan(ReadOnlySpan<char> inputSpan)
+                generatedCode = generatedCode.Replace("protected override void Scan(ReadOnlySpan<char> inputSpan)", "void Scan(ReadOnlySpan<char> inputSpan)");
+
+                // Add missing abstract member implementations for RegexRunner
+                string runnerOverrides = @"
+                protected override void Go() => throw new NotImplementedException();
+                protected override bool FindFirstChar() => throw new NotImplementedException();
+                protected override void InitTrackCount() { }
+";
+                generatedCode = generatedCode.Replace("private sealed class Runner : RegexRunner\r\n            {", "private sealed class Runner : RegexRunner\r\n            {" + runnerOverrides);
+                generatedCode = generatedCode.Replace("private sealed class Runner : RegexRunner\n            {", "private sealed class Runner : RegexRunner\n            {" + runnerOverrides);
+
+                // Fix StartsWith for ReadOnlySpan<char> in netstandard2.0
+                generatedCode = Regex.Replace(generatedCode, @"!slice\.StartsWith\(("".*?""), StringComparison\.OrdinalIgnoreCase\)", "!slice.StartsWith($1.AsSpan(), StringComparison.OrdinalIgnoreCase)");
+
                 // Insert RegexHelper.IsExcemptionNameForZeroComparison() declaration to generated code to solve the compile error.
                 generatedCode = Declaration + "\n\n" + generatedCode;
 
