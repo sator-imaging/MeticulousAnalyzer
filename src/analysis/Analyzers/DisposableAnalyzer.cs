@@ -544,7 +544,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             //       --> Method(new Disposable())
             //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
             ITypeSymbol? untrackedCastOperandType = null;
-            IConversionOperation? untrackedCastOp = null;
             {
                 if (focusedOp is IConversionOperation castOp)
                 {
@@ -560,7 +559,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             //       - using var ...
                             //       - foreach (var item in ...
                             untrackedCastOperandType = castOp.Operand.Type;
-                            untrackedCastOp = castOp;
                         }
                     }
                 }
@@ -618,34 +616,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
-                    var reportType = IsDisposable(context, disposableSymbol)
-                        ? disposableSymbol
-                        : untrackedCastOperandType;
-
-                    if (untrackedCastOp is not null && IsComparingWithNull(untrackedCastOp))
-                    {
-                        if (isCreationOp)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
-                        }
-                    }
-                    else
-                    {
-                        if (isCreationOp)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
-                        }
-                        else
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                Rule_CastFromDisposableToNonDisposable,
-                                operation.Syntax.GetLocation(),
-                                untrackedCastOperandType.ToDiagnosticMessageName(),
-                                disposableSymbol.ToDiagnosticMessageName()));
-                        }
-                    }
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_CastFromDisposableToNonDisposable,
+                        operation.Syntax.GetLocation(),
+                        untrackedCastOperandType.ToDiagnosticMessageName(),
+                        disposableSymbol.ToDiagnosticMessageName()));
                 }
 
                 return;
@@ -1066,129 +1041,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return isVariableEverReturned;
             }
 
-            return false;
-        }
-
-        private static bool IsComparingWithNull(IConversionOperation op)
-        {
-            IOperation current = op;
-            IOperation? parent = current.Parent;
-            while (parent is IConversionOperation || parent is IParenthesizedOperation)
-            {
-                current = parent;
-                parent = current.Parent;
-            }
-
-            if (parent is IBinaryOperation binary)
-            {
-                if (binary.OperatorKind == BinaryOperatorKind.Equals ||
-                    binary.OperatorKind == BinaryOperatorKind.NotEquals ||
-                    binary.OperatorKind == BinaryOperatorKind.ObjectValueEquals ||
-                    binary.OperatorKind == BinaryOperatorKind.ObjectValueNotEquals)
-                {
-                    IOperation other = (binary.LeftOperand == current) ? binary.RightOperand : binary.LeftOperand;
-                    if (IsNullOperation(other))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (parent is IIsPatternOperation isPattern)
-            {
-                if (IsNullPatternOperation(isPattern.Pattern))
-                {
-                    return true;
-                }
-            }
-
-            return IsComparisonWithNullSyntax(op.Syntax);
-        }
-
-        private static bool IsNullOperation(IOperation? op)
-        {
-            if (op == null) return false;
-            op = Core.UnwrapConversion(op);
-            while (op is IParenthesizedOperation parenthesized)
-            {
-                op = parenthesized.Operand;
-            }
-            if (op.ConstantValue.HasValue && op.ConstantValue.Value == null) return true;
-            if (op.Syntax.IsKind(SyntaxKind.NullLiteralExpression)) return true;
-            return false;
-        }
-
-        private static bool IsNullPatternOperation(IPatternOperation? pattern)
-        {
-            if (pattern == null) return false;
-            if (pattern is IConstantPatternOperation constantPattern)
-            {
-                return IsNullOperation(constantPattern.Value);
-            }
-            if (pattern is INegatedPatternOperation negatedPattern)
-            {
-                return IsNullPatternOperation(negatedPattern.Pattern);
-            }
-            return false;
-        }
-
-        private static bool IsComparisonWithNullSyntax(SyntaxNode? syntax)
-        {
-            if (syntax == null) return false;
-            while (syntax is ParenthesizedExpressionSyntax parenthesized)
-            {
-                syntax = parenthesized.Expression;
-            }
-            while (syntax is CastExpressionSyntax castExpr)
-            {
-                syntax = castExpr.Expression;
-            }
-
-            SyntaxNode? parent = syntax?.Parent;
-            while (parent is ParenthesizedExpressionSyntax || parent is CastExpressionSyntax)
-            {
-                parent = parent.Parent;
-            }
-
-            if (parent is BinaryExpressionSyntax binary)
-            {
-                if (binary.IsKind(SyntaxKind.EqualsExpression) || binary.IsKind(SyntaxKind.NotEqualsExpression))
-                {
-                    SyntaxNode other = (binary.Left == syntax || binary.Left.Contains(syntax)) ? binary.Right : binary.Left;
-                    while (other is ParenthesizedExpressionSyntax p)
-                    {
-                        other = p.Expression;
-                    }
-                    if (other.IsKind(SyntaxKind.NullLiteralExpression))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (parent is IsPatternExpressionSyntax isPattern)
-            {
-                if (IsNullPatternSyntax(isPattern.Pattern))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool IsNullPatternSyntax(PatternSyntax? pattern)
-        {
-            while (pattern is ParenthesizedPatternSyntax parenthesized)
-            {
-                pattern = parenthesized.Pattern;
-            }
-            if (pattern is ConstantPatternSyntax constantPattern)
-            {
-                return constantPattern.Expression.IsKind(SyntaxKind.NullLiteralExpression);
-            }
-            if (pattern is UnaryPatternSyntax unaryPattern && unaryPattern.IsKind(SyntaxKind.NotPattern))
-            {
-                return IsNullPatternSyntax(unaryPattern.Pattern);
-            }
             return false;
         }
     }
