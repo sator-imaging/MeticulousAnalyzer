@@ -2490,6 +2490,34 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Violation_InstanceThrowMethodCallBeforeIfStatement()
+        {
+            var test = @"
+class Guard
+{
+    public void ThrowIfInvalid(object obj) { }
+}
+
+class C
+{
+    void M(Guard guard, object instance, bool some)
+    {
+        guard.ThrowIfInvalid(instance);
+
+        if (some)
+        {
+            {|#0:return|};
+        }
+
+        int x = 1;
+        x++;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Violation_LastIfInTryStatement_TryIsNotLastInMethodLikeBlock()
         {
             var test = @"
