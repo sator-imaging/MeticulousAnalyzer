@@ -150,22 +150,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (isSourceDisposable && !isResultDisposable)
-            {
-                if (IsComparingWithNull(op))
-                {
-                    return;
-                }
-
-                context.ReportDiagnostic(Diagnostic.Create(
-                    Rule_CastFromDisposableToNonDisposable,
-                    op.Syntax.GetLocation(),
-                    op.Operand.Type.ToDiagnosticMessageName(),
-                    op.Type.ToDiagnosticMessageName()));
-
-                return;
-            }
-
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
 
@@ -560,6 +544,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             //       --> Method(new Disposable())
             //                  ^^^^^^^^^^^^^^^^ Cast may happen implicitly
             ITypeSymbol? untrackedCastOperandType = null;
+            IConversionOperation? untrackedCastOp = null;
             {
                 if (focusedOp is IConversionOperation castOp)
                 {
@@ -575,6 +560,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             //       - using var ...
                             //       - foreach (var item in ...
                             untrackedCastOperandType = castOp.Operand.Type;
+                            untrackedCastOp = castOp;
                         }
                     }
                 }
@@ -636,8 +622,30 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         ? disposableSymbol
                         : untrackedCastOperandType;
 
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
+                    if (untrackedCastOp is not null && IsComparingWithNull(untrackedCastOp))
+                    {
+                        if (isCreationOp)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
+                        }
+                    }
+                    else
+                    {
+                        if (isCreationOp)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
+                        }
+                        else
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule_CastFromDisposableToNonDisposable,
+                                operation.Syntax.GetLocation(),
+                                untrackedCastOperandType.ToDiagnosticMessageName(),
+                                disposableSymbol.ToDiagnosticMessageName()));
+                        }
+                    }
                 }
 
                 return;

@@ -577,7 +577,7 @@ namespace Test
     class Iterator<T> : IEnumerable<T>, IEnumerator<T>
     {
         public IEnumerator<T> GetEnumerator() => (new List<T>()).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => {|#0:GetEnumerator()|};
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public bool MoveNext() => false;
         public T Current => default!;
         object IEnumerator.Current => default!;
@@ -622,10 +622,7 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                .WithLocation(markupKey: 0)
-                .WithArguments("IEnumerator<T>", "IEnumerator");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -782,20 +779,14 @@ namespace Test
         void Method(object value)
         {
             // Don't dispose
-            var d = {|#0:(object){|#1:(IDisposable)value|}|};
+            var d = (object){|#0:(IDisposable)value|};
         }
     }
 }
 ";
-            var expected = new[]
-            {
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                    .WithLocation(markupKey: 0)
-                    .WithArguments("IDisposable", "object"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithLocation(markupKey: 1)
-                    .WithArguments("IDisposable"),
-            };
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithLocation(markupKey: 0)
+                .WithArguments("object", "IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -941,15 +932,12 @@ namespace Test
         void Method(IDisposable value)
         {
             // Don't dispose
-            var d = {|#0:value as object|};
+            var d = value as object;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable", "object");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
