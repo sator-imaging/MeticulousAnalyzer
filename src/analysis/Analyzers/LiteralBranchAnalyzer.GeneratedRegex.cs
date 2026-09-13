@@ -91,7 +91,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         ///         ○ Match a character in the set [Tt].<br/>
         /// </code>
         /// </remarks>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.14.6317")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "8.0.14.7010")]
         public static partial global::System.Text.RegularExpressions.Regex IsExcemptionNameForZeroComparison() => global::System.Text.RegularExpressions.Generated.IsExcemptionNameForZeroComparison_0.Instance;
     }
 }
@@ -109,7 +109,7 @@ namespace System.Text.RegularExpressions.Generated
     using System.Threading;
 
     /// <summary>Custom <see cref="Regex"/>-derived type for the IsExcemptionNameForZeroComparison method.</summary>
-    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.14.6317")]
+    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "8.0.14.7010")]
     internal sealed class IsExcemptionNameForZeroComparison_0 : Regex
     {
         /// <summary>Cached, thread-safe singleton instance.</summary>
@@ -158,21 +158,42 @@ namespace System.Text.RegularExpressions.Generated
                 private bool TryFindNextPossibleStartingPosition(ReadOnlySpan<char> inputSpan)
                 {
                     int pos = base.runtextpos;
+                    ulong charMinusLowUInt64;
 
                     // Any possible match is at least 3 characters.
                     if (pos <= inputSpan.Length - 3)
                     {
-                        // The pattern has multiple strings that could begin the match. Search for any of them.
-                        // If none can be found, there's no match.
-                        int i = inputSpan.Slice(pos).IndexOfAny(Utilities.s_indexOfAnyStrings_OrdinalIgnoreCase_1CB3C68FE63BA1416AE46AED5F5C6BBBAD2149E5005B9020B83ADFBBA8A429B1);
-                        if (i >= 0)
+                        // The pattern matches a character in the set [DENOXdenox] at index 1.
+                        // Find the next occurrence. If it can't be found, there's no match.
+                        ReadOnlySpan<char> span = inputSpan.Slice(pos);
+                        for (int i = 0; i < span.Length - 2; i++)
                         {
-                            base.runtextpos = pos + i;
-                            return true;
+                            int indexOfPos = span.Slice(i + 1).IndexOfAny(Utilities.s_ascii_30C0000130C00001);
+                            if (indexOfPos < 0)
+                            {
+                                goto NoMatchFound;
+                            }
+                            i += indexOfPos;
+
+                            // The primary set being searched for was found. 2 more sets will be checked so as
+                            // to minimize the number of places TryMatchAtCurrentPosition is run unnecessarily.
+                            // Make sure they fit in the remainder of the input.
+                            if ((uint)(i + 2) >= (uint)span.Length)
+                            {
+                                goto NoMatchFound;
+                            }
+
+                            if (((long)((0xB00C0800B00C0800UL << (int)(charMinusLowUInt64 = (uint)span[i + 2] - 'A')) & (charMinusLowUInt64 - 64)) < 0) &&
+                                ((long)((0xB8906000B8906000UL << (int)(charMinusLowUInt64 = (uint)span[i] - 'A')) & (charMinusLowUInt64 - 64)) < 0))
+                            {
+                                base.runtextpos = pos + i;
+                                return true;
+                            }
                         }
                     }
 
                     // No match found.
+                    NoMatchFound:
                     base.runtextpos = inputSpan.Length;
                     return false;
                 }
@@ -352,7 +373,7 @@ namespace System.Text.RegularExpressions.Generated
     }
 
     /// <summary>Helper methods used by generated <see cref="Regex"/>-derived implementations.</summary>
-    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.14.6317")]
+    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "8.0.14.7010")]
     internal static class Utilities
     {
         /// <summary>Default timeout value set in <see cref="AppContext"/>, or <see cref="Regex.InfiniteMatchTimeout"/> if none was set.</summary>
@@ -361,7 +382,7 @@ namespace System.Text.RegularExpressions.Generated
         /// <summary>Whether <see cref="s_defaultTimeout"/> is non-infinite.</summary>
         internal static readonly bool s_hasTimeout = s_defaultTimeout != Regex.InfiniteMatchTimeout;
 
-        /// <summary>Supports searching for the specified strings.</summary>
-        internal static readonly SearchValues<string> s_indexOfAnyStrings_OrdinalIgnoreCase_1CB3C68FE63BA1416AE46AED5F5C6BBBAD2149E5005B9020B83ADFBBA8A429B1 = SearchValues.Create(["length", "count", "index", "remove", "search", "add", "exchange", "decremen", "incremen"], StringComparison.OrdinalIgnoreCase);
+        /// <summary>Supports searching for characters in or not in "DENOXdenox".</summary>
+        internal static readonly SearchValues<char> s_ascii_30C0000130C00001 = SearchValues.Create("DENOXdenox");
     }
 }
