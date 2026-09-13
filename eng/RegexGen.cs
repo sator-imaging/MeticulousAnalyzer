@@ -15,6 +15,16 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
 {
     public static class RegexGen
     {
+        private const string Pattern = @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment";
+
+        private const string Declaration = @"namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
+{
+    public static partial class RegexHelper
+    {
+        public static partial global::System.Text.RegularExpressions.Regex IsExcemptionNameForZeroComparison();
+    }
+}";
+
         public static int Main(string[] args)
         {
             string outputPath = args.Length > 0 && !string.IsNullOrWhiteSpace(args[0])
@@ -41,22 +51,23 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 File.WriteAllText(csprojPath, csprojContent);
 
                 string programPath = Path.Combine(tempDir, "Program.cs");
-                string programContent = @"
+                string programContent = $@"
 using System;
 using System.Text.RegularExpressions;
 
-namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
-
-public static partial class RegexHelper
-{
-    [GeneratedRegex(@""Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment"", RegexOptions.IgnoreCase)]
-    public static partial Regex IsExcemptionNameForZeroComparison();
-}
+namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
+{{
+    public static partial class RegexHelper
+    {{
+        [GeneratedRegex(@""{Pattern}"", RegexOptions.IgnoreCase)]
+        public static partial Regex IsExcemptionNameForZeroComparison();
+    }}
+}}
 
 class Program
-{
+{{
     static void Main() => Console.WriteLine(RegexHelper.IsExcemptionNameForZeroComparison().IsMatch(""Length""));
-}";
+}}";
                 File.WriteAllText(programPath, programContent);
 
                 var psi = new ProcessStartInfo("dotnet", $"build \"{csprojPath}\"")
@@ -85,15 +96,7 @@ class Program
                 generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
 
                 // Insert RegexHelper.IsExcemptionNameForZeroComparison() declaration to generated code to solve the compile error.
-                string declaration = @"namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
-{
-    public static partial class RegexHelper
-    {
-        public static partial global::System.Text.RegularExpressions.Regex IsExcemptionNameForZeroComparison();
-    }
-}
-";
-                generatedCode = declaration + "\n" + generatedCode;
+                generatedCode = Declaration + "\n\n" + generatedCode;
 
                 var dirPath = Path.GetDirectoryName(outputPath);
                 if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
