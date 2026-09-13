@@ -31,7 +31,7 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
 <Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -82,7 +82,7 @@ class Program
                 string generatedCode = File.ReadAllText(generatedFile);
 
                 // Strip "file " modifier as required
-                generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "private ");
+                generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
 
                 var dirPath = Path.GetDirectoryName(outputPath);
                 if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
