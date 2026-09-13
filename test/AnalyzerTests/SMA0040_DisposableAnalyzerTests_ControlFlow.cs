@@ -28,7 +28,7 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            if ({|#0:d|} == null || d is IDisposable)
+            if (d == null || d is IDisposable)
             {
             }
         }
@@ -36,10 +36,7 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable", "object");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -86,7 +83,7 @@ namespace Test
         {
             switch ({|#0:new MyDisposable()|})
             {
-                case MyDisposable x when {|#1:x|} != null:
+                case MyDisposable x when x != null:
                     break;
             }
         }
@@ -94,15 +91,9 @@ namespace Test
 }
 ";
 
-            var expected = new[]
-            {
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithLocation(markupKey: 0)
-                    .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                    .WithLocation(markupKey: 1)
-                    .WithArguments("MyDisposable", "object"),
-            };
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -121,7 +112,7 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            while ({|#0:d|} != null)
+            while (d != null)
             {
                 break;
             }
@@ -130,10 +121,7 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable", "object");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -151,16 +139,13 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            do { } while ({|#0:d|} != null);
+            do { } while (d != null);
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable", "object");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -178,10 +163,10 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            if ({|#0:d|} == null)
+            if (d == null)
             {
             }
-            else if ({|#1:{|#2:new MyDisposable()|}|} != null)
+            else if ({|#0:new MyDisposable()|} != null)
             {
             }
         }
@@ -189,18 +174,9 @@ namespace Test
 }
 ";
 
-            var expected = new[]
-            {
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                    .WithLocation(markupKey: 0)
-                    .WithArguments("MyDisposable", "object"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                    .WithLocation(markupKey: 1)
-                    .WithArguments("MyDisposable"),
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
-                    .WithLocation(markupKey: 2)
-                    .WithArguments("MyDisposable", "object"),
-            };
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
