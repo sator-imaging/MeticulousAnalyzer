@@ -58,7 +58,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA0043 | Undisposed Member                                                | Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
 | SMA0044 | Missing Dispose Implementation                                   | Type '{0}' owns disposable members but does not implement `Dispose` method
 | SMA0045 | Missing IDisposable Interface                                    | Type '{0}' owns disposable members. Implement `IDisposable` interface
-| SMA0046 | Cast from Disposable to Non-Disposable                           | Disposable type '{0}' is cast to non-disposable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
+| SMA0046 | Lost Tracking of Disposable                                      | Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
 
 ## File Structure Analysis
 
