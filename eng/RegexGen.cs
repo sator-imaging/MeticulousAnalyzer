@@ -84,6 +84,17 @@ class Program
                 // Strip "file " modifier as required
                 generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
 
+                // Insert RegexHelper.IsExcemptionNameForZeroComparison() declaration to generated code to solve the compile error.
+                string declaration = @"namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
+{
+    public static partial class RegexHelper
+    {
+        public static partial global::System.Text.RegularExpressions.Regex IsExcemptionNameForZeroComparison();
+    }
+}
+";
+                generatedCode = declaration + "\n" + generatedCode;
+
                 var dirPath = Path.GetDirectoryName(outputPath);
                 if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
                 {
