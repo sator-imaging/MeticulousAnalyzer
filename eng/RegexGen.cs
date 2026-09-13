@@ -90,7 +90,7 @@ class Program
                     return 1;
                 }
 
-                string generatedCode = File.ReadAllText(generatedFile);
+                string generatedCode = File.ReadAllText(generatedFile).Replace("\r\n", "\n").Replace("\r", "\n");
 
                 // Strip "file " modifier as required
                 generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
@@ -104,7 +104,6 @@ class Program
                 protected override bool FindFirstChar() => throw new NotImplementedException();
                 protected override void InitTrackCount() { }
 ";
-                generatedCode = generatedCode.Replace("private sealed class Runner : RegexRunner\r\n            {", "private sealed class Runner : RegexRunner\r\n            {" + runnerOverrides);
                 generatedCode = generatedCode.Replace("private sealed class Runner : RegexRunner\n            {", "private sealed class Runner : RegexRunner\n            {" + runnerOverrides);
 
                 // Fix StartsWith for ReadOnlySpan<char> in netstandard2.0
