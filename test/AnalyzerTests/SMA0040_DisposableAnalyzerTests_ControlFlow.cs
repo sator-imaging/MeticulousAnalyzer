@@ -36,7 +36,10 @@ namespace Test
 }
 ";
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithSpan(13, 17, 13, 18)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -81,7 +84,7 @@ namespace Test
     {
         void Method()
         {
-            switch ({|#0:new MyDisposable()|})
+            switch (new MyDisposable())
             {
                 case MyDisposable x when x != null:
                     break;
@@ -91,9 +94,15 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable");
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithSpan(12, 21, 12, 39)
+                    .WithArguments("MyDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                    .WithSpan(14, 42, 14, 43)
+                    .WithArguments("MyDisposable", "object"),
+            };
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -121,7 +130,10 @@ namespace Test
 }
 ";
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithSpan(13, 20, 13, 21)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -145,7 +157,10 @@ namespace Test
 }
 ";
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithSpan(13, 27, 13, 28)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -166,7 +181,7 @@ namespace Test
             if (d == null)
             {
             }
-            else if ({|#0:new MyDisposable()|} != null)
+            else if (new MyDisposable() != null)
             {
             }
         }
@@ -174,9 +189,18 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable");
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                    .WithSpan(13, 17, 13, 18)
+                    .WithArguments("MyDisposable", "object"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                    .WithSpan(16, 22, 16, 40)
+                    .WithArguments("MyDisposable"),
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                    .WithSpan(16, 22, 16, 40)
+                    .WithArguments("MyDisposable", "object"),
+            };
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }

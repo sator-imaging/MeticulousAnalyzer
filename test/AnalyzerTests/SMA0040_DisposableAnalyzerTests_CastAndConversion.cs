@@ -94,7 +94,10 @@ namespace Test
 }
 ";
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithSpan(16, 26, 16, 35)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]

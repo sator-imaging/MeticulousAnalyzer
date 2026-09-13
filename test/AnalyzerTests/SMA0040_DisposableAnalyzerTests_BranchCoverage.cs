@@ -864,7 +864,10 @@ namespace Test
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithSpan(13, 26, 13, 35)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         // ===================================================================
