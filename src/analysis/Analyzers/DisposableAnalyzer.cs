@@ -150,6 +150,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (isSourceDisposable && !isResultDisposable)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_CastFromDisposableToNonDisposable,
+                    op.Syntax.GetLocation(),
+                    op.Operand.Type.ToDiagnosticMessageName(),
+                    op.Type.ToDiagnosticMessageName()));
+
+                return;
+            }
+
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
 
@@ -621,7 +632,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         : untrackedCastOperandType;
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_CastFromDisposableToNonDisposable, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName(), focusedSymbol.ToDiagnosticMessageName()));
+                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
                 }
 
                 return;
