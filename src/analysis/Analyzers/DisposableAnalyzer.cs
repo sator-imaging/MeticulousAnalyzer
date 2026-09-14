@@ -616,11 +616,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_CastFromDisposableToNonDisposable,
-                        operation.Syntax.GetLocation(),
-                        untrackedCastOperandType.ToDiagnosticMessageName(),
-                        disposableSymbol.ToDiagnosticMessageName()));
+                    if (IsDisposable(context, disposableSymbol))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            Rule_MissingUsing,
+                            operation.Syntax.GetLocation(),
+                            disposableSymbol.ToDiagnosticMessageName()));
+                    }
+                    else
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            Rule_CastFromDisposableToNonDisposable,
+                            operation.Syntax.GetLocation(),
+                            untrackedCastOperandType.ToDiagnosticMessageName(),
+                            disposableSymbol.ToDiagnosticMessageName()));
+                    }
                 }
 
                 return;
