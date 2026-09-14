@@ -16,9 +16,12 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
 {
     public static class RegexGen
     {
-        private static readonly (string Name, string Pattern)[] RegexPatterns = new[]
+        private const string OutputNamespace = "SatorImaging.MeticulousAnalyzer.Analysis";
+        private const string OutputClassName = "RegexGen";
+
+        private static readonly (string Name, string Pattern, string Options)[] RegexPatterns = new[]
         {
-            ("IsExcemptionNameForZeroComparison", @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment"),
+            ("IsExcemptionNameForZeroComparison", @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment", "RegexOptions.IgnoreCase"),
         };
 
         public static int Main(string[] args)
@@ -27,13 +30,16 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 ? args[0]
                 : "src/analysis/RegexGen.g.cs";
 
-            string tempDir = Path.Combine(Path.GetTempPath(), "MeticulousAnalyzer_RegexGen_" + Guid.NewGuid().ToString("N"));
+            string appNameWithGuid = $"MeticulousAnalyzer_RegexGen_{Guid.NewGuid():N}";
+            string tempDir = Path.Combine(Path.GetTempPath(), appNameWithGuid);
             Directory.CreateDirectory(tempDir);
 
             try
             {
-                string csprojPath = Path.Combine(tempDir, "GenApp.csproj");
-                string csprojContent = @"
+                string csprojPath = Path.Combine(tempDir, $"{appNameWithGuid}.csproj");
+                string generatedCodeOutputPath = Path.Combine(tempDir, "obj", "GeneratedFiles");
+
+                string csprojContent = $@"
 <Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -50,13 +56,13 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 programSb.AppendLine("using System;");
                 programSb.AppendLine("using System.Text.RegularExpressions;");
                 programSb.AppendLine();
-                programSb.AppendLine("namespace SatorImaging.MeticulousAnalyzer.Analysis");
+                programSb.AppendLine($"namespace {OutputNamespace}");
                 programSb.AppendLine("{");
-                programSb.AppendLine("    public static partial class RegexGen");
+                programSb.AppendLine($"    public static partial class {OutputClassName}");
                 programSb.AppendLine("    {");
-                foreach (var (name, pattern) in RegexPatterns)
+                foreach (var (name, pattern, options) in RegexPatterns)
                 {
-                    programSb.AppendLine($"        [GeneratedRegex(@\"{pattern}\", RegexOptions.IgnoreCase)]");
+                    programSb.AppendLine($"        [GeneratedRegex(@\"{pattern}\", {options})]");
                     programSb.AppendLine($"        public static partial Regex {name}();");
                     programSb.AppendLine();
                 }
@@ -67,28 +73,25 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 programSb.AppendLine("{");
                 programSb.AppendLine("    static void Main()");
                 programSb.AppendLine("    {");
-                foreach (var (name, _) in RegexPatterns)
+                foreach (var (name, _, _) in RegexPatterns)
                 {
-                    programSb.AppendLine($"        Console.WriteLine(RegexGen.{name}().IsMatch(\"Length\"));");
+                    programSb.AppendLine($"        Console.WriteLine({OutputClassName}.{name}().IsMatch(\"Length\"));");
                 }
                 programSb.AppendLine("    }");
                 programSb.AppendLine("}");
 
                 File.WriteAllText(Path.Combine(tempDir, "Program.cs"), programSb.ToString());
 
-                var psi = new ProcessStartInfo("dotnet", $"build \"{csprojPath}\"")
+                var psi = new ProcessStartInfo("dotnet", $"build -c Release \"{csprojPath}\"")
                 {
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false
                 };
                 using var proc = Process.Start(psi);
-                if (proc != null)
-                {
-                    proc.WaitForExit();
-                }
+                proc?.WaitForExit();
 
-                string generatedFilesDir = Path.Combine(tempDir, "obj", "GeneratedFiles");
+                string generatedFilesDir = generatedCodeOutputPath;
                 string[] generatedFiles = Directory.Exists(generatedFilesDir)
                     ? Directory.GetFiles(generatedFilesDir, "*.cs", SearchOption.AllDirectories)
                     : Directory.GetFiles(tempDir, "*.cs", SearchOption.AllDirectories)
@@ -101,22 +104,6 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                     Console.Error.WriteLine("Failed to locate generated files under obj/GeneratedFiles");
                     return 1;
                 }
-
-                var declSb = new StringBuilder();
-                declSb.AppendLine("namespace SatorImaging.MeticulousAnalyzer.Analysis");
-                declSb.AppendLine("{");
-                declSb.AppendLine("    public static partial class RegexGen");
-                declSb.AppendLine("    {");
-                foreach (var (name, _) in RegexPatterns)
-                {
-                    declSb.AppendLine($"        public static partial global::System.Text.RegularExpressions.Regex {name}();");
-                }
-                declSb.AppendLine("    }");
-                declSb.AppendLine("}");
-
-                string fileListComment = "// <auto-generated>\n//     Source generated files collected:\n"
-                    + string.Join("\n", generatedFiles.Select(f => $"//     - {Path.GetFileName(f)}"))
-                    + "\n// </auto-generated>\n\n";
 
                 string generatedCode = string.Join("\n\n", generatedFiles.Select(f => File.ReadAllText(f)))
                     .Replace("\r\n", "\n")
@@ -139,8 +126,29 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 // Fix StartsWith for ReadOnlySpan<char> in netstandard2.0
                 generatedCode = Regex.Replace(generatedCode, @"!slice\.StartsWith\(("".*?""), StringComparison\.OrdinalIgnoreCase\)", "!slice.StartsWith($1.AsSpan(), StringComparison.OrdinalIgnoreCase)");
 
-                // Insert header comment and partial method declarations
-                generatedCode = fileListComment + declSb.ToString() + "\n\n" + generatedCode;
+                var declSb = new StringBuilder();
+                declSb.AppendLine("// <auto-generated>");
+                declSb.AppendLine("//     Source generated files collected:");
+                foreach (var file in generatedFiles)
+                {
+                    declSb.AppendLine($"//     - {Path.GetFileName(file)}");
+                }
+                declSb.AppendLine("// </auto-generated>");
+                declSb.AppendLine();
+                declSb.AppendLine($"namespace {OutputNamespace}");
+                declSb.AppendLine("{");
+                declSb.AppendLine($"    public static partial class {OutputClassName}");
+                declSb.AppendLine("    {");
+                foreach (var (name, _, _) in RegexPatterns)
+                {
+                    declSb.AppendLine($"        public static partial global::System.Text.RegularExpressions.Regex {name}();");
+                }
+                declSb.AppendLine("    }");
+                declSb.AppendLine("}");
+                declSb.AppendLine();
+                declSb.AppendLine(generatedCode);
+
+                string finalCode = declSb.ToString();
 
                 var dirPath = Path.GetDirectoryName(outputPath);
                 if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
@@ -148,7 +156,7 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                     Directory.CreateDirectory(dirPath);
                 }
 
-                File.WriteAllText(outputPath, generatedCode);
+                File.WriteAllText(outputPath, finalCode);
                 Console.WriteLine($"Extracted and stripped source generator output at: {outputPath}");
                 return 0;
             }
