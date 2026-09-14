@@ -9,6 +9,7 @@
 
 #:package FUnit.Directives@*
 #warning funit include ../src/analysis/BurstLinq.cs
+#warning funit include ../src/analysis/RegexGen.g.cs
 
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using SatorImaging.MeticulousAnalyzer;
+using SatorImaging.MeticulousAnalyzer.Analysis;
 
 
 var config = ManualConfig.Create(DefaultConfig.Instance)
@@ -440,6 +442,13 @@ public class BurstLinqBenchmarks
     public bool IsMatchingMemberName_Regex()
     {
         return IsMatchingMemberName_Regex(_randomString);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
+    public bool IsMatchingMemberName_RegexGen()
+    {
+        return RegexGen.IsExcemptionNameForZeroComparison().IsMatch(_randomString);
     }
 
     [BenchmarkCategory("IsMatchingMemberName")]
