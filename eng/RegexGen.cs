@@ -112,18 +112,30 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 // Strip "file " modifier as required
                 generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
 
-                // Remove protected from Scan(ReadOnlySpan<char> inputSpan)
-                generatedCode = generatedCode.Replace("protected override void Scan(ReadOnlySpan<char> inputSpan)", "void Scan(ReadOnlySpan<char> inputSpan)");
+                // Remove protected override from Scan(ReadOnlySpan<char> inputSpan)
+                generatedCode = Regex.Replace(generatedCode, @"protected\s+override\s+void\s+Scan\(ReadOnlySpan<char>", "void Scan(ReadOnlySpan<char>");
 
                 // Add missing abstract member implementations for RegexRunner
                 string runnerOverrides = @"
-                protected override void Go() => throw new NotImplementedException();
-                protected override bool FindFirstChar() => throw new NotImplementedException();
+                protected override void Go()
+                {
+                    ReadOnlySpan<char> inputSpan = base.runtext.AsSpan();
+                    if (TryMatchAtCurrentPosition(inputSpan))
+                    {
+                        return;
+                    }
+                }
+
+                protected override bool FindFirstChar()
+                {
+                    return TryFindNextPossibleStartingPosition(base.runtext.AsSpan());
+                }
+
                 protected override void InitTrackCount() { }
 ";
                 generatedCode = generatedCode.Replace("private sealed class Runner : RegexRunner\n            {", "private sealed class Runner : RegexRunner\n            {" + runnerOverrides);
 
-                // Fix StartsWith for ReadOnlySpan<char> in netstandard2.0
+                // Fix StartsWith for ReadOnlySpan<char> in netstandard2.0 / .NET 5.0
                 generatedCode = Regex.Replace(generatedCode, @"!slice\.StartsWith\(("".*?""), StringComparison\.OrdinalIgnoreCase\)", "!slice.StartsWith($1.AsSpan(), StringComparison.OrdinalIgnoreCase)");
 
                 var declSb = new StringBuilder();

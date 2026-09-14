@@ -135,8 +135,20 @@ namespace System.Text.RegularExpressions.Generated
             /// <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
             private sealed class Runner : RegexRunner
             {
-                protected override void Go() => throw new NotImplementedException();
-                protected override bool FindFirstChar() => throw new NotImplementedException();
+                protected override void Go()
+                {
+                    ReadOnlySpan<char> inputSpan = base.runtext.AsSpan();
+                    if (TryMatchAtCurrentPosition(inputSpan))
+                    {
+                        return;
+                    }
+                }
+
+                protected override bool FindFirstChar()
+                {
+                    return TryFindNextPossibleStartingPosition(base.runtext.AsSpan());
+                }
+
                 protected override void InitTrackCount() { }
 
                 /// <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
