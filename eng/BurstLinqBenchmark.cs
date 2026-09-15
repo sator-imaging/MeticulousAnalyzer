@@ -454,6 +454,9 @@ public class BurstLinqBenchmarks
     [Benchmark]
     public bool IsMatchingMemberName_RegexGen()
     {
+        if (_randomString.Length < 3)
+            return false;
+
         return SatorImaging.MeticulousAnalyzer.Analysis.RegexGen.IsExcemptionNameForZeroComparison().IsMatch(_randomString);
     }
 
