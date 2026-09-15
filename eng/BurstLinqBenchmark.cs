@@ -467,8 +467,11 @@ public class BurstLinqBenchmarks
         if (_randomString.Length <= 6)
         {
             return _randomString.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    _randomString.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0;
+                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         return s_isMatchingMemberNameRegex.IsMatch(_randomString);

@@ -101,5 +101,13 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             var regex = RegexGen.IsExcemptionNameForZeroComparison();
             Assert.IsFalse(regex.IsMatch(""), "Expected no match for empty string");
         }
+
+        [TestMethod]
+        public void IsExcemptionNameForZeroComparison_LongRandomCharsWithoutTargetText()
+        {
+            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            string longInput = new string('z', 1024);
+            Assert.IsFalse(regex.IsMatch(longInput), "Expected no match for 1024 random characters without target text");
+        }
     }
 }
