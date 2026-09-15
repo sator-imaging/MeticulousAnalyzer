@@ -1100,5 +1100,28 @@ class C {
             Assert.IsTrue(outerExpr.TryUnwrapParentheses(out var tryUnwrapped));
             Assert.AreSame(unwrapped, tryUnwrapped);
         }
+
+        // ===== RegexGen =====
+
+        [TestMethod]
+        public void RegexGen_IsExcemptionNameForZeroComparison_MatchesExpectedNames()
+        {
+            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            Assert.IsNotNull(regex);
+
+            string[] validNames = new[] { "Length", "Count", "Index", "Remove", "Search", "Add", "Exchange", "Decrement", "Increment" };
+            foreach (var name in validNames)
+            {
+                Assert.IsTrue(regex.IsMatch(name), $"Expected match for '{name}'");
+                Assert.IsTrue(regex.IsMatch(name.ToLowerInvariant()), $"Expected match for '{name.ToLowerInvariant()}'");
+                Assert.IsTrue(regex.IsMatch(name.ToUpperInvariant()), $"Expected match for '{name.ToUpperInvariant()}'");
+            }
+
+            string[] invalidNames = new[] { "Foo", "Bar", "Size", "Capacity" };
+            foreach (var name in invalidNames)
+            {
+                Assert.IsFalse(regex.IsMatch(name), $"Expected no match for '{name}'");
+            }
+        }
     }
 }
