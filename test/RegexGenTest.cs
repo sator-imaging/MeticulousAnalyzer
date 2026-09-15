@@ -9,14 +9,26 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
     [TestClass]
     public class RegexGenTest
     {
+        private static readonly string[] TargetStrings = new[]
+        {
+            "Length",
+            "Count",
+            "Index",
+            "Remove",
+            "Search",
+            "Add",
+            "Exchange",
+            "Decrement",
+            "Increment"
+        };
+
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_TargetTextOnly()
         {
             var regex = RegexGen.IsExcemptionNameForZeroComparison();
             Assert.IsNotNull(regex);
 
-            string[] targets = new[] { "Length", "Count", "Index", "Remove", "Search", "Add", "Exchange", "Decrement", "Increment" };
-            foreach (var target in targets)
+            foreach (var target in TargetStrings)
             {
                 Assert.IsTrue(regex.IsMatch(target), $"Expected match for '{target}'");
                 Assert.IsTrue(regex.IsMatch(target.ToLowerInvariant()), $"Expected match for '{target.ToLowerInvariant()}'");
@@ -28,22 +40,17 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         public void IsExcemptionNameForZeroComparison_TargetTextFencedRandomChars()
         {
             var regex = RegexGen.IsExcemptionNameForZeroComparison();
-            string[] fencedInputs = new[]
-            {
-                "abcLengthxyz",
-                "123Count456",
-                "_Index_",
-                "fooRemoveBar",
-                "prefixSearchSuffix",
-                "xAddy",
-                "!!!Exchange???",
-                "---Decrement+++",
-                "   Increment   "
-            };
 
-            foreach (var input in fencedInputs)
+            foreach (var target in TargetStrings)
             {
+                string input = $"abc_{target}_xyz123";
                 Assert.IsTrue(regex.IsMatch(input), $"Expected match for '{input}'");
+
+                string lowerInput = $"---{target.ToLowerInvariant()}+++";
+                Assert.IsTrue(regex.IsMatch(lowerInput), $"Expected match for '{lowerInput}'");
+
+                string upperInput = $"***{target.ToUpperInvariant()}###";
+                Assert.IsTrue(regex.IsMatch(upperInput), $"Expected match for '{upperInput}'");
             }
         }
 
@@ -51,20 +58,21 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         public void IsExcemptionNameForZeroComparison_TargetTextAppearsMultipleTimesWithRandomChars()
         {
             var regex = RegexGen.IsExcemptionNameForZeroComparison();
-            string[] multiInputs = new[]
-            {
-                "Length_and_Count_and_Index",
-                "abcRemove123Search456",
-                "Add_Exchange_Decrement_Increment",
-                "length_Count_INDEX"
-            };
 
-            foreach (var input in multiInputs)
+            for (int i = 0; i < TargetStrings.Length - 1; i++)
             {
+                string first = TargetStrings[i];
+                string second = TargetStrings[i + 1];
+                string input = $"prefix_{first}_middle_{second}_suffix";
+
                 Assert.IsTrue(regex.IsMatch(input), $"Expected match for '{input}'");
                 var matches = regex.Matches(input);
-                Assert.IsTrue(matches.Count > 1, $"Expected multiple matches for '{input}'");
+                Assert.AreEqual(2, matches.Count, $"Expected exactly 2 matches for '{input}'");
             }
+
+            string allJoined = string.Join("_random_", TargetStrings);
+            var allMatches = regex.Matches(allJoined);
+            Assert.AreEqual(TargetStrings.Length, allMatches.Count, $"Expected {TargetStrings.Length} matches for joined target string");
         }
 
         [TestMethod]
