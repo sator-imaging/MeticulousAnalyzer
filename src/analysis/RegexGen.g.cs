@@ -137,19 +137,24 @@ namespace System.Text.RegularExpressions.Generated
             {
                 protected override void Go()
                 {
-                    ReadOnlySpan<char> inputSpan = base.runtext.AsSpan();
-                    if (TryMatchAtCurrentPosition(inputSpan))
+                    int start = runtextpos;
+
+                    if (!TryMatchAtCurrentPosition(runtext.AsSpan(0, runtextend)))
                     {
-                        return;
+                        runtextpos = start;
                     }
                 }
 
                 protected override bool FindFirstChar()
                 {
-                    return TryFindNextPossibleStartingPosition(base.runtext.AsSpan());
+                    return TryFindNextPossibleStartingPosition(
+                        runtext.AsSpan(0, runtextend));
                 }
 
-                protected override void InitTrackCount() { }
+                protected override void InitTrackCount()
+                {
+                    runtrackcount = 0;
+                }
 
                 /// <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>

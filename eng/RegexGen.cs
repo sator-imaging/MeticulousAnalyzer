@@ -119,19 +119,24 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 string runnerOverrides = @"
                 protected override void Go()
                 {
-                    ReadOnlySpan<char> inputSpan = base.runtext.AsSpan();
-                    if (TryMatchAtCurrentPosition(inputSpan))
+                    int start = runtextpos;
+
+                    if (!TryMatchAtCurrentPosition(runtext.AsSpan(0, runtextend)))
                     {
-                        return;
+                        runtextpos = start;
                     }
                 }
 
                 protected override bool FindFirstChar()
                 {
-                    return TryFindNextPossibleStartingPosition(base.runtext.AsSpan());
+                    return TryFindNextPossibleStartingPosition(
+                        runtext.AsSpan(0, runtextend));
                 }
 
-                protected override void InitTrackCount() { }
+                protected override void InitTrackCount()
+                {
+                    runtrackcount = 0;
+                }
 ";
                 generatedCode = generatedCode.Replace("private sealed class Runner : RegexRunner\n            {", "private sealed class Runner : RegexRunner\n            {" + runnerOverrides);
 
