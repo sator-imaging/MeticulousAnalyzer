@@ -137,26 +137,26 @@ namespace System.Text.RegularExpressions.Generated
             /// <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
             private sealed class Runner : RegexRunner
             {
-                protected override void Go()
-                {
-                    int start = runtextpos;
+    protected override void Go()
+    {
+        int start = runtextpos;
 
-                    if (!TryMatchAtCurrentPosition(runtext.AsSpan(0, runtextend)))
-                    {
-                        runtextpos = start;
-                    }
-                }
+        if (!TryMatchAtCurrentPosition(runtext.AsSpan(0, runtextend)))
+        {
+            runtextpos = start;
+        }
+    }
 
-                protected override bool FindFirstChar()
-                {
-                    return TryFindNextPossibleStartingPosition(
-                        runtext.AsSpan(0, runtextend));
-                }
+    protected override bool FindFirstChar()
+    {
+        return TryFindNextPossibleStartingPosition(
+            runtext.AsSpan(0, runtextend));
+    }
 
-                protected override void InitTrackCount()
-                {
-                    runtrackcount = 0;
-                }
+    protected override void InitTrackCount()
+    {
+        runtrackcount = 0;
+    }
 
                 /// <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
