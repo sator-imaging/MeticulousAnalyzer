@@ -150,6 +150,11 @@ namespace SatorImaging.MeticulousAnalyzer.Eng
                 {
                     declSb.AppendLine($"//     - {Path.GetFileName(file)}");
                 }
+                declSb.AppendLine("//     Patterns:");
+                foreach (var (name, pattern, options) in RegexPatterns)
+                {
+                    declSb.AppendLine($"//     - {name}: @\"{pattern}\", {options}");
+                }
                 declSb.AppendLine("// </auto-generated>");
                 declSb.AppendLine();
                 declSb.AppendLine($"namespace {OutputNamespace}");
