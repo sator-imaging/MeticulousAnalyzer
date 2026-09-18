@@ -216,10 +216,10 @@ namespace Test
 ";
             var expected0 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable");
-            var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+                .WithArguments("IDisposable");
+            var expected1 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 1)
-                .WithArguments("MyDisposable");
+                .WithArguments("MyDisposable", "object");
             var expected2 = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 2)
                 .WithArguments("MyDisposable");
@@ -859,12 +859,15 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            bool check = (object)d == null;
+            bool check = {|#0:(object)d|} == null;
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         // ===================================================================
