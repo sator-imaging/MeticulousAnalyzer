@@ -57,7 +57,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA0042 | Not All Code Paths Return a Value                                | Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
 | SMA0043 | Undisposed Member                                                | Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
 | SMA0044 | Missing Dispose Implementation                                   | Type '{0}' owns disposable members but does not implement `Dispose` method
-| SMA0045 | Missing IDisposable Interface                                    | Type '{0}' owns disposable members. Implement `IDisposable` interface
+| SMA0045 | Missing IDisposable Interface                                    | Type '{0}' owns disposable members. Implement `{1}` interface
 
 ## File Structure Analysis
 
