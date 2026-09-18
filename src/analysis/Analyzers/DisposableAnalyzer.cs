@@ -150,7 +150,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (isSourceDisposable && !isResultDisposable)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_CastFromDisposableToNonDisposable,
+                    op.Syntax.GetLocation(),
+                    op.Operand.Type.ToDiagnosticMessageName(),
+                    op.Type.ToDiagnosticMessageName()));
 
+                return;
+            }
 
             CheckAssignmentAndUsingStatementExistence(context, op, op.Type);
         }
@@ -622,19 +631,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         ? disposableSymbol
                         : untrackedCastOperandType;
 
-                    if (!IsDisposable(context, untrackedCastOperandType))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            Rule_CastFromDisposableToNonDisposable,
-                            operation.Syntax.GetLocation(),
-                            untrackedCastOperandType.ToDiagnosticMessageName(),
-                            disposableSymbol.ToDiagnosticMessageName()));
-                    }
-                    else
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
-                    }
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
                 }
 
                 return;
