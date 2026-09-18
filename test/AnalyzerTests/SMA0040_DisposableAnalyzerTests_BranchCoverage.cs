@@ -859,12 +859,15 @@ namespace Test
         void Method()
         {
             using var d = new MyDisposable();
-            bool check = (object)d == null;
+            bool check = {|#0:(object)d|} == null;
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         // ===================================================================
