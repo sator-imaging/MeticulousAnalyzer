@@ -62,10 +62,27 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     var operation = semanticModel.GetOperation(node, context.CancellationToken);
                     if (operation == null) continue;
 
-                    // Unwrap conversion
-                    operation = operation.UnwrapConversion();
-                    if (operation is IDelegateCreationOperation del) operation = del.Target;
-                    operation = operation.UnwrapConversion();
+                    // Unwrap conversion and delegate creation operations
+                    while (operation != null)
+                    {
+                        var unwrapped = operation.UnwrapConversion();
+                        if (unwrapped is IDelegateCreationOperation del)
+                        {
+                            operation = del.Target;
+                        }
+                        else if (unwrapped is IParenthesizedOperation parenthesized)
+                        {
+                            operation = parenthesized.Operand;
+                        }
+                        else if (unwrapped != operation)
+                        {
+                            operation = unwrapped;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
 
                     if (operation is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic)
                     {
@@ -82,31 +99,64 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private async Task<Document> WrapWithStaticLambdaAsync(Document document, SyntaxNode node, IMethodSymbol method, CancellationToken cancellationToken)
         {
-            var parameters = method.Parameters.Select(p =>
+            var paramCount = method.Parameters.Length;
+            var parameters = new ParameterSyntax[paramCount];
+            var arguments = new ArgumentSyntax[paramCount];
+
+            for (int i = 0; i < paramCount; i++)
             {
-                var name = p.Name;
-                var kind = SyntaxFacts.GetKeywordKind(name);
-                var token = kind == SyntaxKind.None
-                    ? SyntaxFactory.Identifier(name)
-                    : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
+                var p = method.Parameters[i];
+                var name = string.IsNullOrEmpty(p.Name) ? "arg" + (i + 1) : p.Name;
+                var rawName = name.StartsWith("@") ? name.Substring(1) : name;
+                var kind = SyntaxFacts.GetKeywordKind(rawName);
+                if (kind == SyntaxKind.None)
+                {
+                    kind = SyntaxFacts.GetContextualKeywordKind(rawName);
+                }
 
-                return SyntaxFactory.Parameter(token);
-            });
+                var token = (kind != SyntaxKind.None || name.StartsWith("@"))
+                    ? SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind != SyntaxKind.None ? kind : SyntaxKind.IdentifierToken, "@" + rawName, rawName, SyntaxFactory.TriviaList())
+                    : SyntaxFactory.Identifier(rawName);
 
-            var arguments = method.Parameters.Select(p =>
-            {
-                var name = p.Name;
-                var kind = SyntaxFacts.GetKeywordKind(name);
-                var token = kind == SyntaxKind.None
-                    ? SyntaxFactory.Identifier(name)
-                    : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
+                var paramSyntax = SyntaxFactory.Parameter(token);
 
-                return SyntaxFactory.Argument(SyntaxFactory.IdentifierName(token));
-            });
+                switch (p.RefKind)
+                {
+                    case RefKind.Ref:
+                        paramSyntax = paramSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.RefKeyword).WithTrailingTrivia(SyntaxFactory.Space)));
+                        break;
+                    case RefKind.Out:
+                        paramSyntax = paramSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.OutKeyword).WithTrailingTrivia(SyntaxFactory.Space)));
+                        break;
+                    case RefKind.In:
+                        paramSyntax = paramSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.InKeyword).WithTrailingTrivia(SyntaxFactory.Space)));
+                        break;
+                }
+
+                parameters[i] = paramSyntax;
+
+                var identifierExpr = SyntaxFactory.IdentifierName(token);
+
+                arguments[i] = p.RefKind switch
+                {
+                    RefKind.Ref => SyntaxFactory.Argument(null, SyntaxFactory.Token(SyntaxKind.RefKeyword), identifierExpr),
+                    RefKind.Out => SyntaxFactory.Argument(null, SyntaxFactory.Token(SyntaxKind.OutKeyword), identifierExpr),
+                    RefKind.In => SyntaxFactory.Argument(null, SyntaxFactory.Token(SyntaxKind.InKeyword), identifierExpr),
+                    _ => SyntaxFactory.Argument(identifierExpr)
+                };
+            }
 
             var lambdaParameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
 
-            var methodAccess = (node is ExpressionSyntax expr ? expr : SyntaxFactory.IdentifierName(method.Name))
+            var nodeToReplace = node;
+            while (nodeToReplace.Parent is ParenthesizedExpressionSyntax parenthesized)
+            {
+                nodeToReplace = parenthesized;
+            }
+
+            var unwrappedNode = nodeToReplace is ExpressionSyntax expr ? expr.UnwrapParentheses() : nodeToReplace;
+
+            var methodAccess = (unwrappedNode is ExpressionSyntax exprAccess ? exprAccess : SyntaxFactory.IdentifierName(method.Name))
                 .WithLeadingTrivia(SyntaxTriviaList.Empty)
                 .WithTrailingTrivia(SyntaxTriviaList.Empty);
 
@@ -118,11 +168,11 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 SyntaxFactory.Token(SyntaxKind.EqualsGreaterThanToken),
                 block: null,
                 invocation
-            ).WithLeadingTrivia(node.GetLeadingTrivia())
-             .WithTrailingTrivia(node.GetTrailingTrivia());
+            ).WithLeadingTrivia(nodeToReplace.GetLeadingTrivia())
+             .WithTrailingTrivia(nodeToReplace.GetTrailingTrivia());
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            var newRoot = root!.ReplaceNode(node, staticLambda);
+            var newRoot = root!.ReplaceNode(nodeToReplace, staticLambda);
             return document.WithSyntaxRoot(newRoot);
         }
 

@@ -244,5 +244,36 @@ public class C
                 .WithArguments("Action");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
+
+        [TestMethod]
+        public async Task SMA7001_CodeFix_ParenthesizedStaticMethod()
+        {
+            var test = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i) { }
+    void M()
+    {
+        Action<int> a = ({|#0:StaticMethod|});
+    }
+}
+";
+            var fixtest = @"
+using System;
+public class C
+{
+    static void StaticMethod(int i) { }
+    void M()
+    {
+        Action<int> a = static (i) => StaticMethod(i);
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action<int>");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
     }
 }
