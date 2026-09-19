@@ -346,5 +346,28 @@ public class C
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_AssignmentToStaticFieldDelegate()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private static Action s_some;
+
+    void SomeCallback() { }
+
+    void M()
+    {
+        s_some = {|#0:SomeCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }

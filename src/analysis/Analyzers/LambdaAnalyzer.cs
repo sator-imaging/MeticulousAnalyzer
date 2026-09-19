@@ -122,7 +122,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (op.Parent is IAssignmentOperation)
+            if (op.Parent is IAssignmentOperation assignOp && !IsStaticMember(assignOp.Target))
             {
                 return;
             }
