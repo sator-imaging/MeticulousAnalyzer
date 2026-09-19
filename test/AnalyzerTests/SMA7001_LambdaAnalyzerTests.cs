@@ -326,5 +326,25 @@ public class C
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA7001_Compliant_AssignmentToDelegate()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private Action _some;
+
+    void SomeCallback() { }
+
+    void M()
+    {
+        _some = SomeCallback;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

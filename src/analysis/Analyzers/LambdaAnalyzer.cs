@@ -122,6 +122,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (op.Parent is IAssignmentOperation)
+            {
+                return;
+            }
+
             var operand = (op as IConversionOperation)?.Operand ?? (op as IDelegateCreationOperation)?.Target;
             if (operand == null)
             {
