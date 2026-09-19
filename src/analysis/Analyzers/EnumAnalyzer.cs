@@ -353,9 +353,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (castOp.Type?.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
-             && castOp.Operand.ConstantValue.HasValue
-             && castOp.Operand.ConstantValue.Value == null)
+            if (castOp.Type?.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T &&
+                castOp.Operand.ConstantValue.HasValue &&
+                castOp.Operand.ConstantValue.Value == null)
             {
                 return;
             }

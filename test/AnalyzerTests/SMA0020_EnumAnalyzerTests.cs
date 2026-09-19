@@ -1079,11 +1079,12 @@ namespace Test
     {
         public void Test()
         {
-            ETest? startupAction = null;
-            ETest? x = default;
-            ETest? y = default(ETest?);
-            startupAction = null;
-            startupAction = default;
+            ETest? x = null;
+            ETest? y = default;
+            ETest? z = default(ETest?);
+            x = null;
+            y = default;
+            z = default(ETest?);
         }
     }
 }
