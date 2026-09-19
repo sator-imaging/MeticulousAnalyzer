@@ -62,27 +62,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     var operation = semanticModel.GetOperation(node, context.CancellationToken);
                     if (operation == null) continue;
 
-                    // Unwrap conversion and delegate creation operations
-                    while (operation != null)
-                    {
-                        var unwrapped = operation.UnwrapConversion();
-                        if (unwrapped is IDelegateCreationOperation del)
-                        {
-                            operation = del.Target;
-                        }
-                        else if (unwrapped is IParenthesizedOperation parenthesized)
-                        {
-                            operation = parenthesized.Operand;
-                        }
-                        else if (unwrapped != operation)
-                        {
-                            operation = unwrapped;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                    // Unwrap conversion
+                    operation = operation.UnwrapConversion();
+                    if (operation is IDelegateCreationOperation del) operation = del.Target;
+                    operation = operation.UnwrapConversion();
 
                     if (operation is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic)
                     {

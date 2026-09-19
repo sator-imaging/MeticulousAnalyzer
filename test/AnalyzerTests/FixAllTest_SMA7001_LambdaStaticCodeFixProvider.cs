@@ -15,6 +15,11 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     [TestClass]
     public class FixAllTest_SMA7001_LambdaStaticCodeFixProvider
     {
+        private const string SystemDelegates = @"namespace System
+{
+    public delegate void Action<T1, T2>(ref T1 a, out T2 b);
+}";
+
         private const string SourceTemplate = @"using System;
 
 namespace Test_{0}
@@ -22,13 +27,12 @@ namespace Test_{0}
     public class C_{0}
     {{
         static void StaticMethod() {{ }}
-        static void StaticMethodWithArg(int i) {{ }}
+        static void RefMethod(ref int a, out string b) {{ b = """"; }}
         void M()
         {{
             Action a = /* Leading trivia */ {{|#{1}:StaticMethod|}};  // Trailing trivia
             Action b = /* Leading trivia */ {{|#{2}:StaticMethod|}};  // Trailing trivia
-            Action c = /* Leading trivia */ {{|#{3}:StaticMethod|}};  // Trailing trivia
-            Action<int> d = /* Leading trivia */ ({{|#{4}:StaticMethodWithArg|}});  // Trailing trivia
+            Action<int, string> c = /* Leading trivia */ {{|#{3}:RefMethod|}};  // Trailing trivia
         }}
     }}
 }}";
@@ -40,13 +44,12 @@ namespace Test_{0}
     public class C_{0}
     {{
         static void StaticMethod() {{ }}
-        static void StaticMethodWithArg(int i) {{ }}
+        static void RefMethod(ref int a, out string b) {{ b = """"; }}
         void M()
         {{
             Action a = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
             Action b = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
-            Action c = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
-            Action<int> d = /* Leading trivia */ static (i) => StaticMethodWithArg(i);  // Trailing trivia
+            Action<int, string> c = /* Leading trivia */ static (ref int a, out string b) => RefMethod(ref a, out b);  // Trailing trivia
         }}
     }}
 }}";
@@ -60,15 +63,17 @@ namespace Test_{0}
                 {
                     Sources =
                     {
-                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2, 3)),
-                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 4, 5, 6, 7)),
-                        ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 8, 9, 10, 11)),
+                        ("SystemDelegates.cs", SystemDelegates),
+                        ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2)),
+                        ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 3, 4, 5)),
+                        ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 6, 7, 8)),
                     },
                 },
                 FixedState =
                 {
                     Sources =
                     {
+                        ("SystemDelegates.cs", SystemDelegates),
                         ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
                         ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
                         ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
@@ -78,21 +83,21 @@ namespace Test_{0}
                 {
                     Sources =
                     {
+                        ("SystemDelegates.cs", SystemDelegates),
                         ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
                         ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
                         ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
                     },
                 },
-                NumberOfIncrementalIterations = 12,
+                NumberOfIncrementalIterations = 9,
             };
 
             for (int i = 0; i < 3; i++)
             {
-                int offset = i * 4;
+                int offset = i * 3;
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 0).WithArguments("Action"));
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 1).WithArguments("Action"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("Action"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 3).WithArguments("Action<int>"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("Action<int, string>"));
             }
 
             // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
