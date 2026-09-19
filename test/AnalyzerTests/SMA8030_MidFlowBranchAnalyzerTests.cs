@@ -2609,5 +2609,110 @@ class C
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowExpressionInAssignmentAfterMainFlow()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(string? str)
+    {
+        DoWork();
+        str = str ?? {|#0:throw|} new ArgumentNullException(nameof(str));
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowExpressionInLocalDeclarationAfterMainFlow()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(string? str)
+    {
+        DoWork();
+        string name = str ?? {|#0:throw|} new ArgumentNullException(nameof(str));
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowExpressionInReturnStatementAfterMainFlow()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    string M(string? str)
+    {
+        DoWork();
+        return str ?? {|#0:throw|} new ArgumentNullException(nameof(str));
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowExpressionInMidFlowIfAfterMainFlow()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(bool cond, string? str)
+    {
+        DoWork();
+
+        if (cond)
+        {
+            string name = str ?? {|#0:throw|} new ArgumentNullException(nameof(str));
+        }
+
+        DoWork();
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ThrowExpressionBeforeMainFlow()
+        {
+            var test = @"#nullable enable
+using System;
+
+class C
+{
+    void DoWork() { }
+
+    void M(string? str)
+    {
+        string name = str ?? throw new ArgumentNullException(nameof(str));
+        DoWork();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
