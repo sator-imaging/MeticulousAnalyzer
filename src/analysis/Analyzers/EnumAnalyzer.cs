@@ -227,6 +227,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (op is IDefaultValueOperation)
             {
+                if (op.Type?.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                {
+                    return;
+                }
+
                 // method has default value of generic type arg T which has T : Enum constraint
                 // --> Method<TEnum>(TEnum value = default)
                 if (op.IsImplicit && op.Parent is IArgumentOperation && op.Parent?.Parent is IInvocationOperation)
@@ -344,6 +349,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             var (enumType, isGeneric) = GetEnumInfo(symbol);
             if (enumType == null)
+            {
+                return;
+            }
+
+            if (castOp.Type?.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+             && castOp.Operand.ConstantValue.HasValue
+             && castOp.Operand.ConstantValue.Value == null)
             {
                 return;
             }

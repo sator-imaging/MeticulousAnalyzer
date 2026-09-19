@@ -1063,5 +1063,33 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3);
         }
 
+        [TestMethod]
+        public async Task SMA0020_Compliant_NullableEnum_NullAssignment()
+        {
+            var test = @"
+#nullable enable
+
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum ETest { Value }
+    public class CTest
+    {
+        public void Test()
+        {
+            ETest? startupAction = null;
+            ETest? x = default;
+            ETest? y = default(ETest?);
+            startupAction = null;
+            startupAction = default;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
