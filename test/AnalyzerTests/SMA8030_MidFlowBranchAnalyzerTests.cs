@@ -2609,5 +2609,186 @@ class C
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ThrowInSwitchStatementDefaultCase_OnlyStatement()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int mode, bool flag)
+    {
+        switch (mode)
+        {
+            case 1:
+                break;
+            default:
+                throw new InvalidOperationException();
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_ThrowInSwitchExpressionDefaultArm_OnlyExpression()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int mode, bool flag)
+    {
+        int x = 1;
+        x++;
+
+        if (flag)
+        {
+            x = mode switch
+            {
+                1 => 10,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        x++;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowInSwitchStatementDefaultCase_MultipleStatements()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int mode, bool flag)
+    {
+        int x = 1;
+        x++;
+
+        if (flag)
+        {
+            switch (mode)
+            {
+                case 1:
+                    {|#0:break|};
+                default:
+                    x++;
+                    {|#1:throw|} new InvalidOperationException();
+            }
+        }
+
+        x++;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowInSwitchStatementNonDefaultCase()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int mode, bool flag)
+    {
+        int x = 1;
+        x++;
+
+        if (flag)
+        {
+            switch (mode)
+            {
+                case 1:
+                    {|#0:throw|} new InvalidOperationException();
+                default:
+                    {|#1:break|};
+            }
+        }
+
+        x++;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowInSwitchExpressionNonDefaultArm()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int mode, bool flag)
+    {
+        int x = 1;
+        x++;
+
+        if (flag)
+        {
+            x = mode switch
+            {
+                1 => {|#0:throw|} new InvalidOperationException(),
+                _ => 10,
+            };
+        }
+
+        x++;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_ThrowInIfInsideSwitchStatementDefaultCase()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(int mode, bool flag, bool innerFlag)
+    {
+        int x = 1;
+        x++;
+
+        if (flag)
+        {
+            switch (mode)
+            {
+                case 1:
+                    {|#0:break|};
+                default:
+                    if (innerFlag)
+                    {
+                        {|#1:throw|} new InvalidOperationException();
+                    }
+                    {|#2:break|};
+            }
+        }
+
+        x++;
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
     }
 }

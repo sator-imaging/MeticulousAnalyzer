@@ -486,11 +486,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
             else if (node is ThrowStatementSyntax throwStmt)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
+                if (!IsAllowedThrowInSwitchDefault(throwStmt))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Rule, throwStmt.ThrowKeyword.GetLocation()));
+                }
             }
             else if (node is ThrowExpressionSyntax throwExpr)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
+                if (!IsAllowedThrowInSwitchDefault(throwExpr))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
+                }
             }
             else if (node is ContinueStatementSyntax continueStmt)
             {
@@ -508,6 +514,102 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, yieldStmt.YieldKeyword.GetLocation()));
             }
+        }
+
+        private static bool IsAllowedThrowInSwitchDefault(SyntaxNode throwNode)
+        {
+            if (throwNode is ThrowStatementSyntax throwStmt)
+            {
+                if (throwStmt.Parent is SwitchSectionSyntax section)
+                {
+                    if (section.Statements.Count == 1 && IsDefaultSwitchSection(section))
+                    {
+                        return true;
+                    }
+                }
+                else if (throwStmt.Parent is BlockSyntax block && block.Statements.Count == 1 && block.Parent is SwitchSectionSyntax blockSection)
+                {
+                    if (IsDefaultSwitchSection(blockSection))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (throwNode is ThrowExpressionSyntax throwExpr)
+            {
+                SyntaxNode expr = throwExpr;
+                while (expr.Parent is ParenthesizedExpressionSyntax)
+                {
+                    expr = expr.Parent;
+                }
+
+                if (expr.Parent is SwitchExpressionArmSyntax arm && arm.Expression == expr)
+                {
+                    if (IsDefaultSwitchArm(arm))
+                    {
+                        return true;
+                    }
+                }
+                else if (expr.Parent is ExpressionStatementSyntax exprStmt && exprStmt.Parent is SwitchSectionSyntax armSection)
+                {
+                    if (armSection.Statements.Count == 1 && IsDefaultSwitchSection(armSection))
+                    {
+                        return true;
+                    }
+                }
+                else if (expr.Parent is ExpressionStatementSyntax blockExprStmt && blockExprStmt.Parent is BlockSyntax exprBlock && exprBlock.Statements.Count == 1 && exprBlock.Parent is SwitchSectionSyntax exprBlockSection)
+                {
+                    if (IsDefaultSwitchSection(exprBlockSection))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsDefaultSwitchSection(SwitchSectionSyntax section)
+        {
+            foreach (var label in section.Labels)
+            {
+                if (label is DefaultSwitchLabelSyntax)
+                {
+                    return true;
+                }
+
+                if (label is CasePatternSwitchLabelSyntax patternLabel)
+                {
+                    var pattern = patternLabel.Pattern;
+                    if (pattern is DiscardPatternSyntax)
+                    {
+                        return true;
+                    }
+
+                    if (pattern is VarPatternSyntax varPattern && varPattern.Designation is DiscardDesignationSyntax)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsDefaultSwitchArm(SwitchExpressionArmSyntax arm)
+        {
+            var pattern = arm.Pattern;
+            if (pattern is DiscardPatternSyntax)
+            {
+                return true;
+            }
+
+            if (pattern is VarPatternSyntax varPattern && varPattern.Designation is DiscardDesignationSyntax)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static bool AllBranchesBranch(IfStatementSyntax ifStmt)
