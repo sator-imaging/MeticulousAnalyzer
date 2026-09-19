@@ -120,6 +120,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
                 var paramSyntax = SyntaxFactory.Parameter(token);
 
+                if (p.RefKind != RefKind.None)
+                {
+                    var typeName = p.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+                    paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(typeName));
+                }
+
                 switch (p.RefKind)
                 {
                     case RefKind.Ref:

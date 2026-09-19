@@ -275,5 +275,79 @@ public class C
                 .WithArguments("Action<int>");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
+
+        [TestMethod]
+        public async Task SMA7001_CodeFix_StaticMethodWithRefAndOutParameters()
+        {
+            var test = @"
+namespace System
+{
+    public delegate void Action<T1, T2>(ref T1 i, out T2 s);
+}
+public class C
+{
+    static void StaticMethod(ref int i, out string s) { s = """"; }
+    void M()
+    {
+        System.Action<int, string> a = {|#0:StaticMethod|};
+    }
+}
+";
+            var fixtest = @"
+namespace System
+{
+    public delegate void Action<T1, T2>(ref T1 i, out T2 s);
+}
+public class C
+{
+    static void StaticMethod(ref int i, out string s) { s = """"; }
+    void M()
+    {
+        System.Action<int, string> a = static (ref int i, out string s) => StaticMethod(ref i, out s);
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action<int, string>");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_CodeFix_StaticMethodWithRefOutAndKeywordParameters()
+        {
+            var test = @"
+namespace System
+{
+    public delegate void Action<T1, T2>(ref T1 @class, out T2 @event);
+}
+public class C
+{
+    static void StaticMethod(ref int @class, out string @event) { @event = """"; }
+    void M()
+    {
+        System.Action<int, string> a = {|#0:StaticMethod|};
+    }
+}
+";
+            var fixtest = @"
+namespace System
+{
+    public delegate void Action<T1, T2>(ref T1 @class, out T2 @event);
+}
+public class C
+{
+    static void StaticMethod(ref int @class, out string @event) { @event = """"; }
+    void M()
+    {
+        System.Action<int, string> a = static (ref int @class, out string @event) => StaticMethod(ref @class, out @event);
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action<int, string>");
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+        }
     }
 }
