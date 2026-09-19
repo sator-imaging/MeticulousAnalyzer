@@ -406,8 +406,8 @@ class C
 
     void M(string? str)
     {
-        DoWork();
         str = str ?? throw new ArgumentNullException(nameof(str));
+        DoWork();
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);

@@ -87,12 +87,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     if (isMainFlowStarted)
                     {
+                        CheckAndReportThrowExpression(context, statement);
                         continue;
                     }
 
                     if (hasDeclarationInCurrentSequence && hasSeenIf)
                     {
                         isMainFlowStarted = true;
+                        CheckAndReportThrowExpression(context, statement);
                     }
                     else
                     {
@@ -146,6 +148,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
                 else
                 {
+                    if (isMainFlowStarted)
+                    {
+                        CheckAndReportThrowExpression(context, statement);
+                    }
                     isMainFlowStarted = true;
                 }
             }
@@ -412,10 +418,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             if (AllBranchesBranch(ifStmt))
             {
+                CheckAndReportThrowExpression(context, ifStmt);
                 return;
             }
 
             CollectAndReportBranchesInIfBranch(context, ifStmt);
+        }
+
+        private static void CheckAndReportThrowExpression(SyntaxNodeAnalysisContext context, SyntaxNode node)
+        {
+            if (node is ThrowExpressionSyntax throwExpr)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, throwExpr.ThrowKeyword.GetLocation()));
+            }
+
+            foreach (var descendant in node.DescendantNodes(static x => !IsMethodLikeSyntax(x)))
+            {
+                if (descendant is ThrowExpressionSyntax descendantThrow)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(Rule, descendantThrow.ThrowKeyword.GetLocation()));
+                }
+            }
         }
 
         private static bool IsMethodLikeOrLoopSyntax(SyntaxNode? node)
