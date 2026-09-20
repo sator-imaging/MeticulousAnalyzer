@@ -135,6 +135,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (op.Type.SpecialType == SpecialType.System_Object &&
+                op.Parent is IArgumentOperation argOp &&
+                argOp.Parent is IInvocationOperation invocation &&
+                invocation.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
+                invocation.TargetMethod.ContainingType is ITypeSymbol
+                {
+                    Name: nameof(GC), ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                        {
+                            IsGlobalNamespace: true
+                        }
+                    }
+                })
+            {
+                return;
+            }
+
             // Ignore conversions from null, as this is handled by AnalyzeSimpleAssignment.
             if (op.Operand.ConstantValue.HasValue && op.Operand.ConstantValue.Value == null)
             {
