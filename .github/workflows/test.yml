@@ -43,7 +43,8 @@ jobs:
       matrix:
         configuration: [Release, Debug]
 
-    if: ${{ !inputs.__called }}
+    # Mutation test is not work as expected for analyzer project.
+    if: false && ${{ !inputs.__called }}
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
     steps:
