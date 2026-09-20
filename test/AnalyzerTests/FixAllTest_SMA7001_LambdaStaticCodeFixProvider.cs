@@ -17,7 +17,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     {
         private const string SystemDelegates = @"namespace System
 {
-    public delegate void Action<T1, T2>(ref T1 a, out T2 b);
+    public delegate void Action<T1, T2, T3>(in T1 a, ref T2 b, out T3 c);
 }";
 
         private const string SourceTemplate = @"using System;
@@ -27,12 +27,12 @@ namespace Test_{0}
     public class C_{0}
     {{
         static void StaticMethod() {{ }}
-        static void RefMethod(ref int a, out string b) {{ b = """"; }}
+        static void RefMethod(in int a, ref string b, out double c) {{ c = 0; }}
         void M()
         {{
             Action a = /* Leading trivia */ {{|#{1}:StaticMethod|}};  // Trailing trivia
-            Action b = /* Leading trivia */ {{|#{2}:StaticMethod|}};  // Trailing trivia
-            Action<int, string> c = /* Leading trivia */ {{|#{3}:RefMethod|}};  // Trailing trivia
+            Action<int, string, double> b = /* Leading trivia */ {{|#{2}:RefMethod|}};  // Trailing trivia
+            Action<int, string, double> c = /* Leading trivia */ ({{|#{3}:RefMethod|}});  // Trailing trivia
         }}
     }}
 }}";
@@ -44,12 +44,12 @@ namespace Test_{0}
     public class C_{0}
     {{
         static void StaticMethod() {{ }}
-        static void RefMethod(ref int a, out string b) {{ b = """"; }}
+        static void RefMethod(in int a, ref string b, out double c) {{ c = 0; }}
         void M()
         {{
             Action a = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
-            Action b = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
-            Action<int, string> c = /* Leading trivia */ static (ref int a, out string b) => RefMethod(ref a, out b);  // Trailing trivia
+            Action<int, string, double> b = /* Leading trivia */ static (in int a, ref string b, out double c) => RefMethod(in a, ref b, out c);  // Trailing trivia
+            Action<int, string, double> c = /* Leading trivia */ static (in int a, ref string b, out double c) => RefMethod(in a, ref b, out c);  // Trailing trivia
         }}
     }}
 }}";
@@ -96,8 +96,8 @@ namespace Test_{0}
             {
                 int offset = i * 3;
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 0).WithArguments("Action"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 1).WithArguments("Action"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("Action<int, string>"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 1).WithArguments("Action<int, string, double>"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("Action<int, string, double>"));
             }
 
             // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
