@@ -135,6 +135,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var parentOp = op.Parent is IArgumentOperation argOp ? argOp.Parent : op.Parent;
+            if (parentOp is IInvocationOperation invocation &&
+                invocation.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
+                invocation.TargetMethod.ContainingType is
+                {
+                    Name: nameof(GC),
+                    ContainingNamespace:
+                    {
+                        Name: nameof(System),
+                        ContainingNamespace: { IsGlobalNamespace: true }
+                    }
+                })
+            {
+                return;
+            }
+
             // Ignore conversions from null, as this is handled by AnalyzeSimpleAssignment.
             if (op.Operand.ConstantValue.HasValue && op.Operand.ConstantValue.Value == null)
             {

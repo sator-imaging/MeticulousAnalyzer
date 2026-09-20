@@ -271,5 +271,26 @@ namespace Test
             };
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_SuppressFinalize()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
