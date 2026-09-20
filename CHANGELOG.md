@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0-rc.4](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.4) (2026-09-20)
+
+### 🚀 Features
+* Allow "GC.SuppressFinalize" in `DisposableAnalyzer` cast analysis by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#682](https://github.com/sator-imaging/MeticulousAnalyzer/pull/682)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.3...v5.3.0-rc.4
+
+
 ## [5.3.0-rc.3](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.3) (2026-09-20)
 
 ### 🚀 Features
