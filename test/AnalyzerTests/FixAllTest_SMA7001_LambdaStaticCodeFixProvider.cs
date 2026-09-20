@@ -17,7 +17,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     {
         private const string SystemDelegates = @"namespace System
 {
-    public delegate void Action<T1, T2, T3>(in T1 a, ref T2 b, out T3 c);
+    public delegate void MyDelegate<T1, T2, T3>(in T1 a, ref T2 b, out T3 c);
 }";
 
         private const string SourceTemplate = @"using System;
@@ -32,7 +32,7 @@ namespace Test_{0}
         {{
             Action a = /* Leading trivia */ {{|#{1}:StaticMethod|}};  // Trailing trivia
             Action b = /* Leading trivia */ {{|#{2}:StaticMethod|}};  // Trailing trivia
-            Action<int, string, double> c = /* Leading trivia */ {{|#{3}:RefMethod|}};  // Trailing trivia
+            MyDelegate<int, string, double> c = /* Leading trivia */ {{|#{3}:RefMethod|}};  // Trailing trivia
         }}
     }}
 }}";
@@ -49,7 +49,7 @@ namespace Test_{0}
         {{
             Action a = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
             Action b = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
-            Action<int, string, double> c = /* Leading trivia */ static (in int a, ref string b, out double c) => RefMethod(in a, ref b, out c);  // Trailing trivia
+            MyDelegate<int, string, double> c = /* Leading trivia */ static (in int a, ref string b, out double c) => RefMethod(in a, ref b, out c);  // Trailing trivia
         }}
     }}
 }}";
@@ -97,7 +97,7 @@ namespace Test_{0}
                 int offset = i * 3;
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 0).WithArguments("Action"));
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 1).WithArguments("Action"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("Action<int, string, double>"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("MyDelegate<int, string, double>"));
             }
 
             // TODO: FixAllProvider test cannot be done with current Roslyn version (3.8.0).
