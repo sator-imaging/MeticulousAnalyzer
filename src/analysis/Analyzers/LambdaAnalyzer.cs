@@ -142,6 +142,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (op.Parent is IAssignmentOperation assignOp &&
+                !IsStaticMember(assignOp.Target) &&
+                !IsStaticMember(unwrapped))
+            {
+                return;
+            }
+
             // Don't show warning if the "value" side is static field, method, property or other static member.
             // EXCEPT for static methods of Action/Func, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped))
