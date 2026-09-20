@@ -15,12 +15,15 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     [TestClass]
     public class FixAllTest_SMA7001_LambdaStaticCodeFixProvider
     {
-        private const string SystemDelegates = @"namespace System
+        private const string MyDelegates = @"
+namespace App
 {
     public delegate void MyDelegate<T1, T2, T3>(in T1 a, ref T2 b, out T3 c);
 }";
 
-        private const string SourceTemplate = @"using System;
+        private const string SourceTemplate = @"
+using System;
+using App;
 
 namespace Test_{0}
 {{
@@ -37,7 +40,9 @@ namespace Test_{0}
     }}
 }}";
 
-        private const string FixedTemplate = @"using System;
+        private const string FixedTemplate = @"
+using System;
+using App;
 
 namespace Test_{0}
 {{
@@ -63,7 +68,7 @@ namespace Test_{0}
                 {
                     Sources =
                     {
-                        ("SystemDelegates.cs", SystemDelegates),
+                        ("MyDelegates.cs", MyDelegates),
                         ("Test0.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 0, 0, 1, 2)),
                         ("Test1.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 1, 3, 4, 5)),
                         ("Test2.cs", string.Format(SourceTemplate.ReplaceLineEndings(), 2, 6, 7, 8)),
@@ -73,7 +78,7 @@ namespace Test_{0}
                 {
                     Sources =
                     {
-                        ("SystemDelegates.cs", SystemDelegates),
+                        ("MyDelegates.cs", MyDelegates),
                         ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
                         ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
                         ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),
@@ -83,7 +88,7 @@ namespace Test_{0}
                 {
                     Sources =
                     {
-                        ("SystemDelegates.cs", SystemDelegates),
+                        ("MyDelegates.cs", MyDelegates),
                         ("Test0.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 0)),
                         ("Test1.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 1)),
                         ("Test2.cs", string.Format(FixedTemplate.ReplaceLineEndings(), 2)),

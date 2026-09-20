@@ -280,13 +280,13 @@ public class C
         public async Task SMA7001_CodeFix_StaticMethodWithRefAndOutParameters()
         {
             var customDelegates = @"
-namespace System
+namespace App
 {
     public delegate void MyDelegate<T1, T2>(ref T1 i, out T2 s);
 }
 ";
             var test = @"
-using System;
+using App;
 public class C
 {
     static void StaticMethod(ref int i, out string s) { s = """"; }
@@ -297,7 +297,7 @@ public class C
 }
 ";
             var fixtest = @"
-using System;
+using App;
 public class C
 {
     static void StaticMethod(ref int i, out string s) { s = """"; }
@@ -326,13 +326,13 @@ public class C
         public async Task SMA7001_CodeFix_StaticMethodWithKeywordParameters()
         {
             var customDelegates = @"
-namespace System
+namespace App
 {
     public delegate void MyDelegate<T1, T2>(ref T1 @class, out T2 @event);
 }
 ";
             var test = @"
-using System;
+using App;
 public class C
 {
     static void StaticMethod(ref int @class, out string @event) { @event = """"; }
@@ -343,7 +343,7 @@ public class C
 }
 ";
             var fixtest = @"
-using System;
+using App;
 public class C
 {
     static void StaticMethod(ref int @class, out string @event) { @event = """"; }
