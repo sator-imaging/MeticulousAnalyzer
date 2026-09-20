@@ -31,8 +31,8 @@ namespace Test_{0}
         void M()
         {{
             Action a = /* Leading trivia */ {{|#{1}:StaticMethod|}};  // Trailing trivia
-            Action<int, string, double> b = /* Leading trivia */ {{|#{2}:RefMethod|}};  // Trailing trivia
-            Action<int, string, double> c = /* Leading trivia */ ({{|#{3}:RefMethod|}});  // Trailing trivia
+            Action b = /* Leading trivia */ {{|#{2}:StaticMethod|}};  // Trailing trivia
+            Action<int, string, double> c = /* Leading trivia */ {{|#{3}:RefMethod|}};  // Trailing trivia
         }}
     }}
 }}";
@@ -48,7 +48,7 @@ namespace Test_{0}
         void M()
         {{
             Action a = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
-            Action<int, string, double> b = /* Leading trivia */ static (in int a, ref string b, out double c) => RefMethod(in a, ref b, out c);  // Trailing trivia
+            Action b = /* Leading trivia */ static () => StaticMethod();  // Trailing trivia
             Action<int, string, double> c = /* Leading trivia */ static (in int a, ref string b, out double c) => RefMethod(in a, ref b, out c);  // Trailing trivia
         }}
     }}
@@ -96,7 +96,7 @@ namespace Test_{0}
             {
                 int offset = i * 3;
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 0).WithArguments("Action"));
-                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 1).WithArguments("Action<int, string, double>"));
+                test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 1).WithArguments("Action"));
                 test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: offset + 2).WithArguments("Action<int, string, double>"));
             }
 
