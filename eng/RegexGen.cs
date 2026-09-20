@@ -69,7 +69,7 @@ try
     programSb.AppendLine("    {");
     foreach (var (name, _, _) in RegexPatterns)
     {
-        programSb.AppendLine($"        Console.WriteLine({OutputClassName}.{name}().IsMatch(\"Length\"));");
+        programSb.AppendLine($"        Console.WriteLine({OutputClassName}.{name}().IsMatch(\"THIS IS A TEST\"));");
     }
     programSb.AppendLine("    }");
     programSb.AppendLine("}");
