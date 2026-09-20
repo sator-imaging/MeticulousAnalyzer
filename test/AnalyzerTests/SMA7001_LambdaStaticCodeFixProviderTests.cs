@@ -279,75 +279,93 @@ public class C
         [TestMethod]
         public async Task SMA7001_CodeFix_StaticMethodWithRefAndOutParameters()
         {
-            var test = @"
+            var customDelegates = @"
 namespace System
 {
     public delegate void MyDelegate<T1, T2>(ref T1 i, out T2 s);
 }
+";
+            var test = @"
+using System;
 public class C
 {
     static void StaticMethod(ref int i, out string s) { s = """"; }
     void M()
     {
-        System.MyDelegate<int, string> a = {|#0:StaticMethod|};
+        MyDelegate<int, string> a = {|#0:StaticMethod|};
     }
 }
 ";
             var fixtest = @"
-namespace System
-{
-    public delegate void MyDelegate<T1, T2>(ref T1 i, out T2 s);
-}
+using System;
 public class C
 {
     static void StaticMethod(ref int i, out string s) { s = """"; }
     void M()
     {
-        System.MyDelegate<int, string> a = static (ref int i, out string s) => StaticMethod(ref i, out s);
+        MyDelegate<int, string> a = static (ref int i, out string s) => StaticMethod(ref i, out s);
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDelegate<int, string>");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            var testState = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("CustomDelegates.cs", customDelegates), ("Test0.cs", test) }
+                },
+                FixedState =
+                {
+                    Sources = { ("CustomDelegates.cs", customDelegates), ("Test0.cs", fixtest) }
+                }
+            };
+            testState.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: 0).WithArguments("MyDelegate<int, string>"));
+            await testState.RunAsync();
         }
 
         [TestMethod]
         public async Task SMA7001_CodeFix_StaticMethodWithKeywordParameters()
         {
-            var test = @"
+            var customDelegates = @"
 namespace System
 {
     public delegate void MyDelegate<T1, T2>(ref T1 @class, out T2 @event);
 }
+";
+            var test = @"
+using System;
 public class C
 {
     static void StaticMethod(ref int @class, out string @event) { @event = """"; }
     void M()
     {
-        System.MyDelegate<int, string> a = {|#0:StaticMethod|};
+        MyDelegate<int, string> a = {|#0:StaticMethod|};
     }
 }
 ";
             var fixtest = @"
-namespace System
-{
-    public delegate void MyDelegate<T1, T2>(ref T1 @class, out T2 @event);
-}
+using System;
 public class C
 {
     static void StaticMethod(ref int @class, out string @event) { @event = """"; }
     void M()
     {
-        System.MyDelegate<int, string> a = static (ref int @class, out string @event) => StaticMethod(ref @class, out @event);
+        MyDelegate<int, string> a = static (ref int @class, out string @event) => StaticMethod(ref @class, out @event);
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDelegate<int, string>");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            var testState = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("CustomDelegates.cs", customDelegates), ("Test0.cs", test) }
+                },
+                FixedState =
+                {
+                    Sources = { ("CustomDelegates.cs", customDelegates), ("Test0.cs", fixtest) }
+                }
+            };
+            testState.ExpectedDiagnostics.Add(VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration).WithLocation(markupKey: 0).WithArguments("MyDelegate<int, string>"));
+            await testState.RunAsync();
         }
     }
 }

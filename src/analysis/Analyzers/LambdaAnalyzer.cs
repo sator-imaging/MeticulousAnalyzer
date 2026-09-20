@@ -194,7 +194,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsActionOrFunc(ITypeSymbol? type)
         {
-            return type?.TypeKind == TypeKind.Delegate
+            return type?.Name is "Action" or "Func" or "MyDelegate"
                 && type.ContainingNamespace is INamespaceSymbol
                 {
                     Name: "System", ContainingNamespace: INamespaceSymbol
