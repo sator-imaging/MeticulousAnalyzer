@@ -135,8 +135,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var parentOp = op.Parent is IArgumentOperation argOp ? argOp.Parent : op.Parent;
-            if (parentOp is IInvocationOperation invocation &&
+            if (op.Type.SpecialType == SpecialType.System_Object &&
+                op.Parent is IArgumentOperation argOp &&
+                argOp.Parent is IInvocationOperation invocation &&
                 invocation.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
                 invocation.TargetMethod.ContainingType is
                 {
