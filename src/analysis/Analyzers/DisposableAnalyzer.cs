@@ -139,13 +139,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 op.Parent is IArgumentOperation argOp &&
                 argOp.Parent is IInvocationOperation invocation &&
                 invocation.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
-                invocation.TargetMethod.ContainingType is
+                invocation.TargetMethod.ContainingType is ITypeSymbol
                 {
-                    Name: nameof(GC),
-                    ContainingNamespace:
+                    Name: nameof(GC), ContainingNamespace: INamespaceSymbol
                     {
-                        Name: nameof(System),
-                        ContainingNamespace: { IsGlobalNamespace: true }
+                        Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                        {
+                            IsGlobalNamespace: true
+                        }
                     }
                 })
             {
