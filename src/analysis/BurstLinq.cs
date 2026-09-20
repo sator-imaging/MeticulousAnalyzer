@@ -175,6 +175,7 @@ namespace SatorImaging.MeticulousAnalyzer
 
                 public bool MoveNext()
                 {
+                    var predicate = this.predicate;
                     var source = this.source;
                     int count = source.Count;
                     if (count > 0)
