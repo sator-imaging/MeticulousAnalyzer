@@ -12,25 +12,27 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-const string OutputNamespace = "GeneratedRegexPolyfill";
-const string OutputClassName = "RegexGen";
+const string OutputClassName = "GeneratedRegexPolyfill";
 
-(string Name, string Pattern, string Options)[] RegexPatterns = new[]
+(string TargetNamespace, string Name, string Pattern, string Options)[] RegexPatterns = new[]
 {
-    ("IsExcemptionNameForZeroComparison", @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment", "RegexOptions.IgnoreCase"),
+    ("SatorImaging.MeticulousAnalyzer.Analysis", "IsExcemptionNameForZeroComparison", @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment", "RegexOptions.IgnoreCase"),
 };
 
-string outputPath = args.Length > 0 && !string.IsNullOrWhiteSpace(args[0])
-    ? args[0]
-    : "src/analysis/RegexGen.g.cs";
+if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
+{
+    throw new ArgumentException("File path must be supplied.", nameof(args));
+}
 
-string appNameWithGuid = $"{OutputNamespace}_{OutputClassName}_{Guid.NewGuid():N}";
-string tempDir = Path.Combine(Path.GetTempPath(), appNameWithGuid);
+string outputPath = args[0];
+
+string tempDirName = $"{OutputClassName}_{Guid.NewGuid():N}";
+string tempDir = Path.Combine(Path.GetTempPath(), tempDirName);
 Directory.CreateDirectory(tempDir);
 
 try
 {
-    string csprojPath = Path.Combine(tempDir, $"{appNameWithGuid}.csproj");
+    string csprojPath = Path.Combine(tempDir, $"{tempDirName}.csproj");
     string generatedCodeOutputPath = Path.Combine(tempDir, "obj", "GeneratedFiles");
 
     string csprojContent = $@"
@@ -50,26 +52,29 @@ try
     programSb.AppendLine("using System;");
     programSb.AppendLine("using System.Text.RegularExpressions;");
     programSb.AppendLine();
-    programSb.AppendLine($"namespace {OutputNamespace}");
-    programSb.AppendLine("{");
-    programSb.AppendLine($"    public static partial class {OutputClassName}");
-    programSb.AppendLine("    {");
-    foreach (var (name, pattern, options) in RegexPatterns)
+    foreach (var group in RegexPatterns.GroupBy(p => p.TargetNamespace))
     {
-        programSb.AppendLine($"        [GeneratedRegex(@\"{pattern}\", {options})]");
-        programSb.AppendLine($"        public static partial Regex {name}();");
+        programSb.AppendLine($"namespace {group.Key}");
+        programSb.AppendLine("{");
+        programSb.AppendLine($"    public static partial class {OutputClassName}");
+        programSb.AppendLine("    {");
+        foreach (var (_, name, pattern, options) in group)
+        {
+            programSb.AppendLine($"        [GeneratedRegex(@\"{pattern}\", {options})]");
+            programSb.AppendLine($"        public static partial Regex {name}();");
+            programSb.AppendLine();
+        }
+        programSb.AppendLine("    }");
+        programSb.AppendLine("}");
         programSb.AppendLine();
     }
-    programSb.AppendLine("    }");
-    programSb.AppendLine("}");
-    programSb.AppendLine();
     programSb.AppendLine("class Program");
     programSb.AppendLine("{");
     programSb.AppendLine("    static void Main()");
     programSb.AppendLine("    {");
-    foreach (var (name, _, _) in RegexPatterns)
+    foreach (var (targetNamespace, name, _, _) in RegexPatterns)
     {
-        programSb.AppendLine($"        Console.WriteLine({OutputClassName}.{name}().IsMatch(\"THIS IS A TEST\"));");
+        programSb.AppendLine($"        Console.WriteLine({targetNamespace}.{OutputClassName}.{name}().IsMatch(\"THIS IS A TEST\"));");
     }
     programSb.AppendLine("    }");
     programSb.AppendLine("}");
@@ -145,23 +150,26 @@ try
         declSb.AppendLine($"//     - {Path.GetFileName(file)}");
     }
     declSb.AppendLine("//     Patterns:");
-    foreach (var (name, pattern, options) in RegexPatterns)
+    foreach (var (_, name, pattern, options) in RegexPatterns)
     {
         declSb.AppendLine($"//     - {name}: @\"{pattern}\", {options}");
     }
     declSb.AppendLine("// </auto-generated>");
     declSb.AppendLine();
-    declSb.AppendLine($"namespace {OutputNamespace}");
-    declSb.AppendLine("{");
-    declSb.AppendLine($"    public static partial class {OutputClassName}");
-    declSb.AppendLine("    {");
-    foreach (var (name, _, _) in RegexPatterns)
+    foreach (var group in RegexPatterns.GroupBy(p => p.TargetNamespace))
     {
-        declSb.AppendLine($"        public static partial global::System.Text.RegularExpressions.Regex {name}();");
+        declSb.AppendLine($"namespace {group.Key}");
+        declSb.AppendLine("{");
+        declSb.AppendLine($"    public static partial class {OutputClassName}");
+        declSb.AppendLine("    {");
+        foreach (var (_, name, _, _) in group)
+        {
+            declSb.AppendLine($"        public static partial global::System.Text.RegularExpressions.Regex {name}();");
+        }
+        declSb.AppendLine("    }");
+        declSb.AppendLine("}");
+        declSb.AppendLine();
     }
-    declSb.AppendLine("    }");
-    declSb.AppendLine("}");
-    declSb.AppendLine();
     declSb.AppendLine(generatedCode);
 
     string finalCode = declSb.ToString();
