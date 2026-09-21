@@ -9,6 +9,7 @@
 
 #:package FUnit.Directives@*
 #warning funit include ../src/analysis/BurstLinq.cs
+#warning funit include ../src/analysis/RegexGen.g.cs
 
 using System;
 using System.Collections.Generic;
@@ -451,25 +452,31 @@ public class BurstLinqBenchmarks
 
     [BenchmarkCategory("IsMatchingMemberName")]
     [Benchmark]
+    public bool IsMatchingMemberName_RegexGen()
+    {
+        if (_randomString.Length < 3)
+            return false;
+
+        return SatorImaging.MeticulousAnalyzer.Analysis.GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison().IsMatch(_randomString);
+    }
+
+    [BenchmarkCategory("IsMatchingMemberName")]
+    [Benchmark]
     public bool IsMatchingMemberName_Mixed()
     {
-        if (_randomString.Length <= 3)
-        {
-            return _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        if (_randomString.Length <= 5)
-        {
-            return _randomString.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
+        if (_randomString.Length < 3)
+            return false;
 
         if (_randomString.Length <= 6)
         {
             return _randomString.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    _randomString.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0;
+                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
         }
+
         return s_isMatchingMemberNameRegex.IsMatch(_randomString);
     }
 
