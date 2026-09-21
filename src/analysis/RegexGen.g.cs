@@ -153,17 +153,13 @@ namespace System.Text.RegularExpressions.Generated
         /// <summary>Initializes the instance.</summary>
         private IsExcemptionNameForZeroComparison_0()
         {
-unchecked
-{
             base.pattern = "Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity";
             base.roptions = RegexOptions.IgnoreCase;
             ValidateMatchTimeout(Utilities.s_defaultTimeout);
             base.internalMatchTimeout = Utilities.s_defaultTimeout;
             base.factory = new RunnerFactory();
             base.capsize = 1;
-
-}
-}
+        }
             
         /// <summary>Provides a factory for creating <see cref="RegexRunner"/> instances to be used by methods on <see cref="Regex"/>.</summary>
         private sealed class RunnerFactory : RegexRunnerFactory
@@ -176,36 +172,24 @@ unchecked
             {
     protected override void Go()
     {
-unchecked
-{
         int start = runtextpos;
 
         if (!TryMatchAtCurrentPosition(runtext.AsSpan(0, runtextend)))
         {
             runtextpos = start;
         }
-
-}
-}
+    }
 
     protected override bool FindFirstChar()
     {
-unchecked
-{
         return TryFindNextPossibleStartingPosition(
             runtext.AsSpan(0, runtextend));
-
-}
-}
+    }
 
     protected override void InitTrackCount()
     {
-unchecked
-{
         runtrackcount = 0;
-
-}
-}
+    }
 
                 /// <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
@@ -213,6 +197,7 @@ unchecked
                 {
 unchecked
 {
+
                     // Search until we can't find a valid starting position, we find a match, or we reach the end of the input.
                     while (TryFindNextPossibleStartingPosition(inputSpan) &&
                            !TryMatchAtCurrentPosition(inputSpan) &&
@@ -224,8 +209,7 @@ unchecked
                             base.CheckTimeout();
                         }
                     }
-
-}
+                }
 }
         
                 /// <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
@@ -235,6 +219,7 @@ unchecked
                 {
 unchecked
 {
+
                     int pos = base.runtextpos;
                     ulong charMinusLow;
                     
@@ -259,8 +244,7 @@ unchecked
                     // No match found.
                     base.runtextpos = inputSpan.Length;
                     return false;
-
-}
+                }
 }
         
                 /// <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
@@ -270,6 +254,7 @@ unchecked
                 {
 unchecked
 {
+
                     int pos = base.runtextpos;
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
@@ -518,8 +503,7 @@ unchecked
                     base.runtextpos = pos;
                     base.Capture(0, matchStart, pos);
                     return true;
-
-}
+                }
 }
             }
         }
