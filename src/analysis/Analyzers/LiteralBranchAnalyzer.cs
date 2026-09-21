@@ -276,21 +276,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (name.Length < 3)
                 return false;
 
-            // Note: Accurate length-based branching provides performance gains only in specific cases.
-            if (name.Length <= 6)
-            {
-                return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Width", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-
             return GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison().IsMatch(name);
         }
 
