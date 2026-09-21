@@ -135,21 +135,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Check if target type is Action or Func, or any other delegate.
-            bool isDelegate = IsDelegate(op.Type);
-            if (!isDelegate)
+            // Check if target type is delegate.
+            if (op.Type?.TypeKind != TypeKind.Delegate)
             {
                 return;
             }
 
             // Don't show warning if the "value" side is static field, method, property or other static member.
-            // EXCEPT for static methods of Action/Func, which we want to fix by wrapping with static lambda to avoid allocation.
-            if (IsStaticMember(unwrapped))
+            // EXCEPT for static methods of delegates, which we want to fix by wrapping with static lambda to avoid allocation.
+            if (IsStaticMember(unwrapped) && !IsStaticMethodReference(unwrapped))
             {
-                if (!isDelegate || !IsStaticMethodReference(unwrapped))
-                {
-                    return;
-                }
+                return;
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
@@ -192,10 +188,5 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return current is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic;
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private static bool IsDelegate(ITypeSymbol? type)
-        {
-            return type?.TypeKind == TypeKind.Delegate;
-        }
     }
 }
