@@ -853,6 +853,186 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8021_Compliant_MemberAccess_WidthHeightDepthSizeCapacity()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int Index => 0;
+        public int Count => 0;
+        public int Length => 0;
+        public int Remove => 0;
+        public int Search => 0;
+        public int Add => 0;
+        public int Exchange => 0;
+        public int Decrement => 0;
+        public int Increment => 0;
+        public int Width => 0;
+        public int Height => 0;
+        public int Depth => 0;
+        public int Size => 0;
+        public int Capacity => 0;
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container.Index == 0)
+            {
+            }
+
+            if (container.Count == 0)
+            {
+            }
+
+            if (container.Length == 0)
+            {
+            }
+
+            if (container.Remove == 0)
+            {
+            }
+
+            if (container.Search == 0)
+            {
+            }
+
+            if (container.Add == 0)
+            {
+            }
+
+            if (container.Exchange == 0)
+            {
+            }
+
+            if (container.Decrement == 0)
+            {
+            }
+
+            if (container.Increment == 0)
+            {
+            }
+
+            if (container.Width == 0)
+            {
+            }
+
+            if (container.Height > 0)
+            {
+            }
+
+            if (container.Depth >= 0)
+            {
+            }
+
+            if (container.Size == 0)
+            {
+            }
+
+            if (container.Capacity == 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PatternMatch_WidthHeightDepthSizeCapacity()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int Index { get; set; }
+        public int Count { get; set; }
+        public int Length { get; set; }
+        public int Remove { get; set; }
+        public int Search { get; set; }
+        public int Add { get; set; }
+        public int Exchange { get; set; }
+        public int Decrement { get; set; }
+        public int Increment { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Depth { get; set; }
+        public int Size { get; set; }
+        public int Capacity { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container is { Index: 0 })
+            {
+            }
+
+            if (container is { Count: 0 })
+            {
+            }
+
+            if (container is { Length: 0 })
+            {
+            }
+
+            if (container is { Remove: 0 })
+            {
+            }
+
+            if (container is { Search: 0 })
+            {
+            }
+
+            if (container is { Add: 0 })
+            {
+            }
+
+            if (container is { Exchange: 0 })
+            {
+            }
+
+            if (container is { Decrement: 0 })
+            {
+            }
+
+            if (container is { Increment: 0 })
+            {
+            }
+
+            if (container is { Width: 0 })
+            {
+            }
+
+            if (container is { Height: >= 0 })
+            {
+            }
+
+            if (container is { Depth: not 0 })
+            {
+            }
+
+            if (container is { Size: 0 })
+            {
+            }
+
+            if (container is { Capacity: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8021_Compliant_LocalAndParameter_MatchingName()
         {
             var test = @"
@@ -860,7 +1040,7 @@ namespace Test
 {
     public class C
     {
-        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment)
+        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment, int width, int height, int depth, int size, int capacity)
         {
             if (index >= 0)
             {
@@ -895,6 +1075,26 @@ namespace Test
             }
 
             if (increment == 0)
+            {
+            }
+
+            if (width == 0)
+            {
+            }
+
+            if (height == 0)
+            {
+            }
+
+            if (depth == 0)
+            {
+            }
+
+            if (size == 0)
+            {
+            }
+
+            if (capacity == 0)
             {
             }
 

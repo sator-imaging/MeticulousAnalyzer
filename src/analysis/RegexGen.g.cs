@@ -2,7 +2,7 @@
 //     Source generated files collected:
 //     - RegexGenerator.g.cs
 //     Patterns:
-//     - IsExcemptionNameForZeroComparison: @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment", RegexOptions.IgnoreCase
+//     - IsExcemptionNameForZeroComparison: @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity", RegexOptions.IgnoreCase
 // </auto-generated>
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis
@@ -26,7 +26,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// <remarks>
         /// Pattern explanation:<br/>
         /// <code>
-        /// ○ Match with 9 alternative expressions, atomically.<br/>
+        /// ○ Match with 14 alternative expressions, atomically.<br/>
         ///     ○ Match a sequence of expressions.<br/>
         ///         ○ Match a character in the set [Ll].<br/>
         ///         ○ Match a character in the set [Ee].<br/>
@@ -92,6 +92,39 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         ///         ○ Match a character in the set [Ee].<br/>
         ///         ○ Match a character in the set [Nn].<br/>
         ///         ○ Match a character in the set [Tt].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Ww].<br/>
+        ///         ○ Match a character in the set [Ii].<br/>
+        ///         ○ Match a character in the set [Dd].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///         ○ Match a character in the set [Hh].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Hh].<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///         ○ Match a character in the set [Ii].<br/>
+        ///         ○ Match a character in the set [Gg].<br/>
+        ///         ○ Match a character in the set [Hh].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Dd].<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///         ○ Match a character in the set [Pp].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///         ○ Match a character in the set [Hh].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Ss].<br/>
+        ///         ○ Match a character in the set [Ii].<br/>
+        ///         ○ Match a character in the set [Zz].<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Cc].<br/>
+        ///         ○ Match a character in the set [Aa].<br/>
+        ///         ○ Match a character in the set [Pp].<br/>
+        ///         ○ Match a character in the set [Aa].<br/>
+        ///         ○ Match a character in the set [Cc].<br/>
+        ///         ○ Match a character in the set [Ii].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///         ○ Match a character in the set [Yy].<br/>
         /// </code>
         /// </remarks>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "7.0.10.26716")]
@@ -120,7 +153,7 @@ namespace System.Text.RegularExpressions.Generated
         /// <summary>Initializes the instance.</summary>
         private IsExcemptionNameForZeroComparison_0()
         {
-            base.pattern = "Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment";
+            base.pattern = "Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity";
             base.roptions = RegexOptions.IgnoreCase;
             ValidateMatchTimeout(Utilities.s_defaultTimeout);
             base.internalMatchTimeout = Utilities.s_defaultTimeout;
@@ -186,14 +219,14 @@ namespace System.Text.RegularExpressions.Generated
                     // Any possible match is at least 3 characters.
                     if (pos <= inputSpan.Length - 3)
                     {
-                        // The pattern begins with a character in the set [AC-EILRSac-eilrs].
+                        // The pattern begins with a character in the set [AC-EHILRSWac-ehilrsw].
                         // Find the next occurrence. If it can't be found, there's no match.
                         ReadOnlySpan<char> span = inputSpan.Slice(pos);
                         for (int i = 0; i < span.Length - 2; i++)
                         {
-                            if (((long)((0xB8906000B8906000UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
-                                ((long)((0xC0300800C0300800UL << (int)(charMinusLow = (uint)span[i + 1] - 'D')) & (charMinusLow - 64)) < 0) &&
-                                ((long)((0xB00C0800B00C0800UL << (int)(charMinusLow = (uint)span[i + 2] - 'A')) & (charMinusLow - 64)) < 0))
+                            if (((long)((0xB9906200B9906200UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
+                                ((long)((0x9886010098860100UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
+                                ((long)((0xB08D0840B08D0840UL << (int)(charMinusLow = (uint)span[i + 2] - 'A')) & (charMinusLow - 64)) < 0))
                             {
                                 base.runtextpos = pos + i;
                                 return true;
@@ -215,7 +248,7 @@ namespace System.Text.RegularExpressions.Generated
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
                     
-                    // Match with 9 alternative expressions, atomically.
+                    // Match with 14 alternative expressions, atomically.
                     {
                         int alternation_starting_pos = pos;
                         
@@ -360,10 +393,95 @@ namespace System.Text.RegularExpressions.Generated
                             if ((uint)slice.Length < 9 ||
                                 !slice.StartsWith("increment".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "increment" (ordinal case-insensitive)
                             {
-                                return false; // The input didn't match.
+                                goto AlternationBranch8;
                             }
                             
                             pos += 9;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch8:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 9
+                        {
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("width".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "width" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch9;
+                            }
+
+                            pos += 5;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch9:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 10
+                        {
+                            if ((uint)slice.Length < 6 ||
+                                !slice.StartsWith("height".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "height" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch10;
+                            }
+
+                            pos += 6;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch10:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 11
+                        {
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("depth".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "depth" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch11;
+                            }
+
+                            pos += 5;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch11:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 12
+                        {
+                            if ((uint)slice.Length < 4 ||
+                                !slice.StartsWith("size".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "size" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch12;
+                            }
+
+                            pos += 4;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch12:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 13
+                        {
+                            if ((uint)slice.Length < 8 ||
+                                !slice.StartsWith("capacity".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "capacity" (ordinal case-insensitive)
+                            {
+                                return false; // The input didn't match.
+                            }
+
+                            pos += 8;
                             slice = inputSpan.Slice(pos);
                         }
                         
@@ -391,4 +509,3 @@ namespace System.Text.RegularExpressions.Generated
         internal static readonly bool s_hasTimeout = s_defaultTimeout != Timeout.InfiniteTimeSpan;
     }
 }
-
