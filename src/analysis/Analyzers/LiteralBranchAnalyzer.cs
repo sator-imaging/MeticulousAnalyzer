@@ -274,7 +274,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         // TODO: Compiled Regex performance improves significantly on modern .NET runtimes (.NET 7+),
         //       making Regex faster across all string lengths. See benchmark GH action for details.
         private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-            @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
+            @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static bool IsMatchingMemberName(string name)
@@ -290,7 +290,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                        name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
                        name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
                        name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
+                       name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Width", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0;
             }
 
             return s_isMatchingMemberNameRegex.IsMatch(name);

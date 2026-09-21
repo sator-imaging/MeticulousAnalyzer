@@ -395,15 +395,15 @@ public class BurstLinqBenchmarks
     /*  IsMatchingMemberName  ================================================================ */
 
     private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment",
+        @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex s_isMatchingMemberNameDeInRegex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)",
+        @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)|Width|Height|Depth|Size|Capacity",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex s_isMatchingMemberNameLength6Regex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add",
+        @"Length|Count|Index|Remove|Search|Add|Width|Height|Depth|Size",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static bool IsMatchingMemberName(string name)
@@ -416,7 +416,12 @@ public class BurstLinqBenchmarks
                name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
                name.IndexOf("Exchange", StringComparison.OrdinalIgnoreCase) >= 0 ||
                name.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0;
+               name.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Width", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Capacity", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool IsMatchingMemberName_Regex(string name)
@@ -474,7 +479,11 @@ public class BurstLinqBenchmarks
                    _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    _randomString.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
                    _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0;
+                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Width", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   _randomString.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         return s_isMatchingMemberNameRegex.IsMatch(_randomString);

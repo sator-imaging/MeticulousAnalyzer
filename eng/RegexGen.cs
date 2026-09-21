@@ -18,7 +18,7 @@ const string OutputClassName = "GeneratedRegexPolyfill";
 
 (string TargetNamespace, string Name, string Pattern, string Options)[] RegexPatterns = new[]
 {
-    ("SatorImaging.MeticulousAnalyzer.Analysis", "IsExcemptionNameForZeroComparison", @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment", "RegexOptions.IgnoreCase"),
+    ("SatorImaging.MeticulousAnalyzer.Analysis", "IsExcemptionNameForZeroComparison", @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity", "RegexOptions.IgnoreCase"),
 };
 
 if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))

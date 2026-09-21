@@ -853,6 +853,96 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8021_Compliant_MemberAccess_WidthHeightDepthSizeCapacity()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int Width => 0;
+        public int Height => 0;
+        public int Depth => 0;
+        public int Size => 0;
+        public int Capacity => 0;
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container.Width == 0)
+            {
+            }
+
+            if (container.Height > 0)
+            {
+            }
+
+            if (container.Depth >= 0)
+            {
+            }
+
+            if (container.Size == 0)
+            {
+            }
+
+            if (container.Capacity == 0)
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_PatternMatch_WidthHeightDepthSizeCapacity()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Depth { get; set; }
+        public int Size { get; set; }
+        public int Capacity { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container is { Width: 0 })
+            {
+            }
+
+            if (container is { Height: >= 0 })
+            {
+            }
+
+            if (container is { Depth: not 0 })
+            {
+            }
+
+            if (container is { Size: 0 })
+            {
+            }
+
+            if (container is { Capacity: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8021_Compliant_LocalAndParameter_MatchingName()
         {
             var test = @"
@@ -860,7 +950,7 @@ namespace Test
 {
     public class C
     {
-        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment)
+        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment, int width, int height, int depth, int size, int capacity)
         {
             if (index >= 0)
             {
@@ -895,6 +985,26 @@ namespace Test
             }
 
             if (increment == 0)
+            {
+            }
+
+            if (width == 0)
+            {
+            }
+
+            if (height == 0)
+            {
+            }
+
+            if (depth == 0)
+            {
+            }
+
+            if (size == 0)
+            {
+            }
+
+            if (capacity == 0)
             {
             }
 

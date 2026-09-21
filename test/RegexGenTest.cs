@@ -19,7 +19,12 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             "Add",
             "Exchange",
             "Decrement",
-            "Increment"
+            "Increment",
+            "Width",
+            "Height",
+            "Depth",
+            "Size",
+            "Capacity"
         };
 
         [TestMethod]
@@ -84,8 +89,6 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 "qwertyuiop",
                 "1234567890",
                 "FooBar",
-                "Size",
-                "Capacity",
                 "CustomMember"
             };
 
