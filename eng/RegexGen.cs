@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-const string OutputClassName = "RegexGen";
+const string OutputClassName = "GeneratedRegexPolyfill";
 
 (string TargetNamespace, string Name, string Pattern, string Options)[] RegexPatterns = new[]
 {
@@ -21,12 +21,12 @@ const string OutputClassName = "RegexGen";
 
 if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
 {
-    throw new ArgumentException("File path must be supplied as arg[0].", nameof(args));
+    throw new ArgumentException("File path must be supplied.", nameof(args));
 }
 
 string outputPath = args[0];
 
-string tempDirName = $"RegexGen_{Guid.NewGuid():N}";
+string tempDirName = $"{OutputClassName}_{Guid.NewGuid():N}";
 string tempDir = Path.Combine(Path.GetTempPath(), tempDirName);
 Directory.CreateDirectory(tempDir);
 
