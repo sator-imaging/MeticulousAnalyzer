@@ -85,12 +85,19 @@ try
 
     var psi = new ProcessStartInfo("dotnet", $"build -c Release \"{csprojPath}\"")
     {
-        RedirectStandardOutput = true,
-        RedirectStandardError = true,
         UseShellExecute = false
     };
-    using var proc = Process.Start(psi);
-    proc?.WaitForExit();
+
+    using var proc = Process.Start(psi)
+        ?? throw new InvalidOperationException("Failed to start dotnet build.");
+
+    await proc.WaitForExitAsync();
+
+    // Early exit
+    if (proc.ExitCode != 0)
+    {
+        return proc.ExitCode;
+    }
 
     string[] generatedFiles = Directory.Exists(generatedCodeOutputPath)
         ? Directory.GetFiles(generatedCodeOutputPath, "*.cs", SearchOption.AllDirectories)

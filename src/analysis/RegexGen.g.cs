@@ -160,7 +160,7 @@ namespace System.Text.RegularExpressions.Generated
 
                 /// <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
-                void Scan(ReadOnlySpan<char> inputSpan)
+                protected void Scan(ReadOnlySpan<char> inputSpan)
                 {
                     // Search until we can't find a valid starting position, we find a match, or we reach the end of the input.
                     while (TryFindNextPossibleStartingPosition(inputSpan) &&
