@@ -151,7 +151,7 @@ try
             int lineStartBeforeClose = generatedCode.LastIndexOf('\n', closeIdx - 1);
             int insertClosePos = lineStartBeforeClose != -1 ? lineStartBeforeClose + 1 : closeIdx;
             generatedCode = generatedCode.Insert(insertClosePos, "}\n");
-            generatedCode = generatedCode.Insert(openIdx + 1, "\nunchecked\n{\n");
+            generatedCode = generatedCode.Insert(openIdx + 1, "\nunchecked\n{");
         }
     }
 

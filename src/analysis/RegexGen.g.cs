@@ -197,7 +197,6 @@ namespace System.Text.RegularExpressions.Generated
                 {
 unchecked
 {
-
                     // Search until we can't find a valid starting position, we find a match, or we reach the end of the input.
                     while (TryFindNextPossibleStartingPosition(inputSpan) &&
                            !TryMatchAtCurrentPosition(inputSpan) &&
@@ -219,7 +218,6 @@ unchecked
                 {
 unchecked
 {
-
                     int pos = base.runtextpos;
                     ulong charMinusLow;
                     
@@ -254,7 +252,6 @@ unchecked
                 {
 unchecked
 {
-
                     int pos = base.runtextpos;
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
