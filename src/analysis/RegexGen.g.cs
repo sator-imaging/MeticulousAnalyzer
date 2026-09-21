@@ -7,7 +7,7 @@
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis
 {
-    public static partial class GeneratedRegexPolyfill
+    public static partial class RegexGen
     {
         public static partial global::System.Text.RegularExpressions.Regex IsExcemptionNameForZeroComparison();
     }
@@ -21,7 +21,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis
 {
-    partial class GeneratedRegexPolyfill
+    partial class RegexGen
     {
         /// <remarks>
         /// Pattern explanation:<br/>
