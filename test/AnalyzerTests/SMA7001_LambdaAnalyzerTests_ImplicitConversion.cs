@@ -189,5 +189,46 @@ public class C
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA7001_Compliant_InstanceMethodAssignedToNonStaticTarget()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private Action _some;
+    private void SomeCallback() { }
+
+    void M()
+    {
+        _some = SomeCallback;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_InstanceMethodAssignedToStaticTarget()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private static Action s_some;
+    private void SomeCallback() { }
+
+    void M()
+    {
+        s_some = {|#0:SomeCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }

@@ -151,6 +151,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     return;
                 }
             }
+            else
+            {
+                if (op.Parent is IAssignmentOperation assignOp && !IsStaticMember(assignOp.Target))
+                {
+                    return;
+                }
+            }
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_InefficientDelegateDeclaration,
