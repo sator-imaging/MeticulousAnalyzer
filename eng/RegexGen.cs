@@ -93,9 +93,7 @@ try
     string generatedFilesDir = generatedCodeOutputPath;
     string[] generatedFiles = Directory.Exists(generatedFilesDir)
         ? Directory.GetFiles(generatedFilesDir, "*.cs", SearchOption.AllDirectories)
-        : Directory.GetFiles(tempDir, "*.cs", SearchOption.AllDirectories)
-            .Where(f => !f.EndsWith("Program.cs") && !f.EndsWith("GlobalUsings.g.cs") && !f.EndsWith("AssemblyInfo.cs") && !f.EndsWith("AssemblyAttributes.cs"))
-            .ToArray();
+        : Array.Empty<string>();
 
     // Early exit
     if (generatedFiles.Length == 0)
