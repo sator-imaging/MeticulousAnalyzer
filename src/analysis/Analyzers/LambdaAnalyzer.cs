@@ -137,7 +137,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Check if target type is Action or Func, or any other delegate.
             bool isDelegate = op.Type?.TypeKind == TypeKind.Delegate;
-            if (!isDelegate && op.Type?.TypeKind != TypeKind.Delegate)
+            if (!isDelegate)
             {
                 return;
             }
