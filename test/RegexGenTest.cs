@@ -114,7 +114,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             char[] chars = new char[1024];
             for (int i = 0; i < chars.Length; i++)
             {
-                chars[i] = (char)rand.Next('a', 'z' + 1);
+                chars[i] = (char)rand.Next(char.MinValue, char.MaxValue + 1);
             }
             string longInput = new string(chars);
 
