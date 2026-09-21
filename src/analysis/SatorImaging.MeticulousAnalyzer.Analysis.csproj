@@ -30,6 +30,11 @@
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
   </ItemGroup>
 
+  <!-- Disable CheckForOverflowUnderflow for RegexGen.g.cs because source-generated regex runner code performs arithmetic operations that overflow in checked builds. -->
+  <ItemGroup>
+    <Compile Update=".\RegexGen.g.cs" CheckForOverflowUnderflow="false" />
+  </ItemGroup>
+
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>SatorImaging.MeticulousAnalyzer.Tests</_Parameter1>
