@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-const string OutputNamespace = "SatorImaging.MeticulousAnalyzer.Analysis";
+const string OutputNamespace = "GeneratedRegexPolyfill";
 const string OutputClassName = "RegexGen";
 
 (string Name, string Pattern, string Options)[] RegexPatterns = new[]
@@ -24,7 +24,7 @@ string outputPath = args.Length > 0 && !string.IsNullOrWhiteSpace(args[0])
     ? args[0]
     : "src/analysis/RegexGen.g.cs";
 
-string appNameWithGuid = $"MeticulousAnalyzer_RegexGen_{Guid.NewGuid():N}";
+string appNameWithGuid = $"{OutputNamespace}_{OutputClassName}_{Guid.NewGuid():N}";
 string tempDir = Path.Combine(Path.GetTempPath(), appNameWithGuid);
 Directory.CreateDirectory(tempDir);
 
