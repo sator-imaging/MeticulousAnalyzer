@@ -116,7 +116,7 @@ namespace System.Text.RegularExpressions.Generated
     {
         /// <summary>Cached, thread-safe singleton instance.</summary>
         internal static readonly IsExcemptionNameForZeroComparison_0 Instance = new();
-
+    
         /// <summary>Initializes the instance.</summary>
         private IsExcemptionNameForZeroComparison_0()
         {
@@ -127,13 +127,13 @@ namespace System.Text.RegularExpressions.Generated
             base.factory = new RunnerFactory();
             base.capsize = 1;
         }
-
+            
         /// <summary>Provides a factory for creating <see cref="RegexRunner"/> instances to be used by methods on <see cref="Regex"/>.</summary>
         private sealed class RunnerFactory : RegexRunnerFactory
         {
             /// <summary>Creates an instance of a <see cref="RegexRunner"/> used by methods on <see cref="Regex"/>.</summary>
             protected override RegexRunner CreateInstance() => new Runner();
-
+        
             /// <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
             private sealed class Runner : RegexRunner
             {
@@ -174,7 +174,7 @@ namespace System.Text.RegularExpressions.Generated
                         }
                     }
                 }
-
+        
                 /// <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
                 /// <returns>true if a possible match was found; false if no more matches are possible.</returns>
@@ -182,7 +182,7 @@ namespace System.Text.RegularExpressions.Generated
                 {
                     int pos = base.runtextpos;
                     ulong charMinusLow;
-
+                    
                     // Any possible match is at least 3 characters.
                     if (pos <= inputSpan.Length - 3)
                     {
@@ -200,12 +200,12 @@ namespace System.Text.RegularExpressions.Generated
                             }
                         }
                     }
-
+                    
                     // No match found.
                     base.runtextpos = inputSpan.Length;
                     return false;
                 }
-
+        
                 /// <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
                 /// <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
@@ -214,11 +214,11 @@ namespace System.Text.RegularExpressions.Generated
                     int pos = base.runtextpos;
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
-
+                    
                     // Match with 9 alternative expressions, atomically.
                     {
                         int alternation_starting_pos = pos;
-
+                        
                         // Branch 0
                         {
                             if ((uint)slice.Length < 6 ||
@@ -226,16 +226,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch;
                             }
-
+                            
                             pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 1
                         {
                             if ((uint)slice.Length < 5 ||
@@ -243,16 +243,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch1;
                             }
-
+                            
                             pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch1:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 2
                         {
                             if ((uint)slice.Length < 5 ||
@@ -260,16 +260,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch2;
                             }
-
+                            
                             pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch2:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 3
                         {
                             if ((uint)slice.Length < 6 ||
@@ -277,16 +277,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch3;
                             }
-
+                            
                             pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch3:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 4
                         {
                             if ((uint)slice.Length < 6 ||
@@ -294,16 +294,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch4;
                             }
-
+                            
                             pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch4:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 5
                         {
                             if ((uint)slice.Length < 3 ||
@@ -311,16 +311,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch5;
                             }
-
+                            
                             pos += 3;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch5:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 6
                         {
                             if ((uint)slice.Length < 8 ||
@@ -328,16 +328,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch6;
                             }
-
+                            
                             pos += 8;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch6:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 7
                         {
                             if ((uint)slice.Length < 9 ||
@@ -345,16 +345,16 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 goto AlternationBranch7;
                             }
-
+                            
                             pos += 9;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch7:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 8
                         {
                             if ((uint)slice.Length < 9 ||
@@ -362,14 +362,14 @@ namespace System.Text.RegularExpressions.Generated
                             {
                                 return false; // The input didn't match.
                             }
-
+                            
                             pos += 9;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         AlternationMatch:;
                     }
-
+                    
                     // The input matched.
                     base.runtextpos = pos;
                     base.Capture(0, matchStart, pos);
@@ -379,15 +379,16 @@ namespace System.Text.RegularExpressions.Generated
         }
 
     }
-
+    
     /// <summary>Helper methods used by generated <see cref="Regex"/>-derived implementations.</summary>
     [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "7.0.10.26716")]
     internal static class Utilities
     {
         /// <summary>Default timeout value set in <see cref="AppContext"/>, or <see cref="Regex.InfiniteMatchTimeout"/> if none was set.</summary>
         internal static readonly TimeSpan s_defaultTimeout = AppContext.GetData("REGEX_DEFAULT_MATCH_TIMEOUT") is TimeSpan timeout ? timeout : Regex.InfiniteMatchTimeout;
-
+        
         /// <summary>Whether <see cref="s_defaultTimeout"/> is non-infinite.</summary>
         internal static readonly bool s_hasTimeout = s_defaultTimeout != Timeout.InfiniteTimeSpan;
     }
 }
+

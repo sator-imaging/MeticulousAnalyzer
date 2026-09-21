@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+#pragma warning disable SMA8011  // Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead
+
 const string OutputClassName = "GeneratedRegexPolyfill";
 
 (string TargetNamespace, string Name, string Pattern, string Options)[] RegexPatterns = new[]
@@ -109,7 +111,7 @@ try
     generatedCode = Regex.Replace(generatedCode, @"\bfile\s+", "internal ");
 
     // Remove protected override from Scan(ReadOnlySpan<char> inputSpan)
-    generatedCode = Regex.Replace(generatedCode, @"protected\s+override\s+void\s+Scan\(ReadOnlySpan<char>", "void Scan(ReadOnlySpan<char>");
+    generatedCode = Regex.Replace(generatedCode, @"protected\s+override\s+void\s+Scan\(ReadOnlySpan<char>", "protected void Scan(ReadOnlySpan<char>");
 
     // Add missing abstract member implementations for RegexRunner
     string runnerOverrides = @"
@@ -167,7 +169,8 @@ try
         declSb.AppendLine("}");
         declSb.AppendLine();
     }
-    declSb.AppendLine(generatedCode);
+
+    declSb.Append(generatedCode);
 
     string finalCode = declSb.ToString();
 
@@ -187,11 +190,7 @@ finally
     {
         Directory.Delete(tempDir, recursive: true);
     }
-    catch (IOException ex)
-    {
-        Console.Error.WriteLine(ex.Message);
-    }
-    catch (UnauthorizedAccessException ex)
+    catch (Exception ex)
     {
         Console.Error.WriteLine(ex.Message);
     }
