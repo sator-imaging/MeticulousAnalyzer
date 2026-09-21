@@ -120,6 +120,41 @@ try
     // Remove protected override from Scan(ReadOnlySpan<char> inputSpan)
     generatedCode = Regex.Replace(generatedCode, @"protected\s+override\s+void\s+Scan\(ReadOnlySpan<char>", "protected void Scan(ReadOnlySpan<char>");
 
+    // Wrap collected generated method bodies in unchecked blocks using precise 16-space indent
+    var methodDeclRegex = new Regex(@"(?:\r?\n) {16}(?:public|protected|internal|private)\s+[^;{}()]+?\([^)]*\)\s*\{");
+    var matches = methodDeclRegex.Matches(generatedCode).Cast<Match>().ToList();
+    for (int m = matches.Count - 1; m >= 0; m--)
+    {
+        var match = matches[m];
+        int openIdx = match.Index + match.Length - 1;
+        int depth = 1;
+        int closeIdx = -1;
+        for (int i = openIdx + 1; i < generatedCode.Length; i++)
+        {
+            if (generatedCode[i] == '{')
+            {
+                depth++;
+            }
+            else if (generatedCode[i] == '}')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    closeIdx = i;
+                    break;
+                }
+            }
+        }
+
+        if (closeIdx != -1)
+        {
+            int lineStartBeforeClose = generatedCode.LastIndexOf('\n', closeIdx - 1);
+            int insertClosePos = lineStartBeforeClose != -1 ? lineStartBeforeClose + 1 : closeIdx;
+            generatedCode = generatedCode.Insert(insertClosePos, "}\n");
+            generatedCode = generatedCode.Insert(openIdx + 1, "\nunchecked\n{");
+        }
+    }
+
     // Add missing abstract member implementations for RegexRunner
     string runnerOverrides = @"
     protected override void Go()

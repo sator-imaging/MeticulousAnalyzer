@@ -195,6 +195,8 @@ namespace System.Text.RegularExpressions.Generated
                 /// <param name="inputSpan">The text being scanned by the regular expression.</param>
                 protected void Scan(ReadOnlySpan<char> inputSpan)
                 {
+unchecked
+{
                     // Search until we can't find a valid starting position, we find a match, or we reach the end of the input.
                     while (TryFindNextPossibleStartingPosition(inputSpan) &&
                            !TryMatchAtCurrentPosition(inputSpan) &&
@@ -206,6 +208,7 @@ namespace System.Text.RegularExpressions.Generated
                             base.CheckTimeout();
                         }
                     }
+}
                 }
         
                 /// <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
@@ -213,6 +216,8 @@ namespace System.Text.RegularExpressions.Generated
                 /// <returns>true if a possible match was found; false if no more matches are possible.</returns>
                 private bool TryFindNextPossibleStartingPosition(ReadOnlySpan<char> inputSpan)
                 {
+unchecked
+{
                     int pos = base.runtextpos;
                     ulong charMinusLow;
                     
@@ -237,6 +242,7 @@ namespace System.Text.RegularExpressions.Generated
                     // No match found.
                     base.runtextpos = inputSpan.Length;
                     return false;
+}
                 }
         
                 /// <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
@@ -244,6 +250,8 @@ namespace System.Text.RegularExpressions.Generated
                 /// <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
                 private bool TryMatchAtCurrentPosition(ReadOnlySpan<char> inputSpan)
                 {
+unchecked
+{
                     int pos = base.runtextpos;
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
@@ -492,6 +500,7 @@ namespace System.Text.RegularExpressions.Generated
                     base.runtextpos = pos;
                     base.Capture(0, matchStart, pos);
                     return true;
+}
                 }
             }
         }
