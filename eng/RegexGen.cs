@@ -90,9 +90,8 @@ try
     using var proc = Process.Start(psi);
     proc?.WaitForExit();
 
-    string generatedFilesDir = generatedCodeOutputPath;
-    string[] generatedFiles = Directory.Exists(generatedFilesDir)
-        ? Directory.GetFiles(generatedFilesDir, "*.cs", SearchOption.AllDirectories)
+    string[] generatedFiles = Directory.Exists(generatedCodeOutputPath)
+        ? Directory.GetFiles(generatedCodeOutputPath, "*.cs", SearchOption.AllDirectories)
         : Array.Empty<string>();
 
     // Early exit
