@@ -146,7 +146,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // EXCEPT for static methods of Action/Func, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped))
             {
-                if (!isDelegate || !IsStaticMethodReference(unwrapped))
+                if (!IsStaticMethodReference(unwrapped))
                 {
                     return;
                 }
