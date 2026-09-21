@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-const string OutputClassName = "GeneratedRegexPolyfill";
+const string OutputClassName = "RegexGen";
 
 (string TargetNamespace, string Name, string Pattern, string Options)[] RegexPatterns = new[]
 {
