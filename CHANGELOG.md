@@ -2,12 +2,14 @@
 
 ## [5.3.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.5) (2026-09-21)
 
+### 📣 Breaking Changes ⚠
+* Fix `SMA7001` code fix for parenthesized static method references and `in`, `ref`, `out` modifiers by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#675](https://github.com/sator-imaging/MeticulousAnalyzer/pull/675)
 ### 🚀 Features
 * feat: regex generator helper by [@sator-imaging](https://github.com/sator-imaging) in [#688](https://github.com/sator-imaging/MeticulousAnalyzer/pull/688)
-* Add exemption names width, height, depth, size, capacity to literal branch zero by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#689](https://github.com/sator-imaging/MeticulousAnalyzer/pull/689)
+* Add exemption names `width`, `height`, `depth`, `size`, `capacity` to literal branch zero by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#689](https://github.com/sator-imaging/MeticulousAnalyzer/pull/689)
 ### ✨ Bug Fixes
-* Fix `SMA7001` code fix for parenthesized static method references and ref/out modifiers by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#675](https://github.com/sator-imaging/MeticulousAnalyzer/pull/675)
 * Fix `SMA7001` to allow instance delegate assignments to non-static targets by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#686](https://github.com/sator-imaging/MeticulousAnalyzer/pull/686)
+* Disable CheckForOverflowUnderflow for RegexGen.g.cs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#693](https://github.com/sator-imaging/MeticulousAnalyzer/pull/693)
 ### 📚 Other Changes
 * revert: #616 by [@sator-imaging](https://github.com/sator-imaging) in [#690](https://github.com/sator-imaging/MeticulousAnalyzer/pull/690)
 
