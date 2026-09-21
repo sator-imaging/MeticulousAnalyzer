@@ -130,7 +130,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
             var unwrapped = operand.UnwrapConversion();
-            if (unwrapped.Kind is OperationKind.AnonymousFunction or OperationKind.Literal or OperationKind.DefaultValue)
+            if (unwrapped.Kind == OperationKind.AnonymousFunction)
             {
                 return;
             }

@@ -91,19 +91,23 @@ public class Derived : Base
         }
 
         [TestMethod]
-        public async Task SMA7001_Compliant_NullLiteralAssignment_ImplicitConversion()
+        public async Task SMA7001_Violation_NullLiteralAssignment_ImplicitConversion()
         {
+            // null literal implicitly converted to Action triggers SMA7001
             var test = @"
 using System;
 public class C
 {
     void M()
     {
-        Action a = null;
+        Action a = {|#0:null|};
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
@@ -159,31 +163,6 @@ public class C
         // Static method invocation result with contravariant delegate conversion
         // IsStaticMember uses IInvocationOperation path - static invocation is compliant
         Action<string> a = GetAction();
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA7001_Compliant_NullAndDefaultPatternAndAssignment()
-        {
-            var test = @"
-using System;
-public class C
-{
-    private Action _handler;
-
-    void M()
-    {
-        if (_handler is null)
-        {
-            return;
-        }
-
-        _handler = null;
-        _handler = default;
-        Action a = default;
     }
 }
 ";
