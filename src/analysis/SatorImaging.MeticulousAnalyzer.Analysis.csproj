@@ -32,7 +32,7 @@
 
   <!-- Disable CheckForOverflowUnderflow for RegexGen.g.cs because source-generated regex runner code performs arithmetic operations that overflow in checked builds. -->
   <ItemGroup>
-    <Compile Update="**\RegexGen.g.cs" CheckForOverflowUnderflow="false" />
+    <Compile Update=".\RegexGen.g.cs" CheckForOverflowUnderflow="false" />
   </ItemGroup>
 
   <ItemGroup>
