@@ -271,12 +271,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        // TODO: Compiled Regex performance improves significantly on modern .NET runtimes (.NET 7+),
-        //       making Regex faster across all string lengths. See benchmark GH action for details.
-        private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-            @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         private static bool IsMatchingMemberName(string name)
         {
             if (name.Length < 3)
@@ -297,7 +291,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                        name.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0;
             }
 
-            return s_isMatchingMemberNameRegex.IsMatch(name);
+            return GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison().IsMatch(name);
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
