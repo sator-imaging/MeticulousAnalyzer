@@ -860,6 +860,15 @@ namespace Test
 {
     public class Container
     {
+        public int Index => 0;
+        public int Count => 0;
+        public int Length => 0;
+        public int Remove => 0;
+        public int Search => 0;
+        public int Add => 0;
+        public int Exchange => 0;
+        public int Decrement => 0;
+        public int Increment => 0;
         public int Width => 0;
         public int Height => 0;
         public int Depth => 0;
@@ -871,6 +880,42 @@ namespace Test
     {
         public void M(Container container)
         {
+            if (container.Index == 0)
+            {
+            }
+
+            if (container.Count == 0)
+            {
+            }
+
+            if (container.Length == 0)
+            {
+            }
+
+            if (container.Remove == 0)
+            {
+            }
+
+            if (container.Search == 0)
+            {
+            }
+
+            if (container.Add == 0)
+            {
+            }
+
+            if (container.Exchange == 0)
+            {
+            }
+
+            if (container.Decrement == 0)
+            {
+            }
+
+            if (container.Increment == 0)
+            {
+            }
+
             if (container.Width == 0)
             {
             }
@@ -905,6 +950,15 @@ namespace Test
 {
     public class Container
     {
+        public int Index { get; set; }
+        public int Count { get; set; }
+        public int Length { get; set; }
+        public int Remove { get; set; }
+        public int Search { get; set; }
+        public int Add { get; set; }
+        public int Exchange { get; set; }
+        public int Decrement { get; set; }
+        public int Increment { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
         public int Depth { get; set; }
@@ -916,6 +970,42 @@ namespace Test
     {
         public void M(Container container)
         {
+            if (container is { Index: 0 })
+            {
+            }
+
+            if (container is { Count: 0 })
+            {
+            }
+
+            if (container is { Length: 0 })
+            {
+            }
+
+            if (container is { Remove: 0 })
+            {
+            }
+
+            if (container is { Search: 0 })
+            {
+            }
+
+            if (container is { Add: 0 })
+            {
+            }
+
+            if (container is { Exchange: 0 })
+            {
+            }
+
+            if (container is { Decrement: 0 })
+            {
+            }
+
+            if (container is { Increment: 0 })
+            {
+            }
+
             if (container is { Width: 0 })
             {
             }
