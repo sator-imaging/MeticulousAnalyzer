@@ -136,8 +136,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             // Check if target type is Action or Func, or any other delegate.
-            bool isActionOrFunc = IsActionOrFunc(op.Type);
-            if (!isActionOrFunc && op.Type?.TypeKind != TypeKind.Delegate)
+            bool isDelegate = op.Type?.TypeKind == TypeKind.Delegate;
+            if (!isDelegate)
             {
                 return;
             }
@@ -146,7 +146,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // EXCEPT for static methods of Action/Func, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped))
             {
-                if (!isActionOrFunc || !IsStaticMethodReference(unwrapped))
+                if (!IsStaticMethodReference(unwrapped))
                 {
                     return;
                 }
@@ -192,16 +192,5 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return current is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic;
         }
 
-        private static bool IsActionOrFunc(ITypeSymbol? type)
-        {
-            return type?.Name is "Action" or "Func"
-                && type.ContainingNamespace is INamespaceSymbol
-                {
-                    Name: "System", ContainingNamespace: INamespaceSymbol
-                    {
-                        IsGlobalNamespace: true,
-                    }
-                };
-        }
     }
 }
