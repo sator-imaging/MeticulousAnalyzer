@@ -230,5 +230,49 @@ public class C
                 .WithArguments("Action");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_StaticMethodAssignedToInstanceActionField()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private Action _some;
+    private static void StaticCallback() { }
+
+    void M()
+    {
+        _some = {|#0:StaticCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_StaticMethodAssignedToStaticActionField()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private static Action s_some;
+    private static void StaticCallback() { }
+
+    void M()
+    {
+        s_some = {|#0:StaticCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
