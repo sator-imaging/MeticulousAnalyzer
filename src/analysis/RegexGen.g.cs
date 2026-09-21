@@ -407,12 +407,12 @@ unchecked
                             pos += 9;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch8:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 9
                         {
                             if ((uint)slice.Length < 5 ||
@@ -420,16 +420,16 @@ unchecked
                             {
                                 goto AlternationBranch9;
                             }
-
+                            
                             pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch9:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 10
                         {
                             if ((uint)slice.Length < 6 ||
@@ -437,16 +437,16 @@ unchecked
                             {
                                 goto AlternationBranch10;
                             }
-
+                            
                             pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch10:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 11
                         {
                             if ((uint)slice.Length < 5 ||
@@ -454,16 +454,16 @@ unchecked
                             {
                                 goto AlternationBranch11;
                             }
-
+                            
                             pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch11:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 12
                         {
                             if ((uint)slice.Length < 4 ||
@@ -471,16 +471,16 @@ unchecked
                             {
                                 goto AlternationBranch12;
                             }
-
+                            
                             pos += 4;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch12:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 13
                         {
                             if ((uint)slice.Length < 8 ||
@@ -488,7 +488,7 @@ unchecked
                             {
                                 return false; // The input didn't match.
                             }
-
+                            
                             pos += 8;
                             slice = inputSpan.Slice(pos);
                         }
