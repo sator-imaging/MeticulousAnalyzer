@@ -25,7 +25,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_TargetTextOnly()
         {
-            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
             Assert.IsNotNull(regex);
 
             foreach (var target in TargetStrings)
@@ -39,7 +39,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_TargetTextFencedRandomChars()
         {
-            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
 
             foreach (var target in TargetStrings)
             {
@@ -57,7 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_TargetTextAppearsMultipleTimesWithRandomChars()
         {
-            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
 
             for (int i = 0; i < TargetStrings.Length - 1; i++)
             {
@@ -78,7 +78,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_RandomCharsOnly()
         {
-            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
             string[] nonMatchingInputs = new[]
             {
                 "qwertyuiop",
@@ -98,14 +98,14 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_EmptyString()
         {
-            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
             Assert.IsFalse(regex.IsMatch(""), "Expected no match for empty string");
         }
 
         [TestMethod]
         public void IsExcemptionNameForZeroComparison_LongRandomCharsWithoutTargetText()
         {
-            var regex = RegexGen.IsExcemptionNameForZeroComparison();
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
 
             var rand = new System.Random(42);
             char[] chars = new char[1024];
