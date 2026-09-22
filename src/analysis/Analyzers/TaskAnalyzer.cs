@@ -150,7 +150,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return false;
             }
 
-            var handledBlocks = new HashSet<int>();
+            HashSet<int>? handledBlocks = null;
             int declarationBlock = -1;
             var allBlocks = cfg.Blocks;
 
@@ -216,11 +216,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (isHandled)
                 {
-                    handledBlocks.Add(i);
+                    (handledBlocks ??= new()).Add(i);
                 }
             }
 
-            if (handledBlocks.Count == 0)
+            if (handledBlocks == null || handledBlocks.Count == 0)
             {
                 return false;
             }
