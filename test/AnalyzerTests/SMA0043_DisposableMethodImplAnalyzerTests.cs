@@ -30,7 +30,7 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("_field");
+                .WithArguments("_field", "Dispose");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1);
         }
 
@@ -95,7 +95,7 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("_field");
+                .WithArguments("_field", "Dispose");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1);
         }
 
@@ -116,7 +116,7 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("_field");
+                .WithArguments("_field", "Dispose");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1);
         }
 
@@ -213,10 +213,10 @@ class TestClass : IDisposable
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 1)
-                .WithArguments("_field1");
+                .WithArguments("_field1", "Dispose");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 2)
-                .WithArguments("_field2");
+                .WithArguments("_field2", "Dispose");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
 
@@ -245,7 +245,7 @@ partial class TestClass
 }";
             var expected3 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 2)
-                .WithArguments("_field2");
+                .WithArguments("_field2", "Dispose");
 
             var test = new VerifyCS.Test
             {
@@ -288,7 +288,7 @@ class MyDisposable : IDisposable
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 0)
-                .WithArguments("_disposable");
+                .WithArguments("_disposable", "Dispose");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -312,7 +312,7 @@ class TestClass : IAsyncDisposable
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 0)
-                .WithArguments("_field");
+                .WithArguments("_field", "DisposeAsync");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -374,7 +374,7 @@ class TestClass : IDisposable, IAsyncDisposable
 }";
             var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
                 .WithLocation(markupKey: 0)
-                .WithArguments("_field2");
+                .WithArguments("_field2", "DisposeAsync");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

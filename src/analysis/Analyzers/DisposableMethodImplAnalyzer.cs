@@ -136,14 +136,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName(), DisposeMethodName);
                 return;
             }
 
             AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
             if (disposableMemberSet.Count != 0)
             {
-                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet);
+                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet, DisposeMethodName);
             }
         }
 
@@ -171,14 +171,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var targetMethod = GetTargetDisposeAsyncMethod(typeSymbol);
             if (targetMethod == null)
             {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName(), DisposeAsyncMethodName);
                 return;
             }
 
             AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, targetMethod, asyncDisposableMemberSet);
             if (asyncDisposableMemberSet.Count != 0)
             {
-                ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet);
+                ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet, DisposeAsyncMethodName);
             }
         }
 
@@ -226,7 +226,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return fullDisposeAsyncMethod ?? publicDisposeAsyncMethod ?? explicitImplMethod;
         }
 
-        private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers)
+        private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers, string disposeMethodName)
         {
             foreach (var member in undisposedMembers)
             {
@@ -243,7 +243,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     // Declarator -> Declaration -> FieldDeclaration
                     if (!Core.IsSuppressedByComment(varDecl.Parent?.Parent, DisposableAnalyzer.SuppressionComment))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.ToDiagnosticMessageName()));
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.ToDiagnosticMessageName(), disposeMethodName));
                     }
 
                     reported = true;  // Set true even if suppressed
@@ -251,7 +251,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (!reported)
                 {
-                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.ToDiagnosticMessageName());
+                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.ToDiagnosticMessageName(), disposeMethodName);
                 }
             }
         }

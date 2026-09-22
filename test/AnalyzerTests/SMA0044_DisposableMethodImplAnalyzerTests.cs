@@ -27,7 +27,7 @@ class {|#0:TestClass|}
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
                 .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
+                .WithArguments("TestClass", "Dispose");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
                 .WithLocation(markupKey: 0)
                 .WithArguments("TestClass", "IDisposable");
@@ -52,7 +52,7 @@ class {|#0:TestClass|}
 }";
             var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
                 .WithLocation(markupKey: 0)
-                .WithArguments("TestClass");
+                .WithArguments("TestClass", "DisposeAsync");
             var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
                 .WithLocation(markupKey: 0)
                 .WithArguments("TestClass", "IAsyncDisposable");
