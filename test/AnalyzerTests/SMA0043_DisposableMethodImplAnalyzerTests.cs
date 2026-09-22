@@ -293,7 +293,7 @@ class MyDisposable : IDisposable
         }
 
         [TestMethod]
-        public async Task SMA0043_AsyncDisposable_Violation_UndisposedField()
+        public async Task SMA0043_Violation_AsyncDisposable_UndisposedField()
         {
             var test = @"
 using System;

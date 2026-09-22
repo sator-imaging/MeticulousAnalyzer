@@ -35,7 +35,7 @@ class {|#0:TestClass|}
         }
 
         [TestMethod]
-        public async Task SMA0044_AsyncDisposable_Violation_MissingDisposeAsync()
+        public async Task SMA0044_Violation_AsyncDisposable_MissingDisposeAsync()
         {
             var test = @"
 using System;

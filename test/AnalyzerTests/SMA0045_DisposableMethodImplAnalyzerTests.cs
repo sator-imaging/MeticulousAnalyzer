@@ -36,7 +36,7 @@ class {|#0:TestClass|}
         }
 
         [TestMethod]
-        public async Task SMA0045_AsyncDisposable_Violation_MissingIAsyncDisposableInterface()
+        public async Task SMA0045_Violation_AsyncDisposable_MissingIAsyncDisposableInterface()
         {
             var test = @"
 using System;
