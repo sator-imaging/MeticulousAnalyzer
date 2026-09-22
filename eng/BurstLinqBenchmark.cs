@@ -9,12 +9,10 @@
 
 #:package FUnit.Directives@*
 #warning funit include ../src/analysis/BurstLinq.cs
-#warning funit include ../src/analysis/RegexGen.g.cs
 
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
@@ -48,24 +46,10 @@ public class BurstLinqBenchmarks
     IEnumerable<double> _enumerable = null!;
     IEnumerable<object> _objEnumerable = null!;
 
-    string _randomString = null!;
-
     [GlobalSetup]
     public void Setup()
     {
         _string = new string('0', Size) + "Target";
-
-        int charCount = Size switch
-        {
-            0 => 5,
-            10 => 10,
-            _ => 15,
-        };
-        var random = new Random(42);
-        char[] chars = new char[charCount];
-        for (int i = 0; i < charCount; i++)
-            chars[i] = (char)random.Next('a', 'z' + 1);
-        _randomString = new string(chars);
 
         _stringArray = new string[Size];
         for (int i = 0; i < Size; i++)
@@ -389,112 +373,5 @@ public class BurstLinqBenchmarks
     {
         return System.Linq.Enumerable.FirstOrDefault(
             System.Linq.Enumerable.Where(_roList, static x => x > 50.0));
-    }
-
-
-    /*  IsMatchingMemberName  ================================================================ */
-
-    private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-    private static readonly Regex s_isMatchingMemberNameDeInRegex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)|Width|Height|Depth|Size|Capacity",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-    private static readonly Regex s_isMatchingMemberNameLength6Regex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Width|Height|Depth|Size",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-    private static bool IsMatchingMemberName(string name)
-    {
-        return name.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Exchange", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Decrement", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Increment", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Width", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Capacity", StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    private static bool IsMatchingMemberName_Regex(string name)
-    {
-        return s_isMatchingMemberNameRegex.IsMatch(name);
-    }
-
-    private static bool IsMatchingMemberName_Regex_DeIn(string name)
-    {
-        return s_isMatchingMemberNameDeInRegex.IsMatch(name);
-    }
-
-    [BenchmarkCategory("IsMatchingMemberName")]
-    [Benchmark(Baseline = true)]
-    public bool IsMatchingMemberName_IndexOf()
-    {
-        return IsMatchingMemberName(_randomString);
-    }
-
-    [BenchmarkCategory("IsMatchingMemberName")]
-    [Benchmark]
-    public bool IsMatchingMemberName_Regex()
-    {
-        return IsMatchingMemberName_Regex(_randomString);
-    }
-
-    [BenchmarkCategory("IsMatchingMemberName")]
-    [Benchmark]
-    public bool IsMatchingMemberName_Regex_DeIn()
-    {
-        return IsMatchingMemberName_Regex_DeIn(_randomString);
-    }
-
-    [BenchmarkCategory("IsMatchingMemberName")]
-    [Benchmark]
-    public bool IsMatchingMemberName_RegexGen()
-    {
-        if (_randomString.Length < 3)
-            return false;
-
-        return SatorImaging.MeticulousAnalyzer.Analysis.GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison().IsMatch(_randomString);
-    }
-
-    [BenchmarkCategory("IsMatchingMemberName")]
-    [Benchmark]
-    public bool IsMatchingMemberName_Mixed()
-    {
-        if (_randomString.Length < 3)
-            return false;
-
-        if (_randomString.Length <= 6)
-        {
-            return _randomString.IndexOf("Length", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Count", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Index", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Remove", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Search", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Add", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Width", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   _randomString.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        return s_isMatchingMemberNameRegex.IsMatch(_randomString);
-    }
-
-    [BenchmarkCategory("IsMatchingMemberName")]
-    [Benchmark]
-    public bool IsMatchingMemberName_DualRegex()
-    {
-        if (_randomString.Length <= 6)
-            return s_isMatchingMemberNameLength6Regex.IsMatch(_randomString);
-        return s_isMatchingMemberNameRegex.IsMatch(_randomString);
     }
 }

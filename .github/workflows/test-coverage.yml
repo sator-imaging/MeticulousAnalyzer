@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   pull_request:
+    paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   workflow_dispatch:
 
 env:

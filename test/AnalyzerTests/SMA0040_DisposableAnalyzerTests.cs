@@ -760,9 +760,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable", "object");
+                .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -1313,9 +1313,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable", "object");
+                .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -1337,9 +1337,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("IDisposable", "object");
+                .WithArguments("IDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -1700,9 +1700,9 @@ namespace Test
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                 .WithLocation(markupKey: 0)
-                .WithArguments("MyDisposable", "object");
+                .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -1730,9 +1730,9 @@ namespace Test
 ";
             var expected = new[]
             {
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
-                    .WithArguments("MyDisposable", "string"),
+                    .WithArguments("MyDisposable"),
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
                     .WithArguments("MyDisposable")
@@ -1760,9 +1760,9 @@ namespace Test
 ";
             var expected = new[]
             {
-                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 1)
-                    .WithArguments("MyDisposable", "object"),
+                    .WithArguments("MyDisposable"),
                 VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
                     .WithLocation(markupKey: 0)
                     .WithArguments("MyDisposable")
@@ -1792,50 +1792,6 @@ namespace Test
                 .WithLocation(markupKey: 0)
                 .WithArguments("MyDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0040_Compliant_DelegateArrowReturn_NewInstance()
-        {
-            var test = @"
-using System;
-
-namespace Test
-{
-    class MyDisposable : IDisposable { public void Dispose() { } }
-    class Program
-    {
-        void Method()
-        {
-            Func<MyDisposable> f1 = () => new MyDisposable();
-            Func<int, MyDisposable> f2 = x => new MyDisposable();
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        [TestMethod]
-        public async Task SMA0040_Compliant_DelegateArrowReturn_Invocation()
-        {
-            var test = @"
-using System;
-
-namespace Test
-{
-    class MyDisposable : IDisposable { public void Dispose() { } }
-    class Program
-    {
-        MyDisposable Create() => new MyDisposable();
-        void Method()
-        {
-            Func<MyDisposable> f = () => Create();
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

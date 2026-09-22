@@ -24,7 +24,7 @@ namespace Test
     {
         public void M()
         {
-            MethodInfo {|#0:method|} = null;
+            {|#0:MethodInfo|} method = null;
             _ = method;
         }
     }
@@ -49,7 +49,7 @@ namespace Test
 
         public void M()
         {
-            MethodInfo {|#0:a|}, {|#1:b|} = {|#2:GetIt()|};
+            {|#0:{|#1:MethodInfo|}|} a, b = {|#2:GetIt()|};
         }
     }
 }
@@ -82,6 +82,35 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("member", "MemberInfo"),
                 VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetMembers", "MemberInfo")
+            );
+        }
+
+        [TestMethod]
+        public async Task SMA7011_Violation_TupleDeclaration()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    public class C
+    {
+        static (MethodInfo, PropertyInfo) GetTuple() => (null, null);
+
+        public void M()
+        {
+            {|#0:var|} (a, b) = {|#1:GetTuple()|};
+            ({|#2:MethodInfo|} mi, {|#3:PropertyInfo|} pi) = {|#4:GetTuple()|};
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(0).WithArguments("(a, b)", "(MethodInfo a, PropertyInfo b)"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(1).WithArguments("GetTuple", "MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(2).WithArguments("mi", "MethodInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionVariable).WithLocation(3).WithArguments("pi", "PropertyInfo"),
+                VerifyCS.Diagnostic(ReflectionAnalyzer.RuleId_SystemReflectionUsage).WithLocation(4).WithArguments("GetTuple", "MethodInfo")
             );
         }
     }

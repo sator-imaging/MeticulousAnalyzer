@@ -71,7 +71,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7000_Violation_NonActionFuncStaticMethodConversion()
+        public async Task SMA7000_Compliant_NonActionFuncStaticMethodConversionNot()
         {
             var test = @"
 using System;
@@ -81,14 +81,11 @@ public class C
     static void StaticMethod() { }
     void M()
     {
-        MyDelegate d = {|#0:StaticMethod|};
+        MyDelegate d = StaticMethod;
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDelegate");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

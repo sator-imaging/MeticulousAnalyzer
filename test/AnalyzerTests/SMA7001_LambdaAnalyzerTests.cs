@@ -216,7 +216,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violation_StaticMethodAssignedToCustomDelegate()
+        public async Task SMA7001_Compliant_StaticMethodAssignedToCustomDelegate()
         {
             var test = @"
 using System;
@@ -226,18 +226,15 @@ public class C
     static void StaticMethod() { }
     void M()
     {
-        MyDelegate d = {|#0:StaticMethod|};
+        MyDelegate d = StaticMethod;
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDelegate");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task SMA7001_Violation_StaticMethodWithParamsAssignedToCustomDelegate()
+        public async Task SMA7001_Compliant_StaticMethodWithParamsAssignedToCustomDelegate()
         {
             var test = @"
 using System;
@@ -247,14 +244,11 @@ public class C
     static int StaticMethod(int x) => x;
     void M()
     {
-        MyFunc f = {|#0:StaticMethod|};
+        MyFunc f = StaticMethod;
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyFunc");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -316,7 +310,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA7001_Violation_StaticMethodAssignedToNonActionFuncDelegate()
+        public async Task SMA7001_Compliant_StaticMethodAssignedToNonActionFuncDelegate()
         {
             var test = @"
 using System;
@@ -326,14 +320,11 @@ public class C
     static void StaticMethod() { }
     void M()
     {
-        MyDelegate d = {|#0:StaticMethod|};
+        MyDelegate d = StaticMethod;
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("MyDelegate");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

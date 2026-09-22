@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -48,6 +49,31 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeFieldReference, OperationKind.FieldReference);
             context.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
             context.RegisterOperationAction(AnalyzeVariableDeclarator, OperationKind.VariableDeclarator);
+            context.RegisterOperationAction(AnalyzeDeclarationExpression, OperationKind.DeclarationExpression);
+        }
+
+        private static void AnalyzeDeclarationExpression(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IDeclarationExpressionOperation declExprOp)
+            {
+                return;
+            }
+
+            var type = declExprOp.Type;
+            var reflectionType = FindReflectionType(type);
+            if (reflectionType == null || reflectionType.TypeKind == TypeKind.Enum)
+            {
+                return;
+            }
+
+            if (declExprOp.Syntax is DeclarationExpressionSyntax declExprSyntax)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_SystemReflectionVariable,
+                    declExprSyntax.Type.GetLocation(),
+                    declExprSyntax.Designation.ToString(),
+                    type.ToDiagnosticMessageName()));
+            }
         }
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
@@ -125,10 +151,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // VariableDeclarator fires per name (var a, b = ...); [0] covers a and b — [1] is not required.
-            var location = declarator.Symbol.Locations is { Length: > 0 } locations
-                ? locations[0]
-                : declarator.Syntax.GetLocation();
+            Location location;
+            if (declarator.Syntax is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax varDecl })
+            {
+                location = varDecl.Type.GetLocation();
+            }
+            else if (declarator.Syntax.Ancestors().OfType<DeclarationExpressionSyntax>().FirstOrDefault() is { } declExpr)
+            {
+                location = declExpr.Type.GetLocation();
+            }
+            else if (declarator.Symbol.Locations is { Length: > 0 } locations)
+            {
+                location = locations[0];
+            }
+            else
+            {
+                location = declarator.Syntax.GetLocation();
+            }
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_SystemReflectionVariable,

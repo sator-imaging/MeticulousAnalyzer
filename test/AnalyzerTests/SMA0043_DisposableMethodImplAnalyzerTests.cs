@@ -443,5 +443,27 @@ class TestClass : IDisposable, IAsyncDisposable
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_Compliant_SuppressionCommentOnField()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IAsyncDisposable
+{
+    // Don't dispose
+    private MyAsyncDisposable _field = new MyAsyncDisposable();
+
+    public ValueTask DisposeAsync() => default;
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

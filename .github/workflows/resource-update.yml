@@ -46,6 +46,8 @@ jobs:
         name: ${{ github.job }}-attempt${{ github.run_attempt }}
         path: |
           src/**/Release/*.nupkg
+          src/**/*.Designer.cs
+          src/**/*.resx
 
     - name: Create PR
       run: |
@@ -70,17 +72,16 @@ jobs:
         git branch -vv
 
         echo "================================"
-        echo " Run DocsGen / RegexGen"
+        echo " Run DocsGen"
         echo "================================"
 
         dotnet run -c Release ./eng/DocsGen.cs \
           "./src/analysis/Resources.resx" \
           "./${{ env.docsgen_file_name }}"
 
-        dotnet run -c Release ./eng/RegexGen.cs \
-          "./src/analysis/RegexGen.g.cs"
-
         git add -f ${{ env.docsgen_file_name }}
+
+        # .resx and .Designer.cs (no -f)
         git add ./src
 
         # Trailing slash is required to sync (copy) contents instead of directory

@@ -101,15 +101,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (!hasSeenIf &&
-                    statement is ExpressionStatementSyntax staticThrowExprStmt &&
-                    staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv &&
-                    staticThrowInv.Expression is MemberAccessExpressionSyntax memberAccess &&
-                    memberAccess.Name.ToString().StartsWith("Throw", System.StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
                 if (statement is IfStatementSyntax ifStmt)
                 {
                     hasSeenIf = true;
@@ -125,7 +116,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (!isRootBlockComputed)
                     {
                         isRootBlockComputed = true;
-                        isRootBlock = IsMethodLikeOrLoopSyntax(block.Parent) || IsLastTryStatementBlock(block);
+                        isRootBlock = IsMethodLikeOrLoopSyntax(block.Parent);
                     }
 
                     bool isLastInRootBlock = isRootBlock && i == count - 1;
@@ -210,7 +201,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             int count = parentBlock.Statements.Count;
             if (count < 2 || parentBlock.Statements[count - 2] != loopStatement)
             {
-                if (count != 0 && parentBlock.Statements[count - 1] == loopStatement && IsMethodLikeSyntax(parentBlock.Parent))
+                if (count != 0 && parentBlock.Statements[count - 1] == loopStatement && IsMethodLikeOrLoopSyntax(parentBlock.Parent))
                     return true;
 
                 return false;
@@ -421,25 +412,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static bool IsMethodLikeOrLoopSyntax(SyntaxNode? node)
         {
             return IsMethodLikeSyntax(node) || IsLoopSyntax(node);
-        }
-
-        private static bool IsLastTryStatementBlock(BlockSyntax block)
-        {
-            TryStatementSyntax? tryStmt = block.Parent switch
-            {
-                TryStatementSyntax t => t,
-                CatchClauseSyntax c => c.Parent as TryStatementSyntax,
-                FinallyClauseSyntax f => f.Parent as TryStatementSyntax,
-                _ => null,
-            };
-
-            if (tryStmt?.Parent is not BlockSyntax parentBlock)
-                return false;
-
-            if (!IsMethodLikeSyntax(parentBlock.Parent))
-                return false;
-
-            return parentBlock.Statements[parentBlock.Statements.Count - 1] == tryStmt;
         }
 
         private static void CollectAndReportBranchesInIfBranch(SyntaxNodeAnalysisContext context, IfStatementSyntax ifStmt)

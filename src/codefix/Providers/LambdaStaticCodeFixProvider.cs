@@ -82,70 +82,31 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private async Task<Document> WrapWithStaticLambdaAsync(Document document, SyntaxNode node, IMethodSymbol method, CancellationToken cancellationToken)
         {
-            var paramCount = method.Parameters.Length;
-            var parameters = new ParameterSyntax[paramCount];
-            var arguments = new ArgumentSyntax[paramCount];
-
-            for (int i = 0; i < paramCount; i++)
+            var parameters = method.Parameters.Select(p =>
             {
-                var p = method.Parameters[i];
-                var name = string.IsNullOrEmpty(p.Name) ? "arg" + (i + 1) : p.Name;
-                var rawName = name.StartsWith("@") ? name.Substring(1) : name;
-                var kind = SyntaxFacts.GetKeywordKind(rawName);
-                if (kind == SyntaxKind.None)
-                {
-                    kind = SyntaxFacts.GetContextualKeywordKind(rawName);
-                }
+                var name = p.Name;
+                var kind = SyntaxFacts.GetKeywordKind(name);
+                var token = kind == SyntaxKind.None
+                    ? SyntaxFactory.Identifier(name)
+                    : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
 
-                var token = (kind != SyntaxKind.None || name.StartsWith("@"))
-                    ? SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind != SyntaxKind.None ? kind : SyntaxKind.IdentifierToken, "@" + rawName, rawName, SyntaxFactory.TriviaList())
-                    : SyntaxFactory.Identifier(rawName);
+                return SyntaxFactory.Parameter(token);
+            });
 
-                var paramSyntax = SyntaxFactory.Parameter(token);
+            var arguments = method.Parameters.Select(p =>
+            {
+                var name = p.Name;
+                var kind = SyntaxFacts.GetKeywordKind(name);
+                var token = kind == SyntaxKind.None
+                    ? SyntaxFactory.Identifier(name)
+                    : SyntaxFactory.Identifier(SyntaxFactory.TriviaList(), kind, "@" + name, name, SyntaxFactory.TriviaList());
 
-                if (p.RefKind != RefKind.None)
-                {
-                    var typeName = p.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-                    paramSyntax = paramSyntax.WithType(SyntaxFactory.ParseTypeName(typeName));
-                }
-
-                switch (p.RefKind)
-                {
-                    case RefKind.Ref:
-                        paramSyntax = paramSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.RefKeyword).WithTrailingTrivia(SyntaxFactory.Space)));
-                        break;
-                    case RefKind.Out:
-                        paramSyntax = paramSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.OutKeyword).WithTrailingTrivia(SyntaxFactory.Space)));
-                        break;
-                    case RefKind.In:
-                        paramSyntax = paramSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.InKeyword).WithTrailingTrivia(SyntaxFactory.Space)));
-                        break;
-                }
-
-                parameters[i] = paramSyntax;
-
-                var identifierExpr = SyntaxFactory.IdentifierName(token);
-
-                arguments[i] = p.RefKind switch
-                {
-                    RefKind.Ref => SyntaxFactory.Argument(null, SyntaxFactory.Token(SyntaxKind.RefKeyword), identifierExpr),
-                    RefKind.Out => SyntaxFactory.Argument(null, SyntaxFactory.Token(SyntaxKind.OutKeyword), identifierExpr),
-                    RefKind.In => SyntaxFactory.Argument(null, SyntaxFactory.Token(SyntaxKind.InKeyword), identifierExpr),
-                    _ => SyntaxFactory.Argument(identifierExpr)
-                };
-            }
+                return SyntaxFactory.Argument(SyntaxFactory.IdentifierName(token));
+            });
 
             var lambdaParameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
 
-            var nodeToReplace = node;
-            while (nodeToReplace.Parent is ParenthesizedExpressionSyntax parenthesized)
-            {
-                nodeToReplace = parenthesized;
-            }
-
-            var unwrappedNode = nodeToReplace is ExpressionSyntax expr ? expr.UnwrapParentheses() : nodeToReplace;
-
-            var methodAccess = (unwrappedNode is ExpressionSyntax exprAccess ? exprAccess : SyntaxFactory.IdentifierName(method.Name))
+            var methodAccess = (node is ExpressionSyntax expr ? expr : SyntaxFactory.IdentifierName(method.Name))
                 .WithLeadingTrivia(SyntaxTriviaList.Empty)
                 .WithTrailingTrivia(SyntaxTriviaList.Empty);
 
@@ -157,11 +118,11 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 SyntaxFactory.Token(SyntaxKind.EqualsGreaterThanToken),
                 block: null,
                 invocation
-            ).WithLeadingTrivia(nodeToReplace.GetLeadingTrivia())
-             .WithTrailingTrivia(nodeToReplace.GetTrailingTrivia());
+            ).WithLeadingTrivia(node.GetLeadingTrivia())
+             .WithTrailingTrivia(node.GetTrailingTrivia());
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            var newRoot = root!.ReplaceNode(nodeToReplace, staticLambda);
+            var newRoot = root!.ReplaceNode(node, staticLambda);
             return document.WithSyntaxRoot(newRoot);
         }
 

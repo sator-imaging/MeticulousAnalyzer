@@ -320,9 +320,8 @@ d = (new object()) as IDisposable;
 
 
 次の条件では警告を出しません:
-- `return` 文やアロー式 (`=>`) でインスタンスを生成
+- `return` 文でインスタンスを生成
     - `return new Disposable();`
-    - `() => new Disposable();`
 - フィールド/プロパティへの代入
     - `m_field = new Disposable();`
 - `IDisposable` 型同士のキャスト
@@ -568,7 +567,7 @@ if (pos >= 0)
 {
 }
 
-// 許可: 左辺の式に Index を含む
+// 許可: 左辺に IndexOf のアクセスを含む
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }
@@ -599,10 +598,6 @@ if (foo.Length != 0)
 > メソッドまたはループのルートレベルで最後の文である `if` 文（`else` 節の有無にかかわらず）は、この脱出完全性チェックの対象外となります。
 
 ```cs
-// "Throw" で始まるメソッドは最初の if 文より前に呼び出すことができます。
-ArgumentNullException.ThrowIfNull(first);
-ArgumentNullException.ThrowIfNull(second);
-
 if (!IsValid()) return;  // 早期 return は許可されます。
 
 // 早期 return ブロック内でのローカル宣言と最大1回のメソッド呼び出しは許可されます:
@@ -686,7 +681,7 @@ foreach (var item in items)
 ループ内部から大域脱出すること（`return`、`throw`、または `throw` 式の使用）は禁止されます（**SMA8032**）。制御フローを明確かつ予測可能に保つため、代わりに `break`、`continue`、`goto` などのローカル脱出を使用してください。
 
 > [!NOTE]
-> ループ内の `yield return` および `yield break` 文と、ループ内で宣言されたローカル関数やラムダ式内部での大域脱出は対象外です。大域脱出が制御フローの最後の文の場合は、直後に `return` または `throw` 文が続くループ、またはメソッドのルートレベルブロックの最後の文であるループでの大域脱出も対象外となります。
+> ループ内の `yield return` および `yield break` 文と、ループ内で宣言されたローカル関数やラムダ式内部での大域脱出は対象外です。大域脱出が制御フローの最後の文の場合は、直後に `return` または `throw` 文が続くループ、またはメソッドやループのルートレベルブロックの最後の文であるループでの大域脱出も対象外となります。
 
 ```cs
 for (int i = 0; i < items.Length; i++)
