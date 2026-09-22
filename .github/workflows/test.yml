@@ -5,7 +5,6 @@ on:
     branches: [ main ]
     paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   #pull_request:
-  #  paths-ignore: [ '.github/**', 'assets/**', 'Unity/**' ]
   workflow_dispatch:
   # github.event_name, or other context data are propagated from caller.
   # No way to detect whether or not this workflow is called by other.
@@ -44,7 +43,8 @@ jobs:
       matrix:
         configuration: [Release, Debug]
 
-    if: ${{ !inputs.__called }}
+    # Mutation test is not work as expected for analyzer project.
+    if: ${{ false && !inputs.__called }}
 
     runs-on: ubuntu-latest   # tip: runs-on can use ${{ matrix.<name> }}
     steps:

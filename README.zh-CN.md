@@ -320,8 +320,9 @@ d = (new object()) as IDisposable;
 
 
 以下情况不会报警：
-- 在 `return` 语句中创建实例
+- 在 `return` 语句或 Lambda/箭头表达式 (`=>`) 中创建实例
     - `return new Disposable();`
+    - `() => new Disposable();`
 - 赋值给字段或属性
     - `m_field = new Disposable();`
 - 在可释放类型之间转换
@@ -567,7 +568,7 @@ if (pos >= 0)
 {
 }
 
-// 允许：左侧包含 IndexOf 访问
+// 允许：左侧表达式包含 Index
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }
@@ -598,6 +599,10 @@ if (foo.Length != 0)
 > 作为方法根层级或循环根层级中最后一个语句的 `if` 语句（无论是否带有 `else` 子句），均免于此退出完整性检查。
 
 ```cs
+// 以 "Throw" 开头的方法可以在首个 if 语句之前调用。
+ArgumentNullException.ThrowIfNull(first);
+ArgumentNullException.ThrowIfNull(second);
+
 if (!IsValid()) return;  // 允许早期 return。
 
 // 早期 return 块中允许局部变量声明和最多 1 次方法调用：
@@ -681,7 +686,7 @@ foreach (var item in items)
 禁止从循环内部进行非局部退出（使用 `return`、`throw` 或 `throw` 表达式）（**SMA8032**）。请改用 `break`、`continue` 或 `goto` 等局部退出语句，以保持控制流清晰且可预测。
 
 > [!NOTE]
-> 循环内部的 `yield return` 和 `yield break` 语句，以及在循环内部声明的局部函数或 Lambda 表达式内部的非局部退出均不受此规则限制。当非局部退出是控制流的最后一条语句时，紧随 `return` 或 `throw` 语句之前的循环，或者作为方法或循环根级块最后一条语句的循环中的非局部退出，也免受此规则限制。
+> 循环内部的 `yield return` 和 `yield break` 语句，以及在循环内部声明的局部函数或 Lambda 表达式内部的非局部退出均不受此规则限制。当非局部退出是控制流的最后一条语句时，紧随 `return` 或 `throw` 语句之前的循环，或者作为方法根级块最后一条语句的循环中的非局部退出，也免受此规则限制。
 
 ```cs
 for (int i = 0; i < items.Length; i++)

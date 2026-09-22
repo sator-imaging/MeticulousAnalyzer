@@ -91,23 +91,19 @@ public class Derived : Base
         }
 
         [TestMethod]
-        public async Task SMA7001_Violation_NullLiteralAssignment_ImplicitConversion()
+        public async Task SMA7001_Compliant_NullLiteralAssignment_ImplicitConversion()
         {
-            // null literal implicitly converted to Action triggers SMA7001
             var test = @"
 using System;
 public class C
 {
     void M()
     {
-        Action a = {|#0:null|};
+        Action a = null;
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
-                .WithLocation(markupKey: 0)
-                .WithArguments("Action");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -167,6 +163,116 @@ public class C
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Compliant_NullAndDefaultPatternAndAssignment()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private Action _handler;
+
+    void M()
+    {
+        if (_handler is null)
+        {
+            return;
+        }
+
+        _handler = null;
+        _handler = default;
+        Action a = default;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Compliant_InstanceMethodAssignedToNonStaticTarget()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private Action _some;
+    private void SomeCallback() { }
+
+    void M()
+    {
+        _some = SomeCallback;
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_InstanceMethodAssignedToStaticTarget()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private static Action s_some;
+    private void SomeCallback() { }
+
+    void M()
+    {
+        s_some = {|#0:SomeCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_StaticMethodAssignedToInstanceActionField()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private Action _some;
+    private static void StaticCallback() { }
+
+    void M()
+    {
+        _some = {|#0:StaticCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7001_Violation_StaticMethodAssignedToStaticActionField()
+        {
+            var test = @"
+using System;
+public class C
+{
+    private static Action s_some;
+    private static void StaticCallback() { }
+
+    void M()
+    {
+        s_some = {|#0:StaticCallback|};
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(LambdaAnalyzer.RuleId_InefficientDelegateDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("Action");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }

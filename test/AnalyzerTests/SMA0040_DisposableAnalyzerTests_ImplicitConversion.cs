@@ -40,9 +40,9 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ConvertibleDisposable");
+                .WithArguments("ConvertibleDisposable", "string");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -71,9 +71,9 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ConvertibleDisposable");
+                .WithArguments("ConvertibleDisposable", "string");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -103,9 +103,9 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ConvertibleDisposable");
+                .WithArguments("ConvertibleDisposable", "string");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -194,9 +194,9 @@ namespace Test
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_MissingUsing)
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
                 .WithLocation(markupKey: 0)
-                .WithArguments("ConvertibleDisposable");
+                .WithArguments("ConvertibleDisposable", "object");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }

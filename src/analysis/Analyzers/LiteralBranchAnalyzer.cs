@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
@@ -272,15 +273,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsMatchingMemberName(string name)
         {
-            return name.Contains("Length") ||
-                   name.Contains("Count") ||
-                   name.Contains("Index") ||
-                   name.Contains("Remove") ||
-                   name.Contains("Search") ||
-                   name.Contains("Add") ||
-                   name.Contains("Exchange") ||
-                   name.Contains("Decrement") ||
-                   name.Contains("Increment");
+            if (name.Length < 3)
+                return false;
+
+            return GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison().IsMatch(name);
         }
 
         private static bool LeftSideHasMatchingMemberAccessSyntax(IOperation leftOperand)
@@ -292,6 +288,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 IMemberReferenceOperation memberRef => memberRef.Member?.Name,
                 IInvocationOperation invocation => invocation.TargetMethod?.Name,
                 IDynamicMemberReferenceOperation dynamicRef => dynamicRef.MemberName,
+                ILocalReferenceOperation localRef => localRef.Local?.Name,
+                IParameterReferenceOperation paramRef => paramRef.Parameter?.Name,
                 _ => null
             };
 

@@ -130,14 +130,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Don't show warning if the "value" is lambda as it is handled by AnalyzeAnonymousFunction.
             var unwrapped = operand.UnwrapConversion();
-            if (unwrapped.Kind == OperationKind.AnonymousFunction)
+            if (unwrapped.Kind is OperationKind.AnonymousFunction or OperationKind.Literal or OperationKind.DefaultValue)
             {
                 return;
             }
 
             // Check if target type is Action or Func, or any other delegate.
-            bool isActionOrFunc = IsActionOrFunc(op.Type);
-            if (!isActionOrFunc && op.Type?.TypeKind != TypeKind.Delegate)
+            bool isDelegate = op.Type?.TypeKind == TypeKind.Delegate;
+            if (!isDelegate)
             {
                 return;
             }
@@ -146,7 +146,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             // EXCEPT for static methods of Action/Func, which we want to fix by wrapping with static lambda to avoid allocation.
             if (IsStaticMember(unwrapped))
             {
-                if (!isActionOrFunc || !IsStaticMethodReference(unwrapped))
+                if (!IsStaticMethodReference(unwrapped))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (op.Parent is IAssignmentOperation assignOp && !IsStaticMember(assignOp.Target))
                 {
                     return;
                 }
@@ -192,16 +199,5 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return current is IMethodReferenceOperation methodRef && methodRef.Method.IsStatic;
         }
 
-        private static bool IsActionOrFunc(ITypeSymbol? type)
-        {
-            return type?.Name is "Action" or "Func"
-                && type.ContainingNamespace is INamespaceSymbol
-                {
-                    Name: "System", ContainingNamespace: INamespaceSymbol
-                    {
-                        IsGlobalNamespace: true,
-                    }
-                };
-        }
     }
 }

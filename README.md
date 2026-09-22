@@ -320,8 +320,9 @@ d = (new object()) as IDisposable;
 
 
 Analyzer won't show warning in the following condition:
-- instance is created on `return` statement
+- instance is created on `return` statement or arrow expression (`=>`)
     - `return new Disposable();`
+    - `() => new Disposable();`
 - assign instance to field or property
     - `m_field = new Disposable();`
 - cast between disposable types
@@ -567,7 +568,7 @@ if (pos >= 0)
 {
 }
 
-// Allowed: Left-hand side contains IndexOf access
+// Allowed: Left-hand side expression includes Index
 if ((pos = foo.IndexOf('a')) >= 0)
 {
 }
@@ -598,6 +599,10 @@ Once the main flow has started, exiting inside an incomplete branch (an `if` sta
 > An `if` statement (with or without an `else` clause) that is the last statement at the method root level or loop root level is exempted from this exit completeness check.
 
 ```cs
+// Methods starting with "Throw" can be called before the first if statement.
+ArgumentNullException.ThrowIfNull(first);
+ArgumentNullException.ThrowIfNull(second);
+
 if (!IsValid()) return;  // Early return is allowed.
 
 // Local declarations and up to 1 method call in early return block are allowed:
@@ -681,7 +686,7 @@ foreach (var item in items)
 Exiting non-locally from inside a loop (using `return`, `throw`, or `throw` expression) is prohibited (**SMA8032**). Use local exits such as `break`, `continue`, or `goto` instead to keep control flow clear and predictable.
 
 > [!NOTE]
-> `yield return` and `yield break` statements inside loops, as well as non-local exits inside local functions or lambdas declared within loops, are exempted. When a non-local exit is the last statement of control flow, non-local exits in loops followed by a `return` or `throw` statement, or loops that are the last statement of a method or loop root-level block, are also exempted.
+> `yield return` and `yield break` statements inside loops, as well as non-local exits inside local functions or lambdas declared within loops, are exempted. When a non-local exit is the last statement of control flow, non-local exits in loops followed by a `return` or `throw` statement, or loops that are the last statement of a method root block, are also exempted.
 
 ```cs
 for (int i = 0; i < items.Length; i++)

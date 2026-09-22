@@ -3,9 +3,9 @@ name: Benchmark
 on:
   push:
     branches: [ main ]
-    paths: [ "**/*BurstLinq*.cs" ]
+    paths: [ "**/*BurstLinq*.cs", "**/*Benchmark*.cs" ]
   pull_request:
-    paths: [ "**/*BurstLinq*.cs" ]
+    paths: [ "**/*BurstLinq*.cs", "**/*Benchmark*.cs" ]
   workflow_call:
   workflow_dispatch:
 

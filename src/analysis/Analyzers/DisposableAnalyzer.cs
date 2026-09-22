@@ -57,6 +57,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0042_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
+        public const string RuleId_CastFromDisposableToNonDisposable = "SMA0046";
+        private static readonly DiagnosticDescriptor Rule_CastFromDisposableToNonDisposable = new(
+            RuleId_CastFromDisposableToNonDisposable,
+            new LocalizableResourceString(nameof(Resources.SMA0046_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(DisposableAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0046_MessageFormat), Resources.ResourceManager, typeof(Resources)));
+
         #endregion
 
 
@@ -67,7 +77,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 #endif
             Rule_MissingUsing,
             Rule_NullAssignmentToDisposable,
-            Rule_NotAllCodePathsReturn
+            Rule_NotAllCodePathsReturn,
+            Rule_CastFromDisposableToNonDisposable
             );
 
 
@@ -124,6 +135,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (op.Type.SpecialType == SpecialType.System_Object &&
+                op.Parent is IArgumentOperation argOp &&
+                argOp.Parent is IInvocationOperation invocation &&
+                invocation.TargetMethod.Name == nameof(GC.SuppressFinalize) &&
+                invocation.TargetMethod.ContainingType is ITypeSymbol
+                {
+                    Name: nameof(GC), ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                        {
+                            IsGlobalNamespace: true
+                        }
+                    }
+                })
+            {
+                return;
+            }
+
             // Ignore conversions from null, as this is handled by AnalyzeSimpleAssignment.
             if (op.Operand.ConstantValue.HasValue && op.Operand.ConstantValue.Value == null)
             {
@@ -150,8 +179,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            var interlockedType = context.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName: "System.Threading.Interlocked");
-            if (interlockedType != null && SymbolEqualityComparer.Default.Equals(op.TargetMethod.ContainingType, interlockedType))
+            if (op.TargetMethod.ContainingType is ITypeSymbol
+                {
+                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            },
+                        },
+                    },
+                })
             {
                 return;
             }
@@ -576,8 +616,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     || (
                         parentOp is IReturnOperation ret &&
                         ret.Parent is IBlockOperation block &&
-                        block.Parent is IMethodBodyBaseOperation method &&
-                        method.ExpressionBody == block
+                        (
+                            (block.Parent is IMethodBodyBaseOperation method && method.ExpressionBody == block) ||
+                            block.Parent is IAnonymousFunctionOperation
+                        )
                     )
                 )
                 {
@@ -592,12 +634,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (!Core.IsSuppressedByComment(focusedOp, SuppressionComment))
                 {
-                    var reportType = IsDisposable(context, disposableSymbol)
-                        ? disposableSymbol
-                        : untrackedCastOperandType;
-
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Rule_MissingUsing, operation.Syntax.GetLocation(), reportType.ToDiagnosticMessageName()));
+                    if (IsDisposable(context, operation.Type))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            Rule_MissingUsing, operation.Syntax.GetLocation(), operation.Type.ToDiagnosticMessageName()));
+                    }
+                    else
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            Rule_CastFromDisposableToNonDisposable,
+                            operation.Syntax.GetLocation(),
+                            untrackedCastOperandType.ToDiagnosticMessageName(),
+                            operation.Type.ToDiagnosticMessageName()));
+                    }
                 }
 
                 return;
@@ -747,7 +796,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 // --> Method() => new Disposable();
                 // --> Method() { return new Disposable(); }
                 {
-                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax or YieldStatementSyntax)
+                    if (syntax.Parent is ArrowExpressionClauseSyntax or ReturnStatementSyntax or YieldStatementSyntax or LambdaExpressionSyntax)
                     {
                         return true;
                     }

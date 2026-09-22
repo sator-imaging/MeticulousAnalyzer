@@ -1,5 +1,69 @@
 # Changelog
 
+## [5.3.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.5) (2026-09-21)
+
+### 🚀 Features
+* feat: regex generator helper by [@sator-imaging](https://github.com/sator-imaging) in [#688](https://github.com/sator-imaging/MeticulousAnalyzer/pull/688)
+* Add exemption names `width`, `height`, `depth`, `size`, `capacity` to literal branch zero by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#689](https://github.com/sator-imaging/MeticulousAnalyzer/pull/689)
+### ✨ Bug Fixes
+* Fix `SMA7001` code fix for parenthesized static method references and `in`, `ref`, `out` modifiers by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#675](https://github.com/sator-imaging/MeticulousAnalyzer/pull/675)
+* Fix `SMA7001` to allow instance delegate assignments to non-static targets by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#686](https://github.com/sator-imaging/MeticulousAnalyzer/pull/686)
+* Disable CheckForOverflowUnderflow for RegexGen.g.cs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#693](https://github.com/sator-imaging/MeticulousAnalyzer/pull/693)
+* Wrap generated regex methods in unchecked blocks by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#696](https://github.com/sator-imaging/MeticulousAnalyzer/pull/696)
+### 📚 Other Changes
+* revert: #616 by [@sator-imaging](https://github.com/sator-imaging) in [#690](https://github.com/sator-imaging/MeticulousAnalyzer/pull/690)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.4...v5.3.0-rc.5
+
+
+## [5.3.0-rc.4](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.4) (2026-09-20)
+
+### 🚀 Features
+* Allow "GC.SuppressFinalize" in `DisposableAnalyzer` cast analysis by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#682](https://github.com/sator-imaging/MeticulousAnalyzer/pull/682)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.3...v5.3.0-rc.4
+
+
+## [5.3.0-rc.3](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.3) (2026-09-20)
+
+### 🚀 Features
+* perf: update IsMatchingMemberName benchmark with random strings by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#663](https://github.com/sator-imaging/MeticulousAnalyzer/pull/663)
+* perf: Use mixed search in IsMatchingMemberName based on string length by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#667](https://github.com/sator-imaging/MeticulousAnalyzer/pull/667)
+* Allow incomplete if statements in last try statement block by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#655](https://github.com/sator-imaging/MeticulousAnalyzer/pull/655)
+* perf: introduce accurate length based checks in IsMatchingMemberName_Mixed benchmark by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#668](https://github.com/sator-imaging/MeticulousAnalyzer/pull/668)
+* Add `SMA0046` diagnostic for cast from disposable to non-disposable by [@sator-imaging](https://github.com/sator-imaging) in [#680](https://github.com/sator-imaging/MeticulousAnalyzer/pull/680)
+### ✨ Bug Fixes
+* Fix "Throw" method calls in `MidFlowBranch` analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#662](https://github.com/sator-imaging/MeticulousAnalyzer/pull/662)
+* Fix SMA0020 false positive on assigning null or default to nullable enum types by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#673](https://github.com/sator-imaging/MeticulousAnalyzer/pull/673)
+* Fix SMA7001: allow null and default operations on delegate types by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#672](https://github.com/sator-imaging/MeticulousAnalyzer/pull/672)
+### 📚 Other Changes
+* Cache predicate as local variable in Linq_Where Enumerator by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#678](https://github.com/sator-imaging/MeticulousAnalyzer/pull/678)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.2...v5.3.0-rc.3
+
+
+## [5.3.0-rc.2](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.2) (2026-09-10)
+
+### 🚀 Features
+* Support locals/params for `SMA8021` zero exemption and update docs by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#646](https://github.com/sator-imaging/MeticulousAnalyzer/pull/646)
+* perf: Use compiled static Regex for IsMatchingMemberName in `LiteralBranchAnalyzer` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#652](https://github.com/sator-imaging/MeticulousAnalyzer/pull/652)
+* Allow static method calls starting with "Throw" in `MidFlowBranch` analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#658](https://github.com/sator-imaging/MeticulousAnalyzer/pull/658)
+### ✨ Bug Fixes
+* fix: `DisposableAnalyzer` arrow return for delegates/lambdas by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#654](https://github.com/sator-imaging/MeticulousAnalyzer/pull/654)
+* fix: Non-local exit in loop allowance to method root block only by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#653](https://github.com/sator-imaging/MeticulousAnalyzer/pull/653)
+### 📚 Other Changes
+* Update SMA0097 documentation in README files by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#647](https://github.com/sator-imaging/MeticulousAnalyzer/pull/647)
+* Optimize IsSystemPrimitiveNumber in ExplicitNumberDeclarationAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#648](https://github.com/sator-imaging/MeticulousAnalyzer/pull/648)
+* Add IsMatchingMemberName IndexOf vs compiled Regex benchmarks by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#651](https://github.com/sator-imaging/MeticulousAnalyzer/pull/651)
+* Eliminate GetTypeByMetadataName by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#659](https://github.com/sator-imaging/MeticulousAnalyzer/pull/659)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.1...v5.3.0-rc.2
+
+
 ## [5.3.0-rc.1](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.1) (2026-09-09)
 
 ### 🚀 Features
