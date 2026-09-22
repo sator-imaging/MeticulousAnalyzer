@@ -106,7 +106,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (method.Name == DisposeMethodName)
                 {
-                    if (method.Parameters.Length == 1 &&
+                    if (!method.IsStatic &&
+                        method.Arity == 0 &&
+                        method.Parameters.Length == 1 &&
                         method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
                     {
                         fullDisposeMethod = method;
@@ -114,6 +116,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
 
                     if (publicDisposeMethod == null &&
+                        !method.IsStatic &&
+                        method.Arity == 0 &&
                         method.Parameters.Length == 0 &&
                         method.DeclaredAccessibility == Accessibility.Public &&
                         method.ReturnType.SpecialType == SpecialType.System_Void)
@@ -197,7 +201,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (method.Name == DisposeAsyncCoreMethodName)
                 {
-                    if (method.Parameters.Length == 0 &&
+                    if (!method.IsStatic &&
+                        method.Arity == 0 &&
+                        method.Parameters.Length == 0 &&
                         (method.ReturnType.Name is "ValueTask" or "Task" || method.ReturnType.SpecialType == SpecialType.System_Void))
                     {
                         fullDisposeAsyncMethod = method;
@@ -208,7 +214,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (method.Name == DisposeAsyncMethodName)
                 {
                     if (publicDisposeAsyncMethod == null &&
-                        method.Parameters.Length == 0 &&
+                        !method.IsStatic &&
+                        method.Arity == 0 &&
                         method.DeclaredAccessibility == Accessibility.Public &&
                         (method.ReturnType.Name is "ValueTask" or "Task" || method.ReturnType.SpecialType == SpecialType.System_Void))
                     {

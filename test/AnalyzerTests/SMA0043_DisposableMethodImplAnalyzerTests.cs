@@ -443,5 +443,30 @@ class TestClass : IDisposable, IAsyncDisposable
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0043_IgnoreStaticOrGenericDisposeMethods()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+class {|#0:TestClass|}
+{
+    private MyDisposable _field = new MyDisposable();
+
+    public static void Dispose() {}
+    public void Dispose<T>() {}
+}";
+            var expectedMissingDispose = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass", "Dispose");
+            var expectedMissingInterface = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass", "IDisposable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedMissingDispose, expectedMissingInterface);
+        }
     }
 }

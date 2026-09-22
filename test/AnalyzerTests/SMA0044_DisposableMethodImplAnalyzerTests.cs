@@ -58,5 +58,36 @@ class {|#0:TestClass|}
                 .WithArguments("TestClass", "IAsyncDisposable");
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
+
+        [TestMethod]
+        public async Task SMA0044_IgnoreStaticOrGenericDisposeAsyncMethods()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class {|#0:TestClass|}
+{
+    private MyAsyncDisposable _field = new MyAsyncDisposable();
+
+    public static ValueTask DisposeAsync() => default;
+    public ValueTask DisposeAsync<T>() => default;
+    public static ValueTask DisposeAsyncCore() => default;
+    public ValueTask DisposeAsyncCore<T>() => default;
+}";
+            var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass", "DisposeAsync");
+            var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass", "IAsyncDisposable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
+        }
     }
 }
