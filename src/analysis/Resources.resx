@@ -286,7 +286,7 @@
     <value>Type '{0}' owns disposable members. Implement `{1}` interface</value>
   </data>
   <data name="SMA0045_Title" xml:space="preserve">
-    <value>Missing IDisposable Interface</value>
+    <value>Missing Disposable Interface</value>
   </data>
   <data name="SMA0046_MessageFormat" xml:space="preserve">
     <value>Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
