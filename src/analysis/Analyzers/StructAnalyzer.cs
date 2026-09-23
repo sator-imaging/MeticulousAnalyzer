@@ -298,8 +298,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             var location = GetRefReadonlySymbolReportLocation(context.Symbol);
-            if (location == null)
-                return;
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_RefReadonlyDefensiveCopy,
@@ -307,7 +305,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 returnType.ToDiagnosticMessageName()));
         }
 
-        private static Location? GetRefReadonlySymbolReportLocation(ISymbol symbol)
+        private static Location GetRefReadonlySymbolReportLocation(ISymbol symbol)
         {
             foreach (var refLoc in symbol.DeclaringSyntaxReferences)
             {
@@ -341,7 +339,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            return null;
+            return symbol.Locations.FirstOrDefault() ?? Location.None;
         }
     }
 }
