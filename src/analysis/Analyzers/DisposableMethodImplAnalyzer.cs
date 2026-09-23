@@ -111,8 +111,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 if (publicDisposeMethod == null &&
-                    IsDisposeMethod(method, isPublic: true) &&
-                    method.DeclaredAccessibility == Accessibility.Public)
+                    IsDisposeMethod(method, isPublic: true))
                 {
                     publicDisposeMethod = method;
                 }
@@ -197,8 +196,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 if (publicDisposeAsyncMethod == null &&
-                    IsAsyncDisposeMethod(method, isCore: false) &&
-                    method.DeclaredAccessibility == Accessibility.Public)
+                    IsAsyncDisposeMethod(method, isCore: false))
                 {
                     publicDisposeAsyncMethod = method;
                 }
@@ -420,7 +418,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (isPublic)
             {
-                return method.Parameters.Length == 0;
+                return method.DeclaredAccessibility == Accessibility.Public &&
+                       method.Parameters.Length == 0;
             }
 
             return method.Parameters.Length == 1 &&
@@ -433,6 +432,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                    !method.IsGenericMethod &&
                    method.Parameters.Length == 0 &&
                    method.Name == (isCore ? DisposeAsyncCoreMethodName : DisposeAsyncMethodName) &&
+                   (isCore || method.DeclaredAccessibility == Accessibility.Public) &&
                    method.ReturnType.Name == "ValueTask" &&
                    method.ReturnType is INamedTypeSymbol { Arity: 0 };
         }
