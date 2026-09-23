@@ -256,10 +256,10 @@
     <value>Non-Readonly Struct Passed as `in` Argument</value>
   </data>
   <data name="SMA0034_MessageFormat" xml:space="preserve">
-    <value>Accessing member on `ref readonly` variable of non-readonly struct '{0}' causes defensive copy</value>
+    <value>Declaring variable or return of non-readonly struct '{0}' as `ref readonly` causes defensive copy</value>
   </data>
   <data name="SMA0034_Title" xml:space="preserve">
-    <value>Defensive Copy on `ref readonly` Variable</value>
+    <value>Defensive Copy on `ref readonly` Variable or Return</value>
   </data>
   <data name="SMA0040__MD_TITLE__" xml:space="preserve">
     <value>Disposable Analysis</value>

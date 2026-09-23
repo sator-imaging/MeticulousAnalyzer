@@ -48,7 +48,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA0031 | Mutable Struct Field Marked as Read-Only                         | Mutable struct type '{0}' should not be set to `readonly` field
 | SMA0032 | Implicit Boxing Conversion                                       | Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [ Reason (optional) ]`
 | SMA0033 | Non-Readonly Struct Passed as `in` Argument                      | Passing non-readonly struct '{0}' as `in` argument causes defensive copy
-| SMA0034 | Defensive Copy on `ref readonly` Variable                        | Accessing member on `ref readonly` variable of non-readonly struct '{0}' causes defensive copy
+| SMA0034 | Defensive Copy on `ref readonly` Variable or Return              | Declaring variable or return of non-readonly struct '{0}' as `ref readonly` causes defensive copy
 
 ## Disposable Analysis
 
