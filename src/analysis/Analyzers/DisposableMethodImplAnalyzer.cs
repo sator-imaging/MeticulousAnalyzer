@@ -212,10 +212,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     }
                 }
 
-                if (method.Name == DisposeAsyncMethodName)
+                if (publicDisposeAsyncMethod == null &&
+                    method.Name == DisposeAsyncMethodName)
                 {
-                    if (publicDisposeAsyncMethod == null &&
-                        !method.IsStatic &&
+                    if (!method.IsStatic &&
                         !method.IsGenericMethod &&
                         method.Parameters.Length == 0 &&
                         method.DeclaredAccessibility == Accessibility.Public &&
