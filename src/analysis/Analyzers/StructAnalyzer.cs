@@ -7,6 +7,8 @@
 #endif
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
@@ -249,7 +251,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (type == null || type.TypeKind != TypeKind.Struct || type.IsReadOnly || Core.IsKnownImmutableType(type))
                 return;
 
-            var location = GetRefReadonlyLocation(local.DeclaringSyntaxReferences) ?? op.Syntax.GetLocation();
+            var location = GetRefReadonlyReportLocation(op) ?? op.Syntax.GetLocation();
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_RefReadonlyDefensiveCopy,
@@ -257,35 +259,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 type.ToDiagnosticMessageName()));
         }
 
-        private static Location? GetRefReadonlyLocation(ImmutableArray<SyntaxReference> syntaxReferences)
+        private static Location? GetRefReadonlyReportLocation(IVariableDeclaratorOperation localDeclarationOp)
         {
-            if (syntaxReferences.IsDefaultOrEmpty)
-                return null;
-
-            var syntaxNode = syntaxReferences[0].GetSyntax();
-            if (syntaxNode == null)
-                return null;
-
-            var current = syntaxNode;
-            for (int i = 0; i < 3 && current != null; i++)
+            if (localDeclarationOp.Symbol != null)
             {
-                foreach (var refType in current.DescendantNodesAndSelf().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.RefTypeSyntax>())
+                foreach (var refLoc in localDeclarationOp.Symbol.DeclaringSyntaxReferences)
                 {
-                    if (!refType.ReadOnlyKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.None))
+                    if (refLoc.GetSyntax()?.Parent is VariableDeclarationSyntax varDecl &&
+                        varDecl.Type is RefTypeSyntax refType &&
+                        !refType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
                     {
                         return refType.ReadOnlyKeyword.GetLocation();
                     }
                 }
+            }
 
-                foreach (var token in current.DescendantTokens())
-                {
-                    if (token.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.ReadOnlyKeyword))
-                    {
-                        return token.GetLocation();
-                    }
-                }
-
-                current = current.Parent;
+            if (localDeclarationOp.Syntax.Parent is VariableDeclarationSyntax decl &&
+                decl.Type is RefTypeSyntax refTypeSyntax &&
+                !refTypeSyntax.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+            {
+                return refTypeSyntax.ReadOnlyKeyword.GetLocation();
             }
 
             return null;
