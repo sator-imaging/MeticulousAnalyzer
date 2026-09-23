@@ -130,6 +130,8 @@ namespace Test
         public void Print() { }
     }
 
+    delegate ref readonly ReadOnlyS RefReadonlyDel();
+
     class Program
     {
         private ReadOnlyS _s;
@@ -139,6 +141,9 @@ namespace Test
         {
             ref readonly ReadOnlyS s = ref GetRef();
             s.Print();
+
+            ref readonly ReadOnlyS LocalGetRef() => ref _s;
+            LocalGetRef().Print();
         }
     }
 }
