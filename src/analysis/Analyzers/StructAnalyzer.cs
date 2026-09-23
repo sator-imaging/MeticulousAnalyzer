@@ -332,6 +332,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     return propRefType.ReadOnlyKeyword.GetLocation();
                 }
+
+                if (syntax is IndexerDeclarationSyntax indexerDecl &&
+                    indexerDecl.Type is RefTypeSyntax indexerRefType &&
+                    !indexerRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return indexerRefType.ReadOnlyKeyword.GetLocation();
+                }
             }
 
             return null;

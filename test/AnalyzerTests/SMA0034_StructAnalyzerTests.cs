@@ -48,6 +48,31 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0034_Violation_RefReadonlyIndexer()
+        {
+            var test = @"
+namespace Test
+{
+    struct S
+    {
+        public int X;
+    }
+
+    class Program
+    {
+        private S _s;
+        public ref {|#0:readonly|} S this[int index] => ref _s;
+    }
+}
+";
+
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("S");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0034_Compliant_RefReadonlyStructType()
         {
             var test = @"
