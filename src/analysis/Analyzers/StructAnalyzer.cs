@@ -251,7 +251,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (type == null || type.TypeKind != TypeKind.Struct || type.IsReadOnly || Core.IsKnownImmutableType(type))
                 return;
 
-            var location = GetRefReadonlyReportLocation(op) ?? op.Syntax.GetLocation();
+            var location = GetRefReadonlyReportLocation(op);
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_RefReadonlyDefensiveCopy,
@@ -259,29 +259,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 type.ToDiagnosticMessageName()));
         }
 
-        private static Location? GetRefReadonlyReportLocation(IVariableDeclaratorOperation localDeclarationOp)
+        private static Location GetRefReadonlyReportLocation(IVariableDeclaratorOperation localDeclarationOp)
         {
-            if (localDeclarationOp.Symbol != null)
+            if (localDeclarationOp.Syntax.Parent is VariableDeclarationSyntax varDecl &&
+                varDecl.Type is RefTypeSyntax refType &&
+                !refType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
             {
-                foreach (var refLoc in localDeclarationOp.Symbol.DeclaringSyntaxReferences)
-                {
-                    if (refLoc.GetSyntax()?.Parent is VariableDeclarationSyntax varDecl &&
-                        varDecl.Type is RefTypeSyntax refType &&
-                        !refType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
-                    {
-                        return refType.ReadOnlyKeyword.GetLocation();
-                    }
-                }
+                return refType.ReadOnlyKeyword.GetLocation();
             }
 
-            if (localDeclarationOp.Syntax.Parent is VariableDeclarationSyntax decl &&
-                decl.Type is RefTypeSyntax refTypeSyntax &&
-                !refTypeSyntax.ReadOnlyKeyword.IsKind(SyntaxKind.None))
-            {
-                return refTypeSyntax.ReadOnlyKeyword.GetLocation();
-            }
-
-            return null;
+            return localDeclarationOp.Syntax.GetLocation();
         }
     }
 }
