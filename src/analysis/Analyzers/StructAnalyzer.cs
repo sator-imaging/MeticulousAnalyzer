@@ -271,12 +271,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 foreach (var refType in current.DescendantNodesAndSelf().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.RefTypeSyntax>())
                 {
-                    if (!refType.RefKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.None) &&
-                        !refType.ReadOnlyKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.None))
+                    if (!refType.ReadOnlyKeyword.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.None))
                     {
-                        var start = refType.RefKeyword.SpanStart;
-                        var end = refType.ReadOnlyKeyword.Span.End;
-                        return Location.Create(current.SyntaxTree, Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(start, end));
+                        return refType.ReadOnlyKeyword.GetLocation();
+                    }
+                }
+
+                foreach (var token in current.DescendantTokens())
+                {
+                    if (token.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.ReadOnlyKeyword))
+                    {
+                        return token.GetLocation();
                     }
                 }
 

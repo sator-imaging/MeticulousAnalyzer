@@ -32,7 +32,7 @@ namespace Test
 
         void Method()
         {
-            {|#0:ref readonly|} S s = ref GetRef();
+            ref {|#0:readonly|} S s = ref GetRef();
         }
     }
 }
