@@ -7,6 +7,8 @@
 #endif
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
@@ -52,6 +54,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0032_MessageFormat), Resources.ResourceManager, typeof(Resources), "$type1", "$type2"));
 
+        public const string RuleId_InArgumentDefensiveCopy = "SMA0033";
+        private static readonly DiagnosticDescriptor Rule_InArgumentDefensiveCopy = new(
+            RuleId_InArgumentDefensiveCopy,
+            new LocalizableResourceString(nameof(Resources.SMA0033_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0033_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(StructAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0033_MessageFormat), Resources.ResourceManager, typeof(Resources), "$type"));
+
+        public const string RuleId_RefReadonlyDefensiveCopy = "SMA0034";
+        private static readonly DiagnosticDescriptor Rule_RefReadonlyDefensiveCopy = new(
+            RuleId_RefReadonlyDefensiveCopy,
+            new LocalizableResourceString(nameof(Resources.SMA0034_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0034_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(StructAnalyzer),
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0034_MessageFormat), Resources.ResourceManager, typeof(Resources), "$type"));
+
 
         #endregion
 
@@ -63,7 +85,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 #endif
             Rule_InvalidStructCtor,
             Rule_InvalidReadOnlyField,
-            Rule_ImplicitBoxing
+            Rule_ImplicitBoxing,
+            Rule_InArgumentDefensiveCopy,
+            Rule_RefReadonlyDefensiveCopy
             );
 
 
@@ -81,6 +105,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterSymbolAction(AnalyzeMutableStructField, SymbolKind.Field);
 
             context.RegisterOperationAction(AnalyzeImplicitBoxing, OperationKind.Conversion);
+
+            context.RegisterOperationAction(AnalyzeInArgumentDefensiveCopy, OperationKind.Argument);
+            context.RegisterOperationAction(AnalyzeRefReadonlyDefensiveCopy, OperationKind.VariableDeclarator);
+            context.RegisterSymbolAction(AnalyzeRefReadonlyReturnSymbol, SymbolKind.Method, SymbolKind.Property, SymbolKind.NamedType);
+            context.RegisterOperationAction(AnalyzeRefReadonlyLocalFunction, OperationKind.LocalFunction);
         }
 
 
@@ -181,6 +210,174 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     op.Operand.Type.ToDiagnosticMessageName(),
                     op.Type.ToDiagnosticMessageName()));
             }
+        }
+
+
+        /*  in argument defensive copy  ================================================================ */
+
+        private static void AnalyzeInArgumentDefensiveCopy(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IArgumentOperation op)
+                return;
+
+            if (op.Parameter == null || op.Parameter.RefKind != RefKind.In)
+                return;
+
+            var valueOp = op.Value;
+            if (valueOp == null)
+                return;
+
+            var type = valueOp.Type;
+            if (type == null || type.TypeKind != TypeKind.Struct || type.IsReadOnly || Core.IsKnownImmutableType(type))
+                return;
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_InArgumentDefensiveCopy,
+                valueOp.Syntax.GetLocation(),
+                type.ToDiagnosticMessageName()));
+        }
+
+
+        /*  ref readonly defensive copy  ================================================================ */
+
+        private static void AnalyzeRefReadonlyDefensiveCopy(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IVariableDeclaratorOperation op)
+                return;
+
+            var local = op.Symbol;
+            if (local == null || !local.IsRef || (local.RefKind != RefKind.RefReadOnly && local.RefKind != RefKind.In))
+                return;
+
+            var type = local.Type;
+            if (type == null || type.TypeKind != TypeKind.Struct || type.IsReadOnly || Core.IsKnownImmutableType(type))
+                return;
+
+            var location = GetRefReadonlyReportLocation(op);
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_RefReadonlyDefensiveCopy,
+                location,
+                type.ToDiagnosticMessageName()));
+        }
+
+        private static Location GetRefReadonlyReportLocation(IVariableDeclaratorOperation localDeclarationOp)
+        {
+            if (localDeclarationOp.Syntax.Parent is VariableDeclarationSyntax varDecl &&
+                varDecl.Type is RefTypeSyntax refType &&
+                !refType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+            {
+                return refType.ReadOnlyKeyword.GetLocation();
+            }
+
+            return localDeclarationOp.Syntax.GetLocation();
+        }
+
+        private static void AnalyzeRefReadonlyLocalFunction(OperationAnalysisContext context)
+        {
+            if (context.Operation is not ILocalFunctionOperation op)
+                return;
+
+            var methodSymbol = op.Symbol;
+            if (methodSymbol == null || (methodSymbol.RefKind != RefKind.RefReadOnly && methodSymbol.RefKind != RefKind.In))
+                return;
+
+            var returnType = methodSymbol.ReturnType;
+            if (returnType == null || returnType.TypeKind != TypeKind.Struct || returnType.IsReadOnly || Core.IsKnownImmutableType(returnType))
+                return;
+
+            var location = GetRefReadonlySymbolReportLocation(methodSymbol);
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_RefReadonlyDefensiveCopy,
+                location,
+                returnType.ToDiagnosticMessageName()));
+        }
+
+        private static void AnalyzeRefReadonlyReturnSymbol(SymbolAnalysisContext context)
+        {
+            ITypeSymbol? returnType = null;
+            RefKind refKind = RefKind.None;
+
+            if (context.Symbol is IMethodSymbol methodSymbol)
+            {
+                if (methodSymbol.MethodKind == MethodKind.PropertyGet || methodSymbol.MethodKind == MethodKind.PropertySet)
+                    return;
+
+                refKind = methodSymbol.RefKind;
+                returnType = methodSymbol.ReturnType;
+            }
+            else if (context.Symbol is IPropertySymbol propSymbol)
+            {
+                refKind = propSymbol.RefKind;
+                returnType = propSymbol.Type;
+            }
+            else if (context.Symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeKind == TypeKind.Delegate)
+            {
+                var invokeMethod = namedTypeSymbol.DelegateInvokeMethod;
+                if (invokeMethod != null)
+                {
+                    refKind = invokeMethod.RefKind;
+                    returnType = invokeMethod.ReturnType;
+                }
+            }
+
+            if (refKind != RefKind.RefReadOnly && refKind != RefKind.In)
+                return;
+
+            if (returnType == null || returnType.TypeKind != TypeKind.Struct || returnType.IsReadOnly || Core.IsKnownImmutableType(returnType))
+                return;
+
+            var location = GetRefReadonlySymbolReportLocation(context.Symbol);
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_RefReadonlyDefensiveCopy,
+                location,
+                returnType.ToDiagnosticMessageName()));
+        }
+
+        private static Location GetRefReadonlySymbolReportLocation(ISymbol symbol)
+        {
+            foreach (var refLoc in symbol.DeclaringSyntaxReferences)
+            {
+                var syntax = refLoc.GetSyntax();
+                if (syntax is MethodDeclarationSyntax methodDecl &&
+                    methodDecl.ReturnType is RefTypeSyntax methodRefType &&
+                    !methodRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return methodRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is LocalFunctionStatementSyntax localFuncDecl &&
+                    localFuncDecl.ReturnType is RefTypeSyntax localFuncRefType &&
+                    !localFuncRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return localFuncRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is PropertyDeclarationSyntax propDecl &&
+                    propDecl.Type is RefTypeSyntax propRefType &&
+                    !propRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return propRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is IndexerDeclarationSyntax indexerDecl &&
+                    indexerDecl.Type is RefTypeSyntax indexerRefType &&
+                    !indexerRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return indexerRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is DelegateDeclarationSyntax delegateDecl &&
+                    delegateDecl.ReturnType is RefTypeSyntax delegateRefType &&
+                    !delegateRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return delegateRefType.ReadOnlyKeyword.GetLocation();
+                }
+            }
+
+            return symbol.Locations.FirstOrDefault() ?? Location.None;
         }
     }
 }

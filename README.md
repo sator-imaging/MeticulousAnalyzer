@@ -793,6 +793,8 @@ Analyze the use of `struct` types to prevent common mistakes and performance pit
 - **SMA0030**: The constructor is declared explicitly, so the parameterless constructor should not be used.
 - **SMA0031**: Mutable struct type should not be set to `readonly` field.
 - **SMA0032**: Implicit conversion from struct to reference type (including interface) causes boxing. Note that explicit casts are exempt from this analysis.
+- **SMA0033**: Passing non-readonly struct as `in` argument causes defensive copy.
+- **SMA0034**: Declaring non-readonly struct variable or return as `ref readonly` causes defensive copy.
 
 > [!TIP]
 > You can suppress implicit boxing analysis (SMA0032) by comment `// Allow boxing`; See [Suppression Comment](#suppression-comment) section for detail.
