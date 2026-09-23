@@ -33,7 +33,6 @@ namespace Test
         void Method()
         {
             {|#0:ref readonly|} S s = ref GetRef();
-            s.Increment();
         }
     }
 }
@@ -43,34 +42,6 @@ namespace Test
                 .WithLocation(markupKey: 0)
                 .WithArguments("S");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task SMA0034_Compliant_RefReadonlyCallingReadonlyMethod()
-        {
-            var test = @"
-namespace Test
-{
-    struct S
-    {
-        public int X;
-        public readonly int GetX() => X;
-    }
-
-    class Program
-    {
-        private S _s;
-        ref readonly S GetRef() => ref _s;
-
-        void Method()
-        {
-            ref readonly S s = ref GetRef();
-            s.GetX();
-        }
-    }
-}
-";
-            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

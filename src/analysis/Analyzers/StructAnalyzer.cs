@@ -105,7 +105,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterOperationAction(AnalyzeImplicitBoxing, OperationKind.Conversion);
 
             context.RegisterOperationAction(AnalyzeInArgumentDefensiveCopy, OperationKind.Argument);
-            context.RegisterOperationAction(AnalyzeRefReadonlyDefensiveCopy, OperationKind.Invocation, OperationKind.PropertyReference);
+            context.RegisterOperationAction(AnalyzeRefReadonlyDefensiveCopy, OperationKind.VariableDeclarator);
         }
 
 
@@ -238,100 +238,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeRefReadonlyDefensiveCopy(OperationAnalysisContext context)
         {
-            IOperation? instanceOp = null;
-
-            if (context.Operation is IInvocationOperation invocation)
-            {
-                if (invocation.TargetMethod == null || invocation.TargetMethod.IsStatic || invocation.TargetMethod.IsReadOnly)
-                    return;
-
-                instanceOp = invocation.Instance;
-            }
-            else if (context.Operation is IPropertyReferenceOperation propRef)
-            {
-                if (propRef.Property == null || propRef.Property.IsStatic)
-                    return;
-
-                var getter = propRef.Property.GetMethod;
-                if (getter != null && getter.IsReadOnly)
-                    return;
-
-                instanceOp = propRef.Instance;
-            }
-
-            if (instanceOp == null)
+            if (context.Operation is not IVariableDeclaratorOperation op)
                 return;
 
-            instanceOp = instanceOp.UnwrapConversion();
-            var type = instanceOp.Type;
+            var local = op.Symbol;
+            if (local == null || !local.IsRef || (local.RefKind != RefKind.RefReadOnly && local.RefKind != RefKind.In))
+                return;
 
+            var type = local.Type;
             if (type == null || type.TypeKind != TypeKind.Struct || type.IsReadOnly || Core.IsKnownImmutableType(type))
                 return;
 
-            if (!IsRefReadonlyReference(instanceOp, context.ContainingSymbol, out var location))
-                return;
+            var location = GetRefReadonlyLocation(local.DeclaringSyntaxReferences) ?? op.Syntax.GetLocation();
 
             context.ReportDiagnostic(Diagnostic.Create(
                 Rule_RefReadonlyDefensiveCopy,
                 location,
                 type.ToDiagnosticMessageName()));
-        }
-
-        private static bool IsRefReadonlyReference(IOperation instanceOp, ISymbol containingSymbol, out Location location)
-        {
-            location = instanceOp.Syntax.GetLocation();
-
-            if (instanceOp is ILocalReferenceOperation localRef)
-            {
-                var local = localRef.Local;
-                if (local != null && local.IsRef && (local.RefKind == RefKind.RefReadOnly || local.RefKind == RefKind.In))
-                {
-                    location = GetRefReadonlyLocation(local.DeclaringSyntaxReferences) ?? location;
-                    return true;
-                }
-            }
-            else if (instanceOp is IParameterReferenceOperation paramRef)
-            {
-                var param = paramRef.Parameter;
-                if (param != null && (param.RefKind == RefKind.RefReadOnly || param.RefKind == RefKind.In))
-                {
-                    location = GetRefReadonlyLocation(param.DeclaringSyntaxReferences) ?? location;
-                    return true;
-                }
-            }
-            else if (instanceOp is IInvocationOperation methodCall)
-            {
-                if (methodCall.TargetMethod != null && (methodCall.TargetMethod.RefKind == RefKind.RefReadOnly || methodCall.TargetMethod.RefKind == RefKind.In))
-                {
-                    location = GetRefReadonlyLocation(methodCall.TargetMethod.DeclaringSyntaxReferences) ?? location;
-                    return true;
-                }
-            }
-            else if (instanceOp is IPropertyReferenceOperation propRef)
-            {
-                if (propRef.Property != null && (propRef.Property.RefKind == RefKind.RefReadOnly || propRef.Property.RefKind == RefKind.In))
-                {
-                    location = GetRefReadonlyLocation(propRef.Property.DeclaringSyntaxReferences) ?? location;
-                    return true;
-                }
-            }
-            else if (instanceOp is IFieldReferenceOperation fieldRef)
-            {
-                if (fieldRef.Field != null && fieldRef.Field.IsReadOnly)
-                {
-                    location = GetRefReadonlyLocation(fieldRef.Field.DeclaringSyntaxReferences) ?? location;
-                    return true;
-                }
-            }
-            else if (instanceOp is IInstanceReferenceOperation)
-            {
-                if (containingSymbol is IMethodSymbol containingMethod && containingMethod.IsReadOnly)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static Location? GetRefReadonlyLocation(ImmutableArray<SyntaxReference> syntaxReferences)
