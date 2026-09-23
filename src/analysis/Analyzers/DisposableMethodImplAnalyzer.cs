@@ -104,26 +104,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (method.Name == DisposeMethodName)
+                if (IsDisposeMethod(method, isPublic: false))
                 {
-                    if (!method.IsStatic &&
-                        !method.IsGenericMethod &&
-                        method.ReturnType.SpecialType == SpecialType.System_Void)
-                    {
-                        if (method.Parameters.Length == 1 &&
-                            method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
-                        {
-                            fullDisposeMethod = method;
-                            break;
-                        }
+                    fullDisposeMethod = method;
+                    break;
+                }
 
-                        if (publicDisposeMethod == null &&
-                            method.Parameters.Length == 0 &&
-                            method.DeclaredAccessibility == Accessibility.Public)
-                        {
-                            publicDisposeMethod = method;
-                        }
-                    }
+                if (publicDisposeMethod == null &&
+                    IsDisposeMethod(method, isPublic: true) &&
+                    method.DeclaredAccessibility == Accessibility.Public)
+                {
+                    publicDisposeMethod = method;
                 }
 
                 if (explicitImplMethod == null &&
@@ -199,31 +190,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (method.Name == DisposeAsyncCoreMethodName)
+                if (IsAsyncDisposeMethod(method, isCore: true))
                 {
-                    if (!method.IsStatic &&
-                        !method.IsGenericMethod &&
-                        method.Parameters.Length == 0 &&
-                        method.ReturnType.Name == "ValueTask" &&
-                        method.ReturnType is INamedTypeSymbol { Arity: 0 })
-                    {
-                        fullDisposeAsyncMethod = method;
-                        break;
-                    }
+                    fullDisposeAsyncMethod = method;
+                    break;
                 }
 
                 if (publicDisposeAsyncMethod == null &&
-                    method.Name == DisposeAsyncMethodName)
+                    IsAsyncDisposeMethod(method, isCore: false) &&
+                    method.DeclaredAccessibility == Accessibility.Public)
                 {
-                    if (!method.IsStatic &&
-                        !method.IsGenericMethod &&
-                        method.Parameters.Length == 0 &&
-                        method.DeclaredAccessibility == Accessibility.Public &&
-                        method.ReturnType.Name == "ValueTask" &&
-                        method.ReturnType is INamedTypeSymbol { Arity: 0 })
-                    {
-                        publicDisposeAsyncMethod = method;
-                    }
+                    publicDisposeAsyncMethod = method;
                 }
 
                 if (explicitImplMethod == null &&
@@ -413,26 +390,51 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsDisposeCall(IMethodSymbol method)
         {
-            return !method.IsStatic
-                && !method.IsGenericMethod
-                && method.Name == DisposeMethodName
-                && method.Parameters.Length == 0
-                && method.ReturnType.SpecialType == SpecialType.System_Void;
+            return IsDisposeMethod(method, isPublic: true);
         }
 
         private static bool IsDisposeOrDisposeAsyncCall(IMethodSymbol method)
         {
-            if (method.Name == DisposeMethodName && method.Parameters.Length == 0)
+            if (IsDisposeMethod(method, isPublic: true))
             {
                 return IsDisposable(method.ContainingType);
             }
 
-            if (method.Name == DisposeAsyncMethodName && method.Parameters.Length == 0)
+            if (IsAsyncDisposeMethod(method, isCore: false))
             {
                 return IsAsyncDisposable(method.ContainingType);
             }
 
             return false;
+        }
+
+        private static bool IsDisposeMethod(IMethodSymbol method, bool isPublic)
+        {
+            if (method.IsStatic ||
+                method.IsGenericMethod ||
+                method.Name != DisposeMethodName ||
+                method.ReturnType.SpecialType != SpecialType.System_Void)
+            {
+                return false;
+            }
+
+            if (isPublic)
+            {
+                return method.Parameters.Length == 0;
+            }
+
+            return method.Parameters.Length == 1 &&
+                   method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean;
+        }
+
+        private static bool IsAsyncDisposeMethod(IMethodSymbol method, bool isCore)
+        {
+            return !method.IsStatic &&
+                   !method.IsGenericMethod &&
+                   method.Parameters.Length == 0 &&
+                   method.Name == (isCore ? DisposeAsyncCoreMethodName : DisposeAsyncMethodName) &&
+                   method.ReturnType.Name == "ValueTask" &&
+                   method.ReturnType is INamedTypeSymbol { Arity: 0 };
         }
 
         private static HashSet<ISymbol>? GetDisposableMembers(INamedTypeSymbol typeSymbol)
