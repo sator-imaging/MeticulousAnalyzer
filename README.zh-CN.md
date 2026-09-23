@@ -793,8 +793,8 @@ namespace Foo.Bar
 - **SMA0030**: 已经显式声明了构造函数，因此不应使用无参构造函数。
 - **SMA0031**: 不应将可变结构体类型设置为 `readonly` 字段。
 - **SMA0032**: 从结构体到引用类型（包括接口）的隐式转换会引起装箱（boxing）。注意，显式转换（explicit cast）不在此分析范围内。
-- **SMA0033**: 将非 `readonly` 结构体作为 `in` 参数传递会导致防御性复制（Defensive Copy）。
-- **SMA0034**: 将非 `readonly` 结构体变量或返回值声明为 `ref readonly` 会导致防御性复制（Defensive Copy）。
+- **SMA0033**: 将非 `readonly` 结构体作为 `in` 参数传递会导致防御性复制。
+- **SMA0034**: 将非 `readonly` 结构体变量或返回值声明为 `ref readonly` 会导致防御性复制。
 
 > [!TIP]
 > 可以通过注释 `// Allow boxing` 来抑制隐式装箱分析（SMA0032）；详见 [通过注释抑制](#通过注释抑制) 章节。
