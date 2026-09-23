@@ -106,6 +106,8 @@ namespace Test
         public readonly int X;
     }
 
+    delegate void InDelegate(in ReadOnlyStruct s);
+
     class Program
     {
         void Process(in ReadOnlyStruct s) { }
@@ -114,6 +116,12 @@ namespace Test
         {
             var s = new ReadOnlyStruct();
             Process(s);
+
+            void LocalFunc(in ReadOnlyStruct arg) { }
+            LocalFunc(s);
+
+            InDelegate del = (in ReadOnlyStruct arg) => { };
+            del(s);
         }
     }
 }
