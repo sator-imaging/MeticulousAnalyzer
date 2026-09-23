@@ -62,14 +62,18 @@ namespace Test
         void Method()
         {
             ref {|#0:readonly|} S LocalGetRef() => ref _s;
+            ref {|#1:readonly|} S s = ref LocalGetRef();
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("S");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected1 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("S");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
@@ -84,13 +88,23 @@ namespace Test
 
     class Program
     {
+        private S _s;
+
+        void Method()
+        {
+            RefReadonlyDelegate del = () => ref _s;
+            ref {|#1:readonly|} S s = ref del();
+        }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("S");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected1 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("S");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
