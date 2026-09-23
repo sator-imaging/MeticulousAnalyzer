@@ -28,20 +28,23 @@ namespace Test
     class Program
     {
         private S _s;
-        ref readonly S GetRef() => ref _s;
+        ref {|#0:readonly|} S GetRef() => ref _s;
 
         void Method()
         {
-            ref {|#0:readonly|} S s = ref GetRef();
+            ref {|#1:readonly|} S s = ref GetRef();
         }
     }
 }
 ";
 
-            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+            var expected0 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("S");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected1 = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("S");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]

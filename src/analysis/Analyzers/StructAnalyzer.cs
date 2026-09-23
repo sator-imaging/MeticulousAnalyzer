@@ -108,6 +108,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             context.RegisterOperationAction(AnalyzeInArgumentDefensiveCopy, OperationKind.Argument);
             context.RegisterOperationAction(AnalyzeRefReadonlyDefensiveCopy, OperationKind.VariableDeclarator);
+            context.RegisterSymbolAction(AnalyzeRefReadonlyReturnSymbol, SymbolKind.Method, SymbolKind.Property);
         }
 
 
@@ -269,6 +270,71 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             return localDeclarationOp.Syntax.GetLocation();
+        }
+
+        private static void AnalyzeRefReadonlyReturnSymbol(SymbolAnalysisContext context)
+        {
+            ITypeSymbol? returnType = null;
+            RefKind refKind = RefKind.None;
+
+            if (context.Symbol is IMethodSymbol methodSymbol)
+            {
+                if (methodSymbol.MethodKind == MethodKind.PropertyGet || methodSymbol.MethodKind == MethodKind.PropertySet)
+                    return;
+
+                refKind = methodSymbol.RefKind;
+                returnType = methodSymbol.ReturnType;
+            }
+            else if (context.Symbol is IPropertySymbol propSymbol)
+            {
+                refKind = propSymbol.RefKind;
+                returnType = propSymbol.Type;
+            }
+
+            if (refKind != RefKind.RefReadOnly && refKind != RefKind.In)
+                return;
+
+            if (returnType == null || returnType.TypeKind != TypeKind.Struct || returnType.IsReadOnly || Core.IsKnownImmutableType(returnType))
+                return;
+
+            var location = GetRefReadonlySymbolReportLocation(context.Symbol);
+            if (location == null)
+                return;
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_RefReadonlyDefensiveCopy,
+                location,
+                returnType.ToDiagnosticMessageName()));
+        }
+
+        private static Location? GetRefReadonlySymbolReportLocation(ISymbol symbol)
+        {
+            foreach (var refLoc in symbol.DeclaringSyntaxReferences)
+            {
+                var syntax = refLoc.GetSyntax();
+                if (syntax is MethodDeclarationSyntax methodDecl &&
+                    methodDecl.ReturnType is RefTypeSyntax methodRefType &&
+                    !methodRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return methodRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is LocalFunctionStatementSyntax localFuncDecl &&
+                    localFuncDecl.ReturnType is RefTypeSyntax localFuncRefType &&
+                    !localFuncRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return localFuncRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is PropertyDeclarationSyntax propDecl &&
+                    propDecl.Type is RefTypeSyntax propRefType &&
+                    !propRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return propRefType.ReadOnlyKeyword.GetLocation();
+                }
+            }
+
+            return null;
         }
     }
 }
