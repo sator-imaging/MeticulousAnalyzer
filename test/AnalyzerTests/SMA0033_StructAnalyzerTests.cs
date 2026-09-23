@@ -44,6 +44,58 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0033_Violation_LocalFunctionInArgument()
+        {
+            var test = @"
+namespace Test
+{
+    struct MutableStruct { public int X; }
+
+    class Program
+    {
+        void Method()
+        {
+            var s = new MutableStruct();
+            void LocalFunc(in MutableStruct arg) { }
+            LocalFunc({|#0:s|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InArgumentDefensiveCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MutableStruct");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0033_Violation_DelegateInArgument()
+        {
+            var test = @"
+namespace Test
+{
+    struct MutableStruct { public int X; }
+
+    delegate void InDelegate(in MutableStruct arg);
+
+    class Program
+    {
+        void Method()
+        {
+            var s = new MutableStruct();
+            InDelegate del = (in MutableStruct arg) => { };
+            del({|#0:s|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_InArgumentDefensiveCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MutableStruct");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0033_Compliant_PassingReadonlyStructAsInArgument()
         {
             var test = @"

@@ -108,7 +108,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             context.RegisterOperationAction(AnalyzeInArgumentDefensiveCopy, OperationKind.Argument);
             context.RegisterOperationAction(AnalyzeRefReadonlyDefensiveCopy, OperationKind.VariableDeclarator);
-            context.RegisterSymbolAction(AnalyzeRefReadonlyReturnSymbol, SymbolKind.Method, SymbolKind.Property);
+            context.RegisterSymbolAction(AnalyzeRefReadonlyReturnSymbol, SymbolKind.Method, SymbolKind.Property, SymbolKind.NamedType);
+            context.RegisterOperationAction(AnalyzeRefReadonlyLocalFunction, OperationKind.LocalFunction);
         }
 
 
@@ -272,6 +273,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return localDeclarationOp.Syntax.GetLocation();
         }
 
+        private static void AnalyzeRefReadonlyLocalFunction(OperationAnalysisContext context)
+        {
+            if (context.Operation is not ILocalFunctionOperation op)
+                return;
+
+            var methodSymbol = op.Symbol;
+            if (methodSymbol == null || (methodSymbol.RefKind != RefKind.RefReadOnly && methodSymbol.RefKind != RefKind.In))
+                return;
+
+            var returnType = methodSymbol.ReturnType;
+            if (returnType == null || returnType.TypeKind != TypeKind.Struct || returnType.IsReadOnly || Core.IsKnownImmutableType(returnType))
+                return;
+
+            var location = GetRefReadonlySymbolReportLocation(methodSymbol);
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Rule_RefReadonlyDefensiveCopy,
+                location,
+                returnType.ToDiagnosticMessageName()));
+        }
+
         private static void AnalyzeRefReadonlyReturnSymbol(SymbolAnalysisContext context)
         {
             ITypeSymbol? returnType = null;
@@ -289,6 +311,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 refKind = propSymbol.RefKind;
                 returnType = propSymbol.Type;
+            }
+            else if (context.Symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeKind == TypeKind.Delegate)
+            {
+                var invokeMethod = namedTypeSymbol.DelegateInvokeMethod;
+                if (invokeMethod != null)
+                {
+                    refKind = invokeMethod.RefKind;
+                    returnType = invokeMethod.ReturnType;
+                }
             }
 
             if (refKind != RefKind.RefReadOnly && refKind != RefKind.In)
@@ -336,6 +367,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     !indexerRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
                 {
                     return indexerRefType.ReadOnlyKeyword.GetLocation();
+                }
+
+                if (syntax is DelegateDeclarationSyntax delegateDecl &&
+                    delegateDecl.ReturnType is RefTypeSyntax delegateRefType &&
+                    !delegateRefType.ReadOnlyKeyword.IsKind(SyntaxKind.None))
+                {
+                    return delegateRefType.ReadOnlyKeyword.GetLocation();
                 }
             }
 

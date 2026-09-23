@@ -48,6 +48,52 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0034_Violation_LocalFunctionRefReadonlyReturn()
+        {
+            var test = @"
+namespace Test
+{
+    struct S { public int X; }
+
+    class Program
+    {
+        private S _s;
+
+        void Method()
+        {
+            ref {|#0:readonly|} S LocalGetRef() => ref _s;
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("S");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0034_Violation_DelegateRefReadonlyReturn()
+        {
+            var test = @"
+namespace Test
+{
+    struct S { public int X; }
+
+    delegate ref {|#0:readonly|} S RefReadonlyDelegate();
+
+    class Program
+    {
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(StructAnalyzer.RuleId_RefReadonlyDefensiveCopy)
+                .WithLocation(markupKey: 0)
+                .WithArguments("S");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA0034_Violation_RefReadonlyIndexer()
         {
             var test = @"
