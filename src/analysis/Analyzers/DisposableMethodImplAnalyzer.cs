@@ -357,7 +357,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         continue;
                     }
 
-                    if (invocation.TargetMethod.Name == DisposeMethodName)
+                    if (IsDisposeCall(invocation.TargetMethod))
                     {
                         var inst = (instance ?? invocation.Instance)?.UnwrapConversion();
                         if (inst == null || inst is IInstanceReferenceOperation)
@@ -413,7 +413,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsDisposeCall(IMethodSymbol method)
         {
-            return method.Name == DisposeMethodName
+            return !method.IsStatic
+                && !method.IsGenericMethod
+                && method.Name == DisposeMethodName
                 && method.Parameters.Length == 0
                 && method.ReturnType.SpecialType == SpecialType.System_Void;
         }

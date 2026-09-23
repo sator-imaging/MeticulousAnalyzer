@@ -443,5 +443,63 @@ class TestClass : IDisposable, IAsyncDisposable
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_StaticDispose_DoesNotClearDisposableMembers()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IAsyncDisposable
+{
+    private MyAsyncDisposable {|#0:_field|} = new MyAsyncDisposable();
+
+    public static void Dispose() { }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+    }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_field", "DisposeAsync");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0043_AsyncDisposable_GenericDispose_DoesNotClearDisposableMembers()
+        {
+            var test = @"
+using System;
+using System.Threading.Tasks;
+
+class MyAsyncDisposable : IAsyncDisposable
+{
+    public ValueTask DisposeAsync() => default;
+}
+
+class TestClass : IAsyncDisposable
+{
+    private MyAsyncDisposable {|#0:_field|} = new MyAsyncDisposable();
+
+    public void Dispose<T>() { }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose<int>();
+    }
+}";
+            var expected = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_UndisposedMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("_field", "DisposeAsync");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
