@@ -433,8 +433,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                    method.Parameters.Length == 0 &&
                    method.Name == (isCore ? DisposeAsyncCoreMethodName : DisposeAsyncMethodName) &&
                    (isCore || method.DeclaredAccessibility == Accessibility.Public) &&
-                   method.ReturnType.Name == "ValueTask" &&
-                   method.ReturnType is INamedTypeSymbol { Arity: 0 };
+                   method.ReturnType is INamedTypeSymbol
+                   {
+                       Name: "ValueTask",
+                       Arity: 0,
+                       ContainingNamespace:
+                       {
+                           Name: "Tasks",
+                           ContainingNamespace:
+                           {
+                               Name: "Threading",
+                               ContainingNamespace:
+                               {
+                                   Name: "System",
+                                   ContainingNamespace: { IsGlobalNamespace: true }
+                               }
+                           }
+                       }
+                   };
         }
 
         private static HashSet<ISymbol>? GetDisposableMembers(INamedTypeSymbol typeSymbol)
