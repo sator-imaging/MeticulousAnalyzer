@@ -75,5 +75,28 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
+
+        [TestMethod]
+        public async Task SMA0093_Violation_CloneMethodDoesNotExemptReferenceTypes()
+        {
+            var test = @"
+namespace Test
+{
+    class {|#0:MoveOnlyClass|}
+    {
+        public MoveOnlyClass Clone() => {|#1:this|};
+    }
+}
+";
+
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_InvalidTypeDeclaration)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyClass");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyClass");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+        }
     }
 }
