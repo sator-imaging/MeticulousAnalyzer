@@ -149,5 +149,24 @@ class Program
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
         }
+
+        [TestMethod]
+        public async Task SMA0097_Compliant_RefReadonlyReturn_StatementAndArrow()
+        {
+            var test = MoveOnlyType + @"
+class Program
+{
+    private MoveOnlyStruct _item;
+
+    ref readonly MoveOnlyStruct Statement()
+    {
+        return ref _item;
+    }
+
+    ref readonly MoveOnlyStruct Arrow() => ref _item;
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
