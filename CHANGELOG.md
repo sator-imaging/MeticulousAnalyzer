@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.3.0-rc.6](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.6) (2026-09-28)
+
+### 📚 Other Changes
+* Refactor collection instantiations to use delayed initialization by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#633](https://github.com/sator-imaging/MeticulousAnalyzer/pull/633)
+* Update MidFlowAnalyzer (SMA8030) message format by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#706](https://github.com/sator-imaging/MeticulousAnalyzer/pull/706)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.5...v5.3.0-rc.6
+
+
 ## [5.3.0-rc.5](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.5) (2026-09-21)
 
 ### 🚀 Features
