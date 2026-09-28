@@ -532,7 +532,7 @@
     <value>Literal Branch Char</value>
   </data>
   <data name="SMA8030_MessageFormat" xml:space="preserve">
-    <value>Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue` in the middle of the main control flow. Instead, use a complete `if-else` statements without, or with exits in all code paths, or extract methods to clarify the control flow. If `if-only` statement is not detected as early exit block unexpectedly, add marker comment before `if` keyword to avoid error: `// Early exit [ Description (optional) ]`</value>
+    <value>This is a code formatting issue rather than a behavioral error. Omitting `else` clauses makes control flow less readable. Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue`, in the middle of the main control flow. Instead, use complete `if-else` statements without exit statements, or ensure exiting in all code paths, or extract methods including the `if` statement itself (not just its body) to clarify the control flow. If an `if-only` statement is not detected as an early exit block unexpectedly, add a marker comment before the `if` keyword to avoid error: `// Early exit [ Description (optional) ]`</value>
   </data>
   <data name="SMA8030_Title" xml:space="preserve">
     <value>Incomplete Mid-Flow Branch</value>
