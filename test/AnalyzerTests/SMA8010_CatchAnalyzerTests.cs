@@ -303,5 +303,61 @@ class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8010_Violation_CatchWithWhen()
+        {
+            var test = @"
+using System;
+class C
+{
+    bool Filter() => true;
+    void M()
+    {
+        try { }
+        {|#0:catch|} (ArgumentException ex) when (Filter()) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchWithoutThrow).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_CatchWithWhen_Throw()
+        {
+            var test = @"
+using System;
+class C
+{
+    bool Filter() => true;
+    void M()
+    {
+        try { }
+        catch (ArgumentException ex) when (Filter())
+        {
+            throw;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8010_Compliant_CatchWithWhen_Suppressed()
+        {
+            var test = @"
+using System;
+class C
+{
+    bool Filter() => true;
+    void M()
+    {
+        try { }
+        // Ignore exception: Reason here
+        catch (ArgumentException ex) when (Filter()) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
