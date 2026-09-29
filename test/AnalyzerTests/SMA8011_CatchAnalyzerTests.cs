@@ -82,7 +82,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8011_Violation_Suppression_NotAllowed()
+        public async Task SMA8011_Compliant_SuppressionWithReason()
         {
             var test = @"
 using System;
@@ -91,21 +91,19 @@ class C
     void M()
     {
         try { }
-        // Ignore exception: catch-all cannot be suppressed
-        {|#0:catch|} { }
+        // Ignore exception: catch-all allowed with reason
+        catch { }
 
         try { }
-        // Ignore exception: catch(Exception) cannot be suppressed
-        {|#1:catch|} (Exception) { }
+        // Ignore exception: catch(Exception) allowed with reason
+        catch (Exception) { }
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task SMA8011_Violation_3Pair_Suppression()
+        public async Task SMA8011_Compliant_3Pair_Suppression()
         {
             var test = @"
 using System;
@@ -114,21 +112,19 @@ class C
     void M()
     {
         try { }
-        // Ignore exception: catch-all cannot be suppressed
-        {|#0:catch|} { }
+        // Ignore exception: catch-all allowed with reason
+        catch { }
 
         try { }
-        // Ignore exception: catch(Exception) cannot be suppressed
-        {|#1:catch|} (Exception) { }
+        // Ignore exception: catch(Exception) allowed with reason
+        catch (Exception) { }
 
         try { }
         // Ignore exception: catch(ArgumentException) CAN be suppressed
         catch (ArgumentException) { }
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -382,7 +378,7 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8011_Violation_Suppression_VariableDeclaration_NotAllowed()
+        public async Task SMA8011_Compliant_Suppression_VariableDeclaration()
         {
             var test = @"
 using System;
@@ -391,12 +387,81 @@ class C
     void M()
     {
         try { }
-        // Ignore exception: catch(Exception error) cannot be suppressed
-        {|#0:catch|} (Exception error) { }
+        // Ignore exception: catch(Exception error) allowed with reason
+        catch (Exception error) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8011_Violation_CatchWithWhen()
+        {
+            var test = @"
+using System;
+class C
+{
+    bool Filter() => true;
+    void M()
+    {
+        try { }
+        {|#0:catch|} when (Filter()) { }
+
+        try { }
+        {|#1:catch|} (Exception ex) when (Filter()) { }
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
-                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0));
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(0),
+                VerifyCS.Diagnostic(CatchAnalyzer.RuleId_CatchAll).WithLocation(1));
+        }
+
+        [TestMethod]
+        public async Task SMA8011_Compliant_CatchWithWhen_Throw()
+        {
+            var test = @"
+using System;
+class C
+{
+    bool Filter() => true;
+    void M()
+    {
+        try { }
+        catch when (Filter())
+        {
+            throw;
+        }
+
+        try { }
+        catch (Exception ex) when (Filter())
+        {
+            throw;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8011_Compliant_CatchWithWhen_Suppressed()
+        {
+            var test = @"
+using System;
+class C
+{
+    bool Filter() => true;
+    void M()
+    {
+        try { }
+        // Ignore exception: Reason here
+        catch when (Filter()) { }
+
+        try { }
+        // Ignore exception: Reason here
+        catch (Exception ex) when (Filter()) { }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
