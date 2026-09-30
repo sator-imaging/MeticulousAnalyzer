@@ -249,6 +249,18 @@
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
   </data>
+  <data name="SMA0033_MessageFormat" xml:space="preserve">
+    <value>Passing non-readonly struct '{0}' as `in` argument causes defensive copy</value>
+  </data>
+  <data name="SMA0033_Title" xml:space="preserve">
+    <value>Non-Readonly Struct Passed as `in` Argument</value>
+  </data>
+  <data name="SMA0034_MessageFormat" xml:space="preserve">
+    <value>Declaring variable or return of non-readonly struct '{0}' as `ref readonly` causes defensive copy</value>
+  </data>
+  <data name="SMA0034_Title" xml:space="preserve">
+    <value>Defensive Copy on `ref readonly` Variable or Return</value>
+  </data>
   <data name="SMA0040__MD_TITLE__" xml:space="preserve">
     <value>Disposable Analysis</value>
   </data>

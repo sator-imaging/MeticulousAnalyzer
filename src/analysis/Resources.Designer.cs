@@ -301,6 +301,30 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
 
+        internal static string SMA0033_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0033_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0033_Title {
+            get {
+                return ResourceManager.GetString("SMA0033_Title", resourceCulture);
+            }
+        }
+
+        internal static string SMA0034_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0034_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0034_Title {
+            get {
+                return ResourceManager.GetString("SMA0034_Title", resourceCulture);
+            }
+        }
+
         internal static string SMA0090_MessageFormat {
             get {
                 return ResourceManager.GetString("SMA0090_MessageFormat", resourceCulture);
