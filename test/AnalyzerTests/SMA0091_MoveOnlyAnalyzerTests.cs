@@ -717,5 +717,42 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, c1, c2, c3, c4, c5);
         }
+
+        [TestMethod]
+        public async Task SMA0091_Violation_CloneNotExemptFromCopyCheck()
+        {
+            var test = @"
+namespace Test
+{
+    struct MoveOnlyStruct
+    {
+        public MoveOnlyStruct Move() => this;
+        public MoveOnlyStruct Clone() => {|#0:this|};
+    }
+
+    class Program
+    {
+        void Foo(MoveOnlyStruct item) { }
+
+        void Method(MoveOnlyStruct moveOnly)
+        {
+            var local = {|#1:moveOnly.Clone()|};
+            Foo({|#2:moveOnly.Clone()|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
     }
 }

@@ -103,5 +103,42 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0094_Violation_CloneNotExemptFromCastCheck()
+        {
+            var test = @"
+namespace Test
+{
+    public interface ICustomInterface { }
+
+    struct MoveOnlyStruct : ICustomInterface
+    {
+        public MoveOnlyStruct Move() => this;
+        public MoveOnlyStruct Clone() => {|#0:this|};
+    }
+
+    class Program
+    {
+        void Method(MoveOnlyStruct moveOnly)
+        {
+            object obj = {|#1:moveOnly.Clone()|};
+            ICustomInterface iface = {|#2:moveOnly.Clone()|};
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedReturn)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MoveOnlyStruct");
+            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 1)
+                .WithArguments("MoveOnlyStruct", "object");
+            var expected2 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCast)
+                .WithLocation(markupKey: 2)
+                .WithArguments("MoveOnlyStruct", "ICustomInterface");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+        }
     }
 }
