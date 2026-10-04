@@ -84,14 +84,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                              };
             }
 
-            // 3. Catch-all blocks without a throw (SMA8011) are NOT ignorable by comment.
-            if (isCatchAll)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(Rule_CatchAll, catchClause.CatchKeyword.GetLocation()));
-                return;
-            }
-
-            // 4. Other catch blocks without a throw (SMA8010) CAN be suppressed by a specific comment.
+            // 3. Catch blocks without a throw can be suppressed by a specific comment.
             if (Core.IsSuppressedByComment(catchClause, SuppressionComment))
             {
                 var comments = Core.GetPrecedingComments(catchClause);
@@ -101,7 +94,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule_CatchWithoutThrow, catchClause.CatchKeyword.GetLocation()));
+            var rule = isCatchAll ? Rule_CatchAll : Rule_CatchWithoutThrow;
+            context.ReportDiagnostic(Diagnostic.Create(rule, catchClause.CatchKeyword.GetLocation()));
         }
 
         private static bool GuaranteesThrow(SyntaxNode? node)
