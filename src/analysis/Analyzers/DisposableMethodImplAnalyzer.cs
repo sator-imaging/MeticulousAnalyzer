@@ -14,6 +14,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     public sealed class DisposableMethodImplAnalyzer : DiagnosticAnalyzer
     {
         public const string DisposeMethodName = "Dispose";
+        public const string DisposeAsyncMethodName = "DisposeAsync";
+        public const string DisposeAsyncCoreMethodName = "DisposeAsyncCore";
+        public const string IAsyncDisposableInterfaceName = "IAsyncDisposable";
 
         #region     /* =      DESCRIPTOR      = */
 
@@ -60,10 +63,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
+            // Intentionally split to allow analyzing concurrently.
+            context.RegisterSymbolAction(AnalyzeDisposable, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeAsyncDisposable, SymbolKind.NamedType);
         }
 
-        private static void AnalyzeNamedType(SymbolAnalysisContext context)
+        private static void AnalyzeDisposable(SymbolAnalysisContext context)
         {
             if (context.Symbol is not INamedTypeSymbol typeSymbol)
             {
@@ -83,7 +88,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName(), "IDisposable");
 
                 // Don't return. Always analyze Disposable method impl also.
             }
@@ -99,22 +104,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (method.Name == DisposeMethodName)
+                if (IsDisposeMethod(method, isPublic: false))
                 {
-                    if (method.Parameters.Length == 1 &&
-                        method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean)
-                    {
-                        fullDisposeMethod = method;
-                        break;
-                    }
+                    fullDisposeMethod = method;
+                    break;
+                }
 
-                    if (publicDisposeMethod == null &&
-                        method.Parameters.Length == 0 &&
-                        method.DeclaredAccessibility == Accessibility.Public &&
-                        method.ReturnType.SpecialType == SpecialType.System_Void)
-                    {
-                        publicDisposeMethod = method;
-                    }
+                if (publicDisposeMethod == null &&
+                    IsDisposeMethod(method, isPublic: true))
+                {
+                    publicDisposeMethod = method;
                 }
 
                 if (explicitImplMethod == null &&
@@ -131,18 +130,88 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName(), DisposeMethodName);
                 return;
             }
 
             AnalyzeAndUpdateDisposableMemberSet(context.Compilation, targetMethod, disposableMemberSet);
             if (disposableMemberSet.Count != 0)
             {
-                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet);
+                ReportUndisposedMembers(context, typeSymbol, disposableMemberSet, DisposeMethodName);
             }
         }
 
-        private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers)
+        private static void AnalyzeAsyncDisposable(SymbolAnalysisContext context)
+        {
+            if (context.Symbol is not INamedTypeSymbol typeSymbol ||
+                typeSymbol.TypeKind is not (TypeKind.Class or TypeKind.Struct))
+            {
+                return;
+            }
+
+            var asyncDisposableMemberSet = GetAsyncDisposableMembers(typeSymbol);
+            if (asyncDisposableMemberSet == null)
+            {
+                return;
+            }
+
+            if (!typeSymbol.AllInterfaces.Any(IsAsyncDisposableInterface))
+            {
+                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName(), IAsyncDisposableInterfaceName);
+
+                // Don't return. Always analyze Disposable method impl also.
+            }
+
+            var targetMethod = GetTargetDisposeAsyncMethod(typeSymbol);
+            if (targetMethod == null)
+            {
+                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName(), DisposeAsyncMethodName);
+                return;
+            }
+
+            AnalyzeAndUpdateAsyncDisposableMemberSet(context.Compilation, targetMethod, asyncDisposableMemberSet);
+            if (asyncDisposableMemberSet.Count != 0)
+            {
+                ReportUndisposedMembers(context, typeSymbol, asyncDisposableMemberSet, DisposeAsyncMethodName);
+            }
+        }
+
+        private static IMethodSymbol? GetTargetDisposeAsyncMethod(INamedTypeSymbol typeSymbol)
+        {
+            IMethodSymbol? fullDisposeAsyncMethod = null;
+            IMethodSymbol? publicDisposeAsyncMethod = null;
+            IMethodSymbol? explicitImplMethod = null;
+
+            foreach (var member in typeSymbol.GetMembers())
+            {
+                if (member is not IMethodSymbol method)
+                {
+                    continue;
+                }
+
+                if (IsAsyncDisposeMethod(method, isCore: true))
+                {
+                    fullDisposeAsyncMethod = method;
+                    break;
+                }
+
+                if (publicDisposeAsyncMethod == null &&
+                    IsAsyncDisposeMethod(method, isCore: false))
+                {
+                    publicDisposeAsyncMethod = method;
+                }
+
+                if (explicitImplMethod == null &&
+                    method.ExplicitInterfaceImplementations.Any(static e => IsAsyncDisposableInterface(e.ContainingType)))
+                {
+                    explicitImplMethod = method;
+                }
+            }
+
+            return fullDisposeAsyncMethod ?? publicDisposeAsyncMethod ?? explicitImplMethod;
+        }
+
+        private static void ReportUndisposedMembers(SymbolAnalysisContext context, INamedTypeSymbol typeSymbol, HashSet<ISymbol> undisposedMembers, string disposeMethodName)
         {
             foreach (var member in undisposedMembers)
             {
@@ -159,7 +228,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     // Declarator -> Declaration -> FieldDeclaration
                     if (!Core.IsSuppressedByComment(varDecl.Parent?.Parent, DisposableAnalyzer.SuppressionComment))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.ToDiagnosticMessageName()));
+                        context.ReportDiagnostic(Diagnostic.Create(Rule_UndisposedMember, location, member.ToDiagnosticMessageName(), disposeMethodName));
                     }
 
                     reported = true;  // Set true even if suppressed
@@ -167,7 +236,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (!reported)
                 {
-                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.ToDiagnosticMessageName());
+                    ReportDiagnostic(context, Rule_UndisposedMember, typeSymbol, member.ToDiagnosticMessageName(), disposeMethodName);
                 }
             }
         }
@@ -234,13 +303,155 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsDisposeCall(IMethodSymbol method)
+        private static void AnalyzeAndUpdateAsyncDisposableMemberSet(Compilation compilation, IMethodSymbol method, HashSet<ISymbol> undisposed)
         {
-            return method.Name == DisposeMethodName
-                && method.Parameters.Length == 0
-                && method.ReturnType.SpecialType == SpecialType.System_Void;
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+            {
+                var syntax = syntaxRef.GetSyntax();
+                var model = compilation.GetSemanticModel(syntax.SyntaxTree);
+                var operation = model.GetOperation(syntax);
+
+                if (operation == null)
+                {
+                    continue;
+                }
+
+                foreach (var op in operation.DescendantsAndSelf())
+                {
+                    IOperation? instance = null;
+
+                    var candidate = op;
+                    if (candidate is IConditionalAccessOperation conditional)
+                    {
+                        candidate = conditional.WhenNotNull;
+                        instance = conditional.Operation;
+                    }
+
+                    if (candidate is not IInvocationOperation invocation)
+                    {
+                        continue;
+                    }
+
+                    if (IsDisposeCall(invocation.TargetMethod))
+                    {
+                        var inst = (instance ?? invocation.Instance)?.UnwrapConversion();
+                        if (inst == null || inst is IInstanceReferenceOperation)
+                        {
+                            RemoveDisposableMembers(undisposed);
+                            if (undisposed.Count == 0)
+                            {
+                                return;
+                            }
+                            continue;
+                        }
+                    }
+
+                    if (IsDisposeOrDisposeAsyncCall(invocation.TargetMethod))
+                    {
+                        instance ??= invocation.Instance;
+                        instance = instance?.UnwrapConversion();
+
+                        if (instance is IMemberReferenceOperation memberRef)
+                        {
+                            undisposed.Remove(memberRef.Member);
+                        }
+                    }
+
+                    if (undisposed.Count == 0)
+                    {
+                        return;
+                    }
+                }
+            }
         }
 
+        private static void RemoveDisposableMembers(HashSet<ISymbol> undisposed)
+        {
+            List<ISymbol>? toRemove = null;
+            foreach (var member in undisposed)
+            {
+                if (member is IFieldSymbol field && IsDisposable(field.Type))
+                {
+                    toRemove ??= new List<ISymbol>();
+                    toRemove.Add(member);
+                }
+            }
+
+            if (toRemove != null)
+            {
+                for (int i = 0, count = toRemove.Count; i < count; i++)
+                {
+                    undisposed.Remove(toRemove[i]);
+                }
+            }
+        }
+
+        private static bool IsDisposeCall(IMethodSymbol method)
+        {
+            return IsDisposeMethod(method, isPublic: true);
+        }
+
+        private static bool IsDisposeOrDisposeAsyncCall(IMethodSymbol method)
+        {
+            if (IsDisposeMethod(method, isPublic: true))
+            {
+                return IsDisposable(method.ContainingType);
+            }
+
+            if (IsAsyncDisposeMethod(method, isCore: false))
+            {
+                return IsAsyncDisposable(method.ContainingType);
+            }
+
+            return false;
+        }
+
+        private static bool IsDisposeMethod(IMethodSymbol method, bool isPublic)
+        {
+            if (method.IsStatic ||
+                method.IsGenericMethod ||
+                method.Name != DisposeMethodName ||
+                method.ReturnType.SpecialType != SpecialType.System_Void)
+            {
+                return false;
+            }
+
+            if (isPublic)
+            {
+                return method.DeclaredAccessibility == Accessibility.Public &&
+                       method.Parameters.Length == 0;
+            }
+
+            return method.Parameters.Length == 1 &&
+                   method.Parameters[0].Type.SpecialType == SpecialType.System_Boolean;
+        }
+
+        private static bool IsAsyncDisposeMethod(IMethodSymbol method, bool isCore)
+        {
+            return !method.IsStatic &&
+                   !method.IsGenericMethod &&
+                   method.Parameters.Length == 0 &&
+                   method.Name == (isCore ? DisposeAsyncCoreMethodName : DisposeAsyncMethodName) &&
+                   (isCore || method.DeclaredAccessibility == Accessibility.Public) &&
+                   method.ReturnType is INamedTypeSymbol
+                   {
+                       Name: "ValueTask",
+                       Arity: 0,
+                       ContainingNamespace:
+                       {
+                           Name: "Tasks",
+                           ContainingNamespace:
+                           {
+                               Name: "Threading",
+                               ContainingNamespace:
+                               {
+                                   Name: "System",
+                                   ContainingNamespace: { IsGlobalNamespace: true }
+                               }
+                           }
+                       }
+                   };
+        }
 
         private static HashSet<ISymbol>? GetDisposableMembers(INamedTypeSymbol typeSymbol)
         {
@@ -266,6 +477,45 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return result;
         }
 
+        private static HashSet<ISymbol>? GetAsyncDisposableMembers(INamedTypeSymbol typeSymbol)
+        {
+            bool isTypeAsyncDisposable = typeSymbol.AllInterfaces.Any(IsAsyncDisposableInterface);
+            HashSet<ISymbol>? result = null;
+            bool hasAsyncDisposableField = false;
+
+            foreach (var member in typeSymbol.GetMembers())
+            {
+                if (member.IsStatic || member.IsImplicitlyDeclared)
+                {
+                    continue;
+                }
+
+                if (member is IFieldSymbol fieldSymbol)
+                {
+                    bool isFieldAsyncDisposable = IsAsyncDisposable(fieldSymbol.Type);
+                    bool isFieldDisposable = IsDisposable(fieldSymbol.Type);
+
+                    if (isFieldAsyncDisposable)
+                    {
+                        hasAsyncDisposableField = true;
+                    }
+
+                    if (isFieldAsyncDisposable || (isTypeAsyncDisposable && isFieldDisposable))
+                    {
+                        result ??= new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+                        result.Add(fieldSymbol);
+                    }
+                }
+            }
+
+            if (!isTypeAsyncDisposable && !hasAsyncDisposableField)
+            {
+                return null;
+            }
+
+            return result;
+        }
+
         private static bool IsDisposable(ITypeSymbol typeSymbol)
         {
             if (typeSymbol is not INamedTypeSymbol named)
@@ -280,6 +530,36 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             return false;
+        }
+
+        private static bool IsAsyncDisposable(ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol is not INamedTypeSymbol named)
+            {
+                return false;
+            }
+
+            if (IsAsyncDisposableInterface(named) ||
+                named.AllInterfaces.Any(IsAsyncDisposableInterface))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsAsyncDisposableInterface(INamedTypeSymbol typeSymbol)
+        {
+            // TODO: Use SpecialType.System_IAsyncDisposable in Roslyn 4.x+ when updated
+            if (typeSymbol.Name != IAsyncDisposableInterfaceName)
+            {
+                return false;
+            }
+
+            return typeSymbol.ContainingNamespace is INamespaceSymbol ns &&
+                   ns.Name == "System" &&
+                   ns.ContainingNamespace != null &&
+                   ns.ContainingNamespace.IsGlobalNamespace;
         }
     }
 }
