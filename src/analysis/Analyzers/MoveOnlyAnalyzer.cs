@@ -2,10 +2,13 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -102,6 +105,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0097_MessageFormat), Resources.ResourceManager, typeof(Resources), "$type"));
 
+        public const string RuleId_DisposableParameterMissingUsing = "SMA0098";
+        private static readonly DiagnosticDescriptor Rule_DisposableParameterMissingUsing = new(
+            RuleId_DisposableParameterMissingUsing,
+            new LocalizableResourceString(nameof(Resources.SMA0098_Title), Resources.ResourceManager, typeof(Resources)),
+            new LocalizableResourceString(nameof(Resources.SMA0098_MessageFormat), Resources.ResourceManager, typeof(Resources)),
+            Core.CategoryPrefix + nameof(MoveOnlyAnalyzer),
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: new LocalizableResourceString(nameof(Resources.SMA0098_MessageFormat), Resources.ResourceManager, typeof(Resources), "$type"));
+
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
@@ -112,7 +125,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             Rule_ProhibitedCast,
             Rule_ProhibitedLambdaCapture,
             Rule_ProhibitedOutParameter,
-            Rule_ProhibitedReturn
+            Rule_ProhibitedReturn,
+            Rule_DisposableParameterMissingUsing
             );
 
         public override void Initialize(AnalysisContext context)
@@ -252,18 +266,133 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             return containingSymbol is IMethodSymbol methodSymbol && methodSymbol.IsAsync;
         }
 
+        private static bool IsMoveOnlyDisposable(ITypeSymbol? type)
+        {
+            if (type == null || !IsMoveOnlyType(type))
+                return false;
+
+            foreach (var iface in type.AllInterfaces)
+            {
+                if (iface.SpecialType == SpecialType.System_IDisposable)
+                    return true;
+
+                if (iface.Name == "IAsyncDisposable" &&
+                    iface.ContainingNamespace is INamespaceSymbol { Name: "System", ContainingNamespace: INamespaceSymbol { IsGlobalNamespace: true } })
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static void AnalyzeParameterDeclaration(SymbolAnalysisContext context)
         {
-            if (context.Symbol is not IParameterSymbol { RefKind: RefKind.Out } parameter)
+            if (context.Symbol is not IParameterSymbol parameter)
                 return;
 
-            if (!IsMoveOnlyType(parameter.Type))
+            if (parameter.RefKind == RefKind.Out && IsMoveOnlyType(parameter.Type))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Rule_ProhibitedOutParameter,
+                    parameter.Locations[0],
+                    parameter.Type.ToDiagnosticMessageName()));
+            }
+
+            if (parameter.RefKind == RefKind.None && IsMoveOnlyDisposable(parameter.Type))
+            {
+                AnalyzeDisposableMoveOnlyParameter(context, parameter);
+            }
+        }
+
+        private static void AnalyzeDisposableMoveOnlyParameter(SymbolAnalysisContext context, IParameterSymbol parameter)
+        {
+            if (parameter.ContainingSymbol is not IMethodSymbol method)
                 return;
+
+            if (method.IsAbstract || method.IsExtern)
+                return;
+
+            foreach (var syntaxRef in method.DeclaringSyntaxReferences)
+            {
+                var methodSyntax = syntaxRef.GetSyntax();
+
+                BlockSyntax? bodyBlock = methodSyntax switch
+                {
+                    BaseMethodDeclarationSyntax m => m.Body,
+                    LocalFunctionStatementSyntax l => l.Body,
+                    AccessorDeclarationSyntax a => a.Body,
+                    AnonymousFunctionExpressionSyntax f => f.Body as BlockSyntax,
+                    _ => null
+                };
+
+                if (bodyBlock == null)
+                    continue;
+
+                var semanticModel = context.Compilation.GetSemanticModel(methodSyntax.SyntaxTree);
+
+                foreach (var stmt in bodyBlock.Statements)
+                {
+                    if (stmt is LocalDeclarationStatementSyntax localDecl && localDecl.UsingKeyword != default)
+                    {
+                        foreach (var variable in localDecl.Declaration.Variables)
+                        {
+                            if (ReferencesParameter(variable.Initializer?.Value, parameter, semanticModel))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                    else if (stmt is UsingStatementSyntax usingStmt)
+                    {
+                        if (usingStmt.Declaration != null)
+                        {
+                            foreach (var variable in usingStmt.Declaration.Variables)
+                            {
+                                if (ReferencesParameter(variable.Initializer?.Value, parameter, semanticModel))
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                        if (usingStmt.Expression != null)
+                        {
+                            if (ReferencesParameter(usingStmt.Expression, parameter, semanticModel))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_ProhibitedOutParameter,
+                Rule_DisposableParameterMissingUsing,
                 parameter.Locations[0],
-                parameter.Type.ToDiagnosticMessageName()));
+                parameter.Name));
+        }
+
+        private static bool ReferencesParameter(ExpressionSyntax? expr, IParameterSymbol parameter, SemanticModel semanticModel)
+        {
+            if (expr == null)
+                return false;
+
+            var unwrapped = expr.UnwrapParentheses();
+
+            if (unwrapped is InvocationExpressionSyntax invocation &&
+                invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                memberAccess.Name.Identifier.Text == MoveMethodName)
+            {
+                unwrapped = memberAccess.Expression.UnwrapParentheses();
+            }
+
+            if (unwrapped is not IdentifierNameSyntax)
+                return false;
+
+            var symbolInfo = semanticModel.GetSymbolInfo(unwrapped);
+            var symbol = symbolInfo.Symbol ?? (symbolInfo.CandidateSymbols.Length == 1 ? symbolInfo.CandidateSymbols[0] : null);
+
+            return SymbolEqualityComparer.Default.Equals(symbol, parameter);
         }
 
         private static bool IsCallingMove(IOperation? expression)
@@ -428,6 +557,33 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             CheckAndReportMoveOnlyCopy(context, assignOp.Value);
         }
 
+        private static bool IsUsingOrAwaitUsingDeclaration(IVariableDeclaratorOperation declOp)
+        {
+            var parent = declOp.Parent;
+            if (parent is IVariableDeclarationOperation varDecl)
+            {
+                var grandParent = varDecl.Parent;
+                if (grandParent is IUsingDeclarationOperation or IUsingOperation)
+                {
+                    return true;
+                }
+            }
+
+            if (declOp.Syntax is VariableDeclaratorSyntax varStx && varStx.Parent is VariableDeclarationSyntax declStx)
+            {
+                if (declStx.Parent is LocalDeclarationStatementSyntax localDecl && localDecl.UsingKeyword != default)
+                {
+                    return true;
+                }
+                if (declStx.Parent is UsingStatementSyntax)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static void AnalyzeVariableDeclaratorOperation(OperationAnalysisContext context)
         {
             if (context.Operation is not IVariableDeclaratorOperation declOp)
@@ -438,6 +594,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
 
             if (IsInsidePublicMoveMethod(context.ContainingSymbol))
+                return;
+
+            if (IsUsingOrAwaitUsingDeclaration(declOp))
                 return;
 
             CheckAndReportMoveOnlyCopy(context, initializer);

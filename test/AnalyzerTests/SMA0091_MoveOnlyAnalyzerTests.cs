@@ -406,11 +406,13 @@ namespace Test
         {
             using var x1 = new MoveOnlyIDisposable();
             using var x2 = arg.Move();
-            using var x3 = {|#0:arg|};
+            using var x3 = arg;
 
             await using var y1 = new MoveOnlyIDisposable();
             await using var y2 = arg.Move();
-            await using var y3 = {|#1:arg|};
+            await using var y3 = arg;
+
+            var copyFromUsing = {|#0:x3|};
         }
     }
 }
@@ -418,11 +420,8 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
                 .WithLocation(markupKey: 0)
                 .WithArguments("MoveOnlyIDisposable");
-            var expected1 = VerifyCS.Diagnostic(MoveOnlyAnalyzer.RuleId_ProhibitedCopy)
-                .WithLocation(markupKey: 1)
-                .WithArguments("MoveOnlyIDisposable");
 
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
 
         [TestMethod]
