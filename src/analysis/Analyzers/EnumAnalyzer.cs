@@ -413,7 +413,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             const string NAME_ENTRIES = "Entries";
-            const string NAME_EQUALS = "Equals";
+            const string NAME_EQUALS = WellKnownMemberNames.ObjectEquals;
             const int LIST_CAPACITY = 8;
 
             var enumFieldList = (ts_enumLikePatternFieldSymbolList ??= new(capacity: LIST_CAPACITY));
