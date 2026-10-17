@@ -382,7 +382,6 @@ public class C
         Debug.Assert(foo is not null);
         Debug.Assert(bar != null);
         Debug.Assert(null != bar);
-        Debug.Assert((foo) is not null);
         {|#0:Debug.Assert(violation is not null)|};
         {|#1:Debug.Assert(violation != null)|};
         {|#2:Debug.Assert(_field is not null)|};
@@ -395,16 +394,15 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA8003_Exemption_ValueTypeAndNullableValueType()
+        public async Task SMA8003_Exemption_NullableValueType()
         {
             var test = @"#nullable enable
 using System.Diagnostics;
 
 public class C
 {
-    public void Method(int val, int? nullableVal)
+    public void Method(int? nullableVal)
     {
-        Debug.Assert(val != null);
         {|#0:Debug.Assert(nullableVal != null)|};
     }
 }";

@@ -90,7 +90,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (invocation.Arguments.Length == 0)
                 return false;
 
-            var argVal = Unwrap(invocation.Arguments[0].Value);
+            var argVal = invocation.Arguments[0].Value;
             if (argVal == null)
                 return false;
 
@@ -98,8 +98,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (isPattern.Pattern is INegatedPatternOperation)
                 {
-                    var valueOp = Unwrap(isPattern.Value);
-                    if (valueOp is IParameterReferenceOperation paramRef)
+                    if (isPattern.Value is IParameterReferenceOperation paramRef)
                     {
                         return IsNonNullableParameter(paramRef.Parameter);
                     }
@@ -110,15 +109,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 if (binary.OperatorKind == BinaryOperatorKind.NotEquals)
                 {
-                    var left = Unwrap(binary.LeftOperand);
-                    var right = Unwrap(binary.RightOperand);
-
-                    if (left is IParameterReferenceOperation leftParamRef && IsNonNullableParameter(leftParamRef.Parameter))
+                    if (binary.LeftOperand is IParameterReferenceOperation leftParamRef && IsNonNullableParameter(leftParamRef.Parameter))
                     {
                         return true;
                     }
 
-                    if (right is IParameterReferenceOperation rightParamRef && IsNonNullableParameter(rightParamRef.Parameter))
+                    if (binary.RightOperand is IParameterReferenceOperation rightParamRef && IsNonNullableParameter(rightParamRef.Parameter))
                     {
                         return true;
                     }
@@ -126,26 +122,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             return false;
-        }
-
-        private static IOperation Unwrap(IOperation op)
-        {
-            while (op != null)
-            {
-                if (op is IConversionOperation conversion)
-                {
-                    op = conversion.Operand;
-                }
-                else if (op is IParenthesizedOperation parenthesized)
-                {
-                    op = parenthesized.Operand;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return op;
         }
 
         private static bool IsNonNullableParameter(IParameterSymbol parameter)
