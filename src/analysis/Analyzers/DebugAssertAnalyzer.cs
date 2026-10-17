@@ -2,6 +2,8 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -65,6 +67,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (IsPubliclyAccessible(symbol))
             {
+                if (IsExempted(invocation))
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_DebugAssertInPublicApi,
                     invocation.Syntax.GetLocation()));
@@ -80,6 +85,131 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 Accessibility.ProtectedOrInternal => true,
                 _ => false,
             };
+        }
+
+        private static bool IsExempted(IInvocationOperation invocation)
+        {
+            if (invocation.Arguments.Length == 0)
+                return false;
+
+            var argVal = invocation.Arguments[0].Value;
+            if (argVal == null)
+                return false;
+
+            var conditionOp = Unwrap(argVal);
+
+            // Pattern 1: param is not null
+            if (conditionOp is IIsPatternOperation isPattern)
+            {
+                if (isPattern.Pattern is INegatedPatternOperation negated && IsNullPattern(negated.Pattern))
+                {
+                    var valueOp = Unwrap(isPattern.Value);
+                    if (valueOp is IParameterReferenceOperation paramRef)
+                    {
+                        return IsNonNullableParameter(paramRef.Parameter);
+                    }
+                }
+            }
+
+            // Pattern 2: param != null or null != param
+            if (conditionOp is IBinaryOperation binary)
+            {
+                if (binary.OperatorKind == BinaryOperatorKind.NotEquals)
+                {
+                    var left = Unwrap(binary.LeftOperand);
+                    var right = Unwrap(binary.RightOperand);
+
+                    if (left is IParameterReferenceOperation leftParamRef && IsNullConstant(right))
+                    {
+                        return IsNonNullableParameter(leftParamRef.Parameter);
+                    }
+
+                    if (right is IParameterReferenceOperation rightParamRef && IsNullConstant(left))
+                    {
+                        return IsNonNullableParameter(rightParamRef.Parameter);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static IOperation Unwrap(IOperation op)
+        {
+            while (op != null)
+            {
+                if (op is IConversionOperation conversion && conversion.IsImplicit)
+                {
+                    op = conversion.Operand;
+                }
+                else if (op is IParenthesizedOperation parenthesized)
+                {
+                    op = parenthesized.Operand;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return op;
+        }
+
+        private static bool IsNullPattern(IPatternOperation pattern)
+        {
+            if (pattern is IConstantPatternOperation constantPattern)
+            {
+                return IsNullConstant(constantPattern.Value);
+            }
+
+            if (pattern?.Syntax is ConstantPatternSyntax constantSyntax &&
+                constantSyntax.Expression.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                return true;
+            }
+
+            if (pattern?.Syntax.IsKind(SyntaxKind.NullLiteralExpression) == true)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsNullConstant(IOperation op)
+        {
+            if (op == null)
+                return false;
+
+            var unwrapped = Unwrap(op);
+            if (unwrapped is ILiteralOperation literal)
+            {
+                return literal.ConstantValue.HasValue && literal.ConstantValue.Value == null;
+            }
+
+            if (unwrapped.ConstantValue.HasValue && unwrapped.ConstantValue.Value == null)
+                return true;
+
+            return unwrapped.Syntax.IsKind(SyntaxKind.NullLiteralExpression);
+        }
+
+        private static bool IsNonNullableParameter(IParameterSymbol parameter)
+        {
+            if (parameter == null)
+                return false;
+
+            if (parameter.NullableAnnotation == NullableAnnotation.Annotated)
+                return false;
+
+            if (parameter.Type != null)
+            {
+                if (parameter.Type.NullableAnnotation == NullableAnnotation.Annotated)
+                    return false;
+
+                if (parameter.Type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                    return false;
+            }
+
+            return true;
         }
     }
 }
