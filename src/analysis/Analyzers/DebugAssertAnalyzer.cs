@@ -65,6 +65,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (IsPubliclyAccessible(symbol))
             {
+                if (IsExempted(invocation))
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_DebugAssertInPublicApi,
                     invocation.Syntax.GetLocation()));
@@ -80,6 +83,65 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 Accessibility.ProtectedOrInternal => true,
                 _ => false,
             };
+        }
+
+        private static bool IsExempted(IInvocationOperation invocation)
+        {
+            if (invocation.Arguments.Length == 0)
+                return false;
+
+            var argVal = invocation.Arguments[0].Value;
+            if (argVal == null)
+                return false;
+
+            if (argVal is IIsPatternOperation isPattern)
+            {
+                if (isPattern.Pattern is INegatedPatternOperation)
+                {
+                    if (isPattern.Value is IParameterReferenceOperation paramRef)
+                    {
+                        return IsNonNullableParameter(paramRef.Parameter);
+                    }
+                }
+            }
+
+            if (argVal is IBinaryOperation binary)
+            {
+                if (binary.OperatorKind == BinaryOperatorKind.NotEquals)
+                {
+                    if (binary.LeftOperand is IParameterReferenceOperation leftParamRef && IsNonNullableParameter(leftParamRef.Parameter))
+                    {
+                        return true;
+                    }
+
+                    if (binary.RightOperand is IParameterReferenceOperation rightParamRef && IsNonNullableParameter(rightParamRef.Parameter))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsNonNullableParameter(IParameterSymbol parameter)
+        {
+            if (parameter == null)
+                return false;
+
+            if (parameter.NullableAnnotation == NullableAnnotation.Annotated)
+                return false;
+
+            if (parameter.Type != null)
+            {
+                if (parameter.Type.NullableAnnotation == NullableAnnotation.Annotated)
+                    return false;
+
+                if (parameter.Type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                    return false;
+            }
+
+            return true;
         }
     }
 }
