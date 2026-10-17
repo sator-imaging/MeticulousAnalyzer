@@ -2,8 +2,6 @@
 // https://github.com/sator-imaging/MeticulousAnalyzer
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
@@ -92,16 +90,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (invocation.Arguments.Length == 0)
                 return false;
 
-            var argVal = invocation.Arguments[0].Value;
+            var argVal = Unwrap(invocation.Arguments[0].Value);
             if (argVal == null)
                 return false;
 
-            var conditionOp = Unwrap(argVal);
-
-            // Pattern 1: param is not null
-            if (conditionOp is IIsPatternOperation isPattern)
+            if (argVal is IIsPatternOperation isPattern)
             {
-                if (isPattern.Pattern is INegatedPatternOperation negated && IsNullPattern(negated.Pattern))
+                if (isPattern.Pattern is INegatedPatternOperation)
                 {
                     var valueOp = Unwrap(isPattern.Value);
                     if (valueOp is IParameterReferenceOperation paramRef)
@@ -111,22 +106,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            // Pattern 2: param != null or null != param
-            if (conditionOp is IBinaryOperation binary)
+            if (argVal is IBinaryOperation binary)
             {
                 if (binary.OperatorKind == BinaryOperatorKind.NotEquals)
                 {
                     var left = Unwrap(binary.LeftOperand);
                     var right = Unwrap(binary.RightOperand);
 
-                    if (left is IParameterReferenceOperation leftParamRef && IsNullConstant(right))
+                    if (left is IParameterReferenceOperation leftParamRef && IsNonNullableParameter(leftParamRef.Parameter))
                     {
-                        return IsNonNullableParameter(leftParamRef.Parameter);
+                        return true;
                     }
 
-                    if (right is IParameterReferenceOperation rightParamRef && IsNullConstant(left))
+                    if (right is IParameterReferenceOperation rightParamRef && IsNonNullableParameter(rightParamRef.Parameter))
                     {
-                        return IsNonNullableParameter(rightParamRef.Parameter);
+                        return true;
                     }
                 }
             }
@@ -138,7 +132,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         {
             while (op != null)
             {
-                if (op is IConversionOperation conversion && conversion.IsImplicit)
+                if (op is IConversionOperation conversion)
                 {
                     op = conversion.Operand;
                 }
@@ -152,44 +146,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
             return op;
-        }
-
-        private static bool IsNullPattern(IPatternOperation pattern)
-        {
-            if (pattern is IConstantPatternOperation constantPattern)
-            {
-                return IsNullConstant(constantPattern.Value);
-            }
-
-            if (pattern?.Syntax is ConstantPatternSyntax constantSyntax &&
-                constantSyntax.Expression.IsKind(SyntaxKind.NullLiteralExpression))
-            {
-                return true;
-            }
-
-            if (pattern?.Syntax.IsKind(SyntaxKind.NullLiteralExpression) == true)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool IsNullConstant(IOperation op)
-        {
-            if (op == null)
-                return false;
-
-            var unwrapped = Unwrap(op);
-            if (unwrapped is ILiteralOperation literal)
-            {
-                return literal.ConstantValue.HasValue && literal.ConstantValue.Value == null;
-            }
-
-            if (unwrapped.ConstantValue.HasValue && unwrapped.ConstantValue.Value == null)
-                return true;
-
-            return unwrapped.Syntax.IsKind(SyntaxKind.NullLiteralExpression);
         }
 
         private static bool IsNonNullableParameter(IParameterSymbol parameter)
