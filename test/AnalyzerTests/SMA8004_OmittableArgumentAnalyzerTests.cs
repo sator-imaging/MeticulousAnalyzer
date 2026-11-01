@@ -55,7 +55,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8004_Violation_VariablePassedAsPositionalArgumentToOmittableParameter()
+        public async Task SMA8004_Compliant_VariablePassedAsPositionalArgumentToOmittableParameter()
         {
             var test = @"
 namespace Test
@@ -66,13 +66,38 @@ namespace Test
 
         public void Test(int x)
         {
-            Some({|#0:x|});
+            Some(x);
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("value");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_NamedIdentifierPassedAsPositionalArgumentToOmittableParameter()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public int Field = 1;
+        public int Prop => 2;
+        public const int ConstVal = 3;
+
+        public void Some(int value = -1) {}
+
+        public void Test()
+        {
+            Some(Field);
+            Some(Prop);
+            Some(ConstVal);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -87,7 +112,8 @@ namespace Test
 
         public void Test(string s, int i)
         {
-            Foo(s, {|#0:i|});
+            Foo(s, {|#0:20|});
+            Foo(s, i);
         }
     }
 }
@@ -129,7 +155,8 @@ namespace Test
 
         public void Test(int c)
         {
-            var x = new CTest({|#0:c|});
+            var x = new CTest({|#0:42|});
+            var y = new CTest(c);
         }
     }
 }
@@ -271,7 +298,7 @@ namespace Test
 
         public void Test()
         {
-            DoAsync({|#0:CancellationToken.None|}, {|#1:10|});
+            DoAsync({|#0:default|}, {|#1:10|});
         }
     }
 }

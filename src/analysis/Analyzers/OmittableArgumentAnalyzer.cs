@@ -55,6 +55,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             int argIndex = argListStx.Arguments.IndexOf(argStx);
 
+            var operation = context.SemanticModel.GetOperation(argStx.Expression);
+            if (operation != null && !IsLiteralOrDefault(operation))
+            {
+                return;
+            }
+
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
@@ -103,6 +109,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (!IsLiteralOrDefault(argOp.Value))
+            {
+                return;
+            }
+
             var parameter = argOp.Parameter;
             if (parameter == null)
             {
@@ -135,6 +146,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     argStx.GetLocation(),
                     parameter.ToDiagnosticMessageName()));
             }
+        }
+
+        private static bool IsLiteralOrDefault(IOperation operation)
+        {
+            if (operation.Kind is OperationKind.Conversion &&
+                operation.TryUnwrapConversion(out var unwrapped))
+            {
+                operation = unwrapped;
+            }
+
+            return operation.Kind is OperationKind.Literal
+                                  or OperationKind.DefaultValue;
         }
 
         private static bool IsInSystemNamespace(INamedTypeSymbol? typeSymbol)
