@@ -65,7 +65,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
 | SMA0050 | Missing File Header Comment                                      | File should start with a header comment (`//` or `/*`)
-| SMA0051 | Missing Shebang                                                  | File '{0}' requires shebang (#!) at the beginning of the file
+| SMA0051 | Missing Shebang                                                  | File '{0}' requires shebang (`#!`) at the beginning of the file
 
 ## Read-Only Variable Analysis
 

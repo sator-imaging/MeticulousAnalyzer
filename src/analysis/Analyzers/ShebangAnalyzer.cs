@@ -59,15 +59,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var fileName = Path.GetFileName(filePath);
-            if (!string.Equals(fileName, "build.cs", StringComparison.OrdinalIgnoreCase))
+            if (fileName != "build.cs")
             {
                 return;
-            }
-
-            var root = context.Tree.GetRoot(context.CancellationToken);
-            if (root.FullSpan.IsEmpty)
-            {
-                return; // Empty file
             }
 
             var text = context.Tree.GetText(context.CancellationToken);
@@ -78,19 +72,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             var firstLine = text.Lines[0];
             var span = firstLine.Span;
-            if (span.IsEmpty)
-            {
-                var firstToken = root.GetFirstToken(includeZeroWidth: false,
-                                                    includeSkipped: true,
-                                                    includeDirectives: true,
-                                                    includeDocumentationComments: true);
-
-                span = firstToken.Span;
-                if (span.IsEmpty)
-                {
-                    span = root.FullSpan;
-                }
-            }
 
             var location = Location.Create(context.Tree, span);
             context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, fileName));

@@ -66,8 +66,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0051_Violation_BuildCs_StartsWithBlankLine()
         {
-            var test = @"
-{|#0:using|} System;
+            var test = @"{|#0:|}
+using System;
 
 namespace Test
 {
