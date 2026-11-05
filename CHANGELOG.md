@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0-rc.7](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.7) (2026-11-05)
+
+### 🚀 Features
+* Implement `SMA0051` Missing Shebang Analyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#715](https://github.com/sator-imaging/MeticulousAnalyzer/pull/715)
+### 📚 Other Changes
+* Update SMA8030 message format by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#709](https://github.com/sator-imaging/MeticulousAnalyzer/pull/709)
+* Update MidFlow analyzer message SMA8031 by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#710](https://github.com/sator-imaging/MeticulousAnalyzer/pull/710)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.6...v5.3.0-rc.7
+
+
 ## [5.3.0-rc.6](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.6) (2026-09-28)
 
 ### 📚 Other Changes
