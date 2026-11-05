@@ -158,6 +158,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0050_Compliant_WithShebangAndSingleLineComment()
         {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
             var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
 // this is a comment
 using System;
@@ -173,6 +175,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0050_Compliant_WithShebangAndMultiLineComment()
         {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
             var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
 /* this is a multi-line comment */
 using System;
@@ -188,6 +192,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0050_Violation_WithShebang_NoHeaderComment()
         {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
             var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
 {|#0:using System;|}
 
@@ -203,6 +209,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0050_Violation_WithShebang_StartsWithBlankLine()
         {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
             var test = @"{|CS1024:{|#0:#|}|}!/usr/bin/env dotnet-script
 
 using System;
