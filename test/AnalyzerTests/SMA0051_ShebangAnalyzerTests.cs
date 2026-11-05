@@ -134,5 +134,44 @@ namespace Test
             verifier.ExpectedDiagnostics.Add(expected);
             await verifier.RunAsync(CancellationToken.None);
         }
+
+        [TestMethod]
+        public async Task SMA0051_Compliant_BuildCs_StartsWithShebang()
+        {
+            // CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            // is not a standard C# preprocessor directive during regular compilation.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState = { Sources = { ("build.cs", test) } },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            await verifier.RunAsync(CancellationToken.None);
+        }
+
+        [TestMethod]
+        public async Task SMA0051_Compliant_OtherCs_NoShebang()
+        {
+            var test = @"using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState = { Sources = { ("other.cs", test) } },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            await verifier.RunAsync(CancellationToken.None);
+        }
     }
 }
