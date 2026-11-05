@@ -25,7 +25,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             new LocalizableResourceString(nameof(Resources.SMA0051_Title), Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString(nameof(Resources.SMA0051_MessageFormat), Resources.ResourceManager, typeof(Resources)),
             Core.CategoryPrefix + nameof(ShebangAnalyzer),
-            DiagnosticSeverity.Warning,
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: new LocalizableResourceString(nameof(Resources.SMA0051_MessageFormat), Resources.ResourceManager, typeof(Resources)));
 
@@ -72,6 +72,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             var firstLine = text.Lines[0];
             var span = firstLine.Span;
+            if (span.IsEmpty)
+            {
+                var root = context.Tree.GetRoot(context.CancellationToken);
+                var firstToken = root.GetFirstToken(includeZeroWidth: false,
+                                                    includeSkipped: true,
+                                                    includeDirectives: true,
+                                                    includeDocumentationComments: true);
+
+                span = firstToken.Span;
+                if (span.IsEmpty)
+                {
+                    span = root.FullSpan;
+                }
+            }
 
             var location = Location.Create(context.Tree, span);
             context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, fileName));
