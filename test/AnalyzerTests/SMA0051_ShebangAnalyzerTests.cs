@@ -41,6 +41,43 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA0051_Compliant_BuildCs_StartsWithShebang()
+        {
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState = { Sources = { ("build.cs", test) } },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            await verifier.RunAsync(CancellationToken.None);
+        }
+
+        [TestMethod]
+        public async Task SMA0051_Compliant_OtherCs_NoShebang()
+        {
+            var test = @"using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState = { Sources = { ("other.cs", test) } },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            await verifier.RunAsync(CancellationToken.None);
+        }
+
+        [TestMethod]
         public async Task SMA0051_Violation_BuildCs_SubdirectoryPath_NoShebang()
         {
             var test = @"{|#0:using System;|}
