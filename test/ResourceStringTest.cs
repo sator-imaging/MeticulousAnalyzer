@@ -90,6 +90,8 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 Resources.SMA0050__MD_TITLE__,
                 Resources.SMA0050_MessageFormat,
                 Resources.SMA0050_Title,
+                Resources.SMA0051_MessageFormat,
+                Resources.SMA0051_Title,
                 Resources.SMA0060__MD_TITLE__,
                 Resources.SMA0060_MessageFormat,
                 Resources.SMA0060_Title,

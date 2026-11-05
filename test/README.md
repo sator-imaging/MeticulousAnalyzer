@@ -149,6 +149,7 @@ FixAllTest_{RuleID}_{CodeFixProviderName}.cs
 | `CSharpCodeFixVerifier` | Testing analyzers with code fix providers |
 | `CSharpCodeRefactoringVerifier` | Testing code refactoring providers |
 | `FileHeaderCommentAnalyzerVerifier` | Specialized verifier for file header comment analysis |
+| `ShebangAnalyzerVerifier` | Specialized verifier for shebang analysis |
 
 ### Usage Pattern
 

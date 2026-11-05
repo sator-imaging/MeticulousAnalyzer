@@ -523,6 +523,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis {
             }
         }
         
+        internal static string SMA0051_MessageFormat {
+            get {
+                return ResourceManager.GetString("SMA0051_MessageFormat", resourceCulture);
+            }
+        }
+
+        internal static string SMA0051_Title {
+            get {
+                return ResourceManager.GetString("SMA0051_Title", resourceCulture);
+            }
+        }
+
         internal static string SMA9000__MD_TITLE__ {
             get {
                 return ResourceManager.GetString("SMA9000__MD_TITLE__", resourceCulture);
