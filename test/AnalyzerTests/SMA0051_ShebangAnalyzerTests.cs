@@ -90,6 +90,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0051_Violation_BuildCs_StartsWithCommentBeforeShebang()
         {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
             var test = @"{|#0:// leading comment|}
 {|CS1024:#|}!/usr/bin/env dotnet-script
 using System;
@@ -138,8 +140,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0051_Compliant_BuildCs_StartsWithShebang()
         {
-            // CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
-            // is not a standard C# preprocessor directive during regular compilation.
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
             var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
 using System;
 
