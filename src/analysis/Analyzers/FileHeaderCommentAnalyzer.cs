@@ -79,13 +79,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                switch (trivia.Kind())
+                var kind = trivia.Kind();
+                switch (kind)
                 {
                     case SyntaxKind.SingleLineCommentTrivia:
                     case SyntaxKind.MultiLineCommentTrivia:
                     case SyntaxKind.MultiLineDocumentationCommentTrivia:
                     case SyntaxKind.SingleLineDocumentationCommentTrivia:
                         return; // Found a comment, OK.
+
+                    case SyntaxKind.WhitespaceTrivia:
+                    case SyntaxKind.EndOfLineTrivia:
+                        if (hasShebang)
+                        {
+                            continue; // Blank lines and whitespace are allowed after shebang.
+                        }
+                        break;
                 }
 
                 break;

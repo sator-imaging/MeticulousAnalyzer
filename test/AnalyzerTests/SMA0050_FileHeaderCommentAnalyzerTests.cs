@@ -223,5 +223,58 @@ namespace Test
             var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0050_Compliant_WithShebangAndBlankLineBeforeComment()
+        {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+
+// the blank line between shebang and a header comment is allowed.
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0050_Compliant_WithShebangAndMultipleBlankLinesBeforeComment()
+        {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+
+
+/* multi-line comment with multiple blank lines before */
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0050_Violation_BlankLineBeforeComment_NoShebang()
+        {
+            var test = @"
+// blank line before comment is not allowed when there is no shebang
+{|#0:using|} System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
