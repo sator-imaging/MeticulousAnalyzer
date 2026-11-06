@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0-rc.8](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.8) (2026-11-06)
+
+### ✨ Bug Fixes
+* Allow shebang at beginning of file in FileHeaderCommentAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#718](https://github.com/sator-imaging/MeticulousAnalyzer/pull/718)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.7...v5.3.0-rc.8
+
+
 ## [5.3.0-rc.7](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.7) (2026-11-05)
 
 ### 🚀 Features
