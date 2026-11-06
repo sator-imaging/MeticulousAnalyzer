@@ -100,7 +100,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 var firstToken = root.GetFirstToken(includeZeroWidth: false,
                                                     includeSkipped: true,
-                                                    includeDirectives: true,
+                                                    includeDirectives: !hasShebang,
                                                     includeDocumentationComments: true);
 
                 span = firstToken.Span;

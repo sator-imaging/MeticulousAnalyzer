@@ -211,9 +211,9 @@ namespace Test
         {
             // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
             //       is not supported in older Roslyn environment.
-            var test = @"{|CS1024:{|#0:#|}|}!/usr/bin/env dotnet-script
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
 
-using System;
+{|#0:using|} System;
 
 namespace Test
 {
