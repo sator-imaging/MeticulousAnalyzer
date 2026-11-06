@@ -62,9 +62,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             var text = context.Tree.GetText(context.CancellationToken);
 
-            // Roslyn version used in this project does not support shebang classification (ShebangDirectiveTrivia)
-            // and instead parses a leading '#!' as a preprocessor directive (e.g. BadDirectiveTrivia).
-            // Therefore, we check the raw source text for the '#!' prefix rather than relying on Roslyn's classification.
+            // TODO: Roslyn version used in this project does not support shebang classification (ShebangDirectiveTrivia)
+            //       and instead parses a leading '#!' as a preprocessor directive (e.g. BadDirectiveTrivia).
+            //       Therefore, we check the raw source text for the '#!' prefix rather than relying on Roslyn's classification.
             var hasShebang = text.Length >= 2 && text[0] == '#' && text[1] == '!';
 
             var triviaList = root.GetLeadingTrivia();
