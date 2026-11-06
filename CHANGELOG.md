@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0-rc.9](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.9) (2026-11-06)
+
+### ✨ Bug Fixes
+* Allow blank lines after shebang in FileHeaderComment by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#721](https://github.com/sator-imaging/MeticulousAnalyzer/pull/721)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.8...v5.3.0-rc.9
+
+
 ## [5.3.0-rc.8](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.8) (2026-11-06)
 
 ### ✨ Bug Fixes
