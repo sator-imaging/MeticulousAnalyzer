@@ -154,5 +154,74 @@ namespace Test
             verifier.ExpectedDiagnostics.Add(expected);
             await verifier.RunAsync(CancellationToken.None);
         }
+
+        [TestMethod]
+        public async Task SMA0050_Compliant_WithShebangAndSingleLineComment()
+        {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+// this is a comment
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0050_Compliant_WithShebangAndMultiLineComment()
+        {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+/* this is a multi-line comment */
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0050_Violation_WithShebang_NoHeaderComment()
+        {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+{|#0:using System;|}
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA0050_Violation_WithShebang_StartsWithBlankLine()
+        {
+            // TODO: CS1024 (Preprocessor directive expected) is ignored because '#' in shebang ('#!')
+            //       is not supported in older Roslyn environment.
+            var test = @"{|CS1024:#|}!/usr/bin/env dotnet-script
+
+{|#0:using|} System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var expected = VerifyCS.Diagnostic(FileHeaderCommentAnalyzer.RuleId_MissingFileHeaderComment).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }

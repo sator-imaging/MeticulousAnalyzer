@@ -60,10 +60,25 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return; // Empty file
             }
 
+            var text = context.Tree.GetText(context.CancellationToken);
+
+            // TODO: Roslyn version used in this project does not support shebang classification (ShebangDirectiveTrivia)
+            //       and instead parses a leading '#!' as a preprocessor directive (e.g. BadDirectiveTrivia).
+            //       Therefore, we check the raw source text for the '#!' prefix rather than relying on Roslyn's classification.
+            var hasShebang = text.Length >= 2 && text[0] == '#' && text[1] == '!';
+
             var triviaList = root.GetLeadingTrivia();
+            var skipShebang = hasShebang;
 
             foreach (var trivia in triviaList)
             {
+                if (skipShebang)
+                {
+                    // Skip the shebang directive trivia at the start of the file.
+                    skipShebang = false;
+                    continue;
+                }
+
                 switch (trivia.Kind())
                 {
                     case SyntaxKind.SingleLineCommentTrivia:
@@ -78,14 +93,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // If we are here, it means no comment was found before the first token,
             // or the file consists only of whitespace and/or directives.
-            var text = context.Tree.GetText(context.CancellationToken);
-            var firstLine = text.Lines[0];
-            var span = firstLine.Span;
+            var lineIndex = hasShebang && text.Lines.Count > 1 ? 1 : 0;
+            var targetLine = text.Lines[lineIndex];
+            var span = targetLine.Span;
             if (span.IsEmpty)
             {
                 var firstToken = root.GetFirstToken(includeZeroWidth: false,
                                                     includeSkipped: true,
-                                                    includeDirectives: true,
+                                                    includeDirectives: !hasShebang,
                                                     includeDocumentationComments: true);
 
                 span = firstToken.Span;
