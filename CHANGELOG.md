@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.3.0-rc.11](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.11) (2026-11-07)
+
+### 📣 Breaking Changes ⚠
+* Allow suppression comment for catch-all and add catch with when tests by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#711](https://github.com/sator-imaging/MeticulousAnalyzer/pull/711)
+* Update `SMA8004`: Do not report when argument name exists in passed argument by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#729](https://github.com/sator-imaging/MeticulousAnalyzer/pull/729)
+### 🚀 Features
+* Exempt methods in Interlocked from `SMA8000` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#728](https://github.com/sator-imaging/MeticulousAnalyzer/pull/728)
+* Allow debug assert for nullable context safeguard by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#713](https://github.com/sator-imaging/MeticulousAnalyzer/pull/713)
+* Add LINQ import analyzer (`SMA7050`) by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#731](https://github.com/sator-imaging/MeticulousAnalyzer/pull/731)
+### ✨ Bug Fixes
+* Fix `SMA8000` reporting converted string literals as first argument by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#730](https://github.com/sator-imaging/MeticulousAnalyzer/pull/730)
+### 📚 Other Changes
+* Use WellKnownMemberNames in analyzers by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#712](https://github.com/sator-imaging/MeticulousAnalyzer/pull/712)
+* Allow System.Diagnostics.CodeAnalysis in `SMA8000` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#732](https://github.com/sator-imaging/MeticulousAnalyzer/pull/732)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.10...v5.3.0-rc.11
+
+
 ## [5.3.0-rc.10](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.10) (2026-11-07)
 
 ### 🚀 Features
