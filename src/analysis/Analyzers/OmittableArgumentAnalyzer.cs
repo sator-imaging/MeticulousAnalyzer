@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -74,6 +75,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                             return;
                         }
 
+                        if (!string.IsNullOrEmpty(paramSymbol.Name) &&
+                            argStx.Expression.ToString().IndexOf(paramSymbol.Name, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            return;
+                        }
+
                         context.ReportDiagnostic(Diagnostic.Create(
                             Rule_OmittableArgument,
                             argStx.GetLocation(),
@@ -128,6 +135,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     {
                         return;
                     }
+                }
+
+                if (!string.IsNullOrEmpty(parameter.Name) &&
+                    argStx.Expression.ToString().IndexOf(parameter.Name, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return;
                 }
 
                 context.ReportDiagnostic(Diagnostic.Create(

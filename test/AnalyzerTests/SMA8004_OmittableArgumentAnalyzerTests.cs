@@ -267,7 +267,7 @@ namespace Test
 
     public class CTest
     {
-        public void DoAsync(CancellationToken cancellationToken = default, int extra = 0) {}
+        public void DoAsync(CancellationToken ct = default, int extra = 0) {}
 
         public void Test()
         {
@@ -276,7 +276,7 @@ namespace Test
     }
 }
 ";
-            var expected0 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("cancellationToken");
+            var expected0 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 0).WithArguments("ct");
             var expected1 = VerifyCS.Diagnostic(OmittableArgumentAnalyzer.RuleId_OmittableArgument).WithLocation(markupKey: 1).WithArguments("extra");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
@@ -356,6 +356,57 @@ public class MyAsyncAttrAttribute : Attribute
 [MyAsyncAttr(CancellationToken.None)]
 public class CTest
 {
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_ParameterNameExistsInPassedArgument()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void LoadFile(string path = ""default"") {}
+        public void Process(int value = 0) {}
+
+        public void Test(string filePath, int someValue)
+        {
+            LoadFile(filePath);
+            Process(someValue);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_ParameterNameExistsInPassedArgument_ConstructorAndAttribute()
+        {
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class TagAttribute : Attribute
+{
+    public TagAttribute(string tag = ""default"") {}
+}
+
+public class MyHolder
+{
+    public MyHolder(string path = null) {}
+}
+
+[Tag(nameof(TagAttribute))]
+public class CTest
+{
+    public void Test(string myPath)
+    {
+        var h = new MyHolder(myPath);
+    }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
