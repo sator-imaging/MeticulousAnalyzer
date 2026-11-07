@@ -231,6 +231,29 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8000_Compliant_CodeAnalysisNamespaceAttributeAllowed()
+        {
+            var test = @"
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage(""Category"", ""CheckId"", Justification = ""reason"")]
+
+namespace Test
+{
+    public class CTest
+    {
+        [return: NotNullIfNotNull(""input"")]
+        public string Method([NotNullWhen(true)] string input)
+        {
+            return input;
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8000_Violation_SingleArgumentOmitNamed()
         {
             var test = @"

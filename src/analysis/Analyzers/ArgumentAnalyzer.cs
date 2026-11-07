@@ -87,6 +87,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
+                // NOTE: System.Diagnostics.CodeAnalysis namespace contains only attributes
+                if (attrSymbol.ContainingType?.ContainingNamespace is INamespaceSymbol
+                    {
+                        Name: "CodeAnalysis", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "Diagnostics", ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: "System", ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true,
+                                }
+                            }
+                        }
+                    })
+                {
+                    return;
+                }
+
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
                     parameterName = attrSymbol.Parameters[argIndex].ToDiagnosticMessageName();
