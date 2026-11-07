@@ -981,5 +981,55 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_ConvertedLiteralFirstArgument()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public bool StartsWith(ReadOnlySpan<char> span) => true;
+        public void Foo(ReadOnlySpan<char> span, int x) {}
+
+        public void Test()
+        {
+            var some = new CTest();
+            some.StartsWith(""//"");
+            some.Foo(""//"", x: 1);
+
+            ReadOnlySpan<char> span = ""abc"".AsSpan();
+            span.StartsWith(""//"");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violation_ConvertedLiteralNotFirstArgument()
+        {
+            var test = @"
+using System;
+namespace Test
+{
+    public class CTest
+    {
+        public void Bar(int a, ReadOnlySpan<char> span) {}
+
+        public void Test()
+        {
+            var some = new CTest();
+            some.Bar(1, {|#0:""//""|});
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("span");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0);
+        }
     }
 }

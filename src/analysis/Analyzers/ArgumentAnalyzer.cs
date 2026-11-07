@@ -59,8 +59,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             bool requireReporting = false;
 
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
+            IOperation? originalLiteral = operation;
             if (operation != null &&
-                !IsPossibleOperation(operation, out requireReporting))
+                !IsPossibleOperation(operation, out originalLiteral, out requireReporting))
             {
                 return;
             }
@@ -76,7 +77,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!requireReporting &&
                 argIndex == 0 &&
                 operation != null &&
-                IsOmittableFirstArgumentType(operation, isConstructor: true))
+                originalLiteral != null &&
+                IsOmittableFirstArgumentType(operation, originalLiteral, isConstructor: true))
             {
                 return;
             }
@@ -250,7 +252,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var argValue = argOp.Value;
 
             // 'null', 'default', or 'default(T)' is not allowed at all.
-            if (!IsPossibleOperation(argValue, out var requireReporting))
+            if (!IsPossibleOperation(argValue, out var originalLiteral, out var requireReporting))
             {
                 return;
             }
@@ -276,7 +278,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (argStx.Parent is ArgumentListSyntax argListStx &&
                         argListStx.Arguments.IndexOf(argStx) == 0)
                     {
-                        if (IsOmittableFirstArgumentType(argValue, isConstructor: invocationOp == null))
+                        if (IsOmittableFirstArgumentType(argValue, originalLiteral, isConstructor: invocationOp == null))
                         {
                             return;
                         }
@@ -291,6 +293,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         private static bool IsPossibleOperation(IOperation operation, out bool requireReporting)
+            => IsPossibleOperation(operation, out _, out requireReporting);
+
+        private static bool IsPossibleOperation(IOperation operation, out IOperation originalLiteral, out bool requireReporting)
         {
             // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
             if (operation.Kind is OperationKind.Conversion &&
@@ -298,6 +303,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 operation = unwrapped;
             }
+            originalLiteral = operation;
 
             // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
             var isNullOrDefaultLiteral
@@ -332,23 +338,23 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsOmittableFirstArgumentType(IOperation operation, bool isConstructor)
+        private static bool IsOmittableFirstArgumentType(IOperation operation, IOperation originalLiteral, bool isConstructor)
         {
-            var literalSpecialType = operation.Type?.SpecialType;
+            var originalSpecialType = originalLiteral.Type?.SpecialType;
 
-            // First string or char argument is allowed for both method and constructor.
+            // First string or char argument is allowed for both method and constructor (including converted literals like string -> ReadOnlySpan<char>).
             //   ex. throw new Exception("Message", innerError);
-            if (literalSpecialType is SpecialType.System_String
-                                   or SpecialType.System_Char
-                                   // Most loggers take a message as an object instead of string
-                                   or SpecialType.System_Object)
+            if (originalSpecialType is SpecialType.System_String
+                                    or SpecialType.System_Char
+                                    // Most loggers take a message as an object instead of string
+                                    or SpecialType.System_Object)
             {
                 return true;
             }
 
-            // But, don't allow omitting first int argument for constructor.
+            // But, don't allow omitting first int argument for constructor, and only allow if argument type itself is int.
             //   ex. list = new(0);  // Expect: new(capacity: 0);
-            if (!isConstructor && literalSpecialType is SpecialType.System_Int32)
+            if (!isConstructor && operation.Type?.SpecialType is SpecialType.System_Int32)
             {
                 return true;
             }
