@@ -469,7 +469,7 @@
     <value>Avoid Anonymous Object Creation</value>
   </data>
   <data name="SMA7050_MessageFormat" xml:space="preserve">
-    <value>LINQ operation causes unnecessary allocations. Avoid `using System.Linq;` or migrate to BurstLinq. Can suppress with comment `// Allow linq operation [ Reason (optional) ]`</value>
+    <value>Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [ Reason (optional) ]`</value>
   </data>
   <data name="SMA7050_Title" xml:space="preserve">
     <value>LINQ Operation</value>
