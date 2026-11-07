@@ -87,6 +87,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
+                if (IsPervasiveSystemLib(attrSymbol.ContainingType))
+                {
+                    return;
+                }
+
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
                     parameterName = attrSymbol.Parameters[argIndex].ToDiagnosticMessageName();
@@ -367,7 +372,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
         {
-            // String, System.Text, System.IO and System.Threading.Interlocked methods and constructors are intentionally allowed.
+            // String, System.Text, System.IO, System.Diagnostics.CodeAnalysis and System.Threading.Interlocked methods and constructors are intentionally allowed.
             return typeSymbol.SpecialType is SpecialType.System_String
                 || typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
@@ -376,6 +381,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         Name: "System", ContainingNamespace: INamespaceSymbol
                         {
                             IsGlobalNamespace: true,
+                        }
+                    }
+                }
+                || typeSymbol.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "CodeAnalysis", ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: "Diagnostics", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "System", ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
                         }
                     }
                 }
