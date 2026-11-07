@@ -119,6 +119,8 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA7030 | Implicit `params` Array Allocation                               | Implicit `params` array allocation for '{0}' hides actual overhead from source code representation. Use explicit array allocation
 | | | |
 | SMA7040 | Avoid Anonymous Object Creation                                  | Prefer tuple instead of anonymous object
+| | | |
+| SMA7050 | Avoid LINQ Operation for Performance                             | Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [ Reason (optional) ]`
 
 ## Reliability and Maintainability Analysis
 
