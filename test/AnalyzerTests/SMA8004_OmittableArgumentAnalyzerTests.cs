@@ -20,11 +20,11 @@ namespace Test
 {
     public class CTest
     {
-        public void Some(int value = -1) {}
+        public void Some(int a, int value = -1) {}
 
         public void Test()
         {
-            Some({|#0:0|});
+            Some(1, {|#0:0|});
         }
     }
 }
@@ -41,12 +41,12 @@ namespace Test
 {
     public class CTest
     {
-        public void Some(int value = -1) {}
+        public void Some(int a, int value = -1) {}
 
         public void Test()
         {
-            Some(value: 0);
-            Some();
+            Some(1, value: 0);
+            Some(1);
         }
     }
 }
@@ -62,11 +62,11 @@ namespace Test
 {
     public class CTest
     {
-        public void Some(int value = -1) {}
+        public void Some(int a, int value = -1) {}
 
         public void Test(int x)
         {
-            Some({|#0:x|});
+            Some(1, {|#0:x|});
         }
     }
 }
@@ -125,11 +125,11 @@ namespace Test
 {
     public class CTest
     {
-        public CTest(int count = 1) {}
+        public CTest(int prefix, int count = 1) {}
 
         public void Test(int c)
         {
-            var x = new CTest({|#0:c|});
+            var x = new CTest(0, {|#0:c|});
         }
     }
 }
@@ -290,10 +290,10 @@ using System;
 [AttributeUsage(AttributeTargets.Class)]
 public class MyAttrAttribute : Attribute
 {
-    public MyAttrAttribute(int opt = 10) {}
+    public MyAttrAttribute(string name, int opt = 10) {}
 }
 
-[MyAttr({|#0:42|})]
+[MyAttr(""test"", {|#0:42|})]
 public class CTest
 {
 }
@@ -407,6 +407,68 @@ public class CTest
     {
         var h = new MyHolder(myPath);
     }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_MethodTakesOnlyOneArgument()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Some(int value = -1) {}
+
+        public void Test(int x)
+        {
+            Some(0);
+            Some(x);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_ConstructorTakesOnlyOneArgument()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public CTest(int count = 1) {}
+
+        public void Test(int c)
+        {
+            var x = new CTest(c);
+            var y = new CTest(10);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_AttributeTakesOnlyOneArgument()
+        {
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class MyAttrAttribute : Attribute
+{
+    public MyAttrAttribute(int opt = 10) {}
+}
+
+[MyAttr(42)]
+public class CTest
+{
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);

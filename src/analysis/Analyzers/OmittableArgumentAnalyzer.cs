@@ -49,7 +49,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx ||
+                argListStx.Arguments.Count <= 1)
             {
                 return;
             }
@@ -106,6 +107,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction.
             if (argStx.IsKind(SyntaxKind.AttributeArgument))
+            {
+                return;
+            }
+
+            if (argStx.Parent is ArgumentListSyntax argumentList &&
+                argumentList.Arguments.Count <= 1)
+            {
+                return;
+            }
+
+            if (argOp.Parent is IInvocationOperation { Arguments: { Length: <= 1 } } ||
+                argOp.Parent is IObjectCreationOperation { Arguments: { Length: <= 1 } })
             {
                 return;
             }
