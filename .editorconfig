@@ -14,4 +14,8 @@ dotnet_diagnostic.SMA0067.severity = error
 dotnet_diagnostic.SMA0068.severity = error
 dotnet_diagnostic.SMA0069.severity = error
 
+dotnet_diagnostic.SMA0080.severity = silent # Internal types and members must not be accessed from a different namespace
+dotnet_diagnostic.SMA7001.severity = silent # Implicit delegate conversion
+dotnet_diagnostic.SMA7030.severity = silent # Implicit `params` array allocation
+
 dotnet_diagnostic.CS1591.severity = silent  # Missing XML comment for publicly visible type or member
