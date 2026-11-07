@@ -366,7 +366,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
         {
-            // String, System.Text and System.IO methods and constructors are intentionally allowed.
+            // String, System.Text, System.IO and System.Threading.Interlocked methods and constructors are intentionally allowed.
             return typeSymbol.SpecialType is SpecialType.System_String
                 || typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
