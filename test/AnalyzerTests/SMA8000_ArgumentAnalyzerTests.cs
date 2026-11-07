@@ -212,21 +212,17 @@ namespace Test
         public async Task SMA8000_Compliant_AllowedNamespacesOmitNamed()
         {
             var test = @"
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 namespace Test
 {
     public class CTest
     {
-        [SuppressMessage(""Category"", ""CheckId"")]
-        [return: NotNullIfNotNull(""other"")]
-        public string Test(string other)
+        public void Test()
         {
             var s = string.Join("","", ""a"", ""b"");
             var s2 = string.Format(""{0} {1}"", 1, 2);
             var f = File.ReadAllText(""path"");
             var p = Path.Combine(""a"", ""b"");
-            return other;
         }
     }
 }
@@ -239,11 +235,13 @@ namespace Test
         {
             var test = @"
 using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage(""Category"", ""CheckId"", Justification = ""reason"")]
+
 namespace Test
 {
     public class CTest
     {
-        [SuppressMessage(""Category"", ""CheckId"", Justification = ""reason"")]
         [return: NotNullIfNotNull(""input"")]
         public string Method([NotNullWhen(true)] string input)
         {

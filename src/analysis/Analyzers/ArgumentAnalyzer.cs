@@ -87,7 +87,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
-                // Types in System.Diagnostics.CodeAnalysis are attributes, so check is placed here for attribute arguments.
+                // NOTE: System.Diagnostics.CodeAnalysis namespace contains only attributes
                 if (attrSymbol.ContainingType?.ContainingNamespace is INamespaceSymbol
                     {
                         Name: "CodeAnalysis", ContainingNamespace: INamespaceSymbol
