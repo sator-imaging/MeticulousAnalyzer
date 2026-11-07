@@ -334,21 +334,22 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsOmittableFirstArgumentType(IOperation operation, bool isConstructor)
         {
-            var literalSpecialType = operation.Type?.SpecialType;
+            var originalLiteral = operation.TryUnwrapConversion(out var unwrapped) ? unwrapped : operation;
+            var originalSpecialType = originalLiteral.Type?.SpecialType;
 
-            // First string or char argument is allowed for both method and constructor.
+            // First string or char argument is allowed for both method and constructor (including converted literals like string -> ReadOnlySpan<char>).
             //   ex. throw new Exception("Message", innerError);
-            if (literalSpecialType is SpecialType.System_String
-                                   or SpecialType.System_Char
-                                   // Most loggers take a message as an object instead of string
-                                   or SpecialType.System_Object)
+            if (originalSpecialType is SpecialType.System_String
+                                    or SpecialType.System_Char
+                                    // Most loggers take a message as an object instead of string
+                                    or SpecialType.System_Object)
             {
                 return true;
             }
 
-            // But, don't allow omitting first int argument for constructor.
+            // But, don't allow omitting first int argument for constructor, and only allow if argument type itself is int.
             //   ex. list = new(0);  // Expect: new(capacity: 0);
-            if (!isConstructor && literalSpecialType is SpecialType.System_Int32)
+            if (!isConstructor && operation.Type?.SpecialType is SpecialType.System_Int32)
             {
                 return true;
             }
