@@ -235,7 +235,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA8000_Compliant_CodeAnalysisNamespaceCtorAndMethodAllowed()
+        public async Task SMA8000_Compliant_CodeAnalysisNamespaceAttributeAllowed()
         {
             var test = @"
 using System.Diagnostics.CodeAnalysis;
@@ -247,8 +247,6 @@ namespace Test
         [return: NotNullIfNotNull(""input"")]
         public string Method([NotNullWhen(true)] string input)
         {
-            var attr = new SuppressMessageAttribute(""Category"", ""CheckId"");
-            var notNull = new NotNullIfNotNullAttribute(""input"");
             return input;
         }
     }

@@ -87,9 +87,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
-                // Attribute arguments are handled via SyntaxNodeAction rather than OperationKind.Argument,
-                // so pervasive system library types (e.g. System.Diagnostics.CodeAnalysis) must be checked here.
-                if (IsPervasiveSystemLib(attrSymbol.ContainingType))
+                // Types in System.Diagnostics.CodeAnalysis are attributes, so check is placed here for attribute arguments.
+                if (attrSymbol.ContainingType?.ContainingNamespace is INamespaceSymbol
+                    {
+                        Name: "CodeAnalysis", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "Diagnostics", ContainingNamespace: INamespaceSymbol
+                            {
+                                Name: "System", ContainingNamespace: INamespaceSymbol
+                                {
+                                    IsGlobalNamespace: true,
+                                }
+                            }
+                        }
+                    })
                 {
                     return;
                 }
@@ -374,7 +385,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
         {
-            // String, System.Text, System.IO, System.Diagnostics.CodeAnalysis and System.Threading.Interlocked methods and constructors are intentionally allowed.
+            // String, System.Text, System.IO and System.Threading.Interlocked methods and constructors are intentionally allowed.
             return typeSymbol.SpecialType is SpecialType.System_String
                 || typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
@@ -383,19 +394,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         Name: "System", ContainingNamespace: INamespaceSymbol
                         {
                             IsGlobalNamespace: true,
-                        }
-                    }
-                }
-                || typeSymbol.ContainingNamespace is INamespaceSymbol
-                {
-                    Name: "CodeAnalysis", ContainingNamespace: INamespaceSymbol
-                    {
-                        Name: "Diagnostics", ContainingNamespace: INamespaceSymbol
-                        {
-                            Name: "System", ContainingNamespace: INamespaceSymbol
-                            {
-                                IsGlobalNamespace: true,
-                            }
                         }
                     }
                 }
