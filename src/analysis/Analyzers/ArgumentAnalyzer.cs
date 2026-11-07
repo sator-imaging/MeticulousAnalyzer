@@ -397,6 +397,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         }
                     }
                 }
+                || typeSymbol.ContainingNamespace is INamespaceSymbol
+                {
+                    Name: "RegularExpressions", ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: "Text", ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: "System", ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
+                        }
+                    }
+                }
                 || typeSymbol is
                 {
                     Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol

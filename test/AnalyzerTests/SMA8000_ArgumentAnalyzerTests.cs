@@ -1054,5 +1054,28 @@ namespace Test
             var expected0 = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("span");
             await VerifyCS.VerifyAnalyzerAsync(test, expected0);
         }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_RegularExpressionsNamespaceAllowed()
+        {
+            var test = @"
+using System.Text.RegularExpressions;
+namespace Test
+{
+    public class CTest
+    {
+        public void Test()
+        {
+            var regex = new Regex(@""[a-z]+"", RegexOptions.IgnoreCase);
+            var isMatch = Regex.IsMatch(""abc"", @""[a-z]+"", RegexOptions.IgnoreCase);
+            var match = Regex.Match(""abc"", @""[a-z]+"", RegexOptions.IgnoreCase);
+            var replaced = Regex.Replace(""abc"", @""[a-z]+"", ""xyz"");
+            var splits = Regex.Split(""a,b,c"", "","");
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
