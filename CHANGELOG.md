@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.3.0-rc.10](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.10) (2026-11-07)
+
+### 🚀 Features
+* Support AdditionalFiles in ShebangAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#724](https://github.com/sator-imaging/MeticulousAnalyzer/pull/724)
+### 📚 Other Changes
+* refactor: shebang analyzer by [@sator-imaging](https://github.com/sator-imaging) in [#725](https://github.com/sator-imaging/MeticulousAnalyzer/pull/725)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.9...v5.3.0-rc.10
+
+
 ## [5.3.0-rc.9](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.9) (2026-11-06)
 
 ### ✨ Bug Fixes
