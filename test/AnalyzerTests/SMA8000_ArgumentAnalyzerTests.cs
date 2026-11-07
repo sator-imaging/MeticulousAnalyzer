@@ -956,5 +956,30 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8000_Compliant_InterlockedAllowed()
+        {
+            var test = @"
+using System.Threading;
+namespace Test
+{
+    public class CTest
+    {
+        private int some = 0;
+
+        public void Test()
+        {
+            if (Interlocked.CompareExchange(ref some, 0, 1) == 0)
+            {
+            }
+            Interlocked.Exchange(ref some, 10);
+            Interlocked.Add(ref some, 5);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

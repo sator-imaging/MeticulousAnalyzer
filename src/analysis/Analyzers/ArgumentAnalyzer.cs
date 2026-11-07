@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
@@ -374,6 +375,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         Name: "System", ContainingNamespace: INamespaceSymbol
                         {
                             IsGlobalNamespace: true,
+                        }
+                    }
+                }
+                || typeSymbol is
+                {
+                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
                         }
                     }
                 };
