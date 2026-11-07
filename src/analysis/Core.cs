@@ -436,6 +436,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                      or LambdaExpressionSyntax
                      // Allow suppression comment on catch clause
                      or CatchClauseSyntax
+                     // Allow suppression comment on using directive
+                     or UsingDirectiveSyntax
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {

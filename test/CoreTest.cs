@@ -515,6 +515,27 @@ class C {
             Assert.IsFalse(Core.IsSuppressedByComment(field, "// suppress"));
         }
 
+        [TestMethod]
+        public void IsSuppressedByComment_UsingDirectiveWithComment_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+// suppress
+using System.Linq;
+");
+            var usingDirective = FindFirst<UsingDirectiveSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.IsSuppressedByComment(usingDirective, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_UsingDirectiveWithoutComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+using System.Linq;
+");
+            var usingDirective = FindFirst<UsingDirectiveSyntax>(tree.GetRoot());
+            Assert.IsFalse(Core.IsSuppressedByComment(usingDirective, "// suppress"));
+        }
+
         // ===== UnwrapAllNullCoalesceOperation =====
 
         [TestMethod]
