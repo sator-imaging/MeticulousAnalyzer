@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
@@ -365,7 +366,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool IsPervasiveSystemLib(INamedTypeSymbol typeSymbol)
         {
-            // String, System.Text and System.IO methods and constructors are intentionally allowed.
+            // String, System.Text, System.IO and System.Threading.Interlocked methods and constructors are intentionally allowed.
             return typeSymbol.SpecialType is SpecialType.System_String
                 || typeSymbol.ContainingNamespace is INamespaceSymbol
                 {
@@ -374,6 +375,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         Name: "System", ContainingNamespace: INamespaceSymbol
                         {
                             IsGlobalNamespace: true,
+                        }
+                    }
+                }
+                || typeSymbol is
+                {
+                    Name: nameof(Interlocked), ContainingNamespace: INamespaceSymbol
+                    {
+                        Name: nameof(System.Threading), ContainingNamespace: INamespaceSymbol
+                        {
+                            Name: nameof(System), ContainingNamespace: INamespaceSymbol
+                            {
+                                IsGlobalNamespace: true,
+                            }
                         }
                     }
                 };
