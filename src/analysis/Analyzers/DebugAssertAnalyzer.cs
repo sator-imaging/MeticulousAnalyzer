@@ -65,7 +65,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             if (IsPubliclyAccessible(symbol))
             {
-                if (IsExempted(invocation))
+                if (IsNullableContextSafeguard(invocation))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -85,7 +85,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             };
         }
 
-        private static bool IsExempted(IInvocationOperation invocation)
+        private static bool IsNullableContextSafeguard(IInvocationOperation invocation)
         {
             if (invocation.Arguments.Length == 0)
                 return false;
