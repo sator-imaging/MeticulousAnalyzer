@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0-rc.12](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.12) (2026-11-07)
+
+### 🚀 Features
+* Exempt System.Text.RegularExpressions in ArgumentAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#737](https://github.com/sator-imaging/MeticulousAnalyzer/pull/737)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.11...v5.3.0-rc.12
+
+
 ## [5.3.0-rc.11](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.11) (2026-11-07)
 
 ### 📣 Breaking Changes ⚠
