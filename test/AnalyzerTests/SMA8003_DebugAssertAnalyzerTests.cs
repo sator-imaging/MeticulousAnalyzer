@@ -366,5 +366,48 @@ public class C
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8003_Exemption_NullableContextSafeguard()
+        {
+            var test = @"#nullable enable
+using System.Diagnostics;
+
+public class C
+{
+    private object _field = new object();
+
+    public void Method(object foo, object bar, object? violation)
+    {
+        Debug.Assert(foo is not null);
+        Debug.Assert(bar != null);
+        Debug.Assert(null != bar);
+        {|#0:Debug.Assert(violation is not null)|};
+        {|#1:Debug.Assert(violation != null)|};
+        {|#2:Debug.Assert(_field is not null)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0),
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(1),
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(2));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Exemption_NullableValueType()
+        {
+            var test = @"#nullable enable
+using System.Diagnostics;
+
+public class C
+{
+    public void Method(int? nullableVal)
+    {
+        {|#0:Debug.Assert(nullableVal != null)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
     }
 }
