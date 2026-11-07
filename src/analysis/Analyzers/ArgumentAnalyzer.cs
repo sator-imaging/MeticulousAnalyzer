@@ -87,6 +87,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
+                // Attribute arguments are handled via SyntaxNodeAction rather than OperationKind.Argument,
+                // so pervasive system library types (e.g. System.Diagnostics.CodeAnalysis) must be checked here.
                 if (IsPervasiveSystemLib(attrSymbol.ContainingType))
                 {
                     return;
