@@ -13,7 +13,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposableMethodImplAnalyzer : DiagnosticAnalyzer
     {
-        public const string DisposeMethodName = "Dispose";
+        public const string DisposeMethodName = WellKnownMemberNames.DisposeMethodName;
 
         #region     /* =      DESCRIPTOR      = */
 

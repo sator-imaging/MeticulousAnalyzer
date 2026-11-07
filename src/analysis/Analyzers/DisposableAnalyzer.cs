@@ -361,7 +361,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                                 invocationTargetExpression = conditionalAccess.Expression;
                             }
 
-                            if (disposeMethodName != null && disposeMethodName.Identifier.Text == "Dispose" && invocationTargetExpression != null)
+                            if (disposeMethodName != null && disposeMethodName.Identifier.Text == WellKnownMemberNames.DisposeMethodName && invocationTargetExpression != null)
                             {
                                 var disposeTargetSymbolInfo = semanticModel.GetSymbolInfo(invocationTargetExpression);
                                 if (disposeTargetSymbolInfo.Symbol != null && SymbolEqualityComparer.Default.Equals(targetSymbolInfo.Symbol, disposeTargetSymbolInfo.Symbol))
@@ -456,7 +456,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return candidateMethods
                     .Where_Any(static x
                         // TODO: SpecialType enum item for 'ValueTask'
-                        => x.Name == "DisposeAsync"
+                        => x.Name == WellKnownMemberNames.DisposeAsyncMethodName
                         && x.ReturnType.Name is nameof(ValueTask)
                         && x.ReturnType.ContainingNamespace is INamespaceSymbol
                         {
