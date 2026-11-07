@@ -175,5 +175,77 @@ namespace Test
             };
             await verifier.RunAsync(CancellationToken.None);
         }
+
+        [TestMethod]
+        public async Task SMA0051_Violation_AdditionalFiles_BuildCs_NoShebang()
+        {
+            var additional = @"{|#0:using System;|}
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var expected = VerifyCS.Diagnostic(ShebangAnalyzer.RuleId_MissingShebang)
+                .WithLocation(0)
+                .WithArguments("build.cs");
+
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Dummy.cs", "class Dummy {}") },
+                    AdditionalFiles = { ("build.cs", additional) },
+                },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            verifier.ExpectedDiagnostics.Add(expected);
+            await verifier.RunAsync(CancellationToken.None);
+        }
+
+        [TestMethod]
+        public async Task SMA0051_Compliant_AdditionalFiles_BuildCs_StartsWithShebang()
+        {
+            var additional = @"#!/usr/bin/env dotnet-script
+using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Dummy.cs", "class Dummy {}") },
+                    AdditionalFiles = { ("build.cs", additional) },
+                },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            await verifier.RunAsync(CancellationToken.None);
+        }
+
+        [TestMethod]
+        public async Task SMA0051_Compliant_AdditionalFiles_OtherCs_NoShebang()
+        {
+            var additional = @"using System;
+
+namespace Test
+{
+    class MyClass { }
+}
+";
+            var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Dummy.cs", "class Dummy {}") },
+                    AdditionalFiles = { ("other.cs", additional) },
+                },
+                TestBehaviors = TestBehaviors.SkipSuppressionCheck,
+            };
+            await verifier.RunAsync(CancellationToken.None);
+        }
     }
 }

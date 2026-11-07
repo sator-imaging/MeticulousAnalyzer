@@ -7,6 +7,7 @@
 #endif
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
 using System.Collections.Immutable;
@@ -47,6 +48,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxTreeAction(Analyze);
+            context.RegisterCompilationAction(AnalyzeCompilation);
         }
 
 
@@ -89,6 +91,74 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             var location = Location.Create(context.Tree, span);
             context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, fileName));
+        }
+
+        private static void AnalyzeCompilation(CompilationAnalysisContext context)
+        {
+            var additionalFiles = context.Options.AdditionalFiles;
+            if (additionalFiles.IsDefaultOrEmpty)
+            {
+                return;
+            }
+
+            CSharpParseOptions? parseOptions = null;
+            foreach (var tree in context.Compilation.SyntaxTrees)
+            {
+                if (tree.Options is CSharpParseOptions options)
+                {
+                    parseOptions = options;
+                    break;
+                }
+            }
+            parseOptions ??= CSharpParseOptions.Default;
+
+            for (int i = 0, count = additionalFiles.Length; i < count; i++)
+            {
+                var file = additionalFiles[i];
+                var filePath = file.Path;
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    continue;
+                }
+
+                var fileName = Path.GetFileName(filePath);
+                if (fileName != "build.cs")
+                {
+                    continue;
+                }
+
+                var text = file.GetText(context.CancellationToken);
+                if (text is null)
+                {
+                    continue;
+                }
+
+                if (text.Length >= 2 && text[0] == '#' && text[1] == '!')
+                {
+                    continue; // Has shebang at the beginning of the file
+                }
+
+                var tree = CSharpSyntaxTree.ParseText(text, parseOptions, filePath, context.CancellationToken);
+                var firstLine = text.Lines[0];
+                var span = firstLine.Span;
+                if (span.IsEmpty)
+                {
+                    var root = tree.GetRoot(context.CancellationToken);
+                    var firstToken = root.GetFirstToken(includeZeroWidth: false,
+                                                        includeSkipped: true,
+                                                        includeDirectives: true,
+                                                        includeDocumentationComments: true);
+
+                    span = firstToken.Span;
+                    if (span.IsEmpty)
+                    {
+                        span = root.FullSpan;
+                    }
+                }
+
+                var location = Location.Create(filePath, span, tree.GetLineSpan(span).Span);
+                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, fileName));
+            }
         }
     }
 }
