@@ -64,6 +64,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     return;
                 }
 
+                if (attrSymbol.Parameters.Length <= 1)
+                {
+                    return;
+                }
+
                 if (unchecked((uint)argIndex < (uint)attrSymbol.Parameters.Length))
                 {
                     var paramSymbol = attrSymbol.Parameters[argIndex];
@@ -106,6 +111,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction.
             if (argStx.IsKind(SyntaxKind.AttributeArgument))
+            {
+                return;
+            }
+
+            if (argOp.Parent is IInvocationOperation { Arguments: { Length: <= 1 } } ||
+                argOp.Parent is IObjectCreationOperation { Arguments: { Length: <= 1 } })
             {
                 return;
             }
