@@ -49,8 +49,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (argStx.Parent is not AttributeArgumentListSyntax argListStx ||
-                argListStx.Arguments.Count <= 1)
+            if (argStx.Parent is not AttributeArgumentListSyntax argListStx)
             {
                 return;
             }
@@ -61,6 +60,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
                 if (IsInSystemNamespace(attrSymbol.ContainingType))
+                {
+                    return;
+                }
+
+                if (attrSymbol.Parameters.Length <= 1)
                 {
                     return;
                 }
@@ -107,12 +111,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             // Skip if it's part of an attribute, we handle that via SyntaxNodeAction.
             if (argStx.IsKind(SyntaxKind.AttributeArgument))
-            {
-                return;
-            }
-
-            if (argStx.Parent is ArgumentListSyntax argumentList &&
-                argumentList.Arguments.Count <= 1)
             {
                 return;
             }
