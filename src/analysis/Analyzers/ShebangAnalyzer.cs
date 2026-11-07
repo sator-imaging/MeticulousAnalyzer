@@ -57,7 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         private static void AnalyzeSyntaxTree(SyntaxTreeAnalysisContext context)
         {
             var tree = context.Tree;
-            if (!IsTargetFile(tree.FilePath))
+            if (!IsTargetFilePath(tree.FilePath))
             {
                 return;
             }
@@ -102,7 +102,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 var file = additionalFiles[i];
                 var filePath = file.Path;
 
-                if (!IsTargetFile(filePath))
+                if (!IsTargetFilePath(filePath))
                 {
                     continue;
                 }
@@ -121,12 +121,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsTargetFile(string filePath)
+        private static bool IsTargetFilePath(string filePath)
         {
             // perf: checking end of the path can eliminate 99.99% of the files
             return filePath.EndsWith(TargetFileName, StringComparison.Ordinal)
                 && (
-                    filePath.EndsWith("\\" + TargetFileName, StringComparison.Ordinal)
+                    filePath == TargetFileName
+                    || filePath.EndsWith("\\" + TargetFileName, StringComparison.Ordinal)
                     || filePath.EndsWith("/" + TargetFileName, StringComparison.Ordinal)
                 );
         }
