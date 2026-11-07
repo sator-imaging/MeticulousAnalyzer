@@ -59,9 +59,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             bool requireReporting = false;
 
             var operation = context.SemanticModel.GetOperation(argStx.Expression);
-            IOperation? originalLiteral = operation;
             if (operation != null &&
-                !IsPossibleOperation(operation, out originalLiteral, out requireReporting))
+                !IsPossibleOperation(operation, out requireReporting))
             {
                 return;
             }
@@ -77,8 +76,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!requireReporting &&
                 argIndex == 0 &&
                 operation != null &&
-                originalLiteral != null &&
-                IsOmittableFirstArgumentType(operation, originalLiteral, isConstructor: true))
+                IsOmittableFirstArgumentType(operation, isConstructor: true))
             {
                 return;
             }
@@ -252,7 +250,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var argValue = argOp.Value;
 
             // 'null', 'default', or 'default(T)' is not allowed at all.
-            if (!IsPossibleOperation(argValue, out var originalLiteral, out var requireReporting))
+            if (!IsPossibleOperation(argValue, out var requireReporting))
             {
                 return;
             }
@@ -278,7 +276,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (argStx.Parent is ArgumentListSyntax argListStx &&
                         argListStx.Arguments.IndexOf(argStx) == 0)
                     {
-                        if (IsOmittableFirstArgumentType(argValue, originalLiteral, isConstructor: invocationOp == null))
+                        if (IsOmittableFirstArgumentType(argValue, isConstructor: invocationOp == null))
                         {
                             return;
                         }
@@ -293,9 +291,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         private static bool IsPossibleOperation(IOperation operation, out bool requireReporting)
-            => IsPossibleOperation(operation, out _, out requireReporting);
-
-        private static bool IsPossibleOperation(IOperation operation, out IOperation originalLiteral, out bool requireReporting)
         {
             // NOTE: 'default' is wrapped with Conversion, but 'default(T)' is not.
             if (operation.Kind is OperationKind.Conversion &&
@@ -303,7 +298,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 operation = unwrapped;
             }
-            originalLiteral = operation;
 
             // 'null' and 'default' literals (including default(T)) are not allowed to be unnamed.
             var isNullOrDefaultLiteral
@@ -338,8 +332,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsOmittableFirstArgumentType(IOperation operation, IOperation originalLiteral, bool isConstructor)
+        private static bool IsOmittableFirstArgumentType(IOperation operation, bool isConstructor)
         {
+            var originalLiteral = operation.TryUnwrapConversion(out var unwrapped) ? unwrapped : operation;
             var originalSpecialType = originalLiteral.Type?.SpecialType;
 
             // First string or char argument is allowed for both method and constructor (including converted literals like string -> ReadOnlySpan<char>).
