@@ -277,13 +277,13 @@
     <value>Undisposed Member</value>
   </data>
   <data name="SMA0044_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' owns disposable members but does not implement `Dispose` method</value>
+    <value>Type '{0}' owns disposable members but does not implement `Dispose` method. Can suppress with comment `// Don't dispose &lt;Reason&gt;`</value>
   </data>
   <data name="SMA0044_Title" xml:space="preserve">
     <value>Missing Dispose Implementation</value>
   </data>
   <data name="SMA0045_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' owns disposable members. Implement `IDisposable` interface</value>
+    <value>Type '{0}' owns disposable members. Implement `IDisposable` interface. Can suppress with comment `// Don't dispose &lt;Reason&gt;`</value>
   </data>
   <data name="SMA0045_Title" xml:space="preserve">
     <value>Missing IDisposable Interface</value>
