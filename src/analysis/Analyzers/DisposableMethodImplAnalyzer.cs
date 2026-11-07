@@ -63,6 +63,26 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
         }
 
+        private const string SuppressionCommentPrefix = "Don't dispose";
+
+        private static bool IsSuppressed(INamedTypeSymbol typeSymbol)
+        {
+            foreach (var syntaxRef in typeSymbol.DeclaringSyntaxReferences)
+            {
+                var syntax = syntaxRef.GetSyntax();
+                if (Core.IsSuppressedByComment(syntax, DisposableAnalyzer.SuppressionComment))
+                {
+                    var comments = Core.GetPrecedingComments(syntax);
+                    if (!comments.EndsWith(SuppressionCommentPrefix, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static void AnalyzeNamedType(SymbolAnalysisContext context)
         {
             if (context.Symbol is not INamedTypeSymbol typeSymbol)
@@ -81,9 +101,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            bool isSuppressed = IsSuppressed(typeSymbol);
+
             if (!typeSymbol.AllInterfaces.Any(static i => i.SpecialType == SpecialType.System_IDisposable))
             {
-                ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                if (!isSuppressed)
+                {
+                    ReportDiagnostic(context, Rule_MissingIDisposableInterface, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                }
 
                 // Don't return. Always analyze Disposable method impl also.
             }
@@ -131,7 +156,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             var targetMethod = fullDisposeMethod ?? publicDisposeMethod ?? explicitImplMethod;
             if (targetMethod == null)
             {
-                ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                if (!isSuppressed)
+                {
+                    ReportDiagnostic(context, Rule_MissingDisposeImplementation, typeSymbol, typeSymbol.ToDiagnosticMessageName());
+                }
                 return;
             }
 
