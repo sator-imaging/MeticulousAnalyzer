@@ -9,15 +9,18 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Immutable;
-using System.IO;
+using System.Threading;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ShebangAnalyzer : DiagnosticAnalyzer
     {
+        private const string TargetFileName = "build.cs";
+
         #region     /* =      DESCRIPTOR      = */
 
         public const string RuleId_MissingShebang = "SMA0051";
@@ -47,50 +50,28 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxTreeAction(Analyze);
+            context.RegisterSyntaxTreeAction(AnalyzeSyntaxTree);
             context.RegisterCompilationAction(AnalyzeCompilation);
         }
 
-
-        private static void Analyze(SyntaxTreeAnalysisContext context)
+        private static void AnalyzeSyntaxTree(SyntaxTreeAnalysisContext context)
         {
-            var filePath = context.Tree.FilePath;
-            if (string.IsNullOrEmpty(filePath))
+            var tree = context.Tree;
+            if (!IsTargetFilePath(tree.FilePath))
             {
                 return;
             }
 
-            var fileName = Path.GetFileName(filePath);
-            if (fileName != "build.cs")
+            var text = tree.GetText(context.CancellationToken);
+            if (HasShebang(text))
             {
                 return;
             }
 
-            var text = context.Tree.GetText(context.CancellationToken);
-            if (text.Length >= 2 && text[0] == '#' && text[1] == '!')
-            {
-                return; // Has shebang at the beginning of the file
-            }
+            var span = GetDiagnosticLocation(tree, text, context.CancellationToken);
 
-            var firstLine = text.Lines[0];
-            var span = firstLine.Span;
-            if (span.IsEmpty)
-            {
-                var root = context.Tree.GetRoot(context.CancellationToken);
-                var firstToken = root.GetFirstToken(includeZeroWidth: false,
-                                                    includeSkipped: true,
-                                                    includeDirectives: true,
-                                                    includeDocumentationComments: true);
-
-                span = firstToken.Span;
-                if (span.IsEmpty)
-                {
-                    span = root.FullSpan;
-                }
-            }
-
-            var location = Location.Create(context.Tree, span);
-            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, fileName));
+            var location = Location.Create(tree, span);
+            context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, TargetFileName));
         }
 
         private static void AnalyzeCompilation(CompilationAnalysisContext context)
@@ -104,61 +85,78 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             CSharpParseOptions? parseOptions = null;
             foreach (var tree in context.Compilation.SyntaxTrees)
             {
-                if (tree.Options is CSharpParseOptions options)
+                if (tree.Options is not CSharpParseOptions options)
                 {
-                    parseOptions = options;
-                    break;
+                    continue;
                 }
+
+                parseOptions = options;
+                break;
             }
+
             parseOptions ??= CSharpParseOptions.Default;
 
+            var ct = context.CancellationToken;
             for (int i = 0, count = additionalFiles.Length; i < count; i++)
             {
                 var file = additionalFiles[i];
                 var filePath = file.Path;
-                if (string.IsNullOrEmpty(filePath))
+
+                if (!IsTargetFilePath(filePath))
                 {
                     continue;
                 }
 
-                var fileName = Path.GetFileName(filePath);
-                if (fileName != "build.cs")
+                var text = file.GetText(ct);
+                if (text is null || HasShebang(text))
                 {
                     continue;
                 }
 
-                var text = file.GetText(context.CancellationToken);
-                if (text is null)
-                {
-                    continue;
-                }
-
-                if (text.Length >= 2 && text[0] == '#' && text[1] == '!')
-                {
-                    continue; // Has shebang at the beginning of the file
-                }
-
-                var tree = CSharpSyntaxTree.ParseText(text, parseOptions, filePath, context.CancellationToken);
-                var firstLine = text.Lines[0];
-                var span = firstLine.Span;
-                if (span.IsEmpty)
-                {
-                    var root = tree.GetRoot(context.CancellationToken);
-                    var firstToken = root.GetFirstToken(includeZeroWidth: false,
-                                                        includeSkipped: true,
-                                                        includeDirectives: true,
-                                                        includeDocumentationComments: true);
-
-                    span = firstToken.Span;
-                    if (span.IsEmpty)
-                    {
-                        span = root.FullSpan;
-                    }
-                }
+                var tree = CSharpSyntaxTree.ParseText(text, options: parseOptions, path: filePath, ct);
+                var span = GetDiagnosticLocation(tree, text, ct);
 
                 var location = Location.Create(filePath, span, tree.GetLineSpan(span).Span);
-                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, fileName));
+                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, TargetFileName));
             }
+        }
+
+        private static bool IsTargetFilePath(string filePath)
+        {
+            // perf: checking end of the path can eliminate 99.99% of the files
+            return filePath.EndsWith(TargetFileName, StringComparison.Ordinal)
+                && (
+                    filePath == TargetFileName
+                    || filePath.EndsWith("\\" + TargetFileName, StringComparison.Ordinal)
+                    || filePath.EndsWith("/" + TargetFileName, StringComparison.Ordinal)
+                );
+        }
+
+        private static bool HasShebang(SourceText text)
+        {
+            return text.Length >= 2 && text[0] == '#' && text[1] == '!';
+        }
+
+        private static TextSpan GetDiagnosticLocation(SyntaxTree tree, SourceText text, CancellationToken ct)
+        {
+            var firstLine = text.Lines[0];
+            var span = firstLine.Span;
+            if (span.IsEmpty)
+            {
+                var root = tree.GetRoot(ct);
+                var firstToken = root.GetFirstToken(includeZeroWidth: false,
+                                                    includeSkipped: true,
+                                                    includeDirectives: true,
+                                                    includeDocumentationComments: true);
+
+                span = firstToken.Span;
+                if (span.IsEmpty)
+                {
+                    span = root.FullSpan;
+                }
+            }
+
+            return span;
         }
     }
 }
