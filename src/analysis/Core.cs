@@ -464,6 +464,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// </param>
         internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment, bool isDiscardOperation = false)
         {
+            if (node is AssignmentExpressionSyntax && !isDiscardOperation)
+            {
+                return false;
+            }
+
             if (node != null && (suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment
                 || suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
                 || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment))
