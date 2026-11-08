@@ -27,7 +27,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EnumAnalyzer : DiagnosticAnalyzer
     {
-        private const string SuppressionComment = "// Allow enum conversion";
+        public const string SuppressionComment = "// Allow enum conversion";
         private const string UnknownEnumTypeName = "<Unknown Enum>";
 
         #region     /* =      DESCRIPTOR      = */

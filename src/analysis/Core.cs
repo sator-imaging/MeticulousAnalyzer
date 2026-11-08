@@ -399,8 +399,43 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /*  Suppression  ================================================================ */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool CheckLeadingCommentOrContainingInvocation(SyntaxNode syntaxNode, string suppressionComment)
+        {
+            var comment = GetFirstSingleLineCommentTrivia(syntaxNode);
+            if (comment.Span.Length >= suppressionComment.Length
+                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>(ascendOutOfTrivia: true);
+            if (invocation != null)
+            {
+                var invComment = GetFirstSingleLineCommentTrivia(invocation);
+                if (invComment.Span.Length >= suppressionComment.Length
+                    && invComment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsSuppressedByComment(IOperation operation, string suppressionComment)
         {
+            if (suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
+            {
+                var stmtSyntax = operation.Syntax is StatementSyntax s ? s : operation.Syntax.Parent as StatementSyntax;
+                if (stmtSyntax != null && CheckLeadingCommentOrContainingInvocation(stmtSyntax, suppressionComment))
+                {
+                    return true;
+                }
+            }
+
             var parentOp = operation.Parent;
 
             return (parentOp is ISimpleAssignmentOperation assignOp && IsSuppressedByComment(assignOp.Syntax, suppressionComment, isDiscardOperation: assignOp.Target is IDiscardOperation))
@@ -429,6 +464,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// </param>
         internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment, bool isDiscardOperation = false)
         {
+            if (node != null && (suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment))
+            {
+                if (CheckLeadingCommentOrContainingInvocation(node, suppressionComment))
+                {
+                    return true;
+                }
+            }
+
             if (node is LocalDeclarationStatementSyntax
                      // Allow suppression comment "Don't dispose" on field declaration
                      or BaseFieldDeclarationSyntax

@@ -16,7 +16,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         public const string RuleId_StateChangeInEarlyReturn = "SMA8031";
         public const string RuleId_NonLocalExitFromLoop = "SMA8032";
 
-        private const string MarkerComment = "// Early exit";
+        public const string MarkerComment = "// Early exit";
         private const string SuppressionComment_NonLocalExitFromLoop = "// Allow non-local exit from loop";
 
         private static readonly DiagnosticDescriptor Rule = new(

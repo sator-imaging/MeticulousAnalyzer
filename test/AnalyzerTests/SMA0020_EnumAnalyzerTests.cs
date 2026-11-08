@@ -158,7 +158,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0020_Violation_Suppression_WorkingOnAssignment()
+        public async Task SMA0020_Compliant_Suppression_WorkingOnAssignment()
         {
             var test = @"
 using System.Reflection;
@@ -174,13 +174,12 @@ namespace Test
             ETest x;
 
             // Allow enum conversion
-            x = {|#0:(ETest)1|};
+            x = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
