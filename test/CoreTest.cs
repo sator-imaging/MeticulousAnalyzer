@@ -563,11 +563,11 @@ class MyClass {}
         public void HasSuppressionComment_MatchingComment_ReturnsTrue()
         {
             var tree = CSharpSyntaxTree.ParseText(@"
-// Allow enum conversion
+// Target comment
 var x = 1;
 ");
             var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
-            Assert.IsTrue(Core.HasSuppressionComment(local, "// Allow enum conversion"));
+            Assert.IsTrue(Core.HasSuppressionComment(local, "// Target comment"));
         }
 
         [TestMethod]
@@ -578,7 +578,7 @@ var x = 1;
 var x = 1;
 ");
             var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
-            Assert.IsFalse(Core.HasSuppressionComment(local, "// Allow enum conversion"));
+            Assert.IsFalse(Core.HasSuppressionComment(local, "// Target comment"));
         }
 
         [TestMethod]
@@ -587,7 +587,7 @@ var x = 1;
             var tree = CSharpSyntaxTree.ParseText(@"
 class C {
     void M() {
-        // Allow enum conversion
+        // Target comment
         Foo(1);
     }
     void Foo(int a) {}
@@ -595,7 +595,7 @@ class C {
 ");
             var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
             var arg = invocation.ArgumentList.Arguments[0];
-            Assert.IsTrue(Core.CheckLeadingCommentOrContainingInvocation(arg, "// Allow enum conversion"));
+            Assert.IsTrue(Core.CheckLeadingCommentOrContainingInvocation(arg, "// Target comment"));
         }
 
         [TestMethod]
@@ -611,7 +611,7 @@ class C {
 ");
             var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
             var arg = invocation.ArgumentList.Arguments[0];
-            Assert.IsFalse(Core.CheckLeadingCommentOrContainingInvocation(arg, "// Allow enum conversion"));
+            Assert.IsFalse(Core.CheckLeadingCommentOrContainingInvocation(arg, "// Target comment"));
         }
 
         // ===== UnwrapAllNullCoalesceOperation =====
