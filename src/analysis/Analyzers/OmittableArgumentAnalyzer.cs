@@ -122,13 +122,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var invocationOp = argOp.Parent as IInvocationOperation;
-            if (invocationOp?.Length <= 1)
+            if (invocationOp?.Arguments.Length <= 1)
             {
                 return;
             }
 
             var creationOp = argOp.Parent as IObjectCreationOperation;
-            if (creationOp?.Length: <= 1)
+            if (creationOp?.Length <= 1)
             {
                 return;
             }
