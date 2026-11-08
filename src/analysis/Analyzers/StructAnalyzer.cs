@@ -17,7 +17,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class StructAnalyzer : DiagnosticAnalyzer
     {
-        private const string SuppressionComment = "// Allow boxing";
+        public const string SuppressionComment = "// Allow boxing";
 
 
         #region     /* =      DESCRIPTOR      = */

@@ -399,8 +399,42 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /*  Suppression  ================================================================ */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool HasSuppressionComment(SyntaxNode node, string suppressionComment)
+        {
+            var comment = GetFirstSingleLineCommentTrivia(node);
+
+            // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
+            // Checking Length is enough and efficient.
+            Debug.Assert(suppressionComment.Length > 0);
+            return comment.Span.Length >= suppressionComment.Length
+                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool CheckLeadingCommentOrContainingInvocation(SyntaxNode syntaxNode, string suppressionComment)
+        {
+            if (HasSuppressionComment(syntaxNode, suppressionComment))
+            {
+                return true;
+            }
+
+            var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>(ascendOutOfTrivia: false);
+            return invocation != null && HasSuppressionComment(invocation, suppressionComment);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsSuppressedByComment(IOperation operation, string suppressionComment)
         {
+            if (suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
+            {
+                var syntax = operation.Syntax;
+                if (syntax != null && CheckLeadingCommentOrContainingInvocation(syntax, suppressionComment))
+                {
+                    return true;
+                }
+            }
+
             var parentOp = operation.Parent;
 
             return (parentOp is ISimpleAssignmentOperation assignOp && IsSuppressedByComment(assignOp.Syntax, suppressionComment, isDiscardOperation: assignOp.Target is IDiscardOperation))
@@ -429,6 +463,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// </param>
         internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment, bool isDiscardOperation = false)
         {
+            if (node == null)
+            {
+                return false;
+            }
+
+            if (suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
+            {
+                if (CheckLeadingCommentOrContainingInvocation(node, suppressionComment))
+                {
+                    return true;
+                }
+            }
+
             if (node is LocalDeclarationStatementSyntax
                      // Allow suppression comment "Don't dispose" on field declaration
                      or BaseFieldDeclarationSyntax
@@ -443,13 +491,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
-                var comment = GetFirstSingleLineCommentTrivia(node);
-
-                // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
-                // Checking Length is enough and efficient.
-                Debug.Assert(suppressionComment.Length > 0);
-                return comment.Span.Length >= suppressionComment.Length
-                    && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+                return HasSuppressionComment(node, suppressionComment);
             }
 
             return false;
