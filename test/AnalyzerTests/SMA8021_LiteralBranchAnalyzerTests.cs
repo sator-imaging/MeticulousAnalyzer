@@ -874,6 +874,7 @@ namespace Test
         public int Depth => 0;
         public int Size => 0;
         public int Capacity => 0;
+        public int Threshold => 0;
     }
 
     public class C
@@ -935,6 +936,10 @@ namespace Test
             if (container.Capacity == 0)
             {
             }
+
+            if (container.Threshold == 0)
+            {
+            }
         }
     }
 }
@@ -964,6 +969,7 @@ namespace Test
         public int Depth { get; set; }
         public int Size { get; set; }
         public int Capacity { get; set; }
+        public int Threshold { get; set; }
     }
 
     public class C
@@ -1025,6 +1031,10 @@ namespace Test
             if (container is { Capacity: 0 })
             {
             }
+
+            if (container is { Threshold: 0 })
+            {
+            }
         }
     }
 }
@@ -1040,7 +1050,7 @@ namespace Test
 {
     public class C
     {
-        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment, int width, int height, int depth, int size, int capacity)
+        public void M(int index, int count, int length, int remove, int search, int add, int exchange, int decrement, int increment, int width, int height, int depth, int size, int capacity, int threshold)
         {
             if (index >= 0)
             {
@@ -1098,6 +1108,10 @@ namespace Test
             {
             }
 
+            if (threshold == 0)
+            {
+            }
+
             int charIndex = 5;
             if (charIndex > 0)
             {
@@ -1105,6 +1119,11 @@ namespace Test
 
             int totalLength = 10;
             if (totalLength is 0)
+            {
+            }
+
+            int maxThreshold = 100;
+            if (maxThreshold > 0)
             {
             }
         }

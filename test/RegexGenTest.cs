@@ -24,7 +24,8 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             "Height",
             "Depth",
             "Size",
-            "Capacity"
+            "Capacity",
+            "Threshold"
         };
 
         [TestMethod]

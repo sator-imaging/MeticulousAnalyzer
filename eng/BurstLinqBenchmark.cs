@@ -395,11 +395,11 @@ public class BurstLinqBenchmarks
     /*  IsMatchingMemberName  ================================================================ */
 
     private static readonly Regex s_isMatchingMemberNameRegex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity",
+        @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex s_isMatchingMemberNameDeInRegex = new Regex(
-        @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)|Width|Height|Depth|Size|Capacity",
+        @"Length|Count|Index|Remove|Search|Add|Exchange|((De|In)crement)|Width|Height|Depth|Size|Capacity|Threshold",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex s_isMatchingMemberNameLength6Regex = new Regex(
@@ -421,7 +421,8 @@ public class BurstLinqBenchmarks
                name.IndexOf("Height", StringComparison.OrdinalIgnoreCase) >= 0 ||
                name.IndexOf("Depth", StringComparison.OrdinalIgnoreCase) >= 0 ||
                name.IndexOf("Size", StringComparison.OrdinalIgnoreCase) >= 0 ||
-               name.IndexOf("Capacity", StringComparison.OrdinalIgnoreCase) >= 0;
+               name.IndexOf("Capacity", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               name.IndexOf("Threshold", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool IsMatchingMemberName_Regex(string name)

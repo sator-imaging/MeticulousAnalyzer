@@ -2,7 +2,7 @@
 //     Source generated files collected:
 //     - RegexGenerator.g.cs
 //     Patterns:
-//     - IsExcemptionNameForZeroComparison: @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity", RegexOptions.IgnoreCase
+//     - IsExcemptionNameForZeroComparison: @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold", RegexOptions.IgnoreCase
 // </auto-generated>
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis
@@ -26,7 +26,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// <remarks>
         /// Pattern explanation:<br/>
         /// <code>
-        /// ○ Match with 14 alternative expressions, atomically.<br/>
+        /// ○ Match with 15 alternative expressions, atomically.<br/>
         ///     ○ Match a sequence of expressions.<br/>
         ///         ○ Match a character in the set [Ll].<br/>
         ///         ○ Match a character in the set [Ee].<br/>
@@ -125,6 +125,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         ///         ○ Match a character in the set [Ii].<br/>
         ///         ○ Match a character in the set [Tt].<br/>
         ///         ○ Match a character in the set [Yy].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///         ○ Match a character in the set [Hh].<br/>
+        ///         ○ Match a character in the set [Rr].<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///         ○ Match a character in the set [Ss].<br/>
+        ///         ○ Match a character in the set [Hh].<br/>
+        ///         ○ Match a character in the set [Oo].<br/>
+        ///         ○ Match a character in the set [Ll].<br/>
+        ///         ○ Match a character in the set [Dd].<br/>
         /// </code>
         /// </remarks>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "7.0.10.26716")]
@@ -153,7 +163,7 @@ namespace System.Text.RegularExpressions.Generated
         /// <summary>Initializes the instance.</summary>
         private IsExcemptionNameForZeroComparison_0()
         {
-            base.pattern = "Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity";
+            base.pattern = "Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold";
             base.roptions = RegexOptions.IgnoreCase;
             ValidateMatchTimeout(Utilities.s_defaultTimeout);
             base.internalMatchTimeout = Utilities.s_defaultTimeout;
@@ -224,14 +234,14 @@ unchecked
                     // Any possible match is at least 3 characters.
                     if (pos <= inputSpan.Length - 3)
                     {
-                        // The pattern begins with a character in the set [AC-EHILRSWac-ehilrsw].
+                        // The pattern begins with a character in the set [AC-EHILR-TWac-ehilr-tw].
                         // Find the next occurrence. If it can't be found, there's no match.
                         ReadOnlySpan<char> span = inputSpan.Slice(pos);
                         for (int i = 0; i < span.Length - 2; i++)
                         {
-                            if (((long)((0xB9906200B9906200UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
-                                ((long)((0x9886010098860100UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
-                                ((long)((0xB08D0840B08D0840UL << (int)(charMinusLow = (uint)span[i + 2] - 'A')) & (charMinusLow - 64)) < 0))
+                            if (((long)((0xB9907200B9907200UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
+                                ((long)((0x9986010099860100UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
+                                ((long)((0xB08D4840B08D4840UL << (int)(charMinusLow = (uint)span[i + 2] - 'A')) & (charMinusLow - 64)) < 0))
                             {
                                 base.runtextpos = pos + i;
                                 return true;
@@ -256,7 +266,7 @@ unchecked
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
                     
-                    // Match with 14 alternative expressions, atomically.
+                    // Match with 15 alternative expressions, atomically.
                     {
                         int alternation_starting_pos = pos;
                         
@@ -486,10 +496,27 @@ unchecked
                             if ((uint)slice.Length < 8 ||
                                 !slice.StartsWith("capacity".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "capacity" (ordinal case-insensitive)
                             {
-                                return false; // The input didn't match.
+                                goto AlternationBranch13;
                             }
                             
                             pos += 8;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch13:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 14
+                        {
+                            if ((uint)slice.Length < 9 ||
+                                !slice.StartsWith("threshold".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "threshold" (ordinal case-insensitive)
+                            {
+                                return false; // The input didn't match.
+                            }
+
+                            pos += 9;
                             slice = inputSpan.Slice(pos);
                         }
                         
