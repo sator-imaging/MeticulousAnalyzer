@@ -63,8 +63,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
         }
 
-        private const string SuppressionCommentPrefix = "Don't dispose";
-
         private static bool IsSuppressed(INamedTypeSymbol typeSymbol)
         {
             foreach (var syntaxRef in typeSymbol.DeclaringSyntaxReferences)
@@ -73,7 +71,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (Core.IsSuppressedByComment(syntax, DisposableAnalyzer.SuppressionComment))
                 {
                     var comments = Core.GetPrecedingComments(syntax);
-                    if (!comments.EndsWith(SuppressionCommentPrefix, System.StringComparison.OrdinalIgnoreCase))
+                    if (!comments.EndsWith(DisposableAnalyzer.SuppressionCommentPrefix, System.StringComparison.OrdinalIgnoreCase))
                     {
                         return true;
                     }

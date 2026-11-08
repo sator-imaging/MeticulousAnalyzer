@@ -21,7 +21,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposableAnalyzer : DiagnosticAnalyzer
     {
-        public const string SuppressionComment = "// Don't dispose";
+        public const string SuppressionCommentPrefix = "Don't dispose";
+        public const string SuppressionComment = "// " + SuppressionCommentPrefix;
 
         private const string UnknownLocalName = "<unknown>";
 
