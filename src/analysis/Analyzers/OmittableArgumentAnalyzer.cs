@@ -115,21 +115,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            if (argOp.Parent is IInvocationOperation { Arguments: { Length: <= 1 } } ||
-                argOp.Parent is IObjectCreationOperation { Arguments: { Length: <= 1 } })
-            {
-                return;
-            }
-
             var parameter = argOp.Parameter;
             if (parameter == null)
             {
                 return;
             }
 
+            var invocationOp = argOp.Parent as IInvocationOperation;
+            if (invocationOp?.Length <= 1)
+            {
+                return;
+            }
+
+            var creationOp = argOp.Parent as IObjectCreationOperation;
+            if (creationOp?.Length: <= 1)
+            {
+                return;
+            }
+
             var containingType = parameter.ContainingType
-                               ?? (argOp.Parent as IInvocationOperation)?.TargetMethod.ContainingType
-                               ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
+                               ?? invocationOp?.TargetMethod.ContainingType
+                               ?? creationOp?.Constructor.ContainingType;
 
             if (IsInSystemNamespace(containingType))
             {
