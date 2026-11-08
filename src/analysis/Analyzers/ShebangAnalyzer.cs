@@ -116,8 +116,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 var tree = CSharpSyntaxTree.ParseText(text, options: parseOptions, path: filePath, ct);
                 var span = GetDiagnosticLocation(tree, text, ct);
 
-                var location = Location.Create(filePath, span, tree.GetLineSpan(span).Span);
-                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, location, TargetFileName));
+                // NOTE: Reporting on location pointing to the file outside of compilation
+                //       makes Visual Studio highlighter not working. Use .None instead.
+                context.ReportDiagnostic(Diagnostic.Create(Rule_MissingShebang, Location.None, filePath));
             }
         }
 
