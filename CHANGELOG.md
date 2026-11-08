@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.3.0-rc.13](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.13) (2026-11-08)
+
+### 🚀 Features
+* Support suppression comment with reason for SMA0044 and SMA0045 by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#736](https://github.com/sator-imaging/MeticulousAnalyzer/pull/736)
+### ✨ Bug Fixes
+* fix(shebang): report location by [@sator-imaging](https://github.com/sator-imaging) in [#740](https://github.com/sator-imaging/MeticulousAnalyzer/pull/740)
+### 📚 Other Changes
+* Do not report SMA8004 if method takes only 1 argument by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#735](https://github.com/sator-imaging/MeticulousAnalyzer/pull/735)
+* Update suppression comment detection for boxing, and early exit by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#741](https://github.com/sator-imaging/MeticulousAnalyzer/pull/741)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.12...v5.3.0-rc.13
+
+
 ## [5.3.0-rc.12](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.12) (2026-11-07)
 
 ### 🚀 Features
