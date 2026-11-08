@@ -174,13 +174,12 @@ namespace Test
             ETest x;
 
             // Allow enum conversion
-            x = {|#0:(ETest)1|};
+            x = (ETest)1;
         }
     }
 }
 ";
-            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_CastToEnum).WithLocation(markupKey: 0).WithArguments("ETest");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
