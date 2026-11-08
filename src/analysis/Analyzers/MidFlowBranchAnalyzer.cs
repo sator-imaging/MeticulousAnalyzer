@@ -336,6 +336,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return true;
             }
 
+            if (expression is ConditionalAccessExpressionSyntax conditionalAccess)
+            {
+                return IsMethodCall(conditionalAccess.WhenNotNull);
+            }
+
             if (expression is not AwaitExpressionSyntax awaitExpr)
             {
                 return false;

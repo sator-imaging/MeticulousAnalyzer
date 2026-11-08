@@ -130,6 +130,48 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8031_Compliant_ConditionalAccessMethodCallBeforeReturn()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void Log(string msg) { }
+
+    void M(bool cond, C? c)
+    {
+        if (cond)
+        {
+            c?.Log(""test"");
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Violation_MultipleConditionalAccessMethodCallsBeforeReturn()
+        {
+            var test = @"#nullable enable
+class C
+{
+    void Log(string msg) { }
+
+    void M(bool cond, C? c)
+    {
+        if (cond)
+        {
+            c?.Log(""1st call"");
+            c?.Log(""2nd call"");
+            {|#0:return|};
+        }
+    }
+}";
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA8031_Compliant_DeclarationsAndEmptyStatements()
         {
             var test = @"
