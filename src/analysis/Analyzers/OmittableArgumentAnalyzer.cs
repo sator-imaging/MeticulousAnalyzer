@@ -59,12 +59,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
-                if (IsInSystemNamespace(attrSymbol.ContainingType))
+                if (attrSymbol.Parameters.Length <= 1)
                 {
                     return;
                 }
 
-                if (attrSymbol.Parameters.Length <= 1)
+                if (IsInSystemNamespace(attrSymbol.ContainingType))
                 {
                     return;
                 }
