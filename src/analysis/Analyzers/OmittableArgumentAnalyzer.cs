@@ -59,6 +59,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (argListStx.Parent != null &&
                 context.SemanticModel.GetSymbolInfo(argListStx.Parent).Symbol is IMethodSymbol attrSymbol)
             {
+                if (attrSymbol.Parameters.Length <= 1)
+                {
+                    return;
+                }
+
                 if (IsInSystemNamespace(attrSymbol.ContainingType))
                 {
                     return;
@@ -116,9 +121,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            var invocationOp = argOp.Parent as IInvocationOperation;
+            if (invocationOp?.Arguments.Length <= 1)
+            {
+                return;
+            }
+
+            var creationOp = argOp.Parent as IObjectCreationOperation;
+            if (creationOp?.Arguments.Length <= 1)
+            {
+                return;
+            }
+
             var containingType = parameter.ContainingType
-                               ?? (argOp.Parent as IInvocationOperation)?.TargetMethod.ContainingType
-                               ?? (argOp.Parent as IObjectCreationOperation)?.Constructor.ContainingType;
+                               ?? invocationOp?.TargetMethod.ContainingType
+                               ?? creationOp?.Constructor.ContainingType;
 
             if (IsInSystemNamespace(containingType))
             {
