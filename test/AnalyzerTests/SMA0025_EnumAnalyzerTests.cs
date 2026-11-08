@@ -60,7 +60,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task SMA0025_Compliant_Suppression_Defined()
+        public async Task SMA0025_Violation_Suppression_Defined()
         {
             var test = @"
 using System;
@@ -75,16 +75,17 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            if (Enum.IsDefined(typeof(ETest), 0)) { }
+            if ({|#0:Enum.IsDefined(typeof(ETest), 0)|}) { }
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]
-        public async Task SMA0025_Compliant_Suppression_GetValues()
+        public async Task SMA0025_Violation_Suppression_GetValues()
         {
             var test = @"
 using System;
@@ -99,12 +100,13 @@ namespace Test
         public void Test()
         {
             // Allow enum conversion
-            foreach (var v in Enum.GetValues(typeof(ETest))) { }
+            foreach (var v in {|#0:Enum.GetValues(typeof(ETest))|}) { }
         }
     }
 }
 ";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(EnumAnalyzer.RuleId_EnumMethod).WithLocation(markupKey: 0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]

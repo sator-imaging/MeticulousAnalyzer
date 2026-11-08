@@ -429,8 +429,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 || suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
                 || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
             {
-                var stmtSyntax = operation.Syntax is StatementSyntax s ? s : operation.Syntax.Parent as StatementSyntax;
-                if (stmtSyntax != null && CheckLeadingCommentOrContainingInvocation(stmtSyntax, suppressionComment))
+                var syntax = operation.Syntax;
+                if (syntax != null && CheckLeadingCommentOrContainingInvocation(syntax, suppressionComment))
                 {
                     return true;
                 }
