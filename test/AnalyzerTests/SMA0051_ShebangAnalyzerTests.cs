@@ -179,7 +179,8 @@ namespace Test
         [TestMethod]
         public async Task SMA0051_Violation_AdditionalFiles_BuildCs_NoShebang()
         {
-            var additional = @"{|#0:using System;|}
+            // NOTE: location is a dummy.
+            var additional = @"{|#0:|}using System;
 
 namespace Test
 {
@@ -187,7 +188,7 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(ShebangAnalyzer.RuleId_MissingShebang)
-                .WithLocation(0)
+                // NOTE: diagnostic has no location: .WithLocation(0)
                 .WithArguments("build.cs");
 
             var verifier = new CSharpAnalyzerVerifier<ShebangAnalyzer>.Test
