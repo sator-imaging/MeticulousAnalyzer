@@ -128,7 +128,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var creationOp = argOp.Parent as IObjectCreationOperation;
-            if (creationOp?.Length <= 1)
+            if (creationOp?.Arguments.Length <= 1)
             {
                 return;
             }
