@@ -425,8 +425,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsSuppressedByComment(IOperation operation, string suppressionComment)
         {
-            if (suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment
-                || suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
+            if (suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
                 || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
             {
                 var syntax = operation.Syntax;
@@ -464,9 +463,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// </param>
         internal static bool IsSuppressedByComment(SyntaxNode? node, string suppressionComment, bool isDiscardOperation = false)
         {
-            if (node != null && (suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment
-                || suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
-                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment))
+            if (node == null)
+            {
+                return false;
+            }
+
+            if (suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
+                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
             {
                 if (CheckLeadingCommentOrContainingInvocation(node, suppressionComment))
                 {
