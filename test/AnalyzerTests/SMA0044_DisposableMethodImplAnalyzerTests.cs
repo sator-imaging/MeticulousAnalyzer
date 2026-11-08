@@ -34,5 +34,43 @@ class {|#0:TestClass|}
             await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
         }
 
+        [TestMethod]
+        public async Task SMA0044_Compliant_SuppressionWithReason()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+// Don't dispose reason here
+class TestClass
+{
+    private MyDisposable _field = new MyDisposable();
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0044_Violation_SuppressionWithoutReason()
+        {
+            var test = @"
+using System;
+
+class MyDisposable : IDisposable { public void Dispose() {} }
+
+// Don't dispose
+class {|#0:TestClass|}
+{
+    private MyDisposable _field = new MyDisposable();
+}";
+            var expected1 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingDisposeImplementation)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass");
+            var expected2 = VerifyCS.Diagnostic(DisposableMethodImplAnalyzer.RuleId_MissingIDisposableInterface)
+                .WithLocation(markupKey: 0)
+                .WithArguments("TestClass");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected1, expected2);
+        }
+
     }
 }

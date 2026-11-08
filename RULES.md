@@ -56,8 +56,8 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA0041 | Null Assignment to Disposable                                    | Disposable object '{0}' is assigned `null` without a preceding `.Dispose()` or `?.Dispose()` call
 | SMA0042 | Not All Code Paths Return a Value                                | Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
 | SMA0043 | Undisposed Member                                                | Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
-| SMA0044 | Missing Dispose Implementation                                   | Type '{0}' owns disposable members but does not implement `Dispose` method
-| SMA0045 | Missing IDisposable Interface                                    | Type '{0}' owns disposable members. Implement `IDisposable` interface
+| SMA0044 | Missing Dispose Implementation                                   | Type '{0}' owns disposable members but does not implement `Dispose` method. Can suppress with comment `// Don't dispose <Reason>`
+| SMA0045 | Missing IDisposable Interface                                    | Type '{0}' owns disposable members. Implement `IDisposable` interface. Can suppress with comment `// Don't dispose <Reason>`
 | SMA0046 | Lost Tracking of Disposable                                      | Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
 
 ## File Structure Analysis

@@ -536,6 +536,27 @@ using System.Linq;
             Assert.IsFalse(Core.IsSuppressedByComment(usingDirective, "// suppress"));
         }
 
+        [TestMethod]
+        public void IsSuppressedByComment_BaseTypeDeclarationWithComment_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+// suppress
+class MyClass {}
+");
+            var typeDecl = FindFirst<BaseTypeDeclarationSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.IsSuppressedByComment(typeDecl, "// suppress"));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_BaseTypeDeclarationWithoutComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class MyClass {}
+");
+            var typeDecl = FindFirst<BaseTypeDeclarationSyntax>(tree.GetRoot());
+            Assert.IsFalse(Core.IsSuppressedByComment(typeDecl, "// suppress"));
+        }
+
         // ===== UnwrapAllNullCoalesceOperation =====
 
         [TestMethod]

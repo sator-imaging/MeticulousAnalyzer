@@ -438,6 +438,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                      or CatchClauseSyntax
                      // Allow suppression comment on using directive
                      or UsingDirectiveSyntax
+                     // Allow suppression comment on type declaration
+                     or BaseTypeDeclarationSyntax
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
