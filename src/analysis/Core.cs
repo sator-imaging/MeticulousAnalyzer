@@ -399,27 +399,27 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /*  Suppression  ================================================================ */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool HasSuppressionComment(SyntaxNode node, string suppressionComment)
+        {
+            var comment = GetFirstSingleLineCommentTrivia(node);
+
+            // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
+            // Checking Length is enough and efficient.
+            Debug.Assert(suppressionComment.Length > 0);
+            return comment.Span.Length >= suppressionComment.Length
+                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool CheckLeadingCommentOrContainingInvocation(SyntaxNode syntaxNode, string suppressionComment)
         {
-            var comment = GetFirstSingleLineCommentTrivia(syntaxNode);
-            if (comment.Span.Length >= suppressionComment.Length
-                && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase))
+            if (HasSuppressionComment(syntaxNode, suppressionComment))
             {
                 return true;
             }
 
-            var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>(ascendOutOfTrivia: true);
-            if (invocation != null)
-            {
-                var invComment = GetFirstSingleLineCommentTrivia(invocation);
-                if (invComment.Span.Length >= suppressionComment.Length
-                    && invComment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>(ascendOutOfTrivia: false);
+            return invocation != null && HasSuppressionComment(invocation, suppressionComment);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -488,13 +488,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
                 // Discard assignment is only allowed. e.g. _ = Foo;
                 || (isDiscardOperation && node is AssignmentExpressionSyntax))
             {
-                var comment = GetFirstSingleLineCommentTrivia(node);
-
-                // SyntaxTrivia and TextSpan are struct. `!= default` invokes Equals including nested structs' Equals.
-                // Checking Length is enough and efficient.
-                Debug.Assert(suppressionComment.Length > 0);
-                return comment.Span.Length >= suppressionComment.Length
-                    && comment.ToString().StartsWith(suppressionComment, StringComparison.OrdinalIgnoreCase);
+                return HasSuppressionComment(node, suppressionComment);
             }
 
             return false;

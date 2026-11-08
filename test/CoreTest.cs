@@ -557,6 +557,63 @@ class MyClass {}
             Assert.IsFalse(Core.IsSuppressedByComment(typeDecl, "// suppress"));
         }
 
+        // ===== HasSuppressionComment & CheckLeadingCommentOrContainingInvocation =====
+
+        [TestMethod]
+        public void HasSuppressionComment_MatchingComment_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+// Allow enum conversion
+var x = 1;
+");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsTrue(Core.HasSuppressionComment(local, "// Allow enum conversion"));
+        }
+
+        [TestMethod]
+        public void HasSuppressionComment_NonMatchingComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+// Other comment
+var x = 1;
+");
+            var local = FindFirst<LocalDeclarationStatementSyntax>(tree.GetRoot());
+            Assert.IsFalse(Core.HasSuppressionComment(local, "// Allow enum conversion"));
+        }
+
+        [TestMethod]
+        public void CheckLeadingCommentOrContainingInvocation_OnInvocation_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // Allow enum conversion
+        Foo(1);
+    }
+    void Foo(int a) {}
+}
+");
+            var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
+            var arg = invocation.ArgumentList.Arguments[0];
+            Assert.IsTrue(Core.CheckLeadingCommentOrContainingInvocation(arg, "// Allow enum conversion"));
+        }
+
+        [TestMethod]
+        public void CheckLeadingCommentOrContainingInvocation_NoComment_ReturnsFalse()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        Foo(1);
+    }
+    void Foo(int a) {}
+}
+");
+            var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
+            var arg = invocation.ArgumentList.Arguments[0];
+            Assert.IsFalse(Core.CheckLeadingCommentOrContainingInvocation(arg, "// Allow enum conversion"));
+        }
+
         // ===== UnwrapAllNullCoalesceOperation =====
 
         [TestMethod]
