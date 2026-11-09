@@ -68,6 +68,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (IsNullableContextSafeguard(invocation))
                     return;
 
+                if (context.Compilation.AssemblyName?.IndexOf("Test", System.StringComparison.Ordinal) >= 0)
+                    return;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Rule_DebugAssertInPublicApi,
                     invocation.Syntax.GetLocation()));
