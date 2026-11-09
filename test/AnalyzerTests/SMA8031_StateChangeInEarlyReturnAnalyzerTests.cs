@@ -260,6 +260,8 @@ class C
             c?.Log(""2nd call"");
             {|#0:return|};
         }
+
+        Log(""after"");
     }
 }";
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
