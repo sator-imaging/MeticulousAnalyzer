@@ -306,7 +306,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (Core.IsSuppressedByComment(op, SuppressionComment))
+            if (op.Parent is IVariableInitializerOperation)
+            {
+                // pass parent, as it does now.
+                if (Core.IsSuppressedByComment(op.Parent, SuppressionComment))
+                {
+                    return;
+                }
+            }
+            else if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment))
             {
                 return;
             }
