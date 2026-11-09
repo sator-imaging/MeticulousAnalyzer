@@ -36,6 +36,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+
     using System.Collections.Generic;
 
     public class C
@@ -110,6 +111,7 @@ namespace App.Features
 namespace App.Features
 {
     // Important leading comment
+     // trailing comment
     using System.Collections.Generic;
 
     public class C
@@ -187,6 +189,7 @@ namespace MyCompany.Root
 ";
             var fixtest = @"
 // File header
+
 using System.Collections.Generic;
 
 namespace MyCompany.Root

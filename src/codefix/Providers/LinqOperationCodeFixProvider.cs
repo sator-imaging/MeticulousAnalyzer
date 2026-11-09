@@ -14,7 +14,6 @@ using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -67,9 +66,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             if (semanticModel == null || root == null) return solution;
 
-            // Collect Linq methods and call site namespaces
+            // Collect Linq methods used in the document
             var linqMethods = new List<IMethodSymbol>();
-            var callSiteNamespaces = new List<string>();
 
             foreach (var node in root.DescendantNodes())
             {
@@ -90,21 +88,17 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                         {
                             linqMethods.Add(constructedFrom);
                         }
-
-                        var ns = GetCallSiteNamespace(inv);
-                        if (!string.IsNullOrEmpty(ns) && !callSiteNamespaces.Contains(ns))
-                        {
-                            callSiteNamespaces.Add(ns);
-                        }
                     }
                 }
             }
 
-            var topLevelNamespace = GetTopLevelNamespace(callSiteNamespaces, root);
-            var projectNamespace = GetProjectNamespace(project, topLevelNamespace);
+            var topLevelNamespace = GetTopLevelNamespace(root);
+            var projectNamespace = !string.IsNullOrEmpty(project.DefaultNamespace)
+                ? project.DefaultNamespace!
+                : topLevelNamespace;
 
-            // Remove using System.Linq; preserving trivia
-            var newRoot = RemoveUsingDirectivePreservingTrivia(root, usingDirective);
+            // Remove using System.Linq; only, keeping trivia
+            var newRoot = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepExteriorTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, newRoot);
 
             // Output file: LinqPortal.<project namespace from csproj>.cs (no .g.cs)
@@ -113,70 +107,160 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 : (string.IsNullOrEmpty(topLevelNamespace) ? "LinqPortal.cs" : $"LinqPortal.{topLevelNamespace}.cs");
 
             var currentProject = solution.GetProject(project.Id)!;
-            // Look for existing portal document
-            var existingDoc = currentProject.Documents.FirstOrDefault(d => string.Equals(d.Name, portalFileName, StringComparison.OrdinalIgnoreCase))
+            var portalDoc = currentProject.Documents.FirstOrDefault(d => string.Equals(d.Name, portalFileName, StringComparison.OrdinalIgnoreCase))
                 ?? currentProject.Documents.FirstOrDefault(d => d.Name != null && d.Name.StartsWith("LinqPortal.", StringComparison.OrdinalIgnoreCase) && d.Name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase));
 
-            if (existingDoc != null)
+            // 1. Generate empty placeholder if file is not found
+            if (portalDoc == null)
             {
-                var existingRoot = await existingDoc.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                var existingModel = await existingDoc.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-
-                if (existingRoot != null)
-                {
-                    var updatedRoot = MergePortalDocument(existingRoot, existingModel, topLevelNamespace, linqMethods);
-                    solution = solution.WithDocumentSyntaxRoot(existingDoc.Id, updatedRoot);
-                }
-            }
-            else
-            {
-                var portalSource = GeneratePortalSource(topLevelNamespace, linqMethods);
+                var emptyPlaceholder = GenerateEmptyPlaceholder(topLevelNamespace);
                 var projectDir = !string.IsNullOrEmpty(project.FilePath) ? Path.GetDirectoryName(project.FilePath) : null;
                 var filePath = projectDir != null ? Path.Combine(projectDir, portalFileName) : null;
 
+                var docId = DocumentId.CreateNewId(project.Id, portalFileName);
                 solution = solution.AddDocument(
-                    DocumentId.CreateNewId(project.Id, portalFileName),
+                    docId,
                     portalFileName,
-                    Microsoft.CodeAnalysis.Text.SourceText.From(portalSource),
+                    Microsoft.CodeAnalysis.Text.SourceText.From(emptyPlaceholder),
                     filePath: filePath);
+
+                currentProject = solution.GetProject(project.Id)!;
+                portalDoc = currentProject.GetDocument(docId)!;
+            }
+
+            // 2. Collect existing symbols and their body, and place them with new methods in alphabetical order
+            var portalRoot = await portalDoc.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            var portalModel = await portalDoc.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            if (portalRoot != null)
+            {
+                var updatedPortalRoot = UpdatePortalClass(portalRoot, portalModel, topLevelNamespace, linqMethods);
+                solution = solution.WithDocumentSyntaxRoot(portalDoc.Id, updatedPortalRoot);
             }
 
             return solution;
         }
 
-        private static string GetProjectNamespace(Project project, string fallbackNamespace)
+        private static string GenerateEmptyPlaceholder(string topLevelNamespace)
         {
-            // 1. Try project.DefaultNamespace
-            if (!string.IsNullOrEmpty(project.DefaultNamespace))
+            var sb = new StringBuilder();
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine();
+
+            bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
+            if (hasNamespace)
             {
-                return project.DefaultNamespace!;
+                sb.AppendLine($"namespace {topLevelNamespace}");
+                sb.AppendLine("{");
             }
 
-            // 2. Try parsing RootNamespace from csproj file if it exists
-            if (!string.IsNullOrEmpty(project.FilePath) && File.Exists(project.FilePath))
-            {
-                try
-                {
-                    var content = File.ReadAllText(project.FilePath);
-                    var match = Regex.Match(content, @"<RootNamespace>\s*([^<\s]+)\s*</RootNamespace>", RegexOptions.IgnoreCase);
-                    if (match.Success)
-                    {
-                        return match.Groups[1].Value;
-                    }
+            string indent = hasNamespace ? "    " : "";
+            sb.AppendLine($"{indent}public static partial class LinqPortal");
+            sb.AppendLine($"{indent}{{");
+            sb.AppendLine($"{indent}}}");
 
-                    var projName = Path.GetFileNameWithoutExtension(project.FilePath);
-                    if (!string.IsNullOrEmpty(projName))
-                    {
-                        return projName!;
-                    }
-                }
-                catch
+            if (hasNamespace)
+            {
+                sb.AppendLine("}");
+            }
+
+            return sb.ToString();
+        }
+
+        private static SyntaxNode UpdatePortalClass(
+            SyntaxNode portalRoot,
+            SemanticModel? portalModel,
+            string topLevelNamespace,
+            List<IMethodSymbol> linqMethods)
+        {
+            ClassDeclarationSyntax? classDecl = null;
+            foreach (var node in portalRoot.DescendantNodes())
+            {
+                if (node is ClassDeclarationSyntax cls && cls.Identifier.Text == "LinqPortal")
                 {
-                    // Fall back
+                    classDecl = cls;
+                    break;
                 }
             }
 
-            return fallbackNamespace;
+            if (classDecl == null) return portalRoot;
+
+            bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
+            string indent = hasNamespace ? "        " : "    ";
+
+            // Existing methods: (Name, ParamCount, Syntax)
+            var existingMethods = new List<(string Name, int ParamCount, MethodDeclarationSyntax Syntax)>();
+            foreach (var member in classDecl.Members)
+            {
+                if (member is MethodDeclarationSyntax methodSyntax)
+                {
+                    var symbol = portalModel?.GetDeclaredSymbol(methodSyntax);
+                    var name = symbol?.Name ?? methodSyntax.Identifier.Text;
+                    var paramCount = symbol?.Parameters.Length ?? methodSyntax.ParameterList.Parameters.Count;
+                    existingMethods.Add((name, paramCount, methodSyntax));
+                }
+            }
+
+            // Combine methods: existing methods reuse their syntax/body as-is, new methods get forwarder
+            var allMethodSyntaxes = new List<(string Name, int ParamCount, MethodDeclarationSyntax Syntax)>();
+
+            // a. Keep all existing methods with bodies
+            for (int i = 0, count = existingMethods.Count; i < count; i++)
+            {
+                allMethodSyntaxes.Add(existingMethods[i]);
+            }
+
+            // b. Add newly required LINQ methods if not already existing
+            for (int i = 0, count = linqMethods.Count; i < count; i++)
+            {
+                var lm = linqMethods[i];
+                bool exists = false;
+                for (int j = 0, eCount = existingMethods.Count; j < eCount; j++)
+                {
+                    if (existingMethods[j].Name == lm.Name && existingMethods[j].ParamCount == lm.Parameters.Length)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists)
+                {
+                    var forwarderText = GenerateMethodForwarder(lm, indent);
+                    if (SyntaxFactory.ParseMemberDeclaration(forwarderText) is MethodDeclarationSyntax parsedSyntax)
+                    {
+                        allMethodSyntaxes.Add((lm.Name, lm.Parameters.Length, parsedSyntax));
+                    }
+                }
+            }
+
+            // Sort all methods in alphabetical order by method name
+            var sortedList = allMethodSyntaxes
+                .OrderBy(static m => m.Name, StringComparer.Ordinal)
+                .ThenBy(static m => m.ParamCount)
+                .ToList();
+
+            var sortedSyntaxes = new List<MemberDeclarationSyntax>();
+            for (int i = 0, count = sortedList.Count; i < count; i++)
+            {
+                var syntax = sortedList[i].Syntax;
+                if (i == 0)
+                {
+                    syntax = syntax.WithLeadingTrivia(SyntaxFactory.Whitespace(indent));
+                }
+                else
+                {
+                    syntax = syntax.WithLeadingTrivia(SyntaxFactory.Whitespace("\n\n" + indent));
+                }
+
+                syntax = syntax.WithTrailingTrivia(SyntaxTriviaList.Empty);
+                sortedSyntaxes.Add(syntax);
+            }
+
+            var closeBrace = classDecl.CloseBraceToken.WithLeadingTrivia(SyntaxFactory.Whitespace("\n" + (hasNamespace ? "    " : "")));
+            var newClassDecl = classDecl.WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>(sortedSyntaxes))
+                .WithCloseBraceToken(closeBrace);
+            return portalRoot.ReplaceNode(classDecl, newClassDecl);
         }
 
         private static bool ContainsMethod(List<IMethodSymbol> list, IMethodSymbol method)
@@ -209,274 +293,30 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 && containingType.ContainingNamespace?.ToDisplayString() == "System.Linq";
         }
 
-        private static string GetCallSiteNamespace(SyntaxNode node)
+        private static string GetTopLevelNamespace(SyntaxNode root)
         {
-            var nsDecl = node.Ancestors().OfType<NamespaceDeclarationSyntax>().FirstOrDefault();
-            if (nsDecl != null)
+            foreach (var node in root.DescendantNodes())
             {
-                return nsDecl.Name.ToString();
-            }
-
-            var fileScopedNs = node.Ancestors().FirstOrDefault(static n => n.GetType().Name == "FileScopedNamespaceDeclarationSyntax");
-            if (fileScopedNs != null)
-            {
-                var nameProp = fileScopedNs.GetType().GetProperty("Name");
-                if (nameProp?.GetValue(fileScopedNs) is NameSyntax nameSyntax)
+                if (node is NamespaceDeclarationSyntax ns)
                 {
-                    return nameSyntax.ToString();
+                    var full = ns.Name.ToString();
+                    var dot = full.IndexOf('.');
+                    return dot > 0 ? full.Substring(0, dot) : full;
                 }
-            }
 
-            return string.Empty;
-        }
-
-        private static string GetTopLevelNamespace(List<string> namespaces, SyntaxNode root)
-        {
-            if (namespaces.Count > 0)
-            {
-                var firstNs = namespaces[0];
-                var dotIndex = firstNs.IndexOf('.');
-                return dotIndex > 0 ? firstNs.Substring(0, dotIndex) : firstNs;
-            }
-
-            var nsDecl = root.DescendantNodes().OfType<NamespaceDeclarationSyntax>().FirstOrDefault();
-            if (nsDecl != null)
-            {
-                var fullNs = nsDecl.Name.ToString();
-                var dotIndex = fullNs.IndexOf('.');
-                return dotIndex > 0 ? fullNs.Substring(0, dotIndex) : fullNs;
-            }
-
-            var fileScopedNs = root.DescendantNodes().FirstOrDefault(static n => n.GetType().Name == "FileScopedNamespaceDeclarationSyntax");
-            if (fileScopedNs != null)
-            {
-                var nameProp = fileScopedNs.GetType().GetProperty("Name");
-                if (nameProp?.GetValue(fileScopedNs) is NameSyntax nameSyntax)
+                if (node.GetType().Name == "FileScopedNamespaceDeclarationSyntax")
                 {
-                    var fullNs = nameSyntax.ToString();
-                    var dotIndex = fullNs.IndexOf('.');
-                    return dotIndex > 0 ? fullNs.Substring(0, dotIndex) : fullNs;
+                    var nameProp = node.GetType().GetProperty("Name");
+                    if (nameProp?.GetValue(node) is NameSyntax nameSyntax)
+                    {
+                        var full = nameSyntax.ToString();
+                        var dot = full.IndexOf('.');
+                        return dot > 0 ? full.Substring(0, dot) : full;
+                    }
                 }
             }
 
             return "Global";
-        }
-
-        private static SyntaxNode RemoveUsingDirectivePreservingTrivia(SyntaxNode root, UsingDirectiveSyntax usingDirective)
-        {
-            var leadingTrivia = usingDirective.GetLeadingTrivia();
-            var hasComments = leadingTrivia.Any(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia));
-
-            var parent = usingDirective.Parent;
-            if (parent is CompilationUnitSyntax compUnit)
-            {
-                var index = compUnit.Usings.IndexOf(usingDirective);
-                var newUsings = compUnit.Usings.RemoveAt(index);
-
-                if (hasComments)
-                {
-                    if (index < newUsings.Count)
-                    {
-                        var nextUsing = newUsings[index];
-                        var preservedLeading = CombineLeadingTrivia(leadingTrivia, nextUsing.GetLeadingTrivia());
-                        newUsings = newUsings.Replace(nextUsing, nextUsing.WithLeadingTrivia(preservedLeading));
-                    }
-                    else if (compUnit.Members.Count > 0)
-                    {
-                        var firstMember = compUnit.Members[0];
-                        var preservedLeading = CombineLeadingTrivia(leadingTrivia, firstMember.GetLeadingTrivia());
-                        compUnit = compUnit.WithMembers(compUnit.Members.Replace(firstMember, firstMember.WithLeadingTrivia(preservedLeading)));
-                    }
-                }
-
-                return compUnit.WithUsings(newUsings);
-            }
-            else if (parent is NamespaceDeclarationSyntax nsDecl)
-            {
-                var index = nsDecl.Usings.IndexOf(usingDirective);
-                var newUsings = nsDecl.Usings.RemoveAt(index);
-
-                if (hasComments)
-                {
-                    if (index < newUsings.Count)
-                    {
-                        var nextUsing = newUsings[index];
-                        var preservedLeading = CombineLeadingTrivia(leadingTrivia, nextUsing.GetLeadingTrivia());
-                        newUsings = newUsings.Replace(nextUsing, nextUsing.WithLeadingTrivia(preservedLeading));
-                    }
-                    else if (nsDecl.Members.Count > 0)
-                    {
-                        var firstMember = nsDecl.Members[0];
-                        var preservedLeading = CombineLeadingTrivia(leadingTrivia, firstMember.GetLeadingTrivia());
-                        nsDecl = nsDecl.WithMembers(nsDecl.Members.Replace(firstMember, firstMember.WithLeadingTrivia(preservedLeading)));
-                    }
-                }
-
-                return root.ReplaceNode(nsDecl, nsDecl.WithUsings(newUsings));
-            }
-
-            return root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepNoTrivia) ?? root;
-        }
-
-        private static SyntaxTriviaList CombineLeadingTrivia(SyntaxTriviaList leadingTrivia, SyntaxTriviaList nextLeadingTrivia)
-        {
-            var list = new List<SyntaxTrivia>(leadingTrivia);
-            while (list.Count > 0 && list[list.Count - 1].IsKind(SyntaxKind.WhitespaceTrivia))
-            {
-                list.RemoveAt(list.Count - 1);
-            }
-            if (list.Count > 0 && !list[list.Count - 1].IsKind(SyntaxKind.EndOfLineTrivia))
-            {
-                list.Add(SyntaxFactory.CarriageReturnLineFeed);
-            }
-            return SyntaxFactory.TriviaList(list.Concat(nextLeadingTrivia));
-        }
-
-        private static string GeneratePortalSource(string topLevelNamespace, List<IMethodSymbol> linqMethods)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("using System;");
-            sb.AppendLine("using System.Collections.Generic;");
-            sb.AppendLine();
-
-            bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
-
-            if (hasNamespace)
-            {
-                sb.AppendLine($"namespace {topLevelNamespace}");
-                sb.AppendLine("{");
-            }
-
-            string indent = hasNamespace ? "    " : "";
-            sb.AppendLine($"{indent}public static partial class LinqPortal");
-            sb.AppendLine($"{indent}{{");
-
-            var sortedMethods = linqMethods.OrderBy(static m => m.Name, StringComparer.Ordinal)
-                .ThenBy(static m => m.Parameters.Length)
-                .ToList();
-
-            for (int i = 0, count = sortedMethods.Count; i < count; i++)
-            {
-                var method = sortedMethods[i];
-                var methodDecl = GenerateMethodForwarder(method, indent + "    ");
-                sb.AppendLine(methodDecl);
-                if (i < count - 1)
-                {
-                    sb.AppendLine();
-                }
-            }
-
-            sb.AppendLine($"{indent}}}");
-
-            if (hasNamespace)
-            {
-                sb.AppendLine("}");
-            }
-
-            return sb.ToString();
-        }
-
-        private static SyntaxNode MergePortalDocument(
-            SyntaxNode existingRoot,
-            SemanticModel? existingModel,
-            string topLevelNamespace,
-            List<IMethodSymbol> linqMethods)
-        {
-            ClassDeclarationSyntax? classDecl = null;
-            foreach (var node in existingRoot.DescendantNodes())
-            {
-                if (node is ClassDeclarationSyntax cls && cls.Identifier.Text == "LinqPortal")
-                {
-                    classDecl = cls;
-                    break;
-                }
-            }
-
-            if (classDecl == null)
-            {
-                return existingRoot;
-            }
-
-            bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
-            string indent = hasNamespace ? "        " : "    ";
-
-            // Resolve existing methods using Roslyn semantic model / symbols if available, else syntax
-            var existingMethods = new List<(string Name, int ParamCount)>();
-            foreach (var member in classDecl.Members)
-            {
-                if (member is MethodDeclarationSyntax methodSyntax)
-                {
-                    var symbol = existingModel?.GetDeclaredSymbol(methodSyntax);
-                    if (symbol != null)
-                    {
-                        existingMethods.Add((symbol.Name, symbol.Parameters.Length));
-                    }
-                    else
-                    {
-                        existingMethods.Add((methodSyntax.Identifier.Text, methodSyntax.ParameterList.Parameters.Count));
-                    }
-                }
-            }
-
-            var newMethodsToAdd = new List<IMethodSymbol>();
-            for (int i = 0, count = linqMethods.Count; i < count; i++)
-            {
-                var m = linqMethods[i];
-                bool alreadyExists = false;
-                for (int j = 0, eCount = existingMethods.Count; j < eCount; j++)
-                {
-                    var em = existingMethods[j];
-                    if (em.Name == m.Name && em.ParamCount == m.Parameters.Length)
-                    {
-                        alreadyExists = true;
-                        break;
-                    }
-                }
-
-                if (!alreadyExists)
-                {
-                    newMethodsToAdd.Add(m);
-                }
-            }
-
-            if (newMethodsToAdd.Count == 0)
-            {
-                return existingRoot;
-            }
-
-            newMethodsToAdd = newMethodsToAdd.OrderBy(static m => m.Name, StringComparer.Ordinal)
-                .ThenBy(static m => m.Parameters.Length)
-                .ToList();
-
-            var currentMembers = classDecl.Members;
-
-            // Insert each method into class members determined by alphabetical order of method name
-            for (int i = 0, count = newMethodsToAdd.Count; i < count; i++)
-            {
-                var newMethod = newMethodsToAdd[i];
-                var forwarderText = "\n" + GenerateMethodForwarder(newMethod, indent) + "\n";
-                var methodSyntax = SyntaxFactory.ParseMemberDeclaration(forwarderText);
-                if (methodSyntax == null) continue;
-
-                int insertIndex = currentMembers.Count;
-                for (int mIdx = 0, mCount = currentMembers.Count; mIdx < mCount; mIdx++)
-                {
-                    if (currentMembers[mIdx] is MethodDeclarationSyntax existingM)
-                    {
-                        int cmp = string.Compare(newMethod.Name, existingM.Identifier.Text, StringComparison.Ordinal);
-                        if (cmp < 0)
-                        {
-                            insertIndex = mIdx;
-                            break;
-                        }
-                    }
-                }
-
-                currentMembers = currentMembers.Insert(insertIndex, methodSyntax);
-            }
-
-            var newClassDecl = classDecl.WithMembers(currentMembers);
-            return existingRoot.ReplaceNode(classDecl, newClassDecl);
         }
 
         private static string GenerateMethodForwarder(IMethodSymbol method, string indent)
