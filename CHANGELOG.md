@@ -6,7 +6,10 @@
 * Exempt last if statement at loop or method root from `SMA8031` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#746](https://github.com/sator-imaging/MeticulousAnalyzer/pull/746)
 ### 🚀 Features
 * Add Threshold to `SMA8021` allow list by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#745](https://github.com/sator-imaging/MeticulousAnalyzer/pull/745)
+### ✨ Bug Fixes
 * Support conditional method invocation in `SMA8031` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#744](https://github.com/sator-imaging/MeticulousAnalyzer/pull/744)
+### 📚 Other Changes
+* Fix SMA8031 conditional access test by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#748](https://github.com/sator-imaging/MeticulousAnalyzer/pull/748)
 
 
 **Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.13...v5.3.0-rc.14
