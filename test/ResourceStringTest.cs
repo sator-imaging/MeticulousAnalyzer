@@ -204,6 +204,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             var codefixProps = new string[]
             {
                 CodeFixResources.CodeFix_EnumObfuscation,
+                CodeFixResources.CodeFix_LinqOperation,
                 CodeFixResources.CodeFix_NamedArgument,
                 CodeFixResources.CodeFix_NullSuppression,
             };
