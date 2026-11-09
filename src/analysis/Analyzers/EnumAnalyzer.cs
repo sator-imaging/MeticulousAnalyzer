@@ -306,9 +306,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (op.Parent is IVariableInitializerOperation or (ISimpleAssignmentOperation { Target: IDiscardOperation }))
+            // Disallow reassignment suppression
+            if (op.Parent is not ISimpleAssignmentOperation)
             {
-                // pass parent, as it does now.
                 if (Core.IsSuppressedByComment(op, SuppressionComment))
                 {
                     return;
