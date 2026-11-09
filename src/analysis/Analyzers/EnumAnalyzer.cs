@@ -307,16 +307,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             // Disallow reassignment suppression
-            if (op.Parent is not ISimpleAssignmentOperation)
+            if (op.Parent is not ISimpleAssignmentOperation { Target: not IDiscardOperation })
             {
                 if (Core.IsSuppressedByComment(op, SuppressionComment))
                 {
                     return;
                 }
-            }
-            else if (Core.IsSuppressedByComment(op.Syntax, SuppressionComment))
-            {
-                return;
             }
 
             AnalyzeCast_Impl(context, op);
