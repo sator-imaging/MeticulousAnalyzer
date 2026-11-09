@@ -32,6 +32,18 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return null;
         }
 
+        // Required because FileScopedNamespaceDeclarationSyntax was introduced in C# 10 / Roslyn 4.0,
+        // but this project references Roslyn 3.8.0 compile-time abstractions.
+        private const string FileScopedNamespaceDeclarationSyntaxName = "FileScopedNamespaceDeclarationSyntax";
+
+        private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
+            globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
+            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints,
+            memberOptions: SymbolDisplayMemberOptions.IncludeType | SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeAccessibility | SymbolDisplayMemberOptions.IncludeModifiers,
+            parameterOptions: SymbolDisplayParameterOptions.IncludeType | SymbolDisplayParameterOptions.IncludeName | SymbolDisplayParameterOptions.IncludeParamsRefOut | SymbolDisplayParameterOptions.IncludeExtensionThis,
+            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
+
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
@@ -97,8 +109,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 ? project.DefaultNamespace!
                 : topLevelNamespace;
 
-            // Remove using System.Linq; preserving trivia
-            var newRoot = RemoveUsingDirective(root, usingDirective);
+            // Delete using System.Linq; ONLY
+            var newRoot = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepNoTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, newRoot);
 
             // Output file: LinqPortal.<project namespace from csproj>.cs (no .g.cs)
@@ -138,70 +150,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             }
 
             return solution;
-        }
-
-        private static SyntaxNode RemoveUsingDirective(SyntaxNode root, UsingDirectiveSyntax usingDirective)
-        {
-            var leadingTrivia = usingDirective.GetLeadingTrivia();
-            bool hasComments = leadingTrivia.Any(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia));
-
-            if (usingDirective.Parent is CompilationUnitSyntax compUnit)
-            {
-                var index = compUnit.Usings.IndexOf(usingDirective);
-                var newUsings = compUnit.Usings.RemoveAt(index);
-
-                if (hasComments)
-                {
-                    var triviaToKeep = TrimTrailingWhitespace(leadingTrivia);
-                    if (index < newUsings.Count)
-                    {
-                        var next = newUsings[index];
-                        newUsings = newUsings.Replace(next, next.WithLeadingTrivia(triviaToKeep.AddRange(next.GetLeadingTrivia())));
-                    }
-                    else if (compUnit.Members.Count > 0)
-                    {
-                        var firstMember = compUnit.Members[0];
-                        compUnit = compUnit.WithMembers(compUnit.Members.Replace(firstMember, firstMember.WithLeadingTrivia(triviaToKeep.AddRange(firstMember.GetLeadingTrivia()))));
-                    }
-                }
-
-                return compUnit.WithUsings(newUsings);
-            }
-
-            if (usingDirective.Parent is NamespaceDeclarationSyntax nsDecl)
-            {
-                var index = nsDecl.Usings.IndexOf(usingDirective);
-                var newUsings = nsDecl.Usings.RemoveAt(index);
-
-                if (hasComments)
-                {
-                    var triviaToKeep = TrimTrailingWhitespace(leadingTrivia);
-                    if (index < newUsings.Count)
-                    {
-                        var next = newUsings[index];
-                        newUsings = newUsings.Replace(next, next.WithLeadingTrivia(triviaToKeep.AddRange(next.GetLeadingTrivia())));
-                    }
-                    else if (nsDecl.Members.Count > 0)
-                    {
-                        var firstMember = nsDecl.Members[0];
-                        nsDecl = nsDecl.WithMembers(nsDecl.Members.Replace(firstMember, firstMember.WithLeadingTrivia(triviaToKeep.AddRange(firstMember.GetLeadingTrivia()))));
-                    }
-                }
-
-                return root.ReplaceNode(nsDecl, nsDecl.WithUsings(newUsings));
-            }
-
-            return root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepNoTrivia) ?? root;
-        }
-
-        private static SyntaxTriviaList TrimTrailingWhitespace(SyntaxTriviaList trivia)
-        {
-            var list = new List<SyntaxTrivia>(trivia);
-            while (list.Count > 0 && list[list.Count - 1].IsKind(SyntaxKind.WhitespaceTrivia))
-            {
-                list.RemoveAt(list.Count - 1);
-            }
-            return SyntaxFactory.TriviaList(list);
         }
 
         private static string GenerateEmptyPlaceholder(string topLevelNamespace)
@@ -348,14 +296,21 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return SymbolEqualityComparer.Default.Equals(m1, m2);
         }
 
-        private static bool IsSystemLinqEnumerableMethod(IMethodSymbol method)
-        {
-            var containingType = method.ContainingType;
-            if (containingType == null) return false;
-
-            return containingType.Name == "Enumerable"
-                && containingType.ContainingNamespace?.ToDisplayString() == "System.Linq";
-        }
+        private static bool IsSystemLinqEnumerableMethod(IMethodSymbol method) =>
+            method is {
+                ContainingType: {
+                    Name: "Enumerable",
+                    ContainingNamespace: {
+                        Name: "Linq",
+                        ContainingNamespace: {
+                            Name: "System",
+                            ContainingNamespace: {
+                                IsGlobalNamespace: true
+                            }
+                        }
+                    }
+                }
+            };
 
         private static string GetTopLevelNamespace(SyntaxNode root)
         {
@@ -368,7 +323,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     return dot > 0 ? full.Substring(0, dot) : full;
                 }
 
-                if (node.GetType().Name == "FileScopedNamespaceDeclarationSyntax")
+                if (node.GetType().Name == FileScopedNamespaceDeclarationSyntaxName)
                 {
                     var nameProp = node.GetType().GetProperty("Name");
                     if (nameProp?.GetValue(node) is NameSyntax nameSyntax)
@@ -385,65 +340,19 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static string GenerateMethodForwarder(IMethodSymbol method, string indent)
         {
-            var returnTypeStr = method.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var signature = method.ToDisplayString(MethodSignatureFormat);
 
-            var typeParameters = method.TypeParameters;
-            string typeParamsStr = "";
-            string typeArgsCallStr = "";
-            if (typeParameters.Length > 0)
-            {
-                var tpNames = typeParameters.Select(static tp => tp.Name).ToArray();
-                typeParamsStr = "<" + string.Join(", ", tpNames) + ">";
-                typeArgsCallStr = "<" + string.Join(", ", tpNames) + ">";
-            }
+            var typeArgs = method.TypeParameters.Length > 0
+                ? "<" + string.Join(", ", method.TypeParameters.Select(static tp => tp.Name)) + ">"
+                : "";
 
-            var paramList = new List<string>();
-            var argList = new List<string>();
-
-            for (int i = 0, pCount = method.Parameters.Length; i < pCount; i++)
-            {
-                var param = method.Parameters[i];
-                var pTypeStr = param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                var pModifier = i == 0 && method.IsExtensionMethod ? "this " : "";
-
-                paramList.Add($"{pModifier}{pTypeStr} {param.Name}");
-                argList.Add(param.Name);
-            }
-
-            var paramsFormatted = string.Join(", ", paramList);
-            var argsFormatted = string.Join(", ", argList);
-
-            var constraints = new List<string>();
-            for (int i = 0, tpCount = typeParameters.Length; i < tpCount; i++)
-            {
-                var tp = typeParameters[i];
-                var constraintClauses = new List<string>();
-                if (tp.HasReferenceTypeConstraint) constraintClauses.Add("class");
-                if (tp.HasValueTypeConstraint) constraintClauses.Add("struct");
-                if (tp.HasNotNullConstraint) constraintClauses.Add("notnull");
-                if (tp.HasUnmanagedTypeConstraint) constraintClauses.Add("unmanaged");
-
-                for (int c = 0, ctCount = tp.ConstraintTypes.Length; c < ctCount; c++)
-                {
-                    constraintClauses.Add(tp.ConstraintTypes[c].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                }
-
-                if (tp.HasConstructorConstraint) constraintClauses.Add("new()");
-
-                if (constraintClauses.Count > 0)
-                {
-                    constraints.Add($"where {tp.Name} : {string.Join(", ", constraintClauses)}");
-                }
-            }
-
-            string constraintStr = constraints.Count > 0 ? " " + string.Join(" ", constraints) : "";
-            bool isVoid = method.ReturnsVoid;
-            string returnKeyword = isVoid ? "" : "return ";
+            var args = string.Join(", ", method.Parameters.Select(static p => p.Name));
+            var returnKeyword = method.ReturnsVoid ? "" : "return ";
 
             var sb = new StringBuilder();
-            sb.AppendLine($"{indent}public static {returnTypeStr} {method.Name}{typeParamsStr}({paramsFormatted}){constraintStr}");
+            sb.AppendLine($"{indent}{signature}");
             sb.AppendLine($"{indent}{{");
-            sb.AppendLine($"{indent}    {returnKeyword}global::System.Linq.Enumerable.{method.Name}{typeArgsCallStr}({argsFormatted});");
+            sb.AppendLine($"{indent}    {returnKeyword}global::System.Linq.Enumerable.{method.Name}{typeArgs}({args});");
             sb.Append($"{indent}}}");
 
             return sb.ToString();

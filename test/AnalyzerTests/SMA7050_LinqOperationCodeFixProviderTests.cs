@@ -86,13 +86,12 @@ namespace MyCompany
         }
 
         [TestMethod]
-        public async Task SMA7050_CodeFix_MultipleLinqMethods_TriviaPreservation()
+        public async Task SMA7050_CodeFix_MultipleLinqMethods()
         {
             var test = @"
 namespace App.Features
 {
-    // Important leading comment
-    {|#0:using System.Linq;|} // trailing comment
+    {|#0:using System.Linq;|}
     using System.Collections.Generic;
 
     public class C
@@ -109,7 +108,6 @@ namespace App.Features
             var fixtest = @"
 namespace App.Features
 {
-    // Important leading comment
     using System.Collections.Generic;
 
     public class C
@@ -166,11 +164,9 @@ namespace App
         }
 
         [TestMethod]
-        public async Task SMA7050_CodeFix_RootLevelUsing_PreservesTrivia()
+        public async Task SMA7050_CodeFix_RootLevelUsing()
         {
-            var test = @"
-// File header
-{|#0:using System.Linq;|}
+            var test = @"{|#0:using System.Linq;|}
 using System.Collections.Generic;
 
 namespace MyCompany.Root
@@ -185,9 +181,7 @@ namespace MyCompany.Root
     }
 }
 ";
-            var fixtest = @"
-// File header
-using System.Collections.Generic;
+            var fixtest = @"using System.Collections.Generic;
 
 namespace MyCompany.Root
 {
