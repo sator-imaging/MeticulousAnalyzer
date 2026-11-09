@@ -97,8 +97,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 ? project.DefaultNamespace!
                 : topLevelNamespace;
 
-            // Remove using System.Linq; only, keeping trivia
-            var newRoot = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepExteriorTrivia) ?? root;
+            // Remove using System.Linq; preserving trivia
+            var newRoot = RemoveUsingDirective(root, usingDirective);
             solution = solution.WithDocumentSyntaxRoot(document.Id, newRoot);
 
             // Output file: LinqPortal.<project namespace from csproj>.cs (no .g.cs)
@@ -138,6 +138,70 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             }
 
             return solution;
+        }
+
+        private static SyntaxNode RemoveUsingDirective(SyntaxNode root, UsingDirectiveSyntax usingDirective)
+        {
+            var leadingTrivia = usingDirective.GetLeadingTrivia();
+            bool hasComments = leadingTrivia.Any(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia));
+
+            if (usingDirective.Parent is CompilationUnitSyntax compUnit)
+            {
+                var index = compUnit.Usings.IndexOf(usingDirective);
+                var newUsings = compUnit.Usings.RemoveAt(index);
+
+                if (hasComments)
+                {
+                    var triviaToKeep = TrimTrailingWhitespace(leadingTrivia);
+                    if (index < newUsings.Count)
+                    {
+                        var next = newUsings[index];
+                        newUsings = newUsings.Replace(next, next.WithLeadingTrivia(triviaToKeep.AddRange(next.GetLeadingTrivia())));
+                    }
+                    else if (compUnit.Members.Count > 0)
+                    {
+                        var firstMember = compUnit.Members[0];
+                        compUnit = compUnit.WithMembers(compUnit.Members.Replace(firstMember, firstMember.WithLeadingTrivia(triviaToKeep.AddRange(firstMember.GetLeadingTrivia()))));
+                    }
+                }
+
+                return compUnit.WithUsings(newUsings);
+            }
+
+            if (usingDirective.Parent is NamespaceDeclarationSyntax nsDecl)
+            {
+                var index = nsDecl.Usings.IndexOf(usingDirective);
+                var newUsings = nsDecl.Usings.RemoveAt(index);
+
+                if (hasComments)
+                {
+                    var triviaToKeep = TrimTrailingWhitespace(leadingTrivia);
+                    if (index < newUsings.Count)
+                    {
+                        var next = newUsings[index];
+                        newUsings = newUsings.Replace(next, next.WithLeadingTrivia(triviaToKeep.AddRange(next.GetLeadingTrivia())));
+                    }
+                    else if (nsDecl.Members.Count > 0)
+                    {
+                        var firstMember = nsDecl.Members[0];
+                        nsDecl = nsDecl.WithMembers(nsDecl.Members.Replace(firstMember, firstMember.WithLeadingTrivia(triviaToKeep.AddRange(firstMember.GetLeadingTrivia()))));
+                    }
+                }
+
+                return root.ReplaceNode(nsDecl, nsDecl.WithUsings(newUsings));
+            }
+
+            return root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepNoTrivia) ?? root;
+        }
+
+        private static SyntaxTriviaList TrimTrailingWhitespace(SyntaxTriviaList trivia)
+        {
+            var list = new List<SyntaxTrivia>(trivia);
+            while (list.Count > 0 && list[list.Count - 1].IsKind(SyntaxKind.WhitespaceTrivia))
+            {
+                list.RemoveAt(list.Count - 1);
+            }
+            return SyntaxFactory.TriviaList(list);
         }
 
         private static string GenerateEmptyPlaceholder(string topLevelNamespace)
