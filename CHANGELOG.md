@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0-rc.14](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.14) (2026-11-09)
+
+### 📣 Breaking Changes ⚠
+* Exempt last if statement at loop or method root from `SMA8031` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#746](https://github.com/sator-imaging/MeticulousAnalyzer/pull/746)
+### 🚀 Features
+* Add Threshold to `SMA8021` allow list by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#745](https://github.com/sator-imaging/MeticulousAnalyzer/pull/745)
+* Support conditional method invocation in `SMA8031` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#744](https://github.com/sator-imaging/MeticulousAnalyzer/pull/744)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.13...v5.3.0-rc.14
+
+
 ## [5.3.0-rc.13](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.13) (2026-11-08)
 
 ### 🚀 Features
