@@ -557,6 +557,61 @@ class MyClass {}
             Assert.IsFalse(Core.IsSuppressedByComment(typeDecl, "// suppress"));
         }
 
+        [TestMethod]
+        public void IsSuppressedByComment_EnumAnalyzerSuppressionComment_SyntaxNode_ReturnsTrue()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // Allow enum conversion
+        Foo(1);
+    }
+    void Foo(int a) {}
+}
+");
+            var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
+            var arg = invocation.ArgumentList.Arguments[0];
+            Assert.IsTrue(Core.IsSuppressedByComment(arg, SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.EnumAnalyzer.SuppressionComment));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_EnumAnalyzerSuppressionComment_Operation_ReturnsTrue()
+        {
+            var source = @"
+class C {
+    void M() {
+        // Allow enum conversion
+        Foo(1);
+    }
+    void Foo(int a) {}
+}";
+            var comp = CreateCompilation(source);
+            var tree = comp.SyntaxTrees[0];
+            var model = comp.GetSemanticModel(tree);
+            var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
+            var arg = invocation.ArgumentList.Arguments[0];
+            var op = model.GetOperation(arg.Expression);
+
+            Assert.IsTrue(Core.IsSuppressedByComment(op, SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.EnumAnalyzer.SuppressionComment));
+        }
+
+        [TestMethod]
+        public void IsSuppressedByComment_MidFlowBranchMarkerComment_DoesNotSpecialCaseLeadingInvocation()
+        {
+            var tree = CSharpSyntaxTree.ParseText(@"
+class C {
+    void M() {
+        // Early exit
+        Foo(1);
+    }
+    void Foo(int a) {}
+}
+");
+            var invocation = FindFirst<InvocationExpressionSyntax>(tree.GetRoot());
+            var arg = invocation.ArgumentList.Arguments[0];
+            Assert.IsFalse(Core.IsSuppressedByComment(arg, SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MidFlowBranchAnalyzer.MarkerComment));
+        }
+
         // ===== HasSuppressionComment & CheckLeadingCommentOrContainingInvocation =====
 
         [TestMethod]

@@ -426,7 +426,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         internal static bool IsSuppressedByComment(IOperation operation, string suppressionComment)
         {
             if (suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
-                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
+                || suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment)
             {
                 var syntax = operation.Syntax;
                 if (syntax != null && CheckLeadingCommentOrContainingInvocation(syntax, suppressionComment))
@@ -469,7 +469,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             }
 
             if (suppressionComment == Analyzers.StructAnalyzer.SuppressionComment
-                || suppressionComment == Analyzers.MidFlowBranchAnalyzer.MarkerComment)
+                || suppressionComment == Analyzers.EnumAnalyzer.SuppressionComment)
             {
                 if (CheckLeadingCommentOrContainingInvocation(node, suppressionComment))
                 {
