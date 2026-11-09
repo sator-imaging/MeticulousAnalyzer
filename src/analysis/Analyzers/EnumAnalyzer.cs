@@ -306,10 +306,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
             }
 
-            if (op.Parent is IVariableInitializerOperation)
+            if (op.Parent is IVariableInitializerOperation or (ISimpleAssignmentOperation { Target: IDiscardOperation }))
             {
                 // pass parent, as it does now.
-                if (Core.IsSuppressedByComment(op.Parent, SuppressionComment))
+                if (Core.IsSuppressedByComment(op, SuppressionComment))
                 {
                     return;
                 }
