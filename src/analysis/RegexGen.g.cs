@@ -502,12 +502,12 @@ unchecked
                             pos += 8;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch13:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 14
                         {
                             if ((uint)slice.Length < 9 ||
@@ -515,7 +515,7 @@ unchecked
                             {
                                 return false; // The input didn't match.
                             }
-
+                            
                             pos += 9;
                             slice = inputSpan.Slice(pos);
                         }
