@@ -341,12 +341,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return IsMethodCall(conditionalAccess.WhenNotNull);
             }
 
-            if (expression is not AwaitExpressionSyntax awaitExpr)
+            if (expression is AwaitExpressionSyntax awaitExpr)
             {
-                return false;
+                return IsMethodCall(awaitExpr.Expression);
             }
 
-            return IsMethodCall(awaitExpr.Expression);
+            return false;
         }
 
         private static Location? GetBranchLocation(SyntaxNode node)
