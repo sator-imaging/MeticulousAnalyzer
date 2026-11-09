@@ -27,11 +27,106 @@ class C
                 x = new string[] { ""a"" };
                 {|#0:continue|};
             }
+
+            int dummy = 1;
         }
     }
 }";
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_LastIfInLoop()
+        {
+            var test = @"
+class C
+{
+    void MIfElseBreak(string[] values, bool condition)
+    {
+        bool found = false;
+
+        foreach (var v in values)
+        {
+            if (condition)
+            {
+                found = true;
+                break;
+            }
+            else
+            {
+                continue;
+            }
+        }
+    }
+
+    void MIfOnlyBreak(string[] values, bool condition)
+    {
+        bool found = false;
+
+        foreach (var v in values)
+        {
+            if (condition)
+            {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    void MIfOnlyContinue(string[] values, bool condition)
+    {
+        int count = 0;
+
+        foreach (var v in values)
+        {
+            if (condition)
+            {
+                count++;
+                continue;
+            }
+        }
+    }
+
+    void MIfElseGoto(string[] values, bool condition)
+    {
+        bool found = false;
+
+        foreach (var v in values)
+        {
+            if (condition)
+            {
+                found = true;
+                goto FOUND;
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+    FOUND:
+        return;
+    }
+
+    void MIfOnlyGoto(string[] values, bool condition)
+    {
+        bool found = false;
+
+        foreach (var v in values)
+        {
+            if (condition)
+            {
+                found = true;
+                goto FOUND;
+            }
+        }
+
+    FOUND:
+        return;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -201,6 +296,8 @@ class C
             x = 1;
             {|#1:throw|} new Exception();
         }
+
+        int dummy = 1;
     }
 
     void BreakM(int x)
@@ -212,6 +309,8 @@ class C
                 x = 10;
                 {|#2:break|};
             }
+
+            int dummy = 1;
         }
     }
 

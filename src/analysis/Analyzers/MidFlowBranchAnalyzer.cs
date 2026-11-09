@@ -134,7 +134,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     {
                         CheckAndReportMidFlowBranches(context, ifStmt);
                     }
-                    else
+                    else if (!isLastInRootBlock)
                     {
                         CheckStateChangeInEarlyReturnIf(context, ifStmt);
 

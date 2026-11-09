@@ -2061,10 +2061,33 @@ class C
             Console.WriteLine(""bar"");
             {|#0:return|};
         }
+
+        int x = 1;
     }
 }";
             var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA8031_Compliant_LastIfWithoutElseAtMethodRootLevel()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void M(bool foo)
+    {
+        if (foo)
+        {
+            Console.WriteLine(""foo"");
+            Console.WriteLine(""bar"");
+            return;
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
