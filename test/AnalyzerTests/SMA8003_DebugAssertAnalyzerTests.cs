@@ -4,9 +4,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis.Testing;
-using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.DebugAssertAnalyzer,
-    Microsoft.CodeAnalysis.Testing.EmptyCodeFixProvider>;
+using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.DebugAssertAnalyzerVerifier;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
@@ -407,6 +405,35 @@ public class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Compliant_AssemblyNameContainsTest()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public void M()
+    {
+        Debug.Assert(true);
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test, "MyProject.Tests");
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_AssemblyNameContainsLowercaseTest()
+        {
+            var test = @"using System.Diagnostics;
+public class C
+{
+    public void M()
+    {
+        {|#0:Debug.Assert(true)|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test, "MyProject.test",
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
     }

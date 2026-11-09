@@ -34,6 +34,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeInvocation(OperationAnalysisContext context)
         {
+            if (context.Compilation.AssemblyName?.IndexOf("Test", System.StringComparison.Ordinal) >= 0)
+                return;
+
             if (context.Operation is not IInvocationOperation invocation)
                 return;
 
