@@ -411,5 +411,31 @@ namespace Test
             await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
+        [TestMethod]
+        public async Task SMA0024_Compliant_InterpolatedString_Suppression()
+        {
+            var test = @"
+using System.Reflection;
+
+namespace Test
+{
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    public enum MyEnum { Value }
+    public class CTest
+    {
+        public void Test(MyEnum myEnum)
+        {
+            // Allow enum conversion
+            var s = $""[{myEnum}] {MyEnum.Value}"";
+
+            // Allow enum conversion (reassignment)
+            s = $""[{myEnum}] {MyEnum.Value}"";
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
     }
 }
