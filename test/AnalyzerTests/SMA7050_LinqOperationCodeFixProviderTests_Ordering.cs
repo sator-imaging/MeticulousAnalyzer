@@ -38,6 +38,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+" + "    " + @"
     using System.Collections.Generic;
 
     public class C

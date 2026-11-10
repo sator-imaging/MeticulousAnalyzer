@@ -36,6 +36,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+" + "    " + @"
     using System.Collections.Generic;
 
     public class C
@@ -109,6 +110,7 @@ namespace App.Features
             var fixtest = @"
 namespace App.Features
 {
+" + "    " + @"
     using System.Collections.Generic;
 
     public class C
@@ -184,7 +186,8 @@ namespace MyCompany.Root
     }
 }
 ";
-            var fixtest = @"using System.Collections.Generic;
+            var fixtest = @"
+using System.Collections.Generic;
 
 namespace MyCompany.Root
 {

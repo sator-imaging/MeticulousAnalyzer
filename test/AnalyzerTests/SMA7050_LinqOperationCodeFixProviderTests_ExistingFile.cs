@@ -36,6 +36,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+" + "    " + @"
     using System.Collections.Generic;
 
     public class C
@@ -142,6 +143,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+" + "    " + @"
     using System.Collections.Generic;
 
     public class C
@@ -227,6 +229,100 @@ namespace MyCompany
         }
 
         [TestMethod]
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_AddsSameArityDifferentParameterTypes()
+        {
+            var source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var filtered = items.Where((value, index) => index > 0);
+        }
+    }
+}
+";
+            var fixedSource = @"
+namespace MyCompany.MyProduct
+{
+" + "    " + @"
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var filtered = items.Where((value, index) => index > 0);
+        }
+    }
+}
+";
+            var existingPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    public static partial class LinqPortal
+    {
+        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+        }
+    }
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    public static partial class LinqPortal
+    {
+        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+        }
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", source),
+                        ("LinqPortal.MyCompany.cs", existingPortal)
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                }
+            };
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
         public async Task SMA7050_CodeFix_ExistingLinqPortalFile_PreservesUserDefinedElements()
         {
             var test = @"
@@ -248,6 +344,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+" + "    " + @"
     using System.Collections.Generic;
 
     public class C
@@ -285,6 +382,8 @@ namespace MyCompany
         {
             return global::System.Linq.Enumerable.Any<TSource>(source);
         }
+        #region Preserve close-brace trivia
+        #endregion
     }
 }
 ";
@@ -319,6 +418,8 @@ namespace MyCompany
         {
             return global::System.Linq.Enumerable.Count<TSource>(source);
         }
+        #region Preserve close-brace trivia
+        #endregion
     }
 }
 ";
