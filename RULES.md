@@ -30,12 +30,12 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA0020 | Unchecked Cast to Enum Type                                      | Unchecked value cast to enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`
-| SMA0021 | Cast from Enum Type to Other                                     | Casting enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`
-| SMA0022 | Unchecked Cast to Generic Enum Type                              | Unchecked value cast to generic enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`
-| SMA0023 | Cast from Generic Enum Type to Other                             | Casting generic enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`
-| SMA0024 | Enum to String                                                   | String representation of enum type '{0}' is not localized and unstable on obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`
-| SMA0025 | Enum System Method                                               | Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`
+| SMA0020 | Unchecked Cast to Enum Type                                      | Unchecked value cast to enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`
+| SMA0021 | Cast from Enum Type to Other                                     | Casting enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`
+| SMA0022 | Unchecked Cast to Generic Enum Type                              | Unchecked value cast to generic enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`
+| SMA0023 | Cast from Generic Enum Type to Other                             | Casting generic enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`
+| SMA0024 | Enum to String                                                   | String representation of enum type '{0}' is not localized and unstable on obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [Reason]`
+| SMA0025 | Enum System Method                                               | Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [Reason]`
 | SMA0026 | Enum Obfuscation                                                 | Add `Obfuscation` attribute to prevent enum field name changes on obfuscation
 | SMA0027 | Unusual Enum Definition                                          | Non-Flags enum should use `int` type without explicit index values
 | SMA0028 | Incomplete Enum-like Pattern                                     | Enum-like pattern implementation of type '{0}' is incomplete
@@ -46,19 +46,19 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 |---------|------------------------------------------------------------------|-------------
 | SMA0030 | Invalid Struct Constructor                                       | Use the explicit constructor for '{0}' instead of parameter-less default
 | SMA0031 | Mutable Struct Field Marked as Read-Only                         | Mutable struct type '{0}' should not be set to `readonly` field
-| SMA0032 | Implicit Boxing Conversion                                       | Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [ Reason (optional) ]`
+| SMA0032 | Implicit Boxing Conversion                                       | Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [Reason]`
 
 ## Disposable Analysis
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA0040 | Missing Using Statement                                          | Type '{0}' implements `IDisposable` pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
+| SMA0040 | Missing Using Statement                                          | Type '{0}' implements `IDisposable` pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [Reason]`
 | SMA0041 | Null Assignment to Disposable                                    | Disposable object '{0}' is assigned `null` without a preceding `.Dispose()` or `?.Dispose()` call
-| SMA0042 | Not All Code Paths Return a Value                                | Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
-| SMA0043 | Undisposed Member                                                | Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
+| SMA0042 | Not All Code Paths Return a Value                                | Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [Reason]`
+| SMA0043 | Undisposed Member                                                | Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [Reason]`
 | SMA0044 | Missing Dispose Implementation                                   | Type '{0}' owns disposable members but does not implement `Dispose` method. Can suppress with comment `// Don't dispose <Reason>`
 | SMA0045 | Missing IDisposable Interface                                    | Type '{0}' owns disposable members. Implement `IDisposable` interface. Can suppress with comment `// Don't dispose <Reason>`
-| SMA0046 | Lost Tracking of Disposable                                      | Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`
+| SMA0046 | Lost Tracking of Disposable                                      | Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [Reason]`
 
 ## File Structure Analysis
 
@@ -81,8 +81,8 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 
 | ID      | Diagnostic                                                       | Description
 |---------|------------------------------------------------------------------|-------------
-| SMA0070 | Task Not Awaited                                                 | Task type '{0}' is not awaited. Add `await` or `return`. Can suppress with comment `// Don't await [ Reason (optional) ]`
-| SMA0071 | Task Not Awaited on All Paths                                    | Task type '{0}' is not awaited on all code paths. Can suppress with comment `// Don't await [ Reason (optional) ]`
+| SMA0070 | Task Not Awaited                                                 | Task type '{0}' is not awaited. Add `await` or `return`. Can suppress with comment `// Don't await [Reason]`
+| SMA0071 | Task Not Awaited on All Paths                                    | Task type '{0}' is not awaited on all code paths. Can suppress with comment `// Don't await [Reason]`
 
 ## Project Structure Analysis
 
@@ -109,7 +109,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 |---------|------------------------------------------------------------------|-------------
 | SMA7000 | Unmarked Static Lambda                                           | Lambda declaration can be `static`
 | SMA7001 | Inefficient Delegate Declaration                                 | Implicit conversion to '{0}' delegate is handled inefficiently on older runtime
-| SMA7002 | Lambda Allocation                                                | Non-static lambda causes allocation. Make it static or cache if possible. Can suppress with comment `// Allow allocation [ Reason (optional) ]`
+| SMA7002 | Lambda Allocation                                                | Non-static lambda causes allocation. Make it static or cache if possible. Can suppress with comment `// Allow allocation [Reason]`
 | | | |
 | SMA7010 | Reflection Access                                                | Reflection operation '{0}' involves type '{1}'. Access to members of types from `System.Reflection` is not NativeAOT-friendly
 | SMA7011 | Reflection Type Variable                                         | Variable '{0}' is declared with reflection type '{1}'. This operation is not NativeAOT-friendly
@@ -120,7 +120,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | | | |
 | SMA7040 | Avoid Anonymous Object Creation                                  | Prefer tuple instead of anonymous object
 | | | |
-| SMA7050 | Avoid LINQ Operation for Performance                             | Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [ Reason (optional) ]`
+| SMA7050 | Avoid LINQ Operation for Performance                             | Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [Reason]`
 
 ## Reliability and Maintainability Analysis
 
@@ -132,17 +132,17 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | SMA8003 | Debug-only Assert in Public API                                  | Avoid using debug-only assertion in public API surfaces, as it can lead to undefined behavior in Release builds
 | SMA8004 | Omittable Argument Should Be Passed as Named Argument            | Pass omittable argument for '{0}' as named argument to express their meaning
 | | | |
-| SMA8010 | Catch Block without Throw                                        | Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: Reason (required)`
-| SMA8011 | Catch-All Block without Throw                                    | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead
+| SMA8010 | Catch Block without Throw                                        | Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: <Reason>`
+| SMA8011 | Catch-All Block without Throw                                    | Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead. Can suppress with leading comment for `catch` keyword: `// Ignore exception: <Reason>`
 | | | |
-| SMA8020 | Literal Branch Number                                            | Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`)
-| SMA8021 | Literal Branch Zero                                              | Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. If left side expression includes an identifier containing `Length`, `Count`, `Index`, `Remove`, `Search`, `Add`, `Exchange`, `Decrement`, `Increment`, `Width`, `Height`, `Depth`, `Size`, `Capacity`, or `Threshold` (case-insensitive), comparing with 0 is not reported (e.g., `if ((pos = text.IndexOf('a')) >= 0)`). Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`)
-| SMA8022 | Literal Branch String                                            | Use named constants or configuration instead of hardcoded string literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`)
-| SMA8023 | Literal Branch Char                                              | Use named constants or configuration instead of hardcoded literal char '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`)
+| SMA8020 | Literal Branch Number                                            | Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: <Reason> */`)
+| SMA8021 | Literal Branch Zero                                              | Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. If left side expression includes an identifier containing `Length`, `Count`, `Index`, `Remove`, `Search`, `Add`, `Exchange`, `Decrement`, `Increment`, `Width`, `Height`, `Depth`, `Size`, `Capacity`, or `Threshold` (case-insensitive), comparing with 0 is not reported (e.g., `if ((pos = text.IndexOf('a')) >= 0)`). Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: <Reason> */`)
+| SMA8022 | Literal Branch String                                            | Use named constants or configuration instead of hardcoded string literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: <Reason> */`)
+| SMA8023 | Literal Branch Char                                              | Use named constants or configuration instead of hardcoded literal char '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: <Reason> */`)
 | | | |
 | SMA8030 | Incomplete Mid-Flow Branch                                       | This is a code formatting issue rather than a behavioral error. Omitting `else` clauses makes control flow less readable. Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue`, in the middle of the main control flow. Instead, linearize control flow to make it more readable by using complete `if-else` statements without exit statements, or ensuring exiting in all code paths, or extracting methods including the `if` statement itself (not just its body) to clarify the control flow. If an `if-only` statement is not detected as an early exit block unexpectedly, add a marker comment before the `if` keyword to avoid error: `// Early exit [ Description (optional) ]`
 | SMA8031 | State Change in Early Exit                                       | This is a code formatting issue rather than a behavioral error. Linearize code flow for readability by avoiding state changes in the early exit block. Declarations of local variables and up to 1 method call that is not expected to have any side effects are permitted. Use a helper method to combine multiple method calls into one and decrease the number of calls
-| SMA8032 | Non-Local Exit from Loop                                         | Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`
+| SMA8032 | Non-Local Exit from Loop                                         | Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [Reason]`
 
 ## `Obsolete` Annotating and Underling
 
