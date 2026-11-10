@@ -350,6 +350,9 @@ Analyze if `IDisposable` members are correctly disposed of in the `Dispose` meth
 > [!NOTE]
 > Types with disposable members must also implement the `IDisposable` interface.
 
+> [!TIP]
+> You can suppress missing `IDisposable` interface (SMA0045) or missing `Dispose` implementation (SMA0044) by placing a comment `// Don't dispose <Reason>` immediately before the type declaration.
+
 ### How to Fix
 
 Call the `Dispose()` method of the reported member within the class's disposal method.
@@ -433,7 +436,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`, `System.Text`, or `System.IO` methods and constructors are intentionally allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
+> `string`, `System.Text`, `System.Text.RegularExpressions`, `System.IO`, and `System.Threading.Interlocked` methods and constructors are intentionally allowed. Attributes in `System.Diagnostics.CodeAnalysis` are also allowed. In addition, the first argument of type `string` or `char` can omit named argument. The first argument of type `int` can also omit named argument for method calls. Indexer arguments are also exempt from this analysis.
 >
 > For types in the `System` namespace, named arguments can be omitted if the method has only one argument. (e.g., `TimeSpan.FromSeconds(10)`)
 >
@@ -478,6 +481,8 @@ public void MyPublicMethod(int value)
 
 > [!NOTE]
 > This analysis checks the accessibility of the containing member (method, property, or constructor). If it is `public`, `protected`, or `protected internal`, it will be reported.
+>
+> Assertions for nullable context safeguards (e.g., `Debug.Assert(param is not null)` or `Debug.Assert(param != null)` on non-nullable parameters) are permitted. In addition, assemblies whose name contains `Test` are ignored.
 
 
 ## `catch` Block without `throw`
@@ -511,7 +516,7 @@ catch (System.IO.IOException ex)
 ```
 
 > [!IMPORTANT]
-> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) must always contain a `throw` statement and cannot be suppressed by comments.
+> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) can also be suppressed if a reason is provided.
 
 
 ## Null Suppression Operation
@@ -559,7 +564,7 @@ if (status == 200 /* Why: HTTP OK standard status code */) // Allowed: Trailing 
 ```
 
 > [!TIP]
-> Comparisons with zero (`0`) are allowed when used within `for` / `while` / `do-while` loop condition headers, or when the left-hand side contains a property or method access whose name contains `Count`, `Length`, `Index`, `Remove`, `Search`, or `Add`.
+> Comparisons with zero (`0`) are allowed when used within `for` / `while` / `do-while` loop condition headers, or when the left-hand side expression includes an identifier (or property access, method invocation, local variable, parameter, or property subpattern) containing `Length`, `Count`, `Index`, `Remove`, `Search`, `Add`, `Exchange`, `Decrement`, `Increment`, `Width`, `Height`, `Depth`, `Size`, `Capacity`, or `Threshold` (case-insensitive).
 
 ```cs
 int pos = foo.IndexOf('a');
@@ -596,7 +601,7 @@ Performing state modifications (such as reassignments or field updates) or calli
 Once the main flow has started, exiting inside an incomplete branch (an `if` statement that does not exit in all code paths) is prohibited (**SMA8030**).
 
 > [!NOTE]
-> An `if` statement (with or without an `else` clause) that is the last statement at the method root level or loop root level is exempted from this exit completeness check.
+> An `if` statement (with or without an `else` clause) that is the last statement at the method root level, loop root level, or inside a `try`, `catch`, or `finally` block whose containing `try` statement is the last statement of a method-like block, is exempted from this exit completeness check. The last `if` statement at the method root level or loop root level is also exempted from the early exit restrictions (SMA8031).
 
 ```cs
 // Methods starting with "Throw" can be called before the first if statement.
@@ -1062,7 +1067,7 @@ var x = new MyDisposable();
 ```
 
 > [!NOTE]
-> This suppression is effective for initial local variable declarations and discard assignments. Regular assignments to existing named variables cannot be suppressed by comments.
+> This suppression is effective for initial local variable declarations, discard assignments, and type declarations (e.g., `// Don't dispose <Reason>` for disposable implementation analysis). Regular assignments to existing named variables cannot be suppressed by comments.
 >
 > Using a variable named `_` (e.g., `var _ = new Disposable();`) is NOT a discard and will not be suppressed by the comment.
 
