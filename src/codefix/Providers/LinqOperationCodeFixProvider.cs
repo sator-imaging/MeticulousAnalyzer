@@ -110,7 +110,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 : topLevelNamespace;
 
             // Delete using System.Linq; ONLY
-            var newRoot = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepNoTrivia) ?? root;
+            var newRoot = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepExteriorTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, newRoot);
 
             // Output file: LinqPortal.<project namespace from csproj>.cs (no .g.cs)
@@ -277,7 +277,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 currentMembers = currentMembers.Insert(insertIndex, parsedSyntax);
             }
 
-            var closeBrace = classDecl.CloseBraceToken.WithLeadingTrivia(SyntaxFactory.Whitespace(hasNamespace ? "    " : ""));
+            var closeBrace = classDecl.CloseBraceToken;
             var newClassDecl = classDecl.WithMembers(currentMembers)
                 .WithCloseBraceToken(closeBrace);
             return portalRoot.ReplaceNode(classDecl, newClassDecl);
@@ -343,7 +343,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 }
             }
 
-            return "Global";
+            return string.Empty;
         }
 
         private static string GenerateMethodForwarder(IMethodSymbol method, string indent)
@@ -354,7 +354,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 ? "<" + string.Join(", ", method.TypeParameters.Select(static tp => tp.Name)) + ">"
                 : "";
 
-            var args = string.Join(", ", method.Parameters.Select(static p => p.Name));
+            var args = string.Join(", ", method.Parameters.Select(static p =>
+                (p.RefKind == RefKind.Out ? "out " : p.RefKind == RefKind.Ref ? "ref " : p.RefKind == RefKind.In ? "in " : "") + p.Name));
             var returnKeyword = method.ReturnsVoid ? "" : "return ";
 
             var sb = new StringBuilder();
