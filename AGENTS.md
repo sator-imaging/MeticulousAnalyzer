@@ -1,4 +1,4 @@
-# Fie Structure
+# File Structure
 
 Organize declarations (field, property, method, etc.) by functionality, behavior or relationship. DO NOT sort everything in alphabetical order that doesn't express semantics enough.
 
