@@ -350,6 +350,9 @@ d = (new object()) as IDisposable;
 > [!NOTE]
 > Disposable メンバーを持つ型は、`IDisposable` インターフェースを実装している必要があります。
 
+> [!TIP]
+> `IDisposable` インターフェースの欠落（SMA0045）や `Dispose` 実装の欠落（SMA0044）は、型宣言の直前にコメント `// Don't dispose <理由>` を配置することで抑制できます。
+
 ### 修正方法
 
 警告が表示されているメンバーの `Dispose()` メソッドを、クラスの破棄メソッド内で呼び出します。
@@ -433,7 +436,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`、`System.Text`、または `System.IO` のメソッドとコンストラクタは意図的に許可されています。また、最初の引数が `string` または `char` 型の場合は、名前付き引数を省略できます。メソッド呼び出しの場合に限り、最初の引数が `int` 型でも名前付き引数を省略できます。インデクサーの引数もこの解析の対象外です。
+> `string`、`System.Text`、`System.Text.RegularExpressions`、`System.IO`、および `System.Threading.Interlocked` のメソッドとコンストラクタは意図的に許可されています。`System.Diagnostics.CodeAnalysis` の属性も許可されています。また、最初の引数が `string` または `char` 型の場合は、名前付き引数を省略できます。メソッド呼び出しの場合に限り、最初の引数が `int` 型でも名前付き引数を省略できます。インデクサーの引数もこの解析の対象外です。
 >
 > `System` 名前空間の型については、メソッドの引数が 1 つだけの場合、名前付き引数を省略できます。（例: `TimeSpan.FromSeconds(10)`）
 >
@@ -478,6 +481,8 @@ public void MyPublicMethod(int value)
 
 > [!NOTE]
 > この解析は、呼び出しを含むメンバー（メソッド、プロパティ、コンストラクター）のアクセシビリティをチェックします。`public`、`protected`、または `protected internal` の場合に報告されます。
+>
+> Null 許容コンテキスト保護のためのアサーション（非 null パラメーターに対する `Debug.Assert(param is not null)` や `Debug.Assert(param != null)` など）は許可されます。また、アセンブリ名に `Test` を含むアセンブリは対象外となります。
 
 
 ## `throw` のない `catch` ブロック
@@ -511,7 +516,7 @@ catch (System.IO.IOException ex)
 ```
 
 > [!IMPORTANT]
-> コメントは `// Ignore exception:` で始まり、例外を無視する理由を記載する必要があります。キャッチオールブロック (`catch { ... }` または `catch (Exception ex) { ... }`) は常に `throw` 文を含む必要があり、コメントで抑制することはできません。
+> コメントは `// Ignore exception:` で始まり、例外を無視する理由を記載する必要があります。キャッチオールブロック (`catch { ... }` または `catch (Exception ex) { ... }`) も理由を記載することで抑制できます。
 
 
 ## Null 抑制演算子
@@ -559,7 +564,7 @@ if (status == 200 /* Why: HTTP OK 標準ステータスコード */) // 許可: 
 ```
 
 > [!TIP]
-> `for` / `while` / `do-while` ループ条件ヘッダー内、または左辺に `Count`、`Length`、`Index`、`Remove`、`Search`、`Add` を名前に含むプロパティ／メソッドがある場合は `0` との比較が許可されます。
+> `for` / `while` / `do-while` ループ条件ヘッダー内、または左辺の式に対象の識別子（プロパティ、メソッド、ローカル変数、引数、またはプロパティサブパターン）として `Length`、`Count`、`Index`、`Remove`、`Search`、`Add`、`Exchange`、`Decrement`、`Increment`、`Width`、`Height`、`Depth`、`Size`、`Capacity`、`Threshold`（大文字小文字を区別しない）を含む場合は `0` との比較が許可されます。
 
 ```cs
 int pos = foo.IndexOf('a');
@@ -596,7 +601,7 @@ if (foo.Length != 0)
 メインフローが開始された後、不完全な分岐（すべてのコードパスで脱出していない `if` 文）の内部で脱出することは禁止されます（**SMA8030**）。
 
 > [!NOTE]
-> メソッドまたはループのルートレベルで最後の文である `if` 文（`else` 節の有無にかかわらず）は、この脱出完全性チェックの対象外となります。
+> メソッドまたはループのルートレベルで最後の文である `if` 文（`else` 節の有無にかかわらず）、およびそれを含む `try` 文がメソッド様ブロックの最後の文である `try`、`catch`、`finally` ブロック内の最後の `if` 文は、この脱出完全性チェックの対象外となります。また、メソッドまたはループのルートレベルで最後の `if` 文は早期脱出ブロックの制限（SMA8031）の対象外でもあります。
 
 ```cs
 // "Throw" で始まるメソッドは最初の if 文より前に呼び出すことができます。
@@ -1061,7 +1066,7 @@ var x = new MyDisposable();
 ```
 
 > [!NOTE]
-> この抑制はローカル変数の初期宣言および破棄代入に対して有効です。既存の命名された変数への通常の代入は、コメントによって抑制することはできません。
+> この抑制はローカル変数の初期宣言、破棄代入、および型宣言（Disposable 実装解析に対する `// Don't dispose <理由>` など）に対して有効です。既存の命名された変数への通常の代入は、コメントによって抑制することはできません。
 >
 > `_` という名前の変数（例：`var _ = new Disposable();`）を使用することは破棄（discard）ではなく、コメントによる抑制は行われません。
 

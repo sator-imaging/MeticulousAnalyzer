@@ -350,6 +350,9 @@ d = (new object()) as IDisposable;
 > [!NOTE]
 > 拥有可释放成员的类型必须实现 `IDisposable` 接口。
 
+> [!TIP]
+> 缺少 `IDisposable` 接口（SMA0045）或缺少 `Dispose` 实现（SMA0044）可以通过在类型声明正上方添加注释 `// Don't dispose <原因>` 来抑制。
+
 ### 如何修复
 
 在类的释放方法中调用被报告成员的 `Dispose()` 方法。
@@ -433,7 +436,7 @@ Foo(ignoreErrors: true, timeoutSeconds: 0);
 ```
 
 > [!NOTE]
-> `string`、`System.Text` 或 `System.IO` 方法和构造函数被有意允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
+> `string`、`System.Text`、`System.Text.RegularExpressions`、`System.IO` 以及 `System.Threading.Interlocked` 方法和构造函数被有意允许。`System.Diagnostics.CodeAnalysis` 中的特性也被允许。此外，当第一个参数是 `string` 或 `char` 类型时，可以省略命名参数。仅在方法调用的情况下，第一个参数是 `int` 类型也可以省略命名参数。索引器参数也免于此分析。
 >
 > 对于 `System` 命名空间中的类型，如果方法只有一个参数，可以省略命名参数。（例如：`TimeSpan.FromSeconds(10)`）
 >
@@ -478,6 +481,8 @@ public void MyPublicMethod(int value)
 
 > [!NOTE]
 > 此分析检查包含调用的成员（方法、属性或构造函数）的访问级别。如果它是 `public`、`protected` 或 `protected internal`，则会被报告。
+>
+> 用于可空上下文保护的断言（例如对非空参数的 `Debug.Assert(param is not null)` 或 `Debug.Assert(param != null)`）是允许的。此外，程序集名称包含 `Test` 的程序集会被忽略。
 
 
 ## 没有 `throw` 的 `catch` 块
@@ -511,7 +516,7 @@ catch (System.IO.IOException ex)
 ```
 
 > [!IMPORTANT]
-> 注释必须以 `// Ignore exception:` 开头，并说明忽略异常的原因。Catch-all 块（`catch { ... }` 或 `catch (Exception ex) { ... }`）必须始终包含 `throw` 语句，并且不能通过注释抑制。
+> 注释必须以 `// Ignore exception:` 开头，并说明忽略异常的原因。Catch-all 块（`catch { ... }` 或 `catch (Exception ex) { ... }`）在提供原因的情况下也可以被抑制。
 
 
 ## Null 抑制操作
@@ -559,7 +564,7 @@ if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：紧随其后�
 ```
 
 > [!TIP]
-> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧包含名称中带有 `Count`、`Length`、`Index`、`Remove`、`Search` 或 `Add` 的属性/方法访问时，允许与 `0` 进行比较。
+> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧表达式中包含的目标标识符（属性、方法、局部变量、参数或属性子模式）包含 `Length`、`Count`、`Index`、`Remove`、`Search`、`Add`、`Exchange`、`Decrement`、`Increment`、`Width`、`Height`、`Depth`、`Size`、`Capacity` 或 `Threshold`（不区分大小写）时，允许与 `0` 进行比较。
 
 ```cs
 int pos = foo.IndexOf('a');
@@ -596,7 +601,7 @@ if (foo.Length != 0)
 主流程开始后，禁止在未在所有代码路径中退出的不完全分支（如没有 `else` 的 `if` 块）内部进行退出（**SMA8030**）。
 
 > [!NOTE]
-> 作为方法根层级或循环根层级中最后一个语句的 `if` 语句（无论是否带有 `else` 子句），均免于此退出完整性检查。
+> 作为方法根层级、循环根层级中最后一个语句的 `if` 语句（无论是否带有 `else` 子句），以及所在 `try` 语句为方法类块最后一条语句的 `try`、`catch`、`finally` 块内的最后一条 `if` 语句，均免于此退出完整性检查。方法或循环根层级的最后一条 `if` 语句也免受早期退出限制（SMA8031）。
 
 ```cs
 // 以 "Throw" 开头的方法可以在首个 if 语句之前调用。
@@ -1062,7 +1067,7 @@ var x = new MyDisposable();
 ```
 
 > [!NOTE]
-> 此抑制方式对局部变量的初始声明和弃元赋值有效。对现有命名变量的常规赋值无法通过注释来抑制。
+> 此抑制方式对局部变量的初始声明、弃元赋值以及类型声明（如针对 Disposable 实现分析的 `// Don't dispose <原因>`）有效。对现有命名变量的常规赋值无法通过注释来抑制。
 >
 > 使用名为 `_` 的变量（例如 `var _ = new Disposable();`）不是弃元，不会被注释抑制。
 
