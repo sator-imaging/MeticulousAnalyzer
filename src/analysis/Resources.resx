@@ -175,37 +175,37 @@
     <value>Enum Type Analysis</value>
   </data>
   <data name="SMA0020_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
+    <value>Unchecked value cast to enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`</value>
   </data>
   <data name="SMA0020_Title" xml:space="preserve">
     <value>Unchecked Cast to Enum Type</value>
   </data>
   <data name="SMA0021_MessageFormat" xml:space="preserve">
-    <value>Casting enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
+    <value>Casting enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`</value>
   </data>
   <data name="SMA0021_Title" xml:space="preserve">
     <value>Cast from Enum Type to Other</value>
   </data>
   <data name="SMA0022_MessageFormat" xml:space="preserve">
-    <value>Unchecked value cast to generic enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
+    <value>Unchecked value cast to generic enum type '{0}'. Centralize and verify in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`</value>
   </data>
   <data name="SMA0022_Title" xml:space="preserve">
     <value>Unchecked Cast to Generic Enum Type</value>
   </data>
   <data name="SMA0023_MessageFormat" xml:space="preserve">
-    <value>Casting generic enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
+    <value>Casting generic enum type '{0}' to another type. Centralize in a utility method. Can suppress with comment `// Allow enum conversion [Reason]`</value>
   </data>
   <data name="SMA0023_Title" xml:space="preserve">
     <value>Cast from Generic Enum Type to Other</value>
   </data>
   <data name="SMA0024_MessageFormat" xml:space="preserve">
-    <value>String representation of enum type '{0}' is not localized and unstable on obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
+    <value>String representation of enum type '{0}' is not localized and unstable on obfuscation. Centralize enum-to-string handling. Can suppress with comment `// Allow enum conversion [Reason]`</value>
   </data>
   <data name="SMA0024_Title" xml:space="preserve">
     <value>Enum to String</value>
   </data>
   <data name="SMA0025_MessageFormat" xml:space="preserve">
-    <value>Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [ Reason (optional) ]`</value>
+    <value>Centralize enum system method calls in a utility class. Can suppress with comment `// Allow enum conversion [Reason]`</value>
   </data>
   <data name="SMA0025_Title" xml:space="preserve">
     <value>Enum System Method</value>
@@ -244,7 +244,7 @@
     <value>Mutable Struct Field Marked as Read-Only</value>
   </data>
   <data name="SMA0032_MessageFormat" xml:space="preserve">
-    <value>Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [ Reason (optional) ]`</value>
+    <value>Implicit boxing from type '{0}' to '{1}'. Consider using generic constraint. Can suppress with comment `// Allow boxing [Reason]`</value>
   </data>
   <data name="SMA0032_Title" xml:space="preserve">
     <value>Implicit Boxing Conversion</value>
@@ -253,7 +253,7 @@
     <value>Disposable Analysis</value>
   </data>
   <data name="SMA0040_MessageFormat" xml:space="preserve">
-    <value>Type '{0}' implements `IDisposable` pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
+    <value>Type '{0}' implements `IDisposable` pattern. Wrap with `using` statement. Can suppress with comment `// Don't dispose [Reason]`</value>
   </data>
   <data name="SMA0040_Title" xml:space="preserve">
     <value>Missing Using Statement</value>
@@ -265,13 +265,13 @@
     <value>Null Assignment to Disposable</value>
   </data>
   <data name="SMA0042_MessageFormat" xml:space="preserve">
-    <value>Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
+    <value>Disposable object '{0}' is not returned on all code paths. Can suppress with comment `// Don't dispose [Reason]`</value>
   </data>
   <data name="SMA0042_Title" xml:space="preserve">
     <value>Not All Code Paths Return a Value</value>
   </data>
   <data name="SMA0043_MessageFormat" xml:space="preserve">
-    <value>Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
+    <value>Disposable type '{0}' is not disposed. Add disposal in `Dispose` method. Can suppress with comment `// Don't dispose [Reason]`</value>
   </data>
   <data name="SMA0043_Title" xml:space="preserve">
     <value>Undisposed Member</value>
@@ -289,7 +289,7 @@
     <value>Missing IDisposable Interface</value>
   </data>
   <data name="SMA0046_MessageFormat" xml:space="preserve">
-    <value>Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [ Reason (optional) ]`</value>
+    <value>Disposable type '{0}' is cast to untraceable type '{1}'. Can suppress with comment `// Don't dispose [Reason]`</value>
   </data>
   <data name="SMA0046_Title" xml:space="preserve">
     <value>Lost Tracking of Disposable</value>
@@ -346,13 +346,13 @@
     <value>Async Context Analysis</value>
   </data>
   <data name="SMA0070_MessageFormat" xml:space="preserve">
-    <value>Task type '{0}' is not awaited. Add `await` or `return`. Can suppress with comment `// Don't await [ Reason (optional) ]`</value>
+    <value>Task type '{0}' is not awaited. Add `await` or `return`. Can suppress with comment `// Don't await [Reason]`</value>
   </data>
   <data name="SMA0070_Title" xml:space="preserve">
     <value>Task Not Awaited</value>
   </data>
   <data name="SMA0071_MessageFormat" xml:space="preserve">
-    <value>Task type '{0}' is not awaited on all code paths. Can suppress with comment `// Don't await [ Reason (optional) ]`</value>
+    <value>Task type '{0}' is not awaited on all code paths. Can suppress with comment `// Don't await [Reason]`</value>
   </data>
   <data name="SMA0071_Title" xml:space="preserve">
     <value>Task Not Awaited on All Paths</value>
@@ -433,7 +433,7 @@
     <value>Inefficient Delegate Declaration</value>
   </data>
   <data name="SMA7002_MessageFormat" xml:space="preserve">
-    <value>Non-static lambda causes allocation. Make it static or cache if possible. Can suppress with comment `// Allow allocation [ Reason (optional) ]`</value>
+    <value>Non-static lambda causes allocation. Make it static or cache if possible. Can suppress with comment `// Allow allocation [Reason]`</value>
   </data>
   <data name="SMA7002_Title" xml:space="preserve">
     <value>Lambda Allocation</value>
@@ -469,7 +469,7 @@
     <value>Avoid Anonymous Object Creation</value>
   </data>
   <data name="SMA7050_MessageFormat" xml:space="preserve">
-    <value>Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [ Reason (optional) ]`</value>
+    <value>Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [Reason]`</value>
   </data>
   <data name="SMA7050_Title" xml:space="preserve">
     <value>Avoid LINQ Operation for Performance</value>
@@ -508,37 +508,37 @@
     <value>Omittable Argument Should Be Passed as Named Argument</value>
   </data>
   <data name="SMA8010_MessageFormat" xml:space="preserve">
-    <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: Reason (required)`</value>
+    <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: &lt;Reason&gt;`</value>
   </data>
   <data name="SMA8010_Title" xml:space="preserve">
     <value>Catch Block without Throw</value>
   </data>
   <data name="SMA8011_MessageFormat" xml:space="preserve">
-    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead</value>
+    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead. Can suppress with leading comment for `catch` keyword: `// Ignore exception: &lt;Reason&gt;`</value>
   </data>
   <data name="SMA8011_Title" xml:space="preserve">
     <value>Catch-All Block without Throw</value>
   </data>
   <data name="SMA8020_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: reason */`)</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 42 /* Why: &lt;Reason&gt; */`)</value>
   </data>
   <data name="SMA8020_Title" xml:space="preserve">
     <value>Literal Branch Number</value>
   </data>
   <data name="SMA8021_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. If left side expression includes an identifier containing `Length`, `Count`, `Index`, `Remove`, `Search`, `Add`, `Exchange`, `Decrement`, `Increment`, `Width`, `Height`, `Depth`, `Size`, `Capacity`, or `Threshold` (case-insensitive), comparing with 0 is not reported (e.g., `if ((pos = text.IndexOf('a')) &gt;= 0)`). Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: reason */`)</value>
+    <value>Use named constants or configuration instead of hardcoded literal '{0}' for better maintainability. If left side expression includes an identifier containing `Length`, `Count`, `Index`, `Remove`, `Search`, `Add`, `Exchange`, `Decrement`, `Increment`, `Width`, `Height`, `Depth`, `Size`, `Capacity`, or `Threshold` (case-insensitive), comparing with 0 is not reported (e.g., `if ((pos = text.IndexOf('a')) &gt;= 0)`). Can suppress by adding a trailing comment after the literal (e.g. `value == 0 /* Why: &lt;Reason&gt; */`)</value>
   </data>
   <data name="SMA8021_Title" xml:space="preserve">
     <value>Literal Branch Zero</value>
   </data>
   <data name="SMA8022_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded string literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: reason */`)</value>
+    <value>Use named constants or configuration instead of hardcoded string literal '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == "whatever" /* Why: &lt;Reason&gt; */`)</value>
   </data>
   <data name="SMA8022_Title" xml:space="preserve">
     <value>Literal Branch String</value>
   </data>
   <data name="SMA8023_MessageFormat" xml:space="preserve">
-    <value>Use named constants or configuration instead of hardcoded literal char '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: reason */`)</value>
+    <value>Use named constants or configuration instead of hardcoded literal char '{0}' for better maintainability. Can suppress by adding a trailing comment after the literal (e.g. `value == 'a' /* Why: &lt;Reason&gt; */`)</value>
   </data>
   <data name="SMA8023_Title" xml:space="preserve">
     <value>Literal Branch Char</value>
@@ -556,7 +556,7 @@
     <value>State Change in Early Exit</value>
   </data>
   <data name="SMA8032_MessageFormat" xml:space="preserve">
-    <value>Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [ Reason (optional) ]`</value>
+    <value>Avoid non-local exit from the loop. Use local exit such as `break`, `continue` or `goto` instead to clarify the control flow. Can suppress with comment `// Allow non-local exit from loop [Reason]`</value>
   </data>
   <data name="SMA8032_Title" xml:space="preserve">
     <value>Non-Local Exit from Loop</value>
