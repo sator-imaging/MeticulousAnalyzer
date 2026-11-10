@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0-rc.15](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.15) (2026-11-10)
+
+### 📣 Breaking Changes ⚠
+* Update Core helper for EnumAnalyzer suppression comment by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#751](https://github.com/sator-imaging/MeticulousAnalyzer/pull/751)
+* Ignore assemblies which name containing `Test` in DebugAssertAnalyzer by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#753](https://github.com/sator-imaging/MeticulousAnalyzer/pull/753)
+### 📖 Documentation
+* docs: diagnositc messages by [@sator-imaging](https://github.com/sator-imaging) in [#754](https://github.com/sator-imaging/MeticulousAnalyzer/pull/754)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.14...v5.3.0-rc.15
+
+
 ## [5.3.0-rc.14](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.14) (2026-11-09)
 
 ### 📣 Breaking Changes ⚠
