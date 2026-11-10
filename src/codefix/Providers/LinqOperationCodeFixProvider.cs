@@ -200,8 +200,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
             string indent = hasNamespace ? "        " : "    ";
 
-            // Existing methods: (Name, ParamCount, Syntax)
-            var existingMethods = new List<(string Name, int ParamCount, MethodDeclarationSyntax Syntax)>();
+            // Existing methods
+            var existingMethods = new List<(string Name, int ParamCount)>();
             foreach (var member in classDecl.Members)
             {
                 if (member is MethodDeclarationSyntax methodSyntax)
@@ -209,20 +209,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     var symbol = portalModel?.GetDeclaredSymbol(methodSyntax);
                     var name = symbol?.Name ?? methodSyntax.Identifier.Text;
                     var paramCount = symbol?.Parameters.Length ?? methodSyntax.ParameterList.Parameters.Count;
-                    existingMethods.Add((name, paramCount, methodSyntax));
+                    existingMethods.Add((name, paramCount));
                 }
             }
 
-            // Combine methods: existing methods reuse their syntax/body as-is, new methods get forwarder
-            var allMethodSyntaxes = new List<(string Name, int ParamCount, MethodDeclarationSyntax Syntax)>();
-
-            // a. Keep all existing methods with bodies
-            for (int i = 0, count = existingMethods.Count; i < count; i++)
-            {
-                allMethodSyntaxes.Add(existingMethods[i]);
-            }
-
-            // b. Add newly required LINQ methods if not already existing
+            // Determine new methods to add (not yet in class)
+            var newMethodsToAdd = new List<IMethodSymbol>();
             for (int i = 0, count = linqMethods.Count; i < count; i++)
             {
                 var lm = linqMethods[i];
@@ -238,39 +230,55 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
                 if (!exists)
                 {
-                    var forwarderText = GenerateMethodForwarder(lm, indent);
-                    if (SyntaxFactory.ParseMemberDeclaration(forwarderText) is MethodDeclarationSyntax parsedSyntax)
-                    {
-                        allMethodSyntaxes.Add((lm.Name, lm.Parameters.Length, parsedSyntax));
-                    }
+                    newMethodsToAdd.Add(lm);
                 }
             }
 
-            // Sort all methods in alphabetical order by method name
-            var sortedList = allMethodSyntaxes
+            if (newMethodsToAdd.Count == 0) return portalRoot;
+
+            // Order new methods by name
+            newMethodsToAdd = newMethodsToAdd
                 .OrderBy(static m => m.Name, StringComparer.Ordinal)
-                .ThenBy(static m => m.ParamCount)
+                .ThenBy(static m => m.Parameters.Length)
                 .ToList();
 
-            var sortedSyntaxes = new List<MemberDeclarationSyntax>();
-            for (int i = 0, count = sortedList.Count; i < count; i++)
+            var currentMembers = classDecl.Members;
+
+            // Insert new methods: immediate after existing method which has same name, or at last
+            for (int i = 0, count = newMethodsToAdd.Count; i < count; i++)
             {
-                var syntax = sortedList[i].Syntax;
-                if (i == 0)
+                var newMethod = newMethodsToAdd[i];
+                var forwarderText = GenerateMethodForwarder(newMethod, indent);
+                if (SyntaxFactory.ParseMemberDeclaration(forwarderText) is not MethodDeclarationSyntax parsedSyntax)
                 {
-                    syntax = syntax.WithLeadingTrivia(SyntaxFactory.Whitespace(indent));
-                }
-                else
-                {
-                    syntax = syntax.WithLeadingTrivia(SyntaxFactory.Whitespace("\n\n" + indent));
+                    continue;
                 }
 
-                syntax = syntax.WithTrailingTrivia(SyntaxTriviaList.Empty);
-                sortedSyntaxes.Add(syntax);
+                // Find index of existing method with the same name
+                int insertIndex = -1;
+                for (int mIdx = currentMembers.Count - 1; mIdx >= 0; mIdx--)
+                {
+                    if (currentMembers[mIdx] is MethodDeclarationSyntax m && m.Identifier.Text == newMethod.Name)
+                    {
+                        insertIndex = mIdx + 1;
+                        break;
+                    }
+                }
+
+                // If not found, insert at last
+                if (insertIndex < 0)
+                {
+                    insertIndex = currentMembers.Count;
+                }
+
+                parsedSyntax = parsedSyntax.WithLeadingTrivia(SyntaxFactory.Whitespace(insertIndex == 0 ? indent : "\n" + indent))
+                    .WithTrailingTrivia(SyntaxFactory.Whitespace("\n"));
+
+                currentMembers = currentMembers.Insert(insertIndex, parsedSyntax);
             }
 
-            var closeBrace = classDecl.CloseBraceToken.WithLeadingTrivia(SyntaxFactory.Whitespace("\n" + (hasNamespace ? "    " : "")));
-            var newClassDecl = classDecl.WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>(sortedSyntaxes))
+            var closeBrace = classDecl.CloseBraceToken.WithLeadingTrivia(SyntaxFactory.Whitespace(hasNamespace ? "    " : ""));
+            var newClassDecl = classDecl.WithMembers(currentMembers)
                 .WithCloseBraceToken(closeBrace);
             return portalRoot.ReplaceNode(classDecl, newClassDecl);
         }

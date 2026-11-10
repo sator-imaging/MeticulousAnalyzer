@@ -15,7 +15,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     public class SMA7050_LinqOperationCodeFixProviderTests_ExistingFile
     {
         [TestMethod]
-        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_AddsNewMember_InAlphabeticalOrder()
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_AddsNewMember_AtLast()
         {
             var test = @"
 namespace MyCompany.MyProduct
@@ -79,14 +79,14 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Any<TSource>(source);
         }
 
-        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
-        {
-            return global::System.Linq.Enumerable.Count<TSource>(source);
-        }
-
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+        }
+
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count<TSource>(source);
         }
     }
 }
@@ -120,7 +120,7 @@ namespace MyCompany
         }
 
         [TestMethod]
-        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_OverloadAdded()
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_OverloadAdded_NextToSameName()
         {
             var test = @"
 namespace MyCompany.MyProduct
@@ -164,6 +164,11 @@ namespace MyCompany
         {
             return global::System.Linq.Enumerable.Count<TSource>(source);
         }
+
+        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+        }
     }
 }
 ";
@@ -182,6 +187,11 @@ namespace MyCompany
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Count<TSource>(source, predicate);
+        }
+
+        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
     }
 }
