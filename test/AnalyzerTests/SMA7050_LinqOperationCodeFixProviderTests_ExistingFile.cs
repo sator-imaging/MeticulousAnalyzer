@@ -225,5 +225,129 @@ namespace MyCompany
 
             await testObj.RunAsync();
         }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_PreservesUserDefinedElements()
+        {
+            var test = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M()
+        {
+            IEnumerable<int> list = new List<int>();
+            var count = list.Count();
+        }
+    }
+}
+";
+            var fixtest = @"
+namespace MyCompany.MyProduct
+{
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M()
+        {
+            IEnumerable<int> list = new List<int>();
+            var count = list.Count();
+        }
+    }
+}
+";
+            var existingPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    class UserDefined { }
+
+    /// <summary>
+    /// User xml doc for LinqPortal.
+    /// </summary>
+    // User comment before LinqPortal
+    public static partial class LinqPortal
+    {
+        // User field comment
+        public static readonly int UserField = 42;
+
+        /// <summary>
+        /// User property doc.
+        /// </summary>
+        public static string UserProperty => ""test"";
+
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any<TSource>(source);
+        }
+    }
+}
+";
+            var expectedMergedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    class UserDefined { }
+
+    /// <summary>
+    /// User xml doc for LinqPortal.
+    /// </summary>
+    // User comment before LinqPortal
+    public static partial class LinqPortal
+    {
+        // User field comment
+        public static readonly int UserField = 42;
+
+        /// <summary>
+        /// User property doc.
+        /// </summary>
+        public static string UserProperty => ""test"";
+
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any<TSource>(source);
+        }
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count<TSource>(source);
+        }
+    }
+}
+";
+
+            var testObj = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", test),
+                        ("LinqPortal.MyCompany.cs", existingPortal)
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixtest),
+                        ("LinqPortal.MyCompany.cs", expectedMergedPortal)
+                    }
+                },
+            };
+
+            await testObj.RunAsync();
+        }
     }
 }
