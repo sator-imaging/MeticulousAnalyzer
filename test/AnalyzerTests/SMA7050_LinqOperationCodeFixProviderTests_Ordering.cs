@@ -59,16 +59,19 @@ namespace MyCompany
 {
     public static partial class LinqPortal
     {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Any<TSource>(source);
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count<TSource>(source);
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);

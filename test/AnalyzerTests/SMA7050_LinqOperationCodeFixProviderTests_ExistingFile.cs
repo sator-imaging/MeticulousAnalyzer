@@ -84,6 +84,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count<TSource>(source);
@@ -184,6 +185,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Count<TSource>(source);
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Count<TSource>(source, predicate);

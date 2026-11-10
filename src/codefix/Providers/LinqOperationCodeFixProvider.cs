@@ -358,6 +358,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             var returnKeyword = method.ReturnsVoid ? "" : "return ";
 
             var sb = new StringBuilder();
+            sb.AppendLine($"{indent}[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
             sb.AppendLine($"{indent}{signature}");
             sb.AppendLine($"{indent}{{");
             sb.AppendLine($"{indent}    {returnKeyword}global::System.Linq.Enumerable.{method.Name}{typeArgs}({args});");
