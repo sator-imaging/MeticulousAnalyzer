@@ -292,5 +292,82 @@ namespace Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_ExplicitCastToObject_MethodArgument()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    struct StructDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        static void Foo(object arg) { }
+
+        void Method()
+        {
+            using var d = new MyDisposable();
+            using var s = new StructDisposable();
+
+            Foo((object)d);
+            Foo(arg: (object)d);
+            Foo(((object)d));
+            Foo((object)s);
+
+            Action<object> act = Foo;
+            act((object)d);
+
+            void LocalFoo(object obj) { }
+            LocalFoo((object)d);
+        }
+    }
+}
+";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Violation_CastAsObject_MethodArgument()
+        {
+            var test = @"
+using System;
+
+namespace Test
+{
+    class MyDisposable : IDisposable
+    {
+        public void Dispose() { }
+    }
+
+    class Program
+    {
+        static void Foo(object arg) { }
+
+        void Method()
+        {
+            using var d = new MyDisposable();
+            Foo({|#0:d as object|});
+        }
+    }
+}
+";
+
+            var expected = VerifyCS.Diagnostic(DisposableAnalyzer.RuleId_CastFromDisposableToNonDisposable)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyDisposable", "object");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
