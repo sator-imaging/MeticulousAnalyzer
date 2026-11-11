@@ -1154,6 +1154,70 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8021_Compliant_StartEnd_MembersAndPatterns()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int Start => 0;
+        public int StartIndex { get; set; }
+        public int GetEnd() => 0;
+        public int EndPos { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container, int start, int end, int startPos, int endPos)
+        {
+            if (start == 0)
+            {
+            }
+
+            if (end == 0)
+            {
+            }
+
+            if (startPos == 0)
+            {
+            }
+
+            if (endPos == 0)
+            {
+            }
+
+            if (container.Start == 0)
+            {
+            }
+
+            if (container.StartIndex == 0)
+            {
+            }
+
+            if (container.GetEnd() == 0)
+            {
+            }
+
+            if (container.EndPos == 0)
+            {
+            }
+
+            if (container is { Start: 0 })
+            {
+            }
+
+            if (container is { EndPos: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8021_Compliant_Code_MembersAndPatterns()
         {
             var test = @"

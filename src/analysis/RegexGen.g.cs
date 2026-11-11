@@ -2,7 +2,7 @@
 //     Source generated files collected:
 //     - RegexGenerator.g.cs
 //     Patterns:
-//     - IsExcemptionNameForZeroComparison: @"^len|^num|Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold|Code", RegexOptions.IgnoreCase
+//     - IsExcemptionNameForZeroComparison: @"^len|^num|Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold|Code|Start|End", RegexOptions.IgnoreCase
 // </auto-generated>
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis
@@ -26,7 +26,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// <remarks>
         /// Pattern explanation:<br/>
         /// <code>
-        /// ○ Match with 18 alternative expressions, atomically.<br/>
+        /// ○ Match with 20 alternative expressions, atomically.<br/>
         ///     ○ Match a sequence of expressions.<br/>
         ///         ○ Match if at the beginning of the string.<br/>
         ///         ○ Match a character in the set [Ll].<br/>
@@ -150,6 +150,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         ///         ○ Match a character in the set [Oo].<br/>
         ///         ○ Match a character in the set [Dd].<br/>
         ///         ○ Match a character in the set [Ee].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Ss].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///         ○ Match a character in the set [Aa].<br/>
+        ///         ○ Match a character in the set [Rr].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///         ○ Match a character in the set [Nn].<br/>
+        ///         ○ Match a character in the set [Dd].<br/>
         /// </code>
         /// </remarks>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "7.0.10.26716")]
@@ -178,7 +188,7 @@ namespace System.Text.RegularExpressions.Generated
         /// <summary>Initializes the instance.</summary>
         private IsExcemptionNameForZeroComparison_0()
         {
-            base.pattern = "^len|^num|Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold|Code";
+            base.pattern = "^len|^num|Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold|Code|Start|End";
             base.roptions = RegexOptions.IgnoreCase;
             ValidateMatchTimeout(Utilities.s_defaultTimeout);
             base.internalMatchTimeout = Utilities.s_defaultTimeout;
@@ -255,7 +265,7 @@ unchecked
                         for (int i = 0; i < span.Length - 2; i++)
                         {
                             if (((long)((0xB9947200B9947200UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
-                                ((long)((0x9986090099860900UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
+                                ((long)((0x9986190099861900UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
                                 ((long)((0xB08D4840B08D4840UL << (int)(charMinusLow = (uint)span[i + 2] - 'A')) & (charMinusLow - 64)) < 0))
                             {
                                 base.runtextpos = pos + i;
@@ -281,7 +291,7 @@ unchecked
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
                     
-                    // Match with 18 alternative expressions, atomically.
+                    // Match with 20 alternative expressions, atomically.
                     {
                         int alternation_starting_pos = pos;
                         
@@ -591,10 +601,44 @@ unchecked
                             if ((uint)slice.Length < 4 ||
                                 !slice.StartsWith("code".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "code" (ordinal case-insensitive)
                             {
-                                return false; // The input didn't match.
+                                goto AlternationBranch17;
                             }
 
                             pos += 4;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch17:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 18
+                        {
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("start".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "start" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch18;
+                            }
+
+                            pos += 5;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch18:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 19
+                        {
+                            if ((uint)slice.Length < 3 ||
+                                !slice.StartsWith("end".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "end" (ordinal case-insensitive)
+                            {
+                                return false; // The input didn't match.
+                            }
+
+                            pos += 3;
                             slice = inputSpan.Slice(pos);
                         }
                         
