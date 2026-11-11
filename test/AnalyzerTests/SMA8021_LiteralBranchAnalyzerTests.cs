@@ -1126,11 +1126,213 @@ namespace Test
             if (maxThreshold > 0)
             {
             }
+
+            int num = 1;
+            if (num > 0)
+            {
+            }
+
+            int numItems = 1;
+            if (numItems == 0)
+            {
+            }
+
+            int numberOfLines = 2;
+            if (numberOfLines is 0)
+            {
+            }
+
+            int NUM_ENTRIES = 3;
+            if (NUM_ENTRIES != 0)
+            {
+            }
         }
     }
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_Code_MembersAndPatterns()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int Code => 0;
+        public int ExitCode { get; set; }
+        public int GetStatusCode() => 0;
+    }
+
+    public class C
+    {
+        public void M(Container container, int code, int returnCode)
+        {
+            if (code == 0)
+            {
+            }
+
+            if (returnCode == 0)
+            {
+            }
+
+            if (container.Code == 0)
+            {
+            }
+
+            if (container.ExitCode == 0)
+            {
+            }
+
+            if (container.GetStatusCode() == 0)
+            {
+            }
+
+            if (container is { Code: 0 })
+            {
+            }
+
+            if (container is { ExitCode: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_LenPrefix_MembersAndPatterns()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int len => 0;
+        public int LenItems { get; set; }
+        public int LenElements() => 0;
+    }
+
+    public class C
+    {
+        public void M(Container container, int len, int lenStr)
+        {
+            if (len == 0)
+            {
+            }
+
+            if (lenStr == 0)
+            {
+            }
+
+            if (container.len == 0)
+            {
+            }
+
+            if (container.LenItems == 0)
+            {
+            }
+
+            if (container.LenElements() == 0)
+            {
+            }
+
+            if (container is { len: 0 })
+            {
+            }
+
+            if (container is { LenItems: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Compliant_NumPrefix_MembersAndPatterns()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int num => 0;
+        public int NumItems { get; set; }
+        public int NumElements() => 0;
+    }
+
+    public class C
+    {
+        public void M(Container container)
+        {
+            if (container.num == 0)
+            {
+            }
+
+            if (container.NumItems == 0)
+            {
+            }
+
+            if (container.NumElements() == 0)
+            {
+            }
+
+            if (container is { num: 0 })
+            {
+            }
+
+            if (container is { NumItems: 0 })
+            {
+            }
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_NumNotAtStart()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int myNum => 0;
+        public int itemNum { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container, int myNum)
+        {
+            if (myNum == {|#0:0|})
+            {
+            }
+
+            if (container.itemNum == {|#1:0|})
+            {
+            }
+
+            if (container is { myNum: {|#2:0|} })
+            {
+            }
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(0).WithArguments("0");
+            var expected1 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(1).WithArguments("0");
+            var expected2 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(2).WithArguments("0");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
     }
 }
