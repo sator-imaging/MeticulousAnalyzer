@@ -431,6 +431,16 @@ namespace Test
             // Allow enum conversion (reassignment)
             s = $""[{myEnum}] {MyEnum.Value}"";
         }
+
+        public void TestSwitch(MyEnum myEnum)
+        {
+            var s = myEnum switch
+            {
+                // Allow enum conversion
+                MyEnum.Value => $""[{myEnum}]"",
+                _ => """",
+            };
+        }
     }
 }
 ";
