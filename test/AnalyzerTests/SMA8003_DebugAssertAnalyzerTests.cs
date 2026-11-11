@@ -436,5 +436,21 @@ public class C
             await VerifyCS.VerifyAnalyzerAsync(test, "MyProject.test",
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_NoArguments()
+        {
+            var test = @"
+public class C
+{
+    private void Assert() {}
+    public void M()
+    {
+        {|#0:Assert()|};
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+        }
     }
 }

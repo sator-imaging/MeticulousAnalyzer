@@ -281,5 +281,48 @@ public class TestClass
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA7020_Violation_ProtectedPropertyAccessor_WithAggressiveInlining()
+        {
+            var test = @"
+using System.Runtime.CompilerServices;
+
+public class TestClass
+{
+    public int MyProp
+    {
+        [{|#0:MethodImpl(MethodImplOptions.AggressiveInlining)|}]
+        protected get => 42;
+        set { }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(MethodImplAnalyzer.RuleId_AggressiveInliningOnPublicMember)
+                .WithLocation(markupKey: 0)
+                .WithArguments("MyProp.get");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7020_Compliant_MethodImplWithoutArguments()
+        {
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Method)]
+public class MethodImplAttribute : Attribute
+{
+    public MethodImplAttribute() {}
+}
+
+public class TestClass
+{
+    [MethodImpl]
+    public void MyMethod() {}
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
