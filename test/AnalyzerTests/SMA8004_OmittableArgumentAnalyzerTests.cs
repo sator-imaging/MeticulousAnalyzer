@@ -473,5 +473,73 @@ public class CTest
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_AttributeSystemNamespaceMultipleArgs()
+        {
+            var test = @"
+using System;
+
+namespace System.Sub
+{
+    [AttributeUsage(AttributeTargets.Class)]
+    public class CustomAttrAttribute : Attribute
+    {
+        public CustomAttrAttribute(int req, int opt = 10) {}
+    }
+}
+
+[System.Sub.CustomAttr(1, 2)]
+public class CTest
+{
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_AttributeArgumentParameterNameMatch()
+        {
+            var test = @"
+using System;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class MultiAttrAttribute : Attribute
+{
+    public MultiAttrAttribute(int req, int value = 10) {}
+}
+
+public class CTest
+{
+    public const int MyValue = 20;
+}
+
+[MultiAttr(1, CTest.MyValue)]
+public class CTest2
+{
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8004_Compliant_MultipleArguments_ParameterNameMatch()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Process(int dummy, int value = 0) {}
+
+        public void Test(int value)
+        {
+            Process(1, value);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
