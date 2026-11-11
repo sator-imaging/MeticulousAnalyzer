@@ -68,7 +68,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (IsNullableContextSafeguard(invocation))
                     return;
 
-                if (context.Compilation.AssemblyName?.IndexOf("Test", System.StringComparison.Ordinal) >= 0)
+                if (context.Compilation.AssemblyName?.IndexOf("Test", System.StringComparison.OrdinalIgnoreCase) >= 0)
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(

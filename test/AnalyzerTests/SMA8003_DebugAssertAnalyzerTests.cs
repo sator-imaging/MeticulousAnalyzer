@@ -423,18 +423,17 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA8003_Violation_AssemblyNameContainsLowercaseTest()
+        public async Task SMA8003_Compliant_AssemblyNameContainsLowercaseTest()
         {
             var test = @"using System.Diagnostics;
 public class C
 {
     public void M()
     {
-        {|#0:Debug.Assert(true)|};
+        Debug.Assert(true);
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test, "MyProject.test",
-                VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
+            await VerifyCS.VerifyAnalyzerAsync(test, "MyProject.test");
         }
     }
 }
