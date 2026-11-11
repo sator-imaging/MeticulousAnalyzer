@@ -437,6 +437,7 @@ public class C
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
         }
 
+        // Unlikely scenario in practice; added to cover the zero-argument assertion call for test coverage metrics.
         [TestMethod]
         public async Task SMA8003_Violation_NoArguments()
         {
