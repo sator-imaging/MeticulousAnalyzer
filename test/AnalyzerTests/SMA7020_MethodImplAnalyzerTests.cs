@@ -304,6 +304,7 @@ public class TestClass
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
+        // Unlikely scenario in practice; added to cover the zero-argument attribute branch for coverage metrics.
         [TestMethod]
         public async Task SMA7020_Compliant_MethodImplWithoutArguments()
         {
