@@ -120,7 +120,7 @@ Resource suffix: `_Title` `_MessageFormat` `__MD_TITLE__`
 | | | |
 | SMA7040 | Avoid Anonymous Object Creation                                  | Prefer tuple instead of anonymous object
 | | | |
-| SMA7050 | Avoid LINQ Operation for Performance                             | Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [Reason]`
+| SMA7050 | Avoid LINQ Operation for Performance                             | Avoid using LINQ operations in performance-critical scenarios. Can suppress with comment `// Allow linq operation [Reason]`. Alternatively, use FQN such as `System.Linq.Enumerable.Where(...)` to explicitly limit the scope in which inefficient operations are permitted.
 
 ## Reliability and Maintainability Analysis
 
