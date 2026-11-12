@@ -432,7 +432,7 @@ namespace Test
             s = $""[{myEnum}] {MyEnum.Value}"";
 
             // Allow enum conversion
-            s = myEnum != default
+            s = myEnum != MyEnum.Value
                 // Allow enum conversion
                 ? $""[{myEnum}]"" : """";
         }
