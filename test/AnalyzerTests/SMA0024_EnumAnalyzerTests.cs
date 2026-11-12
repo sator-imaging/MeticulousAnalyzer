@@ -441,9 +441,7 @@ namespace Test
             {
                 // Allow enum conversion
                 MyEnum.Value => $""[{myEnum}]"",
-                _ =>
-                // Allow enum conversion
-                myEnum != default ? $""{myEnum}"" : """",
+                _ => """",
             };
         }
     }
