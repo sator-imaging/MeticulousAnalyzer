@@ -1132,5 +1132,50 @@ namespace Test
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_BinaryEquals_ZeroLiteralsOfVariousNumericTypes()
+        {
+            var test = @"
+namespace Test
+{
+    public class CTest
+    {
+        public void Test(
+            double d,
+            long l,
+            short s,
+            byte b,
+            uint u,
+            ulong ul,
+            ushort us,
+            sbyte sb,
+            decimal m)
+        {
+            if (d == {|#0:0.0|}) {}
+            if (l == {|#1:0L|}) {}
+            if (s == (short){|#2:0|}) {}
+            if (b == (byte){|#3:0|}) {}
+            if (u == {|#4:0U|}) {}
+            if (ul == {|#5:0UL|}) {}
+            if (us == (ushort){|#6:0|}) {}
+            if (sb == (sbyte){|#7:0|}) {}
+            if (m == {|#8:0m|}) {}
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 0).WithArguments("0.0");
+            var expected1 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 1).WithArguments("0L");
+            var expected2 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 2).WithArguments("0");
+            var expected3 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 3).WithArguments("0");
+            var expected4 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 4).WithArguments("0U");
+            var expected5 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 5).WithArguments("0UL");
+            var expected6 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 6).WithArguments("0");
+            var expected7 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 7).WithArguments("0");
+            var expected8 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(markupKey: 8).WithArguments("0m");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7, expected8);
+        }
     }
 }
