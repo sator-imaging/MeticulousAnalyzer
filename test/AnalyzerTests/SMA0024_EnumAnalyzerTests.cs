@@ -431,9 +431,9 @@ namespace Test
             // Allow enum conversion (reassignment)
             s = $""[{myEnum}] {MyEnum.Value}"";
 
-            s =
-            // Allow enum conversion
-            myEnum != default ? $""[{myEnum}]"" : """"
+            s = myEnum != default
+                // Allow enum conversion
+                ? $""[{myEnum}]"" : """";
         }
 
         public void TestSwitch(MyEnum myEnum)
