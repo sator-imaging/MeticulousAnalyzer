@@ -266,7 +266,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (context.Operation.Parent is IOperation parentOp
                     && (
                         Core.IsSuppressedByComment(parentOp, SuppressionComment)
-                        || (parentOp.Parent is IOperation pp && Core.IsSuppressedByComment(pp, SuppressionComment)
+                        || (parentOp.Parent is IOperation pp && Core.IsSuppressedByComment(pp, SuppressionComment))
                     )
                 )
                 {
