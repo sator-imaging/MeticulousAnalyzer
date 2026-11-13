@@ -973,5 +973,43 @@ namespace Test
                 .WithArguments("d");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_Await_NonDisposable()
+        {
+            var test = @"
+using System.Threading.Tasks;
+
+namespace Test
+{
+    class Program
+    {
+        async Task Method()
+        {
+            var x = await Task.FromResult(42);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA0040_Compliant_AnonymousCreation_NonDisposable()
+        {
+            var test = @"
+namespace Test
+{
+    class Program
+    {
+        void Method()
+        {
+            var x = new { A = 1, B = ""test"" };
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }

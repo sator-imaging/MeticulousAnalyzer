@@ -424,5 +424,31 @@ namespace Foo.Bar
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_LocalFunction_InternalParameterType()
+        {
+            var test = @"
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    internal class LocalFuncHolder
+    {
+        internal void M()
+        {
+            void LocalMethod({|#0:Foo.InternalType|} s) { }
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic()
+                .WithLocation(0)
+                .WithArguments("InternalType", "Foo.Bar", "Foo");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
