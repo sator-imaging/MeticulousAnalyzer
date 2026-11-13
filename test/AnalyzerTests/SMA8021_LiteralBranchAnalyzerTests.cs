@@ -1405,13 +1405,6 @@ namespace Test
             var test = @"
 namespace Test
 {
-    public class Container
-    {
-        public int len => 0;
-        public int LenItems { get; set; }
-        public int LenElements() => 0;
-    }
-
     public class CTest
     {
         public void Test(
