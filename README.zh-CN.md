@@ -564,7 +564,7 @@ if (status == 200 /* Why: HTTP OK 标准状态码 */) // 允许：紧随其后�
 ```
 
 > [!TIP]
-> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧表达式中包含的目标标识符（属性、方法、局部变量、参数或属性子模式）包含 `Length`、`Count`、`Index`、`Remove`、`Search`、`Add`、`Exchange`、`Decrement`、`Increment`、`Width`、`Height`、`Depth`、`Size`、`Capacity` 或 `Threshold`（不区分大小写）时，允许与 `0` 进行比较。
+> 在 `for` / `while` / `do-while` 循环条件头中，或当左侧表达式中包含的目标标识符（属性、方法、局部变量、参数或属性子模式）以 `len` 或 `num` 开头，或包含 `Length`、`Count`、`Index`、`Remove`、`Search`、`Add`、`Exchange`、`Decrement`、`Increment`、`Width`、`Height`、`Depth`、`Size`、`Capacity`、`Threshold`、`Code`、`Start` 或 `End`（不区分大小写）时，允许与 `0` 进行比较。
 
 ```cs
 int pos = foo.IndexOf('a');

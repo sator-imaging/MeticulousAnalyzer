@@ -564,7 +564,7 @@ if (status == 200 /* Why: HTTP OK 標準ステータスコード */) // 許可: 
 ```
 
 > [!TIP]
-> `for` / `while` / `do-while` ループ条件ヘッダー内、または左辺の式に対象の識別子（プロパティ、メソッド、ローカル変数、引数、またはプロパティサブパターン）として `Length`、`Count`、`Index`、`Remove`、`Search`、`Add`、`Exchange`、`Decrement`、`Increment`、`Width`、`Height`、`Depth`、`Size`、`Capacity`、`Threshold`（大文字小文字を区別しない）を含む場合は `0` との比較が許可されます。
+> `for` / `while` / `do-while` ループ条件ヘッダー内、または左辺の式に対象の識別子（プロパティ、メソッド、ローカル変数、引数、またはプロパティサブパターン）として `len` または `num` で始まるか、`Length`、`Count`、`Index`、`Remove`、`Search`、`Add`、`Exchange`、`Decrement`、`Increment`、`Width`、`Height`、`Depth`、`Size`、`Capacity`、`Threshold`、`Code`、`Start`、`End`（大文字小文字を区別しない）を含む場合は `0` との比較が許可されます。
 
 ```cs
 int pos = foo.IndexOf('a');

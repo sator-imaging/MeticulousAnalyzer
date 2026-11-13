@@ -25,7 +25,10 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             "Depth",
             "Size",
             "Capacity",
-            "Threshold"
+            "Threshold",
+            "Code",
+            "Start",
+            "End"
         };
 
         [TestMethod]
@@ -79,6 +82,75 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             string allJoined = string.Join("_random_", TargetStrings);
             var allMatches = regex.Matches(allJoined);
             Assert.AreEqual(TargetStrings.Length, allMatches.Count, $"Expected {TargetStrings.Length} matches for joined target string");
+        }
+
+        [TestMethod]
+        public void IsExcemptionNameForZeroComparison_NumPrefix()
+        {
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
+
+            string[] matchingInputs = new[]
+            {
+                "num",
+                "NUM",
+                "Num",
+                "numItems",
+                "NumItems",
+                "NUM_ROWS",
+                "numberOfLines",
+            };
+
+            foreach (var input in matchingInputs)
+            {
+                Assert.IsTrue(regex.IsMatch(input), $"Expected match for '{input}'");
+            }
+
+            string[] nonMatchingInputs = new[]
+            {
+                "myNum",
+                "maximum",
+                "abc_num",
+                "itemNum",
+            };
+
+            foreach (var input in nonMatchingInputs)
+            {
+                Assert.IsFalse(regex.IsMatch(input), $"Expected no match for '{input}'");
+            }
+        }
+
+        [TestMethod]
+        public void IsExcemptionNameForZeroComparison_LenPrefix()
+        {
+            var regex = GeneratedRegexPolyfill.IsExcemptionNameForZeroComparison();
+
+            string[] matchingInputs = new[]
+            {
+                "len",
+                "LEN",
+                "Len",
+                "lenItems",
+                "LenItems",
+                "LEN_BYTES",
+            };
+
+            foreach (var input in matchingInputs)
+            {
+                Assert.IsTrue(regex.IsMatch(input), $"Expected match for '{input}'");
+            }
+
+            string[] nonMatchingInputs = new[]
+            {
+                "myLen",
+                "olen",
+                "abc_len",
+                "totalLen",
+            };
+
+            foreach (var input in nonMatchingInputs)
+            {
+                Assert.IsFalse(regex.IsMatch(input), $"Expected no match for '{input}'");
+            }
         }
 
         [TestMethod]

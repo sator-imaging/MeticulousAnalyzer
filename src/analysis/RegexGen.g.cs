@@ -2,7 +2,7 @@
 //     Source generated files collected:
 //     - RegexGenerator.g.cs
 //     Patterns:
-//     - IsExcemptionNameForZeroComparison: @"Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold", RegexOptions.IgnoreCase
+//     - IsExcemptionNameForZeroComparison: @"^len|^num|Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold|Code|Start|End", RegexOptions.IgnoreCase
 // </auto-generated>
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis
@@ -26,7 +26,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         /// <remarks>
         /// Pattern explanation:<br/>
         /// <code>
-        /// ○ Match with 15 alternative expressions, atomically.<br/>
+        /// ○ Match with 20 alternative expressions, atomically.<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match if at the beginning of the string.<br/>
+        ///         ○ Match a character in the set [Ll].<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///         ○ Match a character in the set [Nn].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match if at the beginning of the string.<br/>
+        ///         ○ Match a character in the set [Nn].<br/>
+        ///         ○ Match a character in the set [Uu].<br/>
+        ///         ○ Match a character in the set [Mm].<br/>
         ///     ○ Match a sequence of expressions.<br/>
         ///         ○ Match a character in the set [Ll].<br/>
         ///         ○ Match a character in the set [Ee].<br/>
@@ -135,6 +145,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         ///         ○ Match a character in the set [Oo].<br/>
         ///         ○ Match a character in the set [Ll].<br/>
         ///         ○ Match a character in the set [Dd].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Cc].<br/>
+        ///         ○ Match a character in the set [Oo].<br/>
+        ///         ○ Match a character in the set [Dd].<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Ss].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///         ○ Match a character in the set [Aa].<br/>
+        ///         ○ Match a character in the set [Rr].<br/>
+        ///         ○ Match a character in the set [Tt].<br/>
+        ///     ○ Match a sequence of expressions.<br/>
+        ///         ○ Match a character in the set [Ee].<br/>
+        ///         ○ Match a character in the set [Nn].<br/>
+        ///         ○ Match a character in the set [Dd].<br/>
         /// </code>
         /// </remarks>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "7.0.10.26716")]
@@ -163,7 +188,7 @@ namespace System.Text.RegularExpressions.Generated
         /// <summary>Initializes the instance.</summary>
         private IsExcemptionNameForZeroComparison_0()
         {
-            base.pattern = "Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold";
+            base.pattern = "^len|^num|Length|Count|Index|Remove|Search|Add|Exchange|Decrement|Increment|Width|Height|Depth|Size|Capacity|Threshold|Code|Start|End";
             base.roptions = RegexOptions.IgnoreCase;
             ValidateMatchTimeout(Utilities.s_defaultTimeout);
             base.internalMatchTimeout = Utilities.s_defaultTimeout;
@@ -234,13 +259,13 @@ unchecked
                     // Any possible match is at least 3 characters.
                     if (pos <= inputSpan.Length - 3)
                     {
-                        // The pattern begins with a character in the set [AC-EHILR-TWac-ehilr-tw].
+                        // The pattern begins with a character in the set [AC-EHILNR-TWac-ehilnr-tw].
                         // Find the next occurrence. If it can't be found, there's no match.
                         ReadOnlySpan<char> span = inputSpan.Slice(pos);
                         for (int i = 0; i < span.Length - 2; i++)
                         {
-                            if (((long)((0xB9907200B9907200UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
-                                ((long)((0x9986010099860100UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
+                            if (((long)((0xB9947200B9947200UL << (int)(charMinusLow = (uint)span[i] - 'A')) & (charMinusLow - 64)) < 0) &&
+                                ((long)((0x9986190099861900UL << (int)(charMinusLow = (uint)span[i + 1] - 'A')) & (charMinusLow - 64)) < 0) &&
                                 ((long)((0xB08D4840B08D4840UL << (int)(charMinusLow = (uint)span[i + 2] - 'A')) & (charMinusLow - 64)) < 0))
                             {
                                 base.runtextpos = pos + i;
@@ -266,19 +291,25 @@ unchecked
                     int matchStart = pos;
                     ReadOnlySpan<char> slice = inputSpan.Slice(pos);
                     
-                    // Match with 15 alternative expressions, atomically.
+                    // Match with 20 alternative expressions, atomically.
                     {
                         int alternation_starting_pos = pos;
                         
                         // Branch 0
                         {
-                            if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("length".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "length" (ordinal case-insensitive)
+                            // Match if at the beginning of the string.
+                            if (pos != 0)
                             {
                                 goto AlternationBranch;
                             }
                             
-                            pos += 6;
+                            if ((uint)slice.Length < 3 ||
+                                !slice.StartsWith("len".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "len" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch;
+                            }
+
+                            pos += 3;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -289,13 +320,19 @@ unchecked
                         
                         // Branch 1
                         {
-                            if ((uint)slice.Length < 5 ||
-                                !slice.StartsWith("count".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "count" (ordinal case-insensitive)
+                            // Match if at the beginning of the string.
+                            if (pos != 0)
                             {
                                 goto AlternationBranch1;
                             }
                             
-                            pos += 5;
+                            if ((uint)slice.Length < 3 ||
+                                !slice.StartsWith("num".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "num" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch1;
+                            }
+
+                            pos += 3;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -306,13 +343,13 @@ unchecked
                         
                         // Branch 2
                         {
-                            if ((uint)slice.Length < 5 ||
-                                !slice.StartsWith("index".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "index" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 6 ||
+                                !slice.StartsWith("length".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "length" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch2;
                             }
                             
-                            pos += 5;
+                            pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -323,13 +360,13 @@ unchecked
                         
                         // Branch 3
                         {
-                            if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("remove".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "remove" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("count".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "count" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch3;
                             }
                             
-                            pos += 6;
+                            pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -340,13 +377,13 @@ unchecked
                         
                         // Branch 4
                         {
-                            if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("search".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "search" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("index".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "index" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch4;
                             }
                             
-                            pos += 6;
+                            pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -357,13 +394,13 @@ unchecked
                         
                         // Branch 5
                         {
-                            if ((uint)slice.Length < 3 ||
-                                !slice.StartsWith("add".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "add" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 6 ||
+                                !slice.StartsWith("remove".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "remove" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch5;
                             }
                             
-                            pos += 3;
+                            pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -374,13 +411,13 @@ unchecked
                         
                         // Branch 6
                         {
-                            if ((uint)slice.Length < 8 ||
-                                !slice.StartsWith("exchange".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "exchange" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 6 ||
+                                !slice.StartsWith("search".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "search" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch6;
                             }
                             
-                            pos += 8;
+                            pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -391,13 +428,13 @@ unchecked
                         
                         // Branch 7
                         {
-                            if ((uint)slice.Length < 9 ||
-                                !slice.StartsWith("decrement".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "decrement" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 3 ||
+                                !slice.StartsWith("add".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "add" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch7;
                             }
                             
-                            pos += 9;
+                            pos += 3;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -408,13 +445,13 @@ unchecked
                         
                         // Branch 8
                         {
-                            if ((uint)slice.Length < 9 ||
-                                !slice.StartsWith("increment".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "increment" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 8 ||
+                                !slice.StartsWith("exchange".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "exchange" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch8;
                             }
                             
-                            pos += 9;
+                            pos += 8;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -425,13 +462,13 @@ unchecked
                         
                         // Branch 9
                         {
-                            if ((uint)slice.Length < 5 ||
-                                !slice.StartsWith("width".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "width" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 9 ||
+                                !slice.StartsWith("decrement".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "decrement" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch9;
                             }
                             
-                            pos += 5;
+                            pos += 9;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -442,13 +479,13 @@ unchecked
                         
                         // Branch 10
                         {
-                            if ((uint)slice.Length < 6 ||
-                                !slice.StartsWith("height".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "height" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 9 ||
+                                !slice.StartsWith("increment".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "increment" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch10;
                             }
                             
-                            pos += 6;
+                            pos += 9;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -460,7 +497,7 @@ unchecked
                         // Branch 11
                         {
                             if ((uint)slice.Length < 5 ||
-                                !slice.StartsWith("depth".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "depth" (ordinal case-insensitive)
+                                !slice.StartsWith("width".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "width" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch11;
                             }
@@ -476,13 +513,13 @@ unchecked
                         
                         // Branch 12
                         {
-                            if ((uint)slice.Length < 4 ||
-                                !slice.StartsWith("size".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "size" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 6 ||
+                                !slice.StartsWith("height".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "height" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch12;
                             }
                             
-                            pos += 4;
+                            pos += 6;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -493,13 +530,13 @@ unchecked
                         
                         // Branch 13
                         {
-                            if ((uint)slice.Length < 8 ||
-                                !slice.StartsWith("capacity".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "capacity" (ordinal case-insensitive)
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("depth".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "depth" (ordinal case-insensitive)
                             {
                                 goto AlternationBranch13;
                             }
                             
-                            pos += 8;
+                            pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
                             
@@ -510,13 +547,98 @@ unchecked
                         
                         // Branch 14
                         {
+                            if ((uint)slice.Length < 4 ||
+                                !slice.StartsWith("size".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "size" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch14;
+                            }
+
+                            pos += 4;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch14:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 15
+                        {
+                            if ((uint)slice.Length < 8 ||
+                                !slice.StartsWith("capacity".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "capacity" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch15;
+                            }
+
+                            pos += 8;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch15:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 16
+                        {
                             if ((uint)slice.Length < 9 ||
                                 !slice.StartsWith("threshold".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "threshold" (ordinal case-insensitive)
                             {
-                                return false; // The input didn't match.
+                                goto AlternationBranch16;
                             }
                             
                             pos += 9;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch16:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 17
+                        {
+                            if ((uint)slice.Length < 4 ||
+                                !slice.StartsWith("code".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "code" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch17;
+                            }
+
+                            pos += 4;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch17:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 18
+                        {
+                            if ((uint)slice.Length < 5 ||
+                                !slice.StartsWith("start".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "start" (ordinal case-insensitive)
+                            {
+                                goto AlternationBranch18;
+                            }
+
+                            pos += 5;
+                            slice = inputSpan.Slice(pos);
+                            goto AlternationMatch;
+
+                            AlternationBranch18:
+                            pos = alternation_starting_pos;
+                            slice = inputSpan.Slice(pos);
+                        }
+
+                        // Branch 19
+                        {
+                            if ((uint)slice.Length < 3 ||
+                                !slice.StartsWith("end".AsSpan(), StringComparison.OrdinalIgnoreCase)) // Match the string "end" (ordinal case-insensitive)
+                            {
+                                return false; // The input didn't match.
+                            }
+
+                            pos += 3;
                             slice = inputSpan.Slice(pos);
                         }
                         
