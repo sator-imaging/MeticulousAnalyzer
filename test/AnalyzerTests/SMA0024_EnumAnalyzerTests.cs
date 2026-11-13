@@ -432,7 +432,7 @@ namespace Test
             s = $""[{myEnum}] {MyEnum.Value}"";
 
             // Allow enum conversion
-            s = enable ? $""[{myEnum}]"" : """";
+            s = enable ? $""Enable={myEnum}"" : $""Disable={myEnum}]"";
         }
 
         public void TestSwitch(MyEnum myEnum)
