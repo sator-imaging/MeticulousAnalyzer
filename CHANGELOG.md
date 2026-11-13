@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.3.0-rc.16](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.16) (2026-11-13)
+
+### 🚀 Features
+* Support enum suppression comments on reassigned interpolated strings by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#758](https://github.com/sator-imaging/MeticulousAnalyzer/pull/758)
+### 📖 Documentation
+* Add FQN alternative solution to SMA7050 documentation by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#763](https://github.com/sator-imaging/MeticulousAnalyzer/pull/763)
+### 📚 Other Changes
+* Sync README documentation across en, ja, and zh-CN by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#757](https://github.com/sator-imaging/MeticulousAnalyzer/pull/757)
+* Increase test coverage for target analyzers by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#760](https://github.com/sator-imaging/MeticulousAnalyzer/pull/760)
+* test: increase LiteralBranchAnalyzer test coverage by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#764](https://github.com/sator-imaging/MeticulousAnalyzer/pull/764)
+* Allow `^num`, `Code`, and `^len` in `SMA8021` zero comparison by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#762](https://github.com/sator-imaging/MeticulousAnalyzer/pull/762)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.15...v5.3.0-rc.16
+
+
 ## [5.3.0-rc.15](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.15) (2026-11-10)
 
 ### 📣 Breaking Changes ⚠
