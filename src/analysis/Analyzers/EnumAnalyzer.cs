@@ -263,7 +263,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (enumType != null)
             {
                 // context.Operation: {foo} -> Parent: $"...{foo}..."
-                if (Core.IsSuppressedByComment(context.Operation.Parent, SuppressionComment))
+                if (context.Operation.Parent is IOperation parentOp
+                    && (
+                        Core.IsSuppressedByComment(parentOp, SuppressionComment)
+                        || (parentOp.Parent is IOperation pp && Core.IsSuppressedByComment(pp, SuppressionComment))
+                    )
+                )
                 {
                     return;
                 }
