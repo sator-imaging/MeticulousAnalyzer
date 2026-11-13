@@ -308,7 +308,7 @@ unchecked
                             {
                                 goto AlternationBranch;
                             }
-
+                            
                             pos += 3;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
@@ -331,7 +331,7 @@ unchecked
                             {
                                 goto AlternationBranch1;
                             }
-
+                            
                             pos += 3;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
@@ -552,16 +552,16 @@ unchecked
                             {
                                 goto AlternationBranch14;
                             }
-
+                            
                             pos += 4;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch14:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 15
                         {
                             if ((uint)slice.Length < 8 ||
@@ -569,16 +569,16 @@ unchecked
                             {
                                 goto AlternationBranch15;
                             }
-
+                            
                             pos += 8;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch15:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 16
                         {
                             if ((uint)slice.Length < 9 ||
@@ -590,12 +590,12 @@ unchecked
                             pos += 9;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch16:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 17
                         {
                             if ((uint)slice.Length < 4 ||
@@ -603,16 +603,16 @@ unchecked
                             {
                                 goto AlternationBranch17;
                             }
-
+                            
                             pos += 4;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch17:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 18
                         {
                             if ((uint)slice.Length < 5 ||
@@ -620,16 +620,16 @@ unchecked
                             {
                                 goto AlternationBranch18;
                             }
-
+                            
                             pos += 5;
                             slice = inputSpan.Slice(pos);
                             goto AlternationMatch;
-
+                            
                             AlternationBranch18:
                             pos = alternation_starting_pos;
                             slice = inputSpan.Slice(pos);
                         }
-
+                        
                         // Branch 19
                         {
                             if ((uint)slice.Length < 3 ||
@@ -637,7 +637,7 @@ unchecked
                             {
                                 return false; // The input didn't match.
                             }
-
+                            
                             pos += 3;
                             slice = inputSpan.Slice(pos);
                         }
