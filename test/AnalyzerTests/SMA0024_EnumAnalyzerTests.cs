@@ -423,7 +423,7 @@ namespace Test
     public enum MyEnum { Value }
     public class CTest
     {
-        public void Test(MyEnum myEnum)
+        public void Test(MyEnum myEnum, bool enable)
         {
             // Allow enum conversion
             var s = $""[{myEnum}] {MyEnum.Value}"";
@@ -432,9 +432,7 @@ namespace Test
             s = $""[{myEnum}] {MyEnum.Value}"";
 
             // Allow enum conversion
-            s = myEnum != MyEnum.Value
-                // Allow enum conversion
-                ? $""[{myEnum}]"" : """";
+            s = enable ? $""[{myEnum}]"" : """";
         }
 
         public void TestSwitch(MyEnum myEnum)
