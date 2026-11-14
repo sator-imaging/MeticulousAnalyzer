@@ -83,16 +83,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (!isRootBlockComputed)
-                {
-                    isRootBlockComputed = true;
-                    isRootBlock = IsMethodLikeOrLoopSyntax(block.Parent) || IsLastTryStatementBlock(block);
-                }
-
-                if (isRootBlock &&
-                    statement is ExpressionStatementSyntax assertExprStmt &&
-                    assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
-                    IsEarlyExitInvocation(assertInvocation))
+                if (!hasSeenIf &&
+                  
+                    (assertInvocation))
                 {
                     continue;
                 }
@@ -117,10 +110,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 if (!hasSeenIf &&
-                    statement is ExpressionStatementSyntax staticThrowExprStmt &&
-                    staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv &&
-                    staticThrowInv.Expression is MemberAccessExpressionSyntax memberAccess &&
-                    memberAccess.Name.ToString().StartsWith("Throw", System.StringComparison.Ordinal))
+                    statement is ExpressionStatementSyntax earlyExitExprStmt &&
+                    earlyExitExprStmt.Expression is InvocationExpressionSyntax earlyExitInvocation &&
+                    IsEarlyExitInvocation(earlyExitInvocation))
                 {
                     continue;
                 }
@@ -135,6 +127,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     else if (HasEarlyExitMarker(ifStmt))  // Marker is valid only on else-less statement
                     {
                         isMainFlowStarted = false;
+                    }
+
+                    if (!isRootBlockComputed)
+                    {
+                        isRootBlockComputed = true;
+                        isRootBlock = IsMethodLikeOrLoopSyntax(block.Parent) || IsLastTryStatementBlock(block);
                     }
 
                     bool isLastInRootBlock = isRootBlock && i == count - 1;

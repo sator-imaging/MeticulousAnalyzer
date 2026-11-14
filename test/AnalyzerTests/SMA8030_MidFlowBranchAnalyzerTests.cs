@@ -40,7 +40,7 @@ using System.Diagnostics;
 
 class C
 {
-    void ThrowIfFalse() { }
+    void ThrowIfFalse(bool value) { }
 
     void M(bool invalid, bool foo)
     {
