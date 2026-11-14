@@ -49,6 +49,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes {
             }
         }
 
+        internal static string CodeFix_LinqOperation {
+            get {
+                return ResourceManager.GetString("CodeFix_LinqOperation", resourceCulture);
+            }
+        }
+
         internal static string CodeFix_NullSuppression {
             get {
                 return ResourceManager.GetString("CodeFix_NullSuppression", resourceCulture);

@@ -123,6 +123,9 @@
   <data name="CodeFix_NamedArgument" xml:space="preserve">
     <value>Use named argument</value>
   </data>
+  <data name="CodeFix_LinqOperation" xml:space="preserve">
+    <value>Create LinqPortal and remove using System.Linq</value>
+  </data>
   <data name="CodeFix_NullSuppression" xml:space="preserve">
     <value>Add 3 parentheses fence</value>
   </data>
