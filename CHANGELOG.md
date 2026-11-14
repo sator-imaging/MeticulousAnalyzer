@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.3.0-rc.17](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.17) (2026-11-14)
+
+### 📣 Breaking Changes ⚠
+* feat(catch-analyzer)!: colon not required by [@sator-imaging](https://github.com/sator-imaging) in [#767](https://github.com/sator-imaging/MeticulousAnalyzer/pull/767)
+### 🚀 Features
+* feat(analyzer): Linq `SMA7050` skips test projects and MidFlowBranch `SMA8030` ignores assert method calls by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#769](https://github.com/sator-imaging/MeticulousAnalyzer/pull/769)
+### 📚 Other Changes
+* Add SMA8021 prefix test coverage by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#768](https://github.com/sator-imaging/MeticulousAnalyzer/pull/768)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.16...v5.3.0-rc.17
+
+
 ## [5.3.0-rc.16](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.16) (2026-11-13)
 
 ### 🚀 Features
