@@ -76,13 +76,19 @@ class C
     {
         RegularCall();
         RegularCall();
+
         if (invalid)
         {
             {|#0:return|};
         }
+
         if (foo)
         {
             {|#1:return|};
+        }
+        else if (invalid)
+        {
+            {|#2:throw|} new Exception();
         }
 
         System.Console.WriteLine();
