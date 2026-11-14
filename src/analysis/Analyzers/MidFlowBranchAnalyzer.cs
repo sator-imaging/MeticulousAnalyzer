@@ -83,13 +83,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (!hasSeenIf &&
-                  
-                    (assertInvocation))
-                {
-                    continue;
-                }
-
                 if (statement is LocalDeclarationStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign && IsTupleDeclaration(assign)))
                 {
