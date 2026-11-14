@@ -43,14 +43,21 @@ class C
     {
         Debug.Assert(true);
         Debug.Assert(true);
+
         if (invalid)
         {
             return;
         }
+
         if (foo)
         {
             return;
         }
+        else if (invalid)
+        {
+            throw new Exception();
+        }
+
         System.Console.WriteLine();
     }
 }";
