@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,20 +22,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LinqOperationCodeFixProvider)), Shared]
     public sealed class LinqOperationCodeFixProvider : CodeFixProvider
     {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds
-        {
-            get => ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
-        }
-
-        public sealed override FixAllProvider? GetFixAllProvider()
-        {
-            return LinqOperationFixAllProvider.Instance;
-        }
-
-        // Required because FileScopedNamespaceDeclarationSyntax was introduced in C# 10 / Roslyn 4.0,
-        // but this project references Roslyn 3.8.0 compile-time abstractions.
-        private const string FileScopedNamespaceDeclarationSyntaxName = "FileScopedNamespaceDeclarationSyntax";
-
+        private static readonly Type? FileScopedNamespaceType =
+            typeof(CompilationUnitSyntax).Assembly.GetType("Microsoft.CodeAnalysis.CSharp.Syntax.FileScopedNamespaceDeclarationSyntax");
+        private static readonly PropertyInfo? FileScopedNamespaceName =
+            FileScopedNamespaceType?.GetProperty("Name");
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
@@ -43,9 +34,14 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             parameterOptions: SymbolDisplayParameterOptions.IncludeType | SymbolDisplayParameterOptions.IncludeName | SymbolDisplayParameterOptions.IncludeParamsRefOut | SymbolDisplayParameterOptions.IncludeExtensionThis,
             miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
 
+        public sealed override ImmutableArray<string> FixableDiagnosticIds =>
+            ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
+
+        public sealed override FixAllProvider? GetFixAllProvider() => null;
+
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             if (root == null) return;
 
             foreach (var diagnostic in context.Diagnostics)
@@ -54,442 +50,112 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 var usingDirective = FindUsingDirective(node);
                 if (usingDirective == null) continue;
 
-                var title = CodeFixResources.CodeFix_LinqOperation ?? "Create LinqPortal and remove using System.Linq";
-
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        title: title,
-                        createChangedSolution: c => FixLinqOperationsAsync(
-                            context.Document,
-                            ImmutableArray.Create(usingDirective.Span),
-                            context.Document.Project.Solution,
-                            c),
-                        equivalenceKey: nameof(LinqOperationCodeFixProvider)),
+                        CodeFixResources.CodeFix_LinqOperation ?? "Create LinqPortal and remove using System.Linq",
+                        cancellationToken => FixLinqOperationAsync(context.Document, usingDirective, cancellationToken),
+                        nameof(LinqOperationCodeFixProvider)),
                     diagnostic);
             }
         }
 
-        private static async Task<Solution> FixLinqOperationsAsync(
+        private static async Task<Solution> FixLinqOperationAsync(
             Document document,
-            ImmutableArray<Microsoft.CodeAnalysis.Text.TextSpan> directiveSpans,
-            Solution solution,
+            UsingDirectiveSyntax usingDirective,
             CancellationToken cancellationToken)
         {
-            var project = document.Project;
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            if (semanticModel == null || root == null) return solution;
+            var solution = document.Project.Solution;
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+            if (root == null || semanticModel == null) return solution;
 
-            var usingDirectives = new List<UsingDirectiveSyntax>();
-            for (int i = 0, count = directiveSpans.Length; i < count; i++)
+            var methods = new List<IMethodSymbol>();
+            var portalNamespace = string.Empty;
+            foreach (var node in root.DescendantNodes())
             {
-                var node = root.FindNode(directiveSpans[i], getInnermostNodeForTie: true);
-                var usingDirective = FindUsingDirective(node);
-                if (usingDirective != null && !ContainsUsingDirective(usingDirectives, usingDirective))
+                if (node is not InvocationExpressionSyntax invocation) continue;
+                if (semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is not IMethodSymbol method
+                    || method.ContainingNamespace.ToDisplayString() != "System.Linq")
                 {
-                    usingDirectives.Add(usingDirective);
-                }
-            }
-
-            var namespaceChanges = new List<PortalChange>();
-            var methodCallRewrites = new Dictionary<SyntaxNode, string>();
-            var typeRewrites = new Dictionary<SyntaxNode, string>();
-            foreach (var usingDirective in usingDirectives)
-            {
-                var namespaceName = GetNamespaceName(usingDirective, root);
-                var scope = GetUsingScope(usingDirective);
-                var change = FindPortalChange(namespaceChanges, namespaceName);
-                foreach (var node in root.DescendantNodes())
-                {
-                    if (!IsWithinScope(node, scope)) continue;
-
-                    if (node is InvocationExpressionSyntax invocation)
-                    {
-                        AddMethod(semanticModel.GetSymbolInfo(invocation, cancellationToken), change.Methods);
-                    }
-
-                    if (node is MemberAccessExpressionSyntax memberAccess)
-                    {
-                        var symbolInfo = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
-                        AddMethod(symbolInfo, change.Methods);
-
-                        if (semanticModel.GetSymbolInfo(memberAccess.Expression, cancellationToken).Symbol is INamedTypeSymbol containingType
-                            && IsSystemLinqMethodType(containingType))
-                        {
-                            methodCallRewrites[memberAccess] = GetPortalClassName(namespaceName);
-                        }
-                    }
-
-                    if (node is NameSyntax nameSyntax
-                        && !(nameSyntax is IdentifierNameSyntax identifierName && identifierName.Identifier.ValueText == "var")
-                        && semanticModel.GetSymbolInfo(nameSyntax, cancellationToken).Symbol is INamedTypeSymbol namedType
-                        && IsSystemLinqType(namedType)
-                        && !IsNestedTypeName(nameSyntax, semanticModel, cancellationToken))
-                    {
-                        typeRewrites[nameSyntax] = namedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    }
-                }
-            }
-
-            var rewrittenNodes = new List<SyntaxNode>(methodCallRewrites.Count + typeRewrites.Count + usingDirectives.Count);
-            var nodeAnnotations = new Dictionary<SyntaxNode, SyntaxAnnotation>();
-            var rewriteAnnotations = new Dictionary<SyntaxAnnotation, (string Value, bool IsPortalCall)>();
-            var directiveAnnotations = new List<SyntaxAnnotation>();
-            foreach (var entry in methodCallRewrites)
-            {
-                var annotation = new SyntaxAnnotation();
-                nodeAnnotations[entry.Key] = annotation;
-                rewriteAnnotations[annotation] = (entry.Value, true);
-                rewrittenNodes.Add(entry.Key);
-            }
-            foreach (var entry in typeRewrites)
-            {
-                if (!nodeAnnotations.ContainsKey(entry.Key))
-                {
-                    var annotation = new SyntaxAnnotation();
-                    nodeAnnotations[entry.Key] = annotation;
-                    rewriteAnnotations[annotation] = (entry.Value, false);
-                    rewrittenNodes.Add(entry.Key);
-                }
-            }
-            for (int i = 0, count = usingDirectives.Count; i < count; i++)
-            {
-                var directive = usingDirectives[i];
-                var annotation = new SyntaxAnnotation();
-                nodeAnnotations[directive] = annotation;
-                directiveAnnotations.Add(annotation);
-                rewrittenNodes.Add(directive);
-            }
-
-            if (rewrittenNodes.Count > 0)
-            {
-                var annotatedRoot = root.ReplaceNodes(
-                    rewrittenNodes,
-                    (original, rewritten) => rewritten.WithAdditionalAnnotations(nodeAnnotations[original]));
-
-                foreach (var entry in rewriteAnnotations)
-                {
-                    var annotatedNode = annotatedRoot.GetAnnotatedNodes(entry.Key);
-                    var node = FindFirstNode(annotatedNode);
-                    if (node == null) continue;
-
-                    SyntaxNode replacement = entry.Value.IsPortalCall
-                        ? node is MemberAccessExpressionSyntax member
-                            ? member.WithExpression(SyntaxFactory.ParseExpression(entry.Value.Value).WithTriviaFrom(member.Expression))
-                            : node
-                        : SyntaxFactory.ParseTypeName(entry.Value.Value).WithTriviaFrom(node);
-                    annotatedRoot = annotatedRoot.ReplaceNode(node, replacement);
+                    continue;
                 }
 
-                var nodesToRemove = new List<SyntaxNode>();
-                for (int i = 0, count = directiveAnnotations.Count; i < count; i++)
-                {
-                    var node = FindFirstNode(annotatedRoot.GetAnnotatedNodes(directiveAnnotations[i]));
-                    if (node != null) nodesToRemove.Add(node);
-                }
-                root = annotatedRoot.RemoveNodes(nodesToRemove, SyntaxRemoveOptions.KeepExteriorTrivia) ?? annotatedRoot;
+                if (methods.Count == 0) portalNamespace = GetNamespaceName(invocation);
+                AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
+
+            root = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepExteriorTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, root);
 
-            for (int i = 0, count = namespaceChanges.Count; i < count; i++)
+            if (methods.Count > 0)
             {
-                var change = namespaceChanges[i];
-                var portalFileName = string.IsNullOrEmpty(change.NamespaceName)
-                    ? "LinqPortal.cs"
-                    : $"LinqPortal.{change.NamespaceName}.cs";
-                var currentProject = solution.GetProject(project.Id)!;
-                var portalDoc = await FindPortalDocumentAsync(currentProject, change.NamespaceName, cancellationToken).ConfigureAwait(false);
-
-                if (portalDoc == null)
+                var fileName = string.IsNullOrEmpty(portalNamespace) ? "LinqPortal.cs" : $"LinqPortal.{portalNamespace}.cs";
+                var project = solution.GetProject(document.Project.Id)!;
+                var portalDocument = FindPortalDocument(project, fileName);
+                if (portalDocument == null)
                 {
-                    var emptyPlaceholder = GenerateEmptyPlaceholder(change.NamespaceName);
-                    var projectDir = !string.IsNullOrEmpty(project.FilePath) ? Path.GetDirectoryName(project.FilePath) : null;
-                    var filePath = projectDir != null ? Path.Combine(projectDir, portalFileName) : null;
-
-                    var docId = DocumentId.CreateNewId(project.Id, portalFileName);
+                    var filePath = project.FilePath == null
+                        ? null
+                        : Path.Combine(Path.GetDirectoryName(project.FilePath)!, fileName);
+                    var source = GenerateEmptyPortal(portalNamespace);
+                    var documentId = DocumentId.CreateNewId(project.Id, fileName);
                     solution = solution.AddDocument(
-                        docId,
-                        portalFileName,
-                        Microsoft.CodeAnalysis.Text.SourceText.From(emptyPlaceholder),
+                        documentId,
+                        fileName,
+                        Microsoft.CodeAnalysis.Text.SourceText.From(source),
                         filePath: filePath);
-
-                    currentProject = solution.GetProject(project.Id)!;
-                    portalDoc = currentProject.GetDocument(docId)!;
+                    portalDocument = solution.GetDocument(documentId)!;
                 }
 
-                var portalRoot = await portalDoc.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                var portalModel = await portalDoc.GetSemanticModelAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                if (portalRoot != null)
+                var portalRoot = await portalDocument.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var portalModel = await portalDocument.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+                if (portalRoot == null) continue;
+
+                var portalClass = FindPortalClass(portalRoot);
+                if (portalClass == null) continue;
+                var members = portalClass.Members;
+                var existingMethods = new List<IMethodSymbol>();
+                foreach (var member in members)
                 {
-                    var updatedPortalRoot = UpdatePortalClass(portalRoot, portalModel, change.NamespaceName, change.Methods);
-                    solution = solution.WithDocumentSyntaxRoot(portalDoc.Id, updatedPortalRoot);
+                    if (member is MethodDeclarationSyntax declaration
+                        && portalModel?.GetDeclaredSymbol(declaration) is IMethodSymbol existing)
+                    {
+                        existingMethods.Add(existing);
+                    }
                 }
+
+                foreach (var method in methods)
+                {
+                    var exists = false;
+                    for (int i = 0, count = existingMethods.Count; i < count; i++)
+                    {
+                        if (AreMethodsEquivalent(existingMethods[i], method))
+                        {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (exists) continue;
+
+                    var declaration = SyntaxFactory.ParseMemberDeclaration(GenerateMethodForwarder(method));
+                    if (declaration != null)
+                    {
+                        members = members.Add(declaration
+                            .WithLeadingTrivia(SyntaxFactory.EndOfLine(Environment.NewLine), SyntaxFactory.Whitespace("        "))
+                            .WithTrailingTrivia(SyntaxFactory.EndOfLine(Environment.NewLine)));
+                    }
+                }
+
+                solution = solution.WithDocumentSyntaxRoot(
+                    portalDocument.Id,
+                    portalRoot.ReplaceNode(portalClass, portalClass.WithMembers(members)));
             }
 
             return solution;
         }
 
-        private static string GenerateEmptyPlaceholder(string topLevelNamespace)
+        private static void AddIfMissing(List<IMethodSymbol> methods, IMethodSymbol method)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("using System;");
-            sb.AppendLine("using System.Collections.Generic;");
-            sb.AppendLine();
-
-            bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
-            if (hasNamespace)
-            {
-                sb.AppendLine($"namespace {topLevelNamespace}");
-                sb.AppendLine("{");
-            }
-
-            string indent = hasNamespace ? "    " : "";
-            sb.AppendLine($"{indent}public static partial class LinqPortal");
-            sb.AppendLine($"{indent}{{");
-            sb.AppendLine($"{indent}}}");
-
-            if (hasNamespace)
-            {
-                sb.AppendLine("}");
-            }
-
-            return sb.ToString();
-        }
-
-        private static SyntaxNode UpdatePortalClass(
-            SyntaxNode portalRoot,
-            SemanticModel? portalModel,
-            string topLevelNamespace,
-            List<IMethodSymbol> linqMethods)
-        {
-            ClassDeclarationSyntax? classDecl = null;
-            foreach (var node in portalRoot.DescendantNodes())
-            {
-                if (node is ClassDeclarationSyntax cls && cls.Identifier.Text == "LinqPortal")
-                {
-                    classDecl = cls;
-                    break;
-                }
-            }
-
-            if (classDecl == null) return portalRoot;
-
-            bool hasNamespace = !string.IsNullOrEmpty(topLevelNamespace);
-            string indent = hasNamespace ? "        " : "    ";
-
-            // Existing methods
-            var existingMethods = new List<IMethodSymbol>();
-            foreach (var member in classDecl.Members)
-            {
-                if (member is MethodDeclarationSyntax methodSyntax)
-                {
-                    var symbol = portalModel?.GetDeclaredSymbol(methodSyntax);
-                    if (symbol != null) existingMethods.Add(symbol);
-                }
-            }
-
-            var newMethodsToAdd = new List<IMethodSymbol>();
-            for (int i = 0, count = linqMethods.Count; i < count; i++)
-            {
-                var lm = linqMethods[i];
-                bool exists = false;
-                for (int j = 0, eCount = existingMethods.Count; j < eCount; j++)
-                {
-                    if (AreMethodsEquivalent(existingMethods[j], lm))
-                    {
-                        exists = true;
-                        break;
-                    }
-                }
-
-                if (!exists)
-                {
-                    newMethodsToAdd.Add(lm);
-                }
-            }
-
-            if (newMethodsToAdd.Count == 0) return portalRoot;
-
-            newMethodsToAdd.Sort(static (left, right) =>
-            {
-                var nameComparison = StringComparer.Ordinal.Compare(left.Name, right.Name);
-                if (nameComparison != 0) return nameComparison;
-
-                var parameterCountComparison = left.Parameters.Length.CompareTo(right.Parameters.Length);
-                if (parameterCountComparison != 0) return parameterCountComparison;
-
-                return StringComparer.Ordinal.Compare(
-                    GetMethodSignatureKey(left),
-                    GetMethodSignatureKey(right));
-            });
-
-            var currentMembers = classDecl.Members;
-
-            // Insert new methods: immediate after existing method which has same name, or at last
-            for (int i = 0, count = newMethodsToAdd.Count; i < count; i++)
-            {
-                var newMethod = newMethodsToAdd[i];
-                var forwarderText = GenerateMethodForwarder(newMethod, indent);
-                if (SyntaxFactory.ParseMemberDeclaration(forwarderText) is not MethodDeclarationSyntax parsedSyntax)
-                {
-                    continue;
-                }
-
-                // Find index of existing method with the same name
-                int insertIndex = -1;
-                for (int mIdx = currentMembers.Count - 1; mIdx >= 0; mIdx--)
-                {
-                    if (currentMembers[mIdx] is MethodDeclarationSyntax m && m.Identifier.Text == newMethod.Name)
-                    {
-                        insertIndex = mIdx + 1;
-                        break;
-                    }
-                }
-
-                // If not found, insert at last
-                if (insertIndex < 0)
-                {
-                    insertIndex = currentMembers.Count;
-                }
-
-                parsedSyntax = parsedSyntax.WithLeadingTrivia(SyntaxFactory.Whitespace(insertIndex == 0 ? indent : "\n" + indent))
-                    .WithTrailingTrivia(SyntaxFactory.Whitespace("\n"));
-
-                currentMembers = currentMembers.Insert(insertIndex, parsedSyntax);
-            }
-
-            var closeBrace = classDecl.CloseBraceToken;
-            var newClassDecl = classDecl.WithMembers(currentMembers)
-                .WithCloseBraceToken(closeBrace);
-            return portalRoot.ReplaceNode(classDecl, newClassDecl);
-        }
-
-        private static bool AreMethodsEquivalent(IMethodSymbol m1, IMethodSymbol m2)
-        {
-            if (m1.Name != m2.Name) return false;
-            if (m1.Parameters.Length != m2.Parameters.Length) return false;
-            if (m1.TypeParameters.Length != m2.TypeParameters.Length) return false;
-            if (m1.IsExtensionMethod != m2.IsExtensionMethod) return false;
-
-            for (int i = 0, count = m1.Parameters.Length; i < count; i++)
-            {
-                var left = m1.Parameters[i];
-                var right = m2.Parameters[i];
-                if (left.RefKind != right.RefKind) return false;
-                if (left.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                    != right.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static string GetMethodSignatureKey(IMethodSymbol method)
-        {
-            var sb = new StringBuilder();
-            sb.Append(method.TypeParameters.Length).Append('|');
-            for (int i = 0, count = method.Parameters.Length; i < count; i++)
-            {
-                var parameter = method.Parameters[i];
-                sb.Append((int)parameter.RefKind)
-                    .Append(':')
-                    .Append(parameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
-                    .Append('|');
-            }
-
-            return sb.ToString();
-        }
-
-        private static string GenerateMethodForwarder(IMethodSymbol method, string indent)
-        {
-            var signature = method.ToDisplayString(MethodSignatureFormat);
-
-            var typeArgs = string.Empty;
-            if (method.TypeParameters.Length > 0)
-            {
-                var typeArgBuilder = new StringBuilder("<");
-                for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
-                {
-                    if (i > 0) typeArgBuilder.Append(", ");
-                    typeArgBuilder.Append(method.TypeParameters[i].Name);
-                }
-                typeArgs = typeArgBuilder.Append('>').ToString();
-            }
-
-            var argsBuilder = new StringBuilder();
-            for (int i = 0, count = method.Parameters.Length; i < count; i++)
-            {
-                if (i > 0) argsBuilder.Append(", ");
-                var parameter = method.Parameters[i];
-                var refKind = parameter.RefKind switch
-                {
-                    RefKind.Ref => "ref ",
-                    RefKind.Out => "out ",
-                    RefKind.In => "in ",
-                    _ => string.Empty
-                };
-                argsBuilder.Append(refKind);
-                if (SyntaxFacts.GetKeywordKind(parameter.Name) != SyntaxKind.None)
-                {
-                    argsBuilder.Append('@');
-                }
-                argsBuilder.Append(parameter.Name);
-            }
-            var args = argsBuilder.ToString();
-            var returnKeyword = method.ReturnsVoid ? "" : "return ";
-
-            var sb = new StringBuilder();
-            sb.AppendLine($"{indent}[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
-            sb.AppendLine($"{indent}{signature}");
-            sb.AppendLine($"{indent}{{");
-            sb.AppendLine($"{indent}    {returnKeyword}global::System.Linq.{method.ContainingType.Name}.{method.Name}{typeArgs}({args});");
-            sb.Append($"{indent}}}");
-
-            return sb.ToString();
-        }
-
-        private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode? node)
-        {
-            for (var current = node; current != null; current = current.Parent)
-            {
-                if (current is UsingDirectiveSyntax usingDirective) return usingDirective;
-            }
-            return null;
-        }
-
-        private static bool ContainsUsingDirective(List<UsingDirectiveSyntax> list, UsingDirectiveSyntax directive)
-        {
-            for (int i = 0, count = list.Count; i < count; i++)
-            {
-                if (list[i].Span == directive.Span) return true;
-            }
-            return false;
-        }
-
-        private static void AddMethod(SymbolInfo symbolInfo, List<IMethodSymbol> methods)
-        {
-            if (symbolInfo.Symbol is IMethodSymbol method)
-            {
-                AddMethod(method, methods);
-                return;
-            }
-
-            for (int i = 0, count = symbolInfo.CandidateSymbols.Length; i < count; i++)
-            {
-                if (symbolInfo.CandidateSymbols[i] is IMethodSymbol candidate)
-                {
-                    AddMethod(candidate, methods);
-                }
-            }
-        }
-
-        private static void AddMethod(IMethodSymbol method, List<IMethodSymbol> methods)
-        {
-            if (!IsSystemLinqMethodType(method.ContainingType)) return;
-            method = (method.ReducedFrom ?? method).ConstructedFrom;
-
             for (int i = 0, count = methods.Count; i < count; i++)
             {
                 if (AreMethodsEquivalent(methods[i], method)) return;
@@ -497,225 +163,138 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             methods.Add(method);
         }
 
-        private static bool IsSystemLinqMethodType(INamedTypeSymbol type) =>
-            (type.Name is "Enumerable" or "Queryable") && IsSystemLinqType(type);
-
-        private static bool IsSystemLinqType(INamedTypeSymbol type) =>
-            type.ContainingNamespace is {
-                Name: "Linq",
-                ContainingNamespace: {
-                    Name: "System",
-                    ContainingNamespace: { IsGlobalNamespace: true }
-                }
-            };
-
-        private static bool IsNestedTypeName(
-            NameSyntax nameSyntax,
-            SemanticModel semanticModel,
-            CancellationToken cancellationToken)
+        private static bool AreMethodsEquivalent(IMethodSymbol left, IMethodSymbol right)
         {
-            if (nameSyntax.Parent is not NameSyntax parentName) return false;
-            return semanticModel.GetTypeInfo(parentName, cancellationToken).Type is INamedTypeSymbol parentType
-                && IsSystemLinqType(parentType);
-        }
-
-        private static SyntaxNode? FindFirstNode(IEnumerable<SyntaxNode> nodes)
-        {
-            foreach (var node in nodes) return node;
-            return null;
-        }
-
-        private static PortalChange FindPortalChange(List<PortalChange> changes, string namespaceName)
-        {
-            for (int i = 0, count = changes.Count; i < count; i++)
+            if (left.Name != right.Name
+                || left.TypeParameters.Length != right.TypeParameters.Length
+                || left.Parameters.Length != right.Parameters.Length)
             {
-                if (changes[i].NamespaceName == namespaceName) return changes[i];
+                return false;
             }
 
-            var change = new PortalChange(namespaceName);
-            changes.Add(change);
-            return change;
-        }
-
-        private static SyntaxNode? GetUsingScope(UsingDirectiveSyntax usingDirective)
-        {
-            for (var current = usingDirective.Parent; current != null; current = current.Parent)
+            for (int i = 0, count = left.Parameters.Length; i < count; i++)
             {
-                if (current is NamespaceDeclarationSyntax || current.GetType().Name == FileScopedNamespaceDeclarationSyntaxName)
+                if (left.Parameters[i].RefKind != right.Parameters[i].RefKind
+                    || !SymbolEqualityComparer.Default.Equals(left.Parameters[i].Type, right.Parameters[i].Type))
                 {
-                    return current;
+                    return false;
                 }
             }
-            return null;
+            return true;
         }
 
-        private static bool IsWithinScope(SyntaxNode node, SyntaxNode? scope)
+        private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode node)
         {
-            if (scope == null) return true;
             for (var current = node; current != null; current = current.Parent)
             {
-                if (ReferenceEquals(current, scope)) return true;
+                if (current is UsingDirectiveSyntax directive) return directive;
             }
-            return false;
-        }
-
-        private static string GetNamespaceName(UsingDirectiveSyntax usingDirective, SyntaxNode root)
-        {
-            var scope = GetUsingScope(usingDirective);
-            if (scope != null)
-            {
-                return GetTopLevelNamespaceName(GetNamespaceDeclarationName(scope) ?? string.Empty);
-            }
-
-            string commonNamespace = string.Empty;
-            bool foundNamespace = false;
-            foreach (var node in root.ChildNodes())
-            {
-                if (node is UsingDirectiveSyntax || node is ExternAliasDirectiveSyntax) continue;
-                var namespaceName = GetNamespaceDeclarationName(node);
-                if (namespaceName == null) return string.Empty;
-                namespaceName = GetTopLevelNamespaceName(namespaceName);
-                if (!foundNamespace)
-                {
-                    commonNamespace = namespaceName;
-                    foundNamespace = true;
-                }
-                else if (commonNamespace != namespaceName)
-                {
-                    return string.Empty;
-                }
-            }
-
-            return foundNamespace ? commonNamespace : string.Empty;
-        }
-
-        private static string? GetNamespaceDeclarationName(SyntaxNode node)
-        {
-            if (node is NamespaceDeclarationSyntax namespaceDeclaration)
-            {
-                return namespaceDeclaration.Name.ToString();
-            }
-
-            if (node.GetType().Name == FileScopedNamespaceDeclarationSyntaxName)
-            {
-                var nameProperty = node.GetType().GetProperty("Name");
-                return nameProperty?.GetValue(node) is NameSyntax name ? name.ToString() : string.Empty;
-            }
-
             return null;
         }
 
-        private static string GetTopLevelNamespaceName(string namespaceName)
+        private static string GetNamespaceName(SyntaxNode node)
         {
-            var dot = namespaceName.IndexOf('.');
-            return dot > 0 ? namespaceName.Substring(0, dot) : namespaceName;
+            for (var current = node.Parent; current != null; current = current.Parent)
+            {
+                if (current is NamespaceDeclarationSyntax namespaceDeclaration)
+                {
+                    return namespaceDeclaration.Name.ToString();
+                }
+
+                if (FileScopedNamespaceType != null && FileScopedNamespaceType.IsInstanceOfType(current)
+                    && FileScopedNamespaceName?.GetValue(current) is NameSyntax name)
+                {
+                    return name.ToString();
+                }
+            }
+            return string.Empty;
         }
 
-        private static string GetPortalClassName(string namespaceName) =>
-            string.IsNullOrEmpty(namespaceName)
-                ? "global::LinqPortal"
-                : $"global::{namespaceName}.LinqPortal";
-
-        private static async Task<Document?> FindPortalDocumentAsync(
-            Project project,
-            string namespaceName,
-            CancellationToken cancellationToken)
+        private static Document? FindPortalDocument(Project project, string fileName)
         {
             foreach (var document in project.Documents)
             {
-                var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-                var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-                if (root == null || model == null) continue;
-
-                foreach (var node in root.DescendantNodes())
+                if (string.Equals(document.Name, fileName, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (node is ClassDeclarationSyntax classDeclaration
-                        && classDeclaration.Identifier.ValueText == "LinqPortal"
-                        && model.GetDeclaredSymbol(classDeclaration) is INamedTypeSymbol type
-                        && type.ContainingNamespace.ToDisplayString() == namespaceName)
-                    {
-                        return document;
-                    }
+                    return document;
+                }
+            }
+            foreach (var document in project.Documents)
+            {
+                if (document.Name.StartsWith("LinqPortal.", StringComparison.OrdinalIgnoreCase)
+                    && document.Name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                {
+                    return document;
                 }
             }
             return null;
         }
 
-        private sealed class PortalChange
+        private static ClassDeclarationSyntax? FindPortalClass(SyntaxNode root)
         {
-            public string NamespaceName { get; }
-            public List<IMethodSymbol> Methods { get; } = new();
-
-            public PortalChange(string namespaceName)
+            foreach (var node in root.DescendantNodes())
             {
-                NamespaceName = namespaceName;
+                if (node is ClassDeclarationSyntax declaration && declaration.Identifier.ValueText == "LinqPortal")
+                {
+                    return declaration;
+                }
             }
+            return null;
         }
 
-        private sealed class LinqOperationFixAllProvider : FixAllProvider
+        private static string GenerateEmptyPortal(string namespaceName)
         {
-            public static readonly FixAllProvider Instance = new LinqOperationFixAllProvider();
-
-            public override Task<CodeAction?> GetFixAsync(FixAllContext fixAllContext)
+            var source = new StringBuilder();
+            source.AppendLine("using System;");
+            source.AppendLine("using System.Collections.Generic;");
+            source.AppendLine();
+            if (!string.IsNullOrEmpty(namespaceName))
             {
-                var title = CodeFixResources.CodeFix_LinqOperation ?? "Create LinqPortal and remove using System.Linq";
-                return Task.FromResult<CodeAction?>(CodeAction.Create(
-                    title,
-                    cancellationToken => FixAllAsync(fixAllContext, cancellationToken),
-                    nameof(LinqOperationCodeFixProvider)));
+                source.AppendLine($"namespace {namespaceName}");
+                source.AppendLine("{");
             }
 
-            private static async Task<Solution> FixAllAsync(
-                FixAllContext fixAllContext,
-                CancellationToken cancellationToken)
+            var indent = string.IsNullOrEmpty(namespaceName) ? string.Empty : "    ";
+            source.AppendLine($"{indent}public static partial class LinqPortal");
+            source.AppendLine($"{indent}{{");
+            source.AppendLine($"{indent}}}");
+            if (!string.IsNullOrEmpty(namespaceName)) source.AppendLine("}");
+            return source.ToString();
+        }
+
+        private static string GenerateMethodForwarder(IMethodSymbol method)
+        {
+            var signature = method.ToDisplayString(MethodSignatureFormat);
+            var genericArguments = new StringBuilder();
+            if (method.TypeParameters.Length > 0)
             {
-                var originalSolution = fixAllContext.Solution;
-                var documentIds = new List<DocumentId>();
-                if (fixAllContext.Scope == FixAllScope.Document && fixAllContext.Document != null)
+                genericArguments.Append('<');
+                for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
                 {
-                    documentIds.Add(fixAllContext.Document.Id);
+                    if (i > 0) genericArguments.Append(", ");
+                    genericArguments.Append(method.TypeParameters[i].Name);
                 }
-                else
-                {
-                    foreach (var project in originalSolution.Projects)
-                    {
-                        if (fixAllContext.Scope == FixAllScope.Project && project.Id != fixAllContext.Project.Id) continue;
-                        foreach (var document in project.Documents)
-                        {
-                            documentIds.Add(document.Id);
-                        }
-                    }
-                }
-
-                var solution = originalSolution;
-                for (int i = 0, count = documentIds.Count; i < count; i++)
-                {
-                    var originalDocument = originalSolution.GetDocument(documentIds[i]);
-                    var currentDocument = solution.GetDocument(documentIds[i]);
-                    if (originalDocument == null || currentDocument == null) continue;
-
-                    var diagnostics = await fixAllContext.GetDocumentDiagnosticsAsync(originalDocument).ConfigureAwait(false);
-                    var spans = ImmutableArray.CreateBuilder<Microsoft.CodeAnalysis.Text.TextSpan>();
-                    foreach (var diagnostic in diagnostics)
-                    {
-                        if (diagnostic.Id == LinqOperationAnalyzer.RuleId_LinqOperation && diagnostic.Location.IsInSource)
-                        {
-                            spans.Add(diagnostic.Location.SourceSpan);
-                        }
-                    }
-
-                    if (spans.Count > 0)
-                    {
-                        solution = await FixLinqOperationsAsync(
-                            currentDocument,
-                            spans.ToImmutable(),
-                            solution,
-                            cancellationToken).ConfigureAwait(false);
-                    }
-                }
-
-                return solution;
+                genericArguments.Append('>');
             }
+            var arguments = new StringBuilder();
+            for (int i = 0, count = method.Parameters.Length; i < count; i++)
+            {
+                if (i > 0) arguments.Append(", ");
+                var parameter = method.Parameters[i];
+                if (parameter.RefKind != RefKind.None)
+                {
+                    arguments.Append(parameter.RefKind.ToString().ToLowerInvariant()).Append(' ');
+                }
+                arguments.Append(parameter.Name);
+            }
+
+            var returnKeyword = method.ReturnsVoid ? string.Empty : "return ";
+            var containingType = method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return $"[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]{Environment.NewLine}"
+                + $"{signature}{Environment.NewLine}"
+                + $"{{{Environment.NewLine}"
+                + $"    {returnKeyword}{containingType}.{method.Name}{genericArguments}({arguments});{Environment.NewLine}"
+                + "}";
         }
     }
 }

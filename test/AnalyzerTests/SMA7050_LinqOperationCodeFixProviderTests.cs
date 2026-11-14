@@ -29,6 +29,7 @@ namespace MyCompany.MyProduct
         {
             IEnumerable<int> list = new List<int>();
             var count = list.Count();
+            var conditionalCount = list?.Count();
         }
     }
 }
@@ -45,6 +46,7 @@ namespace MyCompany.MyProduct
         {
             IEnumerable<int> list = new List<int>();
             var count = list.Count();
+            var conditionalCount = list?.Count();
         }
     }
 }
@@ -52,7 +54,7 @@ namespace MyCompany.MyProduct
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace MyCompany
+namespace MyCompany.MyProduct
 {
     public static partial class LinqPortal
     {
@@ -79,7 +81,7 @@ namespace MyCompany
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                        ("LinqPortal.MyCompany.MyProduct.cs", expectedPortal)
                     }
                 },
             };
@@ -127,7 +129,7 @@ namespace App.Features
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace App
+namespace App.Features
 {
     public static partial class LinqPortal
     {
@@ -160,7 +162,7 @@ namespace App
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.App.cs", expectedPortal)
+                        ("LinqPortal.App.Features.cs", expectedPortal)
                     }
                 },
             };
@@ -204,7 +206,7 @@ namespace MyCompany.Root
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace MyCompany
+namespace MyCompany.Root
 {
     public static partial class LinqPortal
     {
@@ -231,7 +233,7 @@ namespace MyCompany
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                        ("LinqPortal.MyCompany.Root.cs", expectedPortal)
                     }
                 },
             };
