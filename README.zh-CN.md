@@ -516,7 +516,7 @@ catch (System.IO.IOException ex)
 ```
 
 > [!IMPORTANT]
-> 注释必须以 `// Ignore exception:` 开头，并说明忽略异常的原因。Catch-all 块（`catch { ... }` 或 `catch (Exception ex) { ... }`）在提供原因的情况下也可以被抑制。
+> 注释必须以 `// Ignore exception` 开头，并说明忽略异常的原因。Catch-all 块（`catch { ... }` 或 `catch (Exception ex) { ... }`）在提供原因的情况下也可以被抑制。
 
 
 ## Null 抑制操作

@@ -508,13 +508,13 @@
     <value>Omittable Argument Should Be Passed as Named Argument</value>
   </data>
   <data name="SMA8010_MessageFormat" xml:space="preserve">
-    <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception: &lt;Reason&gt;`</value>
+    <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception &lt;Reason&gt;`</value>
   </data>
   <data name="SMA8010_Title" xml:space="preserve">
     <value>Catch Block without Throw</value>
   </data>
   <data name="SMA8011_MessageFormat" xml:space="preserve">
-    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead. Can suppress with leading comment for `catch` keyword: `// Ignore exception: &lt;Reason&gt;`</value>
+    <value>Catch-all block suppresses all exceptions and should contain a `throw` statement, or catch only specific exceptions instead. Can suppress with leading comment for `catch` keyword: `// Ignore exception &lt;Reason&gt;`</value>
   </data>
   <data name="SMA8011_Title" xml:space="preserve">
     <value>Catch-All Block without Throw</value>
@@ -544,7 +544,7 @@
     <value>Literal Branch Char</value>
   </data>
   <data name="SMA8030_MessageFormat" xml:space="preserve">
-    <value>This is a code formatting issue rather than a behavioral error. Omitting `else` clauses makes control flow less readable. Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue`, in the middle of the main control flow. Instead, linearize control flow to make it more readable by using complete `if-else` statements without exit statements, or ensuring exiting in all code paths, or extracting methods including the `if` statement itself (not just its body) to clarify the control flow. If an `if-only` statement is not detected as an early exit block unexpectedly, add a marker comment before the `if` keyword to avoid error: `// Early exit [ Description (optional) ]`</value>
+    <value>This is a code formatting issue rather than a behavioral error. Omitting `else` clauses makes control flow less readable. Avoid adding exit statements, such as `return`, `throw`, `yield`, `goto`, `break`, or `continue`, in the middle of the main control flow. Instead, linearize control flow to make it more readable by using complete `if-else` statements without exit statements, or ensuring exiting in all code paths, or extracting methods including the `if` statement itself (not just its body) to clarify the control flow. If an `if-only` statement is not detected as an early exit block unexpectedly, add a marker comment before the `if` keyword to avoid error: `// Early exit [Description]`</value>
   </data>
   <data name="SMA8030_Title" xml:space="preserve">
     <value>Incomplete Mid-Flow Branch</value>

@@ -516,7 +516,7 @@ catch (System.IO.IOException ex)
 ```
 
 > [!IMPORTANT]
-> コメントは `// Ignore exception:` で始まり、例外を無視する理由を記載する必要があります。キャッチオールブロック (`catch { ... }` または `catch (Exception ex) { ... }`) も理由を記載することで抑制できます。
+> コメントは `// Ignore exception` で始まり、例外を無視する理由を記載する必要があります。キャッチオールブロック (`catch { ... }` または `catch (Exception ex) { ... }`) も理由を記載することで抑制できます。
 
 
 ## Null 抑制演算子

@@ -64,7 +64,7 @@ class C
     void M()
     {
         try { }
-        // Ignore exception:
+        // Ignore exception
         {|#0:catch|} (ArgumentException) { }
     }
 }";
