@@ -35,6 +35,7 @@ class C
         public async Task SMA8030_Compliant_AssertCallDoesNotStartMainFlow()
         {
             var test = @"
+using System;
 using System.Diagnostics;
 
 class C
