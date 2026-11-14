@@ -29,10 +29,18 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints,
+            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
+                | SymbolDisplayGenericsOptions.IncludeVariance
+                | SymbolDisplayGenericsOptions.IncludeTypeConstraints,
             memberOptions: SymbolDisplayMemberOptions.IncludeType | SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeAccessibility | SymbolDisplayMemberOptions.IncludeModifiers,
-            parameterOptions: SymbolDisplayParameterOptions.IncludeType | SymbolDisplayParameterOptions.IncludeName | SymbolDisplayParameterOptions.IncludeParamsRefOut | SymbolDisplayParameterOptions.IncludeExtensionThis,
-            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
+            parameterOptions: SymbolDisplayParameterOptions.IncludeType
+                | SymbolDisplayParameterOptions.IncludeName
+                | SymbolDisplayParameterOptions.IncludeParamsRefOut
+                | SymbolDisplayParameterOptions.IncludeExtensionThis
+                | SymbolDisplayParameterOptions.IncludeDefaultValue,
+            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
+                | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
+                | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
@@ -289,7 +297,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static string GenerateMethodForwarder(IMethodSymbol method)
         {
-            var signature = method.ToDisplayString(MethodSignatureFormat);
+            var declaration = method.ToDisplayString(MethodSignatureFormat);
             var genericArguments = new StringBuilder();
             if (method.TypeParameters.Length > 0)
             {
@@ -315,7 +323,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
             var returnKeyword = method.ReturnsVoid ? string.Empty : "return ";
             var containingType = method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return $"        {signature}{Environment.NewLine}"
+            return $"        {declaration}{Environment.NewLine}"
                 + $"        {{{Environment.NewLine}"
                 + $"            {returnKeyword}{containingType}.{method.Name}{genericArguments}({arguments});{Environment.NewLine}"
                 + "        }";
