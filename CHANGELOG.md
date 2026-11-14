@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0-rc.18](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.18) (2026-11-14)
+
+### 🚀 Features
+* feat(MidFlowBranch): `SMA8030` ignores early exiting methods at method/loop root level by [@sator-imaging](https://github.com/sator-imaging) in [#772](https://github.com/sator-imaging/MeticulousAnalyzer/pull/772)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.17...v5.3.0-rc.18
+
+
 ## [5.3.0-rc.17](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.17) (2026-11-14)
 
 ### 📣 Breaking Changes ⚠
