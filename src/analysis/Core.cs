@@ -36,12 +36,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             return compilation.AssemblyName?.IndexOf("Test", StringComparison.Ordinal) >= 0;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAssertMethod(string methodName)
-        {
-            return methodName.StartsWith("Assert", StringComparison.Ordinal);
-        }
-
         public static bool GetGlobalConfigurationBoolean(CompilationStartAnalysisContext context, string key)
         {
             // GlobalOptions is NOT .editorconfig. Just check falsy.

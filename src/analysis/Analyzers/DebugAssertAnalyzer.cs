@@ -4,6 +4,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -37,7 +38,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation invocation)
                 return;
 
-            if (!Core.IsAssertMethod(invocation.TargetMethod.Name))
+            if (!invocation.TargetMethod.Name.StartsWith("Assert", StringComparison.Ordinal))
                 return;
 
             var symbol = context.ContainingSymbol;

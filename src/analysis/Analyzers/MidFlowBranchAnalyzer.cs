@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -82,13 +83,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (statement is ExpressionStatementSyntax assertExprStmt &&
-                    assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
-                    IsAssertInvocation(assertInvocation))
-                {
-                    continue;
-                }
-
                 if (statement is LocalDeclarationStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign && IsTupleDeclaration(assign)))
                 {
@@ -109,10 +103,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 if (!hasSeenIf &&
-                    statement is ExpressionStatementSyntax staticThrowExprStmt &&
-                    staticThrowExprStmt.Expression is InvocationExpressionSyntax staticThrowInv &&
-                    staticThrowInv.Expression is MemberAccessExpressionSyntax memberAccess &&
-                    memberAccess.Name.ToString().StartsWith("Throw", System.StringComparison.Ordinal))
+                    statement is ExpressionStatementSyntax earlyExitExprStmt &&
+                    earlyExitExprStmt.Expression is InvocationExpressionSyntax earlyExitInvocation &&
+                    IsEarlyExitInvocation(earlyExitInvocation))
                 {
                     continue;
                 }
@@ -158,19 +151,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsAssertInvocation(InvocationExpressionSyntax invocation)
+        private static bool IsEarlyExitInvocation(InvocationExpressionSyntax invocation)
         {
-            switch (invocation.Expression)
+            var name = invocation.Expression switch
             {
-                case SimpleNameSyntax simpleName:
-                    return Core.IsAssertMethod(simpleName.Identifier.ValueText);
-                case MemberAccessExpressionSyntax memberAccess:
-                    return Core.IsAssertMethod(memberAccess.Name.Identifier.ValueText);
-                case MemberBindingExpressionSyntax memberBinding:
-                    return Core.IsAssertMethod(memberBinding.Name.Identifier.ValueText);
-                default:
-                    return false;
-            }
+                SimpleNameSyntax simpleName => simpleName.Identifier.ValueText,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
+                _ => null,
+            };
+
+            return name != null
+                && (
+                    name.StartsWith("Throw", StringComparison.Ordinal) ||
+                    name.StartsWith("Assert", StringComparison.Ordinal)
+                );
         }
 
         private static void AnalyzeNonLocalExitInLoop(SyntaxNodeAnalysisContext context)
