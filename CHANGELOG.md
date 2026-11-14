@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0-rc.19](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.19) (2026-11-14)
+
+### 📣 Breaking Changes ⚠
+* feat(DebugAssertAnalyzer)!: SMA8003 allow assertions inside lambdas by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#775](https://github.com/sator-imaging/MeticulousAnalyzer/pull/775)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.18...v5.3.0-rc.19
+
+
 ## [5.3.0-rc.18](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.18) (2026-11-14)
 
 ### 🚀 Features
