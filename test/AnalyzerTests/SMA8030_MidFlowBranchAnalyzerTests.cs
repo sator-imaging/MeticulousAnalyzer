@@ -69,6 +69,8 @@ class C
         public async Task SMA8030_Violation_RegularCallsStartMainFlow()
         {
             var test = @"
+using System;
+
 class C
 {
     void RegularCall() { }
