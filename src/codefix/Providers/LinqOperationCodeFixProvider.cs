@@ -109,10 +109,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
                 var portalRoot = await portalDocument.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
                 var portalModel = await portalDocument.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-                if (portalRoot == null) continue;
+                if (portalRoot == null) return solution;
 
                 var portalClass = FindPortalClass(portalRoot);
-                if (portalClass == null) continue;
+                if (portalClass == null) return solution;
                 var members = portalClass.Members;
                 var existingMethods = new List<IMethodSymbol>();
                 foreach (var member in members)
@@ -140,8 +140,11 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     var declaration = SyntaxFactory.ParseMemberDeclaration(GenerateMethodForwarder(method));
                     if (declaration != null)
                     {
+                        var leadingTrivia = members.Count == 0
+                            ? SyntaxFactory.TriviaList(SyntaxFactory.Whitespace("        "))
+                            : SyntaxFactory.TriviaList(SyntaxFactory.EndOfLine(Environment.NewLine), SyntaxFactory.Whitespace("        "));
                         members = members.Add(declaration
-                            .WithLeadingTrivia(SyntaxFactory.EndOfLine(Environment.NewLine), SyntaxFactory.Whitespace("        "))
+                            .WithLeadingTrivia(leadingTrivia)
                             .WithTrailingTrivia(SyntaxFactory.EndOfLine(Environment.NewLine)));
                     }
                 }
@@ -290,11 +293,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
             var returnKeyword = method.ReturnsVoid ? string.Empty : "return ";
             var containingType = method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return $"[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]{Environment.NewLine}"
-                + $"{signature}{Environment.NewLine}"
-                + $"{{{Environment.NewLine}"
-                + $"    {returnKeyword}{containingType}.{method.Name}{genericArguments}({arguments});{Environment.NewLine}"
-                + "}";
+            return $"        {signature}{Environment.NewLine}"
+                + $"        {{{Environment.NewLine}"
+                + $"            {returnKeyword}{containingType}.{method.Name}{genericArguments}({arguments});{Environment.NewLine}"
+                + "        }";
         }
     }
 }
