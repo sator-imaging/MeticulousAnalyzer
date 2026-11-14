@@ -41,12 +41,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (!invocation.TargetMethod.Name.StartsWith("Assert", StringComparison.Ordinal))
                 return;
 
+            if (IsInsideLambda(invocation))
+                return;
+
             var symbol = context.ContainingSymbol;
             do
             {
                 if (symbol is IMethodSymbol method)
                 {
-                    if (method.MethodKind is MethodKind.LambdaMethod or MethodKind.LocalFunction)
+                    if (method.MethodKind == MethodKind.LambdaMethod)
+                        return;
+
+                    if (method.MethodKind == MethodKind.LocalFunction)
                     {
                         symbol = symbol.ContainingSymbol;
                         continue;
@@ -76,6 +82,17 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     Rule_DebugAssertInPublicApi,
                     invocation.Syntax.GetLocation()));
             }
+        }
+
+        private static bool IsInsideLambda(IOperation operation)
+        {
+            for (var parent = operation.Parent; parent != null; parent = parent.Parent)
+            {
+                if (parent is IAnonymousFunctionOperation)
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool IsPubliclyAccessible(ISymbol symbol)
