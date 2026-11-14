@@ -1334,8 +1334,16 @@ namespace Test
 
     public class C
     {
-        public void M(Container container)
+        public void M(Container container, int num, int numItems)
         {
+            if (num == 0)
+            {
+            }
+
+            if (numItems == 0)
+            {
+            }
+
             if (container.num == 0)
             {
             }
@@ -1360,6 +1368,43 @@ namespace Test
 }
 ";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8021_Violation_LenNotAtStart()
+        {
+            var test = @"
+namespace Test
+{
+    public class Container
+    {
+        public int myLen => 0;
+        public int itemLen { get; set; }
+    }
+
+    public class C
+    {
+        public void M(Container container, int myLen)
+        {
+            if (myLen == {|#0:0|})
+            {
+            }
+
+            if (container.itemLen == {|#1:0|})
+            {
+            }
+
+            if (container is { myLen: {|#2:0|} })
+            {
+            }
+        }
+    }
+}
+";
+            var expected0 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(0).WithArguments("0");
+            var expected1 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(1).WithArguments("0");
+            var expected2 = VerifyCS.Diagnostic(LiteralBranchAnalyzer.RuleId_LiteralBranchZero).WithLocation(2).WithArguments("0");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
         }
 
         [TestMethod]
