@@ -253,7 +253,7 @@ public class C
         }
 
         [TestMethod]
-        public async Task SMA8003_Violation_PublicMethod_Lambda()
+        public async Task SMA8003_Compliant_PublicMethod_Lambda()
         {
             var test = @"using System.Diagnostics;
 using System;
@@ -261,8 +261,33 @@ public class C
 {
     public void M()
     {
-        Action a = () => {|#0:Debug.Assert(true)|};
+        Action a = () => Debug.Assert(true);
     }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8003_Violation_PublicMethod_LambdaDeclarations()
+        {
+            var test = @"using System.Diagnostics;
+using System;
+public class C
+{
+    public void M()
+    {
+        {|#0:Debug.Assert(true)|};
+
+        Func<bool, bool> func = (value) =>
+        {
+            Debug.Assert(value);
+            return value;
+        };
+
+        Run(() => Debug.Assert(true));
+    }
+
+    private void Run(Action action) { }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(DebugAssertAnalyzer.RuleId_DebugAssertInPublicApi).WithLocation(0));
