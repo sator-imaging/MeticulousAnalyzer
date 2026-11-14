@@ -40,9 +40,11 @@ using System.Diagnostics;
 
 class C
 {
+    void ThrowIfFalse() { }
+
     void M(bool invalid, bool foo)
     {
-        Debug.Assert(true);
+        ThrowIfFalse(true);
         Debug.Assert(true);
 
         if (invalid)

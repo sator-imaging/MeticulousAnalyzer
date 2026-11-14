@@ -82,9 +82,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                if (statement is ExpressionStatementSyntax assertExprStmt &&
+                if (!isRootBlockComputed)
+                {
+                    isRootBlockComputed = true;
+                    isRootBlock = IsMethodLikeOrLoopSyntax(block.Parent) || IsLastTryStatementBlock(block);
+                }
+
+                if (isRootBlock &&
+                    statement is ExpressionStatementSyntax assertExprStmt &&
                     assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
-                    IsAssertInvocation(assertInvocation))
+                    IsEarlyExitInvocation(assertInvocation))
                 {
                     continue;
                 }
@@ -129,12 +136,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         isMainFlowStarted = false;
                     }
 
-                    if (!isRootBlockComputed)
-                    {
-                        isRootBlockComputed = true;
-                        isRootBlock = IsMethodLikeOrLoopSyntax(block.Parent) || IsLastTryStatementBlock(block);
-                    }
-
                     bool isLastInRootBlock = isRootBlock && i == count - 1;
 
                     if (isMainFlowStarted && !isLastInRootBlock)
@@ -158,19 +159,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
         }
 
-        private static bool IsAssertInvocation(InvocationExpressionSyntax invocation)
+        private static bool IsEarlyExitInvocation(InvocationExpressionSyntax invocation)
         {
-            switch (invocation.Expression)
+            var name = invocation.Expression switch
             {
-                case SimpleNameSyntax simpleName:
-                    return Core.IsAssertMethod(simpleName.Identifier.ValueText);
-                case MemberAccessExpressionSyntax memberAccess:
-                    return Core.IsAssertMethod(memberAccess.Name.Identifier.ValueText);
-                case MemberBindingExpressionSyntax memberBinding:
-                    return Core.IsAssertMethod(memberBinding.Name.Identifier.ValueText);
-                default:
-                    return false;
-            }
+                SimpleNameSyntax simpleName => simpleName.Identifier.ValueText,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
+                _ => null,
+            };
+
+            return name != null
+                && (
+                    name.StartsWith("Throw", StringComparison.Ordinal) ||
+                    name.StartsWith("Assert", StringComparison.Ordinal)
+                );
         }
 
         private static void AnalyzeNonLocalExitInLoop(SyntaxNodeAnalysisContext context)
