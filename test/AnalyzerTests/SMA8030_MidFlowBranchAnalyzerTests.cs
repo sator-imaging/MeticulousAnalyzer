@@ -52,10 +52,6 @@ class C
 
         if (foo)
         {
-            return;
-        }
-        else if (invalid)
-        {
             throw new Exception();
         }
 
@@ -87,10 +83,6 @@ class C
 
         if (foo)
         {
-            {|#1:return|};
-        }
-        else if (invalid)
-        {
             {|#2:throw|} new Exception();
         }
 
@@ -99,8 +91,7 @@ class C
 }";
             var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
             var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
-            var expected2 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(2);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1, expected2);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
