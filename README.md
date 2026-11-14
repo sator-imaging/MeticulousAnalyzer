@@ -516,7 +516,7 @@ catch (System.IO.IOException ex)
 ```
 
 > [!IMPORTANT]
-> The comment must start with `// Ignore exception:` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) can also be suppressed if a reason is provided.
+> The comment must start with `// Ignore exception` and include the reason for ignoring the exception. Catch-all blocks (`catch { ... }` or `catch (Exception ex) { ... }`) can also be suppressed if a reason is provided.
 
 
 ## Null Suppression Operation

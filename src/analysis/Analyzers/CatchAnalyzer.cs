@@ -13,7 +13,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class CatchAnalyzer : DiagnosticAnalyzer
     {
-        private const string SuppressionCommentPrefix = "Ignore exception:";
+        private const string SuppressionCommentPrefix = "Ignore exception";
         private const string SuppressionComment = "// " + SuppressionCommentPrefix;
 
         public const string RuleId_CatchWithoutThrow = "SMA8010";
