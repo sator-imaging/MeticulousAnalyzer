@@ -83,7 +83,7 @@ class C
 
         if (foo)
         {
-            {|#2:throw|} new Exception();
+            {|#1:throw|} new Exception();
         }
 
         System.Console.WriteLine();
