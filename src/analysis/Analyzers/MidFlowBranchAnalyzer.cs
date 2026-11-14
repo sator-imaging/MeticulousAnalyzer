@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -84,8 +85,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (statement is ExpressionStatementSyntax assertExprStmt &&
                     assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
-                    context.SemanticModel.GetSymbolInfo(assertInvocation).Symbol is IMethodSymbol assertMethod &&
-                    Core.IsAssertMethod(assertMethod.Name))
+                    context.SemanticModel.GetOperation(assertInvocation) is IInvocationOperation assertOperation &&
+                    Core.IsAssertMethod(assertOperation.TargetMethod.Name))
                 {
                     continue;
                 }

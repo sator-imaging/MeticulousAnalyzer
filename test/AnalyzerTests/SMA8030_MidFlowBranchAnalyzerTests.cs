@@ -3,6 +3,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MidFlowBranchAnalyzer>;
 
@@ -34,21 +35,49 @@ class C
         public async Task SMA8030_Compliant_AssertCallDoesNotStartMainFlow()
         {
             var test = @"
-static class Assert
+using System.Diagnostics;
+
+class C
 {
-    public static void IsTrue(bool condition) { }
-}
+    void M(bool invalid, bool foo)
+    {
+        Debug.Assert(true);
+        Debug.Assert(true);
+        if (invalid) return;
+        if (foo) return;
+        System.Console.WriteLine();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_AssertCallDoesNotHideMidFlowBranch()
+        {
+            var test = @"
+using System.Diagnostics;
 
 class C
 {
     void M(bool invalid, bool foo)
     {
         if (invalid) return;
-        Assert.IsTrue(true);
-        if (foo) return;
+
+        int x = 10;
+        x++;
+        Debug.Assert(true);
+        Debug.Assert(true);
+
+        if (foo)
+        {
+            {|#0:return|};
+        }
+
+        System.Console.WriteLine(x);
     }
 }";
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
         [TestMethod]

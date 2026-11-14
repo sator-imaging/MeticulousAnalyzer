@@ -24,7 +24,7 @@ public class C
 }
 ";
             var expected = VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0);
-await VerifyAnalyzerInNonTestProjectAsync(source, expected);
+            await VerifyAnalyzerInNonTestProjectAsync(source, expected);
         }
 
         [TestMethod]
@@ -140,18 +140,18 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0);
-await VerifyAnalyzerInNonTestProjectAsync(test, expected);
+            await VerifyAnalyzerInNonTestProjectAsync(test, expected);
         }
 
         private static async Task VerifyAnalyzerInNonTestProjectAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
         {
-var test = new VerifyCS.Test
-{
-    TestCode = source,
-};
-test.SolutionTransforms.Add((solution, projectId) => solution.WithProjectAssemblyName(projectId, "Application"));
-test.ExpectedDiagnostics.AddRange(expected);
-await test.RunAsync(CancellationToken.None);
+            var test = new VerifyCS.Test
+            {
+                TestCode = source,
+            };
+            test.SolutionTransforms.Add((solution, projectId) => solution.WithProjectAssemblyName(projectId, "Application"));
+            test.ExpectedDiagnostics.AddRange(expected);
+            await test.RunAsync(CancellationToken.None);
         }
     }
 }
