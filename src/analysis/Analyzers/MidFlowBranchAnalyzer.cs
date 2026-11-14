@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -85,8 +84,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
                 if (statement is ExpressionStatementSyntax assertExprStmt &&
                     assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
-                    context.SemanticModel.GetOperation(assertInvocation) is IInvocationOperation assertOperation &&
-                    Core.IsAssertMethod(assertOperation.TargetMethod.Name))
+                    IsAssertInvocation(assertInvocation))
                 {
                     continue;
                 }
@@ -157,6 +155,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     isMainFlowStarted = true;
                 }
+            }
+        }
+
+        private static bool IsAssertInvocation(InvocationExpressionSyntax invocation)
+        {
+            switch (invocation.Expression)
+            {
+                case SimpleNameSyntax simpleName:
+                    return Core.IsAssertMethod(simpleName.Identifier.ValueText);
+                case MemberAccessExpressionSyntax memberAccess:
+                    return Core.IsAssertMethod(memberAccess.Name.Identifier.ValueText);
+                case MemberBindingExpressionSyntax memberBinding:
+                    return Core.IsAssertMethod(memberBinding.Name.Identifier.ValueText);
+                default:
+                    return false;
             }
         }
 

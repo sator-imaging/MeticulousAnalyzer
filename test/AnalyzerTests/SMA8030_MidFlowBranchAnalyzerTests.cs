@@ -43,8 +43,14 @@ class C
     {
         Debug.Assert(true);
         Debug.Assert(true);
-        if (invalid) return;
-        if (foo) return;
+        if (invalid)
+        {
+            return;
+        }
+        if (foo)
+        {
+            return;
+        }
         System.Console.WriteLine();
     }
 }";
@@ -52,32 +58,32 @@ class C
         }
 
         [TestMethod]
-        public async Task SMA8030_Violation_AssertCallDoesNotHideMidFlowBranch()
+        public async Task SMA8030_Violation_RegularCallsStartMainFlow()
         {
             var test = @"
-using System.Diagnostics;
-
 class C
 {
+    void RegularCall() { }
+
     void M(bool invalid, bool foo)
     {
-        if (invalid) return;
-
-        int x = 10;
-        x++;
-        Debug.Assert(true);
-        Debug.Assert(true);
-
-        if (foo)
+        RegularCall();
+        RegularCall();
+        if (invalid)
         {
             {|#0:return|};
         }
+        if (foo)
+        {
+            {|#1:return|};
+        }
 
-        System.Console.WriteLine(x);
+        System.Console.WriteLine();
     }
 }";
-            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]
