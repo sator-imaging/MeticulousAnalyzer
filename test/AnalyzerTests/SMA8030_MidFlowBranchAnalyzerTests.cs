@@ -3,6 +3,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpAnalyzerVerifier<SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.MidFlowBranchAnalyzer>;
 
@@ -28,6 +29,69 @@ class C
     }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Compliant_AssertCallDoesNotStartMainFlow()
+        {
+            var test = @"
+using System;
+using System.Diagnostics;
+
+class C
+{
+    void M(bool invalid, bool foo)
+    {
+        Debug.Assert(true);
+        Debug.Assert(true);
+
+        if (invalid)
+        {
+            return;
+        }
+
+        if (foo)
+        {
+            throw new Exception();
+        }
+
+        System.Console.WriteLine();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_RegularCallsStartMainFlow()
+        {
+            var test = @"
+using System;
+
+class C
+{
+    void RegularCall() { }
+
+    void M(bool invalid, bool foo)
+    {
+        RegularCall();
+        RegularCall();
+
+        if (invalid)
+        {
+            {|#0:return|};
+        }
+
+        if (foo)
+        {
+            {|#1:throw|} new Exception();
+        }
+
+        System.Console.WriteLine();
+    }
+}";
+            var expected0 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0);
+            var expected1 = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(1);
+            await VerifyCS.VerifyAnalyzerAsync(test, expected0, expected1);
         }
 
         [TestMethod]

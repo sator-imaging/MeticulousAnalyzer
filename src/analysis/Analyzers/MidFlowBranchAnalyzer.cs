@@ -82,6 +82,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (statement is ExpressionStatementSyntax assertExprStmt &&
+                    assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
+                    IsAssertInvocation(assertInvocation))
+                {
+                    continue;
+                }
+
                 if (statement is LocalDeclarationStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign && IsTupleDeclaration(assign)))
                 {
@@ -148,6 +155,21 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     isMainFlowStarted = true;
                 }
+            }
+        }
+
+        private static bool IsAssertInvocation(InvocationExpressionSyntax invocation)
+        {
+            switch (invocation.Expression)
+            {
+                case SimpleNameSyntax simpleName:
+                    return Core.IsAssertMethod(simpleName.Identifier.ValueText);
+                case MemberAccessExpressionSyntax memberAccess:
+                    return Core.IsAssertMethod(memberAccess.Name.Identifier.ValueText);
+                case MemberBindingExpressionSyntax memberBinding:
+                    return Core.IsAssertMethod(memberBinding.Name.Identifier.ValueText);
+                default:
+                    return false;
             }
         }
 

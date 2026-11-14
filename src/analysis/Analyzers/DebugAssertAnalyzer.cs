@@ -37,7 +37,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             if (context.Operation is not IInvocationOperation invocation)
                 return;
 
-            if (!invocation.TargetMethod.Name.StartsWith("Assert", System.StringComparison.Ordinal))
+            if (!Core.IsAssertMethod(invocation.TargetMethod.Name))
                 return;
 
             var symbol = context.ContainingSymbol;
@@ -68,7 +68,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (IsNullableContextSafeguard(invocation))
                     return;
 
-                if (context.Compilation.AssemblyName?.IndexOf("Test", System.StringComparison.Ordinal) >= 0)
+                if (Core.IsTestProject(context.Compilation))
                     return;
 
                 context.ReportDiagnostic(Diagnostic.Create(

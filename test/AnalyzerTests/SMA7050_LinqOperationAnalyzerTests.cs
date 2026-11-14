@@ -3,6 +3,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
@@ -15,7 +16,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
         [TestMethod]
         public async Task SMA7050_Violation_SystemLinq()
         {
-            var test = @"
+            var source = @"
 {|#0:using System.Linq;|}
 
 public class C
@@ -23,7 +24,20 @@ public class C
 }
 ";
             var expected = VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyAnalyzerInNonTestProjectAsync(source, expected);
+        }
+
+        [TestMethod]
+        public async Task SMA7050_Compliant_TestProject()
+        {
+            var test = @"
+using System.Linq;
+
+public class C
+{
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -126,7 +140,18 @@ namespace Test
 }
 ";
             var expected = VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyAnalyzerInNonTestProjectAsync(test, expected);
+        }
+
+        private static async Task VerifyAnalyzerInNonTestProjectAsync(string source, params Microsoft.CodeAnalysis.Testing.DiagnosticResult[] expected)
+        {
+            var test = new VerifyCS.Test
+            {
+                TestCode = source,
+            };
+            test.SolutionTransforms.Add((solution, projectId) => solution.WithProjectAssemblyName(projectId, "Application"));
+            test.ExpectedDiagnostics.AddRange(expected);
+            await test.RunAsync(CancellationToken.None);
         }
     }
 }
