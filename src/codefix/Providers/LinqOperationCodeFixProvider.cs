@@ -75,7 +75,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             {
                 if (node is not InvocationExpressionSyntax invocation) continue;
                 if (semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is not IMethodSymbol method
-                    || method.ContainingNamespace.ToDisplayString() != "System.Linq")
+                    || !IsSystemLinqNamespace(method.ContainingNamespace))
                 {
                     continue;
                 }
@@ -186,6 +186,13 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return true;
         }
 
+        private static bool IsSystemLinqNamespace(INamespaceSymbol namespaceSymbol)
+        {
+            return namespaceSymbol.Name == "Linq"
+                && namespaceSymbol.ContainingNamespace.Name == "System"
+                && namespaceSymbol.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
+        }
+
         private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode node)
         {
             for (var current = node; current != null; current = current.Parent)
@@ -201,15 +208,30 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             {
                 if (current is NamespaceDeclarationSyntax namespaceDeclaration)
                 {
-                    return namespaceDeclaration.Name.ToString();
+                    return GetName(namespaceDeclaration.Name);
                 }
 
                 if (FileScopedNamespaceType != null && FileScopedNamespaceType.IsInstanceOfType(current)
                     && FileScopedNamespaceName?.GetValue(current) is NameSyntax name)
                 {
-                    return name.ToString();
+                    return GetName(name);
                 }
             }
+            return string.Empty;
+        }
+
+        private static string GetName(NameSyntax name)
+        {
+            if (name is IdentifierNameSyntax identifierName)
+            {
+                return identifierName.Identifier.ValueText;
+            }
+
+            if (name is QualifiedNameSyntax qualifiedName)
+            {
+                return $"{GetName(qualifiedName.Left)}.{GetName(qualifiedName.Right)}";
+            }
+
             return string.Empty;
         }
 
@@ -258,7 +280,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             }
 
             var indent = string.IsNullOrEmpty(namespaceName) ? string.Empty : "    ";
-            source.AppendLine($"{indent}public static partial class LinqPortal");
+            source.AppendLine($"{indent}internal static partial class LinqPortal");
             source.AppendLine($"{indent}{{");
             source.AppendLine($"{indent}}}");
             if (!string.IsNullOrEmpty(namespaceName)) source.AppendLine("}");

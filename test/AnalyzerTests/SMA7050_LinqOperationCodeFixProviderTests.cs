@@ -56,7 +56,7 @@ using System.Collections.Generic;
 
 namespace MyCompany.MyProduct
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -130,7 +130,7 @@ using System.Collections.Generic;
 
 namespace App.Features
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
@@ -205,7 +205,7 @@ using System.Collections.Generic;
 
 namespace MyCompany.Root
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {

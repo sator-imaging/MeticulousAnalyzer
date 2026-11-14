@@ -58,7 +58,7 @@ using System.Collections.Generic;
 
 namespace MyCompany.MyProduct
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {

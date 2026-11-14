@@ -54,7 +54,7 @@ using System.Collections.Generic;
 
 namespace MyCompany
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -73,7 +73,7 @@ using System.Collections.Generic;
 
 namespace MyCompany
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -160,7 +160,7 @@ using System.Collections.Generic;
 
 namespace MyCompany
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -179,7 +179,7 @@ using System.Collections.Generic;
 
 namespace MyCompany
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -264,7 +264,7 @@ using System.Collections.Generic;
 
 namespace MyCompany
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
@@ -278,7 +278,7 @@ using System.Collections.Generic;
 
 namespace MyCompany
 {
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
@@ -365,7 +365,7 @@ namespace MyCompany
     /// User xml doc for LinqPortal.
     /// </summary>
     // User comment before LinqPortal
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         // User field comment
         public static readonly int UserField = 42;
@@ -395,7 +395,7 @@ namespace MyCompany
     /// User xml doc for LinqPortal.
     /// </summary>
     // User comment before LinqPortal
-    public static partial class LinqPortal
+    internal static partial class LinqPortal
     {
         // User field comment
         public static readonly int UserField = 42;
