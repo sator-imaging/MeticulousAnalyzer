@@ -38,6 +38,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static void AnalyzeUsingDirective(SyntaxNodeAnalysisContext context)
         {
+            if (Core.IsTestProject(context.Compilation))
+            {
+                return;
+            }
+
             if (context.Node is not UsingDirectiveSyntax usingDirective)
             {
                 return;

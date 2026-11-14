@@ -30,6 +30,16 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
         public const string Config_VisibleInternalNamespaces = ConfigPrefix + "visible_internal_namespaces";
         public const string Config_VisibleInternalTypes = ConfigPrefix + "visible_internal_types";
 
+        public static bool IsTestProject(Compilation compilation)
+        {
+            return compilation.AssemblyName?.IndexOf("Test", StringComparison.Ordinal) >= 0;
+        }
+
+        public static bool IsAssertMethod(string methodName)
+        {
+            return methodName.StartsWith("Assert", StringComparison.Ordinal);
+        }
+
         public static bool GetGlobalConfigurationBoolean(CompilationStartAnalysisContext context, string key)
         {
             // GlobalOptions is NOT .editorconfig. Just check falsy.

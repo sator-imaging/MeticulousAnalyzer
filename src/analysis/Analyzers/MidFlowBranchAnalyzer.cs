@@ -82,6 +82,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
+                if (statement is ExpressionStatementSyntax assertExprStmt &&
+                    assertExprStmt.Expression is InvocationExpressionSyntax assertInvocation &&
+                    context.SemanticModel.GetSymbolInfo(assertInvocation).Symbol is IMethodSymbol assertMethod &&
+                    Core.IsAssertMethod(assertMethod.Name))
+                {
+                    continue;
+                }
+
                 if (statement is LocalDeclarationStatementSyntax ||
                     (statement is ExpressionStatementSyntax exprStmt && exprStmt.Expression is AssignmentExpressionSyntax assign && IsTupleDeclaration(assign)))
                 {

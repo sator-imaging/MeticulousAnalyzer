@@ -31,6 +31,27 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_AssertCallDoesNotStartMainFlow()
+        {
+            var test = @"
+static class Assert
+{
+    public static void IsTrue(bool condition) { }
+}
+
+class C
+{
+    void M(bool invalid, bool foo)
+    {
+        if (invalid) return;
+        Assert.IsTrue(true);
+        if (foo) return;
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Compliant_DeconstructionLocalDeclarationsBeforeIfBranch()
         {
             var test = @"
