@@ -15,6 +15,72 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     public class SMA7050_LinqOperationCodeFixProviderTests_Ordering
     {
         [TestMethod]
+        public async Task SMA7050_CodeFix_StaticMethod_PreservesEnumerableRangeAndTrivia()
+        {
+            var source = @"
+namespace MyCompany
+{
+    // Leading comment
+    {|#0:using  System /* inner */ . Linq ;|} // Trailing comment
+
+    public class C
+    {
+        public object M() => Enumerable.Range(0, 3);
+    }
+}
+";
+            var fixedSource = @"
+namespace MyCompany
+{
+    // Leading comment
+    using  Enumerable = System /* inner */ . Linq.Enumerable ; // Trailing comment
+
+    public class C
+    {
+        public object M() => Enumerable.Range(0, 3);
+    }
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static global::System.Collections.Generic.IEnumerable<int> Range(int start, int count)
+        {
+            return global::System.Linq.Enumerable.Range(start, count);
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", source) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                },
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(test, "Application");
+            await test.RunAsync();
+        }
+
+        [TestMethod]
         public async Task SMA7050_CodeFix_PreservesInvocationOrder()
         {
             var test = @"
@@ -38,6 +104,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+    using Enumerable = System.Linq.Enumerable;
     using System.Collections.Generic;
 
     public class C
