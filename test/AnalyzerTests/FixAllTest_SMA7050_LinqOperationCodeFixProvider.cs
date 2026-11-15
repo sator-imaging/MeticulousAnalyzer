@@ -55,7 +55,6 @@ namespace Test
         private const string FixedTemplate = @"
 namespace Test
 {{
-    // Leading trivia
      // Trailing trivia
     using System.Collections.Generic;
 
@@ -67,7 +66,6 @@ namespace Test
 
 namespace Test
 {{
-    // Leading trivia
      // Trailing trivia
     using System.Collections.Generic;
 
@@ -79,7 +77,6 @@ namespace Test
 
 namespace Test
 {{
-    // Leading trivia
      // Trailing trivia
     using System.Collections.Generic;
 
