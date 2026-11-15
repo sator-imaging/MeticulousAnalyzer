@@ -405,13 +405,13 @@ namespace MyCompany
         {
             return global::System.Linq.Enumerable.Any<TSource>(source);
         }
+        #region Preserve close-brace trivia
+        #endregion
 
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
         }
-        #region Preserve close-brace trivia
-        #endregion
     }
 }
 ";
