@@ -467,15 +467,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
         {
             foreach (var document in project.Documents)
             {
-                if (string.Equals(document.Name, fileName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return document;
-                }
-            }
-            foreach (var document in project.Documents)
-            {
-                if (document.Name.StartsWith("LinqPortal.", StringComparison.OrdinalIgnoreCase)
-                    && document.Name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                if (document.Name == fileName)
                 {
                     return document;
                 }
