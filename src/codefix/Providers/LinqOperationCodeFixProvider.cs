@@ -131,6 +131,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                 }
 
+                var forwarders = new List<string>();
                 foreach (var method in methods)
                 {
                     var exists = false;
@@ -144,21 +145,46 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                     if (exists) continue;
 
-                    var declaration = GenerateMethodForwarder(method);
-                    if (declaration != null)
-                    {
-                        var leadingTrivia = members.Count == 0
-                            ? SyntaxFactory.TriviaList(SyntaxFactory.Whitespace("        "))
-                            : SyntaxFactory.TriviaList(SyntaxFactory.EndOfLine(Environment.NewLine), SyntaxFactory.Whitespace("        "));
-                        members = members.Add(declaration
-                            .WithLeadingTrivia(leadingTrivia)
-                            .WithTrailingTrivia(SyntaxFactory.EndOfLine(Environment.NewLine)));
-                    }
+                    forwarders.Add(GenerateMethodForwarder(method, GetClassIndentation(portalClass)));
                 }
 
-                solution = solution.WithDocumentSyntaxRoot(
-                    portalDocument.Id,
-                    portalRoot.ReplaceNode(portalClass, portalClass.WithMembers(members)));
+                if (forwarders.Count > 0)
+                {
+                    var closeBrace = portalClass.CloseBraceToken;
+                    var indentation = GetClassIndentation(portalClass);
+                    var methodIndentation = indentation + "    ";
+                    for (int i = 0, count = forwarders.Count; i < count; i++)
+                    {
+                        forwarders[i] = methodIndentation + forwarders[i];
+                    }
+
+                    var insertionText = string.Join(
+                        Environment.NewLine + Environment.NewLine,
+                        forwarders) + Environment.NewLine;
+                    var insertionPosition = closeBrace.SpanStart;
+                    var closeBraceTrivia = closeBrace.LeadingTrivia;
+                    if (closeBraceTrivia.Count > 0)
+                    {
+                        var lastTrivia = closeBraceTrivia[closeBraceTrivia.Count - 1];
+                        if (lastTrivia.IsKind(SyntaxKind.WhitespaceTrivia))
+                        {
+                            insertionPosition = lastTrivia.SpanStart;
+                        }
+                    }
+                    if (closeBraceTrivia.Count == 0
+                        || !closeBraceTrivia[closeBraceTrivia.Count - 1].IsKind(SyntaxKind.WhitespaceTrivia)
+                        && !closeBraceTrivia[closeBraceTrivia.Count - 1].IsKind(SyntaxKind.EndOfLineTrivia))
+                    {
+                        insertionText = Environment.NewLine + insertionText;
+                    }
+
+                    var portalText = await portalDocument.GetTextAsync(cancellationToken).ConfigureAwait(false);
+                    portalText = portalText.WithChanges(
+                        new Microsoft.CodeAnalysis.Text.TextChange(
+                            new Microsoft.CodeAnalysis.Text.TextSpan(insertionPosition, 0),
+                            insertionText));
+                    solution = solution.WithDocumentText(portalDocument.Id, portalText);
+                }
             }
 
             return solution;
@@ -361,35 +387,34 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return source.ToString();
         }
 
-        private static MethodDeclarationSyntax? GenerateMethodForwarder(IMethodSymbol method)
+        private static string GetClassIndentation(ClassDeclarationSyntax portalClass)
         {
-            // Keep the complete signature from Roslyn; only append the forwarding return body here.
-            var source = new StringBuilder(method.ToDisplayString(MethodSignatureFormat));
-            source.AppendLine()
-                .AppendLine("        {")
-                .Append("            return ")
-                .Append(method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
-                .Append('.')
-                .Append(method.Name);
-            if (method.TypeParameters.Length > 0)
+            var leadingTrivia = portalClass.CloseBraceToken.LeadingTrivia;
+            if (leadingTrivia.Count > 0)
             {
-                source.Append('<');
-                for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
+                var lastTrivia = leadingTrivia[leadingTrivia.Count - 1];
+                if (lastTrivia.IsKind(SyntaxKind.WhitespaceTrivia))
                 {
-                    if (i > 0) source.Append(", ");
-                    source.Append(method.TypeParameters[i].Name);
+                    return lastTrivia.ToString();
                 }
-                source.Append('>');
             }
-            source.Append('(');
+
+            return string.Empty;
+        }
+
+        private static string GenerateMethodForwarder(IMethodSymbol method, string indentation)
+        {
+            // Keep the complete signature from Roslyn; do not reconstruct its type parameters or constraints.
+            var parameterNames = new string[method.Parameters.Length];
             for (int i = 0, count = method.Parameters.Length; i < count; i++)
             {
-                if (i > 0) source.Append(", ");
-                source.Append(method.Parameters[i].Name);
+                parameterNames[i] = method.Parameters[i].Name;
             }
-            source.AppendLine(");")
-                .Append("        }");
-            return SyntaxFactory.ParseMemberDeclaration(source.ToString()) as MethodDeclarationSyntax;
+
+            return $"{method.ToDisplayString(MethodSignatureFormat)}{Environment.NewLine}"
+                + $"{indentation}{{{Environment.NewLine}"
+                + $"{indentation}    return {method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", parameterNames)});{Environment.NewLine}"
+                + $"{indentation}}}";
         }
     }
 }
