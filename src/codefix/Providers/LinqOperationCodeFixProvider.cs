@@ -89,7 +89,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
 
-            root = PreserveWhitespaceBeforeUsing(root, usingDirective);
+            root = RemoveAdjacentWhitespaceTrivia(root, usingDirective);
             usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? usingDirective;
             root = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepTrailingTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, root);
@@ -144,7 +144,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                     if (exists) continue;
 
-                    var declaration = SyntaxFactory.ParseMemberDeclaration(GenerateMethodForwarder(method));
+                    var declaration = GenerateMethodForwarder(method);
                     if (declaration != null)
                     {
                         var leadingTrivia = members.Count == 0
@@ -209,34 +209,69 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return null;
         }
 
-        private static SyntaxNode PreserveWhitespaceBeforeUsing(SyntaxNode root, UsingDirectiveSyntax usingDirective)
+        private static SyntaxNode RemoveAdjacentWhitespaceTrivia(SyntaxNode root, UsingDirectiveSyntax usingDirective)
         {
-            var leadingTrivia = usingDirective.GetLeadingTrivia();
-            var whitespaceStart = leadingTrivia.Count;
-            while (whitespaceStart > 0
-                && leadingTrivia[whitespaceStart - 1].Kind() == SyntaxKind.WhitespaceTrivia)
-            {
-                whitespaceStart--;
-            }
-
-            if (whitespaceStart == leadingTrivia.Count) return root;
-
-            var whitespaceTrivia = default(SyntaxTriviaList);
-            for (int i = whitespaceStart, count = leadingTrivia.Count; i < count; i++)
-            {
-                whitespaceTrivia = whitespaceTrivia.Add(leadingTrivia[i]);
-            }
-
             var previousToken = usingDirective.GetFirstToken().GetPreviousToken();
-            if (previousToken.RawKind == 0) return root;
-
-            var previousTrailingTrivia = previousToken.TrailingTrivia;
-            for (int i = 0, count = whitespaceTrivia.Count; i < count; i++)
+            if (previousToken.RawKind != 0)
             {
-                previousTrailingTrivia = previousTrailingTrivia.Add(whitespaceTrivia[i]);
+                var leadingTrivia = default(SyntaxTriviaList);
+                AddTrivia(ref leadingTrivia, previousToken.TrailingTrivia);
+                AddTrivia(ref leadingTrivia, usingDirective.GetLeadingTrivia());
+
+                var whitespaceStart = leadingTrivia.Count;
+                while (whitespaceStart > 0
+                    && leadingTrivia[whitespaceStart - 1].Kind() == SyntaxKind.WhitespaceTrivia)
+                {
+                    whitespaceStart--;
+                }
+
+                var remainingLeadingTrivia = TakeTrivia(leadingTrivia, 0, whitespaceStart);
+                root = root.ReplaceToken(previousToken, previousToken.WithTrailingTrivia(remainingLeadingTrivia));
+                usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? usingDirective;
             }
 
-            return root.ReplaceToken(previousToken, previousToken.WithTrailingTrivia(previousTrailingTrivia));
+            var nextToken = usingDirective.GetLastToken().GetNextToken();
+            if (nextToken.RawKind != 0)
+            {
+                var trailingTrivia = default(SyntaxTriviaList);
+                AddTrivia(ref trailingTrivia, usingDirective.GetTrailingTrivia());
+                AddTrivia(ref trailingTrivia, nextToken.LeadingTrivia);
+
+                var trailingStart = 0;
+                while (trailingStart < trailingTrivia.Count)
+                {
+                    var kind = trailingTrivia[trailingStart].Kind();
+                    if (kind != SyntaxKind.WhitespaceTrivia && kind != SyntaxKind.EndOfLineTrivia) break;
+                    trailingStart++;
+                }
+
+                var remainingTrailingTrivia = TakeTrivia(trailingTrivia, trailingStart, trailingTrivia.Count);
+                var updatedUsingDirective = usingDirective.WithTrailingTrivia(default(SyntaxTriviaList));
+                root = root.ReplaceNode(usingDirective, updatedUsingDirective);
+                usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? updatedUsingDirective;
+                nextToken = root.FindToken(nextToken.SpanStart);
+                root = root.ReplaceToken(nextToken, nextToken.WithLeadingTrivia(remainingTrailingTrivia));
+            }
+
+            return root;
+        }
+
+        private static void AddTrivia(ref SyntaxTriviaList destination, SyntaxTriviaList source)
+        {
+            for (int i = 0, count = source.Count; i < count; i++)
+            {
+                destination = destination.Add(source[i]);
+            }
+        }
+
+        private static SyntaxTriviaList TakeTrivia(SyntaxTriviaList source, int start, int end)
+        {
+            var result = default(SyntaxTriviaList);
+            for (int i = start; i < end; i++)
+            {
+                result = result.Add(source[i]);
+            }
+            return result;
         }
 
         private static string GetNamespaceName(SyntaxNode node)
@@ -326,38 +361,60 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return source.ToString();
         }
 
-        private static string GenerateMethodForwarder(IMethodSymbol method)
+        private static MethodDeclarationSyntax? GenerateMethodForwarder(IMethodSymbol method)
         {
-            var declaration = method.ToDisplayString(MethodSignatureFormat);
-            var genericArguments = new StringBuilder();
-            if (method.TypeParameters.Length > 0)
+            // Keep the complete signature symbol-rendered; do not rebuild type parameters, constraints, or modifiers by hand.
+            if (SyntaxFactory.ParseMemberDeclaration(method.ToDisplayString(MethodSignatureFormat) + ";") is not MethodDeclarationSyntax declaration)
             {
-                genericArguments.Append('<');
-                for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
-                {
-                    if (i > 0) genericArguments.Append(", ");
-                    genericArguments.Append(method.TypeParameters[i].Name);
-                }
-                genericArguments.Append('>');
-            }
-            var arguments = new StringBuilder();
-            for (int i = 0, count = method.Parameters.Length; i < count; i++)
-            {
-                if (i > 0) arguments.Append(", ");
-                var parameter = method.Parameters[i];
-                if (parameter.RefKind != RefKind.None)
-                {
-                    arguments.Append(parameter.RefKind.ToString().ToLowerInvariant()).Append(' ');
-                }
-                arguments.Append(parameter.Name);
+                return null;
             }
 
-            var returnKeyword = method.ReturnsVoid ? string.Empty : "return ";
-            var containingType = method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            return $"        {declaration}{Environment.NewLine}"
-                + $"        {{{Environment.NewLine}"
-                + $"            {returnKeyword}{containingType}.{method.Name}{genericArguments}({arguments});{Environment.NewLine}"
-                + "        }";
+            var genericArguments = new List<TypeSyntax>();
+            for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
+            {
+                genericArguments.Add(SyntaxFactory.IdentifierName(method.TypeParameters[i].Name));
+            }
+
+            SimpleNameSyntax methodName = genericArguments.Count == 0
+                ? SyntaxFactory.IdentifierName(method.Name)
+                : SyntaxFactory.GenericName(
+                    SyntaxFactory.Identifier(method.Name),
+                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(genericArguments)));
+            var methodAccess = SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxFactory.ParseExpression(method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+                methodName);
+            var arguments = new List<ArgumentSyntax>();
+            for (int i = 0, count = method.Parameters.Length; i < count; i++)
+            {
+                var parameter = method.Parameters[i];
+                var argument = SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.Name));
+                if (parameter.RefKind != RefKind.None)
+                {
+                    var refKind = parameter.RefKind switch
+                    {
+                        RefKind.Ref => SyntaxKind.RefKeyword,
+                        RefKind.Out => SyntaxKind.OutKeyword,
+                        RefKind.In => SyntaxKind.InKeyword,
+                        _ => SyntaxKind.None,
+                    };
+                    if (refKind != SyntaxKind.None)
+                    {
+                        argument = argument.WithRefOrOutKeyword(SyntaxFactory.Token(refKind));
+                    }
+                }
+                arguments.Add(argument);
+            }
+
+            var invocation = SyntaxFactory.InvocationExpression(
+                methodAccess,
+                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
+            var statement = method.ReturnsVoid
+                ? (StatementSyntax)SyntaxFactory.ExpressionStatement(invocation)
+                : SyntaxFactory.ReturnStatement(invocation);
+            return declaration
+                .WithBody(SyntaxFactory.Block(statement))
+                .WithSemicolonToken(default);
         }
     }
 }
