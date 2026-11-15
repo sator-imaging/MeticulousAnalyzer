@@ -7,7 +7,7 @@ using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using SatorImaging.MeticulousAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
 using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests.LinqOperationCodeFixProviderTestDiagnosticAnalyzer,
+    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.LinqOperationAnalyzer,
     SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.LinqOperationCodeFixProvider>;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
@@ -166,6 +166,8 @@ namespace Test
             //         e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
             //       It's available in Roslyn version (4.4.0 or later).
             // test.FixAllScope = FixAllScope.Solution;
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectAssemblyName(projectId, "Application"));
             await test.RunAsync();
         }
     }

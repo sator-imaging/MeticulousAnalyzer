@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationCodeFixProviderTestDiagnosticAnalyzer, LinqOperationCodeFixProvider>;
+    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationAnalyzer, LinqOperationCodeFixProvider>;
 
     [TestClass]
     public class SMA7050_LinqOperationCodeFixProviderTests_ExistingFile
@@ -117,6 +117,7 @@ namespace MyCompany
                 },
             };
 
+            SetAssemblyNameToApplication(testObj);
             await testObj.RunAsync();
         }
 
@@ -223,6 +224,7 @@ namespace MyCompany
                 },
             };
 
+            SetAssemblyNameToApplication(testObj);
             await testObj.RunAsync();
         }
 
@@ -316,6 +318,7 @@ namespace MyCompany
                 }
             };
 
+            SetAssemblyNameToApplication(test);
             await test.RunAsync();
         }
 
@@ -444,6 +447,7 @@ namespace MyCompany
                 },
             };
 
+            SetAssemblyNameToApplication(testObj);
             await testObj.RunAsync();
         }
 
@@ -511,6 +515,7 @@ namespace MyCompany
                 }
             };
 
+            SetAssemblyNameToApplication(test);
             await test.RunAsync();
         }
 
@@ -608,8 +613,14 @@ namespace MyCompany
                 }
             };
 
+            SetAssemblyNameToApplication(test);
             await test.RunAsync();
         }
 
+        private static void SetAssemblyNameToApplication(VerifyCS.Test test)
+        {
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectAssemblyName(projectId, "Application"));
+        }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationCodeFixProviderTestDiagnosticAnalyzer, LinqOperationCodeFixProvider>;
+    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationAnalyzer, LinqOperationCodeFixProvider>;
 
     [TestClass]
     public class SMA7050_LinqOperationCodeFixProviderTests_Namespace
@@ -85,6 +85,7 @@ namespace MyCompany
                 },
             };
 
+            SetAssemblyNameToApplication(testObj);
             await testObj.RunAsync();
         }
 
@@ -167,6 +168,7 @@ namespace App
 
             testObj.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, string.Empty));
+            SetAssemblyNameToApplication(testObj);
             await testObj.RunAsync();
         }
 
@@ -239,6 +241,7 @@ namespace MyCompany
 
             testObj.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, string.Empty));
+            SetAssemblyNameToApplication(testObj);
             await testObj.RunAsync();
         }
 
@@ -294,6 +297,7 @@ internal static partial class LinqPortal
 
             test.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, string.Empty));
+            SetAssemblyNameToApplication(test);
             await test.RunAsync();
         }
 
@@ -371,8 +375,15 @@ namespace ProjectRoot
             };
             test.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, "ProjectRoot.Some"));
+            SetAssemblyNameToApplication(test);
 
             await test.RunAsync();
+        }
+
+        private static void SetAssemblyNameToApplication(VerifyCS.Test test)
+        {
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectAssemblyName(projectId, "Application"));
         }
     }
 }
