@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.3.0-rc.20](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.20) (2026-11-15)
+
+### 🚀 Features
+* Implement `LinqPortal` CodeFixProvider for `SMA7050` by [@google-labs-jules](https://github.com/google-labs-jules)[bot] in [#752](https://github.com/sator-imaging/MeticulousAnalyzer/pull/752)
+### ✨ Bug Fixes
+* fix(SMA7050-LinqOperation): use top-level namespace and group overloads by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#777](https://github.com/sator-imaging/MeticulousAnalyzer/pull/777)
+* fix(SMA7050-LinqOperation): require exact portal filename by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#778](https://github.com/sator-imaging/MeticulousAnalyzer/pull/778)
+* fix(SMA7050-LinqOperation): support method references by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#779](https://github.com/sator-imaging/MeticulousAnalyzer/pull/779)
+* fix(SMA7050-LinqOperation): preserve Enumerable alias by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#780](https://github.com/sator-imaging/MeticulousAnalyzer/pull/780)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.19...v5.3.0-rc.20
+
+
 ## [5.3.0-rc.19](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.19) (2026-11-14)
 
 ### 📣 Breaking Changes ⚠
