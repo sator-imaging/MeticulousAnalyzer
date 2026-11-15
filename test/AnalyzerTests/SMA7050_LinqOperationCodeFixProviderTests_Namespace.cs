@@ -85,7 +85,7 @@ namespace MyCompany
                 },
             };
 
-            SetAssemblyNameToApplication(testObj);
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -168,7 +168,7 @@ namespace App
 
             testObj.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, string.Empty));
-            SetAssemblyNameToApplication(testObj);
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -241,7 +241,7 @@ namespace MyCompany
 
             testObj.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, string.Empty));
-            SetAssemblyNameToApplication(testObj);
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -297,7 +297,7 @@ internal static partial class LinqPortal
 
             test.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, string.Empty));
-            SetAssemblyNameToApplication(test);
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
 
@@ -375,15 +375,9 @@ namespace ProjectRoot
             };
             test.SolutionTransforms.Add((solution, projectId) =>
                 solution.WithProjectDefaultNamespace(projectId, "ProjectRoot.Some"));
-            SetAssemblyNameToApplication(test);
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
 
             await test.RunAsync();
-        }
-
-        private static void SetAssemblyNameToApplication(VerifyCS.Test test)
-        {
-            test.SolutionTransforms.Add((solution, projectId) =>
-                solution.WithProjectAssemblyName(projectId, "Application")); // The analyzer skips projects whose assembly name contains "Test".
         }
     }
 }

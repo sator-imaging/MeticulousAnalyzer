@@ -32,8 +32,7 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
             {
                 TestCode = source,
             };
-            test.SolutionTransforms.Add((solution, projectId) =>
-                solution.WithProjectAssemblyName(projectId, assemblyName));
+            CSharpVerifierHelper.SetAssemblyName(test, assemblyName);
 
             test.ExpectedDiagnostics.AddRange(expected);
             await test.RunAsync(CancellationToken.None);

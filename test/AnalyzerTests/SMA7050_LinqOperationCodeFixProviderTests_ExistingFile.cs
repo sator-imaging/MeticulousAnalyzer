@@ -117,7 +117,7 @@ namespace MyCompany
                 },
             };
 
-            SetAssemblyNameToApplication(testObj);
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -224,7 +224,7 @@ namespace MyCompany
                 },
             };
 
-            SetAssemblyNameToApplication(testObj);
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -318,7 +318,7 @@ namespace MyCompany
                 }
             };
 
-            SetAssemblyNameToApplication(test);
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
 
@@ -447,7 +447,7 @@ namespace MyCompany
                 },
             };
 
-            SetAssemblyNameToApplication(testObj);
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -515,7 +515,7 @@ namespace MyCompany
                 }
             };
 
-            SetAssemblyNameToApplication(test);
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
 
@@ -613,14 +613,8 @@ namespace MyCompany
                 }
             };
 
-            SetAssemblyNameToApplication(test);
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
-        }
-
-        private static void SetAssemblyNameToApplication(VerifyCS.Test test)
-        {
-            test.SolutionTransforms.Add((solution, projectId) =>
-                solution.WithProjectAssemblyName(projectId, "Application")); // The analyzer skips projects whose assembly name contains "Test".
         }
     }
 }

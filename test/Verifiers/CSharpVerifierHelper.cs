@@ -3,6 +3,8 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Testing;
+using Microsoft.CodeAnalysis.Testing.Verifiers;
 using System;
 using System.Collections.Immutable;
 
@@ -10,6 +12,12 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
 {
     internal static class CSharpVerifierHelper
     {
+        internal static void SetAssemblyName(AnalyzerTest<MSTestVerifier> test, string assemblyName)
+        {
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectAssemblyName(projectId, assemblyName));
+        }
+
         /// <summary>
         /// By default, the compiler reports diagnostics for nullable reference types at
         /// <see cref="DiagnosticSeverity.Warning"/>, and the analyzer test framework defaults to only validating
