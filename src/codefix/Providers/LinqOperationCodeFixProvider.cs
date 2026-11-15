@@ -363,58 +363,33 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static MethodDeclarationSyntax? GenerateMethodForwarder(IMethodSymbol method)
         {
-            // Keep the full signature symbol-rendered; do not rebuild type parameters, constraints, default values, or modifiers by hand.
-            if (SyntaxFactory.ParseMemberDeclaration(method.ToDisplayString(MethodSignatureFormat) + ";") is not MethodDeclarationSyntax declaration)
+            // Keep the complete signature from Roslyn; only append the forwarding return body here.
+            var source = new StringBuilder(method.ToDisplayString(MethodSignatureFormat));
+            source.AppendLine()
+                .AppendLine("        {")
+                .Append("            return ")
+                .Append(method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
+                .Append('.')
+                .Append(method.Name);
+            if (method.TypeParameters.Length > 0)
             {
-                return null;
+                source.Append('<');
+                for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
+                {
+                    if (i > 0) source.Append(", ");
+                    source.Append(method.TypeParameters[i].Name);
+                }
+                source.Append('>');
             }
-
-            var genericArguments = new List<TypeSyntax>();
-            for (int i = 0, count = method.TypeParameters.Length; i < count; i++)
-            {
-                genericArguments.Add(SyntaxFactory.IdentifierName(method.TypeParameters[i].Name));
-            }
-
-            SimpleNameSyntax methodName = genericArguments.Count == 0
-                ? SyntaxFactory.IdentifierName(method.Name)
-                : SyntaxFactory.GenericName(
-                    SyntaxFactory.Identifier(method.Name),
-                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(genericArguments)));
-            var methodAccess = SyntaxFactory.MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                SyntaxFactory.ParseExpression(method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
-                methodName);
-            var arguments = new List<ArgumentSyntax>();
+            source.Append('(');
             for (int i = 0, count = method.Parameters.Length; i < count; i++)
             {
-                var parameter = method.Parameters[i];
-                var argument = SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.Name));
-                if (parameter.RefKind != RefKind.None)
-                {
-                    var refKind = parameter.RefKind switch
-                    {
-                        RefKind.Ref => SyntaxKind.RefKeyword,
-                        RefKind.Out => SyntaxKind.OutKeyword,
-                        RefKind.In => SyntaxKind.InKeyword,
-                        _ => SyntaxKind.None,
-                    };
-                    if (refKind != SyntaxKind.None)
-                    {
-                        argument = argument.WithRefOrOutKeyword(SyntaxFactory.Token(refKind));
-                    }
-                }
-                arguments.Add(argument);
+                if (i > 0) source.Append(", ");
+                source.Append(method.Parameters[i].Name);
             }
-
-            var invocation = SyntaxFactory.InvocationExpression(
-                methodAccess,
-                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
-            var statement = method.ReturnsVoid
-                ? (StatementSyntax)SyntaxFactory.ExpressionStatement(invocation)
-                : SyntaxFactory.ReturnStatement(invocation);
-            return declaration
-                .WithBody(SyntaxFactory.Block(statement))
-                .WithSemicolonToken(default);
+            source.AppendLine(");")
+                .Append("        }");
+            return SyntaxFactory.ParseMemberDeclaration(source.ToString()) as MethodDeclarationSyntax;
         }
     }
 }
