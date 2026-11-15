@@ -21,6 +21,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LinqOperationCodeFixProvider)), Shared]
     public sealed class LinqOperationCodeFixProvider : CodeFixProvider
     {
+        // Microsoft.CodeAnalysis.CSharp 3.8.0 has no named SyntaxKind for file-scoped namespaces.
         private const int FileScopedNamespaceDeclarationRawKind = 8845;
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
@@ -88,8 +89,9 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
 
-            usingDirective = RemoveFollowingWhitespaceAndNewlineTrivia(usingDirective);
-            root = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepExteriorTrivia) ?? root;
+            root = PreserveWhitespaceBeforeUsing(root, usingDirective);
+            usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? usingDirective;
+            root = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepTrailingTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, root);
 
             if (methods.Count > 0)
@@ -207,38 +209,34 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return null;
         }
 
-        private static UsingDirectiveSyntax RemoveFollowingWhitespaceAndNewlineTrivia(UsingDirectiveSyntax usingDirective)
+        private static SyntaxNode PreserveWhitespaceBeforeUsing(SyntaxNode root, UsingDirectiveSyntax usingDirective)
         {
-            var trailingTrivia = usingDirective.GetTrailingTrivia();
-            var removeCount = 0;
-            var hasWhitespace = false;
-            var hasNewline = false;
-
-            while (removeCount < trailingTrivia.Count)
+            var leadingTrivia = usingDirective.GetLeadingTrivia();
+            var whitespaceStart = leadingTrivia.Count;
+            while (whitespaceStart > 0
+                && leadingTrivia[whitespaceStart - 1].Kind() == SyntaxKind.WhitespaceTrivia)
             {
-                var kind = trailingTrivia[removeCount].Kind();
-                if (kind == SyntaxKind.WhitespaceTrivia)
-                {
-                    hasWhitespace = true;
-                }
-                else if (kind == SyntaxKind.EndOfLineTrivia)
-                {
-                    hasNewline = true;
-                }
-                else
-                {
-                    break;
-                }
-                removeCount++;
+                whitespaceStart--;
             }
 
-            if (!hasWhitespace || !hasNewline) return usingDirective;
-            var remainingTrivia = default(SyntaxTriviaList);
-            for (int i = removeCount, count = trailingTrivia.Count; i < count; i++)
+            if (whitespaceStart == leadingTrivia.Count) return root;
+
+            var whitespaceTrivia = default(SyntaxTriviaList);
+            for (int i = whitespaceStart, count = leadingTrivia.Count; i < count; i++)
             {
-                remainingTrivia = remainingTrivia.Add(trailingTrivia[i]);
+                whitespaceTrivia = whitespaceTrivia.Add(leadingTrivia[i]);
             }
-            return usingDirective.WithTrailingTrivia(remainingTrivia);
+
+            var previousToken = usingDirective.GetFirstToken().GetPreviousToken();
+            if (previousToken.RawKind == 0) return root;
+
+            var previousTrailingTrivia = previousToken.TrailingTrivia;
+            for (int i = 0, count = whitespaceTrivia.Count; i < count; i++)
+            {
+                previousTrailingTrivia = previousTrailingTrivia.Add(whitespaceTrivia[i]);
+            }
+
+            return root.ReplaceToken(previousToken, previousToken.WithTrailingTrivia(previousTrailingTrivia));
         }
 
         private static string GetNamespaceName(SyntaxNode node)
