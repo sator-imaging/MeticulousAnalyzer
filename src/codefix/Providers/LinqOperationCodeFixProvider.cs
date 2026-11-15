@@ -205,9 +205,16 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static bool IsSystemLinqNamespace(INamespaceSymbol namespaceSymbol)
         {
-            return namespaceSymbol.Name == "Linq"
-                && namespaceSymbol.ContainingNamespace.Name == "System"
-                && namespaceSymbol.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
+            return namespaceSymbol is INamespaceSymbol
+                   {
+                       Name: "Linq", ContainingNamespace is INamespaceSymbol
+                       {
+                           Name: "System", ContainingNamespace is INamespaceSymbol
+                           {
+                               IsGlobalNamespace: true
+                           }
+                       }
+                   };
         }
 
         private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode node)
