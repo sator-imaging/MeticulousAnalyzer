@@ -121,9 +121,12 @@
     <value>Exclude Enum Member from Obfuscation</value>
   </data>
   <data name="CodeFix_NamedArgument" xml:space="preserve">
-    <value>Use named argument</value>
+    <value>Use Named Argument</value>
+  </data>
+  <data name="CodeFix_LinqOperation" xml:space="preserve">
+    <value>Generate `LinqPortal` and Remove `using System.Linq`</value>
   </data>
   <data name="CodeFix_NullSuppression" xml:space="preserve">
-    <value>Add 3 parentheses fence</value>
+    <value>Add 3 Parentheses Fence</value>
   </data>
 </root>

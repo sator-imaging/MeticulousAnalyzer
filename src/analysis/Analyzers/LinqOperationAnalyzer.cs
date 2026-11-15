@@ -15,8 +15,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         public const string RuleId_LinqOperation = "SMA7050";
         public const string SuppressionComment = "// Allow linq operation";
 
-        private const string TargetNamespace = "System.Linq";
-
         private static readonly DiagnosticDescriptor Rule_LinqOperation = new(
             RuleId_LinqOperation,
             new LocalizableResourceString(nameof(Resources.SMA7050_Title), Resources.ResourceManager, typeof(Resources)),
@@ -55,7 +53,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var name = usingDirective.Name;
-            if (name == null || name.ToString() != TargetNamespace)
+            if (name is not QualifiedNameSyntax qualifiedName
+                || qualifiedName.Left is not IdentifierNameSyntax systemName
+                || systemName.Identifier.ValueText != "System"
+                || qualifiedName.Right is not IdentifierNameSyntax linqName
+                || linqName.Identifier.ValueText != "Linq")
             {
                 return;
             }
