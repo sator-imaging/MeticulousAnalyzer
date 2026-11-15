@@ -374,7 +374,6 @@ namespace MyCompany
         /// </summary>
         public static string UserProperty => ""test"";
 
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Any<TSource>(source);
@@ -405,7 +404,6 @@ namespace MyCompany
         /// </summary>
         public static string UserProperty => ""test"";
 
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Any<TSource>(source);
