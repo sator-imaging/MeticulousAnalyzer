@@ -467,7 +467,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
         {
             foreach (var document in project.Documents)
             {
-                if (string.Equals(document.Name, fileName, StringComparison.Ordinal))
+                if (document.Name == fileName)
                 {
                     return document;
                 }
