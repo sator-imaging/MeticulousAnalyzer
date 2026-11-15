@@ -248,10 +248,14 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 AddTrivia(ref trailingTrivia, nextToken.LeadingTrivia);
 
                 var trailingStart = 0;
-                while (trailingStart < trailingTrivia.Count)
+                while (trailingStart < trailingTrivia.Count
+                    && trailingTrivia[trailingStart].Kind() == SyntaxKind.WhitespaceTrivia)
                 {
-                    var kind = trailingTrivia[trailingStart].Kind();
-                    if (kind != SyntaxKind.WhitespaceTrivia && kind != SyntaxKind.EndOfLineTrivia) break;
+                    trailingStart++;
+                }
+                if (trailingStart < trailingTrivia.Count
+                    && trailingTrivia[trailingStart].Kind() == SyntaxKind.EndOfLineTrivia)
+                {
                     trailingStart++;
                 }
 

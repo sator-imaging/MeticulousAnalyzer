@@ -36,7 +36,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
-using System.Collections.Generic;
+    using System.Collections.Generic;
 
     public class C
     {
@@ -141,7 +141,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
-using System.Collections.Generic;
+    using System.Collections.Generic;
 
     public class C
     {
@@ -245,7 +245,7 @@ namespace MyCompany.MyProduct
             var fixedSource = @"
 namespace MyCompany.MyProduct
 {
-using System.Collections.Generic;
+    using System.Collections.Generic;
 
     public class C
     {
@@ -338,7 +338,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
-using System.Collections.Generic;
+    using System.Collections.Generic;
 
     public class C
     {
