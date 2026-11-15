@@ -55,7 +55,7 @@ namespace MyCompany.MyProduct
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace MyCompany.MyProduct
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -95,11 +95,12 @@ namespace MyCompany.MyProduct
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.MyCompany.MyProduct.cs", expectedPortal)
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
                     }
                 },
             };
 
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
     }

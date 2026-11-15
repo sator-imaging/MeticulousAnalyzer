@@ -166,6 +166,7 @@ namespace Test
             //         e.g., `FixAllProvider = CodeFixHelpers.BatchFixAllProvider`
             //       It's available in Roslyn version (4.4.0 or later).
             // test.FixAllScope = FixAllScope.Solution;
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
     }

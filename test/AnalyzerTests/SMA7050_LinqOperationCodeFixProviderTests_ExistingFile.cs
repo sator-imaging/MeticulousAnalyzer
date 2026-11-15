@@ -117,11 +117,12 @@ namespace MyCompany
                 },
             };
 
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
         [TestMethod]
-        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_AppendsMissingForwarder()
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_AddsMissingOverloadBesideExistingMethod()
         {
             var test = @"
 namespace MyCompany.MyProduct
@@ -185,15 +186,15 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Count<TSource>(source);
         }
 
-        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
-        {
-            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
-        }
-
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Count(source, predicate);
+        }
+
+        public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
     }
 }
@@ -223,6 +224,7 @@ namespace MyCompany
                 },
             };
 
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
         }
 
@@ -316,6 +318,7 @@ namespace MyCompany
                 }
             };
 
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
 
@@ -444,7 +447,174 @@ namespace MyCompany
                 },
             };
 
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await testObj.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_DoesNotAddExistingForwarder()
+        {
+            var source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public bool M(IEnumerable<int> items) => items.Any();
+    }
+}
+";
+            var fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public bool M(IEnumerable<int> items) => items.Any();
+    }
+}
+";
+            var existingPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any<TSource>(source);
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", source),
+                        ("LinqPortal.MyCompany.cs", existingPortal)
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.MyCompany.cs", existingPortal)
+                    }
+                }
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_ExistingLinqPortalFile_InsertsAnyOverloadBeforeCount()
+        {
+            var source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public bool M(IEnumerable<int> items) => items.Any(value => value > 0);
+    }
+}
+";
+            var fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public bool M(IEnumerable<int> items) => items.Any(value => value > 0);
+    }
+}
+";
+            var existingPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any<TSource>(source);
+        }
+
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count<TSource>(source);
+        }
+    }
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any<TSource>(source);
+        }
+
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Any(source, predicate);
+        }
+
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count<TSource>(source);
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", source),
+                        ("LinqPortal.MyCompany.cs", existingPortal)
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                }
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
+            await test.RunAsync();
         }
     }
 }
