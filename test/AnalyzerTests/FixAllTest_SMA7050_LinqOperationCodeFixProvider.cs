@@ -56,7 +56,7 @@ namespace Test
 namespace Test
 {{
     // Leading trivia
-// Trailing trivia
+    using Enumerable = System.Linq.Enumerable; // Trailing trivia
     using System.Collections.Generic;
 
     public class C_{0}_0
@@ -68,7 +68,7 @@ namespace Test
 namespace Test
 {{
     // Leading trivia
-// Trailing trivia
+    using Enumerable = System.Linq.Enumerable; // Trailing trivia
     using System.Collections.Generic;
 
     public class C_{0}_1
@@ -80,7 +80,7 @@ namespace Test
 namespace Test
 {{
     // Leading trivia
-// Trailing trivia
+    using Enumerable = System.Linq.Enumerable; // Trailing trivia
     using System.Collections.Generic;
 
     public class C_{0}_2

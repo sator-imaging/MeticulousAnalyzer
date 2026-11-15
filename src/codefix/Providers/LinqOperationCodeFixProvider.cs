@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        CodeFixResources.CodeFix_LinqOperation ?? "Create LinqPortal and remove using System.Linq",
+                        CodeFixResources.CodeFix_LinqOperation ?? "Create LinqPortal and alias System.Linq.Enumerable",
                         cancellationToken => FixLinqOperationAsync(context.Document, usingDirective, cancellationToken),
                         nameof(LinqOperationCodeFixProvider)),
                     diagnostic);
@@ -98,10 +99,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
 
-            root = RemoveAdjacentWhitespaceTrivia(root, usingDirective);
-            usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? usingDirective;
-            root = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepTrailingTrivia) ?? root;
-            solution = solution.WithDocumentSyntaxRoot(document.Id, root);
+            var text = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
+            var nameSpan = usingDirective.Name.Span;
+            text = text.WithChanges(new TextChange(nameSpan, "Enumerable = " + text.ToString(nameSpan) + ".Enumerable"));
+            solution = solution.WithDocumentText(document.Id, text);
 
             if (methods.Count > 0)
             {
@@ -354,75 +355,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 if (current is UsingDirectiveSyntax directive) return directive;
             }
             return null;
-        }
-
-        private static SyntaxNode RemoveAdjacentWhitespaceTrivia(SyntaxNode root, UsingDirectiveSyntax usingDirective)
-        {
-            var previousToken = usingDirective.GetFirstToken().GetPreviousToken();
-            if (previousToken.RawKind != 0)
-            {
-                var leadingTrivia = default(SyntaxTriviaList);
-                AddTrivia(ref leadingTrivia, previousToken.TrailingTrivia);
-                AddTrivia(ref leadingTrivia, usingDirective.GetLeadingTrivia());
-
-                var whitespaceStart = leadingTrivia.Count;
-                while (whitespaceStart > 0
-                    && leadingTrivia[whitespaceStart - 1].Kind() == SyntaxKind.WhitespaceTrivia)
-                {
-                    whitespaceStart--;
-                }
-
-                var remainingLeadingTrivia = TakeTrivia(leadingTrivia, 0, whitespaceStart);
-                root = root.ReplaceToken(previousToken, previousToken.WithTrailingTrivia(remainingLeadingTrivia));
-                usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? usingDirective;
-            }
-
-            var nextToken = usingDirective.GetLastToken().GetNextToken();
-            if (nextToken.RawKind != 0)
-            {
-                var trailingTrivia = default(SyntaxTriviaList);
-                AddTrivia(ref trailingTrivia, usingDirective.GetTrailingTrivia());
-                AddTrivia(ref trailingTrivia, nextToken.LeadingTrivia);
-
-                var trailingStart = 0;
-                while (trailingStart < trailingTrivia.Count
-                    && trailingTrivia[trailingStart].Kind() == SyntaxKind.WhitespaceTrivia)
-                {
-                    trailingStart++;
-                }
-                if (trailingStart < trailingTrivia.Count
-                    && trailingTrivia[trailingStart].Kind() == SyntaxKind.EndOfLineTrivia)
-                {
-                    trailingStart++;
-                }
-
-                var remainingTrailingTrivia = TakeTrivia(trailingTrivia, trailingStart, trailingTrivia.Count);
-                var updatedUsingDirective = usingDirective.WithTrailingTrivia(default(SyntaxTriviaList));
-                root = root.ReplaceNode(usingDirective, updatedUsingDirective);
-                usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? updatedUsingDirective;
-                nextToken = usingDirective.GetLastToken().GetNextToken();
-                root = root.ReplaceToken(nextToken, nextToken.WithLeadingTrivia(remainingTrailingTrivia));
-            }
-
-            return root;
-        }
-
-        private static void AddTrivia(ref SyntaxTriviaList destination, SyntaxTriviaList source)
-        {
-            for (int i = 0, count = source.Count; i < count; i++)
-            {
-                destination = destination.Add(source[i]);
-            }
-        }
-
-        private static SyntaxTriviaList TakeTrivia(SyntaxTriviaList source, int start, int end)
-        {
-            var result = default(SyntaxTriviaList);
-            for (int i = start; i < end; i++)
-            {
-                result = result.Add(source[i]);
-            }
-            return result;
         }
 
         private static string GetTopLevelNamespaceName(SyntaxNode node)

@@ -37,6 +37,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+    using Enumerable = System.Linq.Enumerable;
     using System;
     using System.Collections.Generic;
 
@@ -118,6 +119,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+    using Enumerable = System.Linq.Enumerable;
     using System;
     using System.Collections.Generic;
 
@@ -193,6 +195,7 @@ namespace MyCompany.MyProduct
             var fixtest = @"
 namespace MyCompany.MyProduct
 {
+    using Enumerable = System.Linq.Enumerable;
     using System.Collections.Generic;
 
     public class C
@@ -268,6 +271,7 @@ namespace App.Features
             var fixtest = @"
 namespace App.Features
 {
+    using Enumerable = System.Linq.Enumerable;
     using System.Collections.Generic;
 
     public class C
@@ -346,7 +350,8 @@ namespace MyCompany.Root
     }
 }
 ";
-            var fixtest = @"using System.Collections.Generic;
+            var fixtest = @"using Enumerable = System.Linq.Enumerable;
+using System.Collections.Generic;
 
 namespace MyCompany.Root
 {
@@ -412,7 +417,8 @@ public class C
     public int M(IEnumerable<int> items) => items.Count();
 }
 ";
-            var fixedSource = @"using System.Collections.Generic;
+            var fixedSource = @"using Enumerable = System.Linq.Enumerable;
+using System.Collections.Generic;
 
 public class C
 {
@@ -477,6 +483,7 @@ namespace MyCompany.MyProduct
 using ProjectRoot;
 namespace MyCompany.MyProduct
 {
+    using Enumerable = System.Linq.Enumerable;
     using System.Collections.Generic;
 
     public class C
