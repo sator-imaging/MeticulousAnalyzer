@@ -167,7 +167,7 @@ namespace Test
             //       It's available in Roslyn version (4.4.0 or later).
             // test.FixAllScope = FixAllScope.Solution;
             test.SolutionTransforms.Add((solution, projectId) =>
-                solution.WithProjectAssemblyName(projectId, "Application"));
+                solution.WithProjectAssemblyName(projectId, "Application")); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
     }

@@ -149,7 +149,8 @@ namespace Test
             {
                 TestCode = source,
             };
-            test.SolutionTransforms.Add((solution, projectId) => solution.WithProjectAssemblyName(projectId, "Application"));
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectAssemblyName(projectId, "Application")); // The analyzer skips projects whose assembly name contains "Test".
             test.ExpectedDiagnostics.AddRange(expected);
             await test.RunAsync(CancellationToken.None);
         }

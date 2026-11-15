@@ -620,7 +620,7 @@ namespace MyCompany
         private static void SetAssemblyNameToApplication(VerifyCS.Test test)
         {
             test.SolutionTransforms.Add((solution, projectId) =>
-                solution.WithProjectAssemblyName(projectId, "Application"));
+                solution.WithProjectAssemblyName(projectId, "Application")); // The analyzer skips projects whose assembly name contains "Test".
         }
     }
 }
