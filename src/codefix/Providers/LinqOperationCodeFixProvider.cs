@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,10 +21,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LinqOperationCodeFixProvider)), Shared]
     public sealed class LinqOperationCodeFixProvider : CodeFixProvider
     {
-        private static readonly Type? FileScopedNamespaceType =
-            typeof(CompilationUnitSyntax).Assembly.GetType("Microsoft.CodeAnalysis.CSharp.Syntax.FileScopedNamespaceDeclarationSyntax");
-        private static readonly PropertyInfo? FileScopedNamespaceName =
-            FileScopedNamespaceType?.GetProperty("Name");
+        private const int FileScopedNamespaceDeclarationRawKind = 8845;
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
@@ -92,6 +88,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
 
+            usingDirective = RemoveFollowingWhitespaceAndNewlineTrivia(usingDirective);
             root = root.RemoveNode(usingDirective, SyntaxRemoveOptions.KeepExteriorTrivia) ?? root;
             solution = solution.WithDocumentSyntaxRoot(document.Id, root);
 
@@ -210,6 +207,40 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return null;
         }
 
+        private static UsingDirectiveSyntax RemoveFollowingWhitespaceAndNewlineTrivia(UsingDirectiveSyntax usingDirective)
+        {
+            var trailingTrivia = usingDirective.GetTrailingTrivia();
+            var removeCount = 0;
+            var hasWhitespace = false;
+            var hasNewline = false;
+
+            while (removeCount < trailingTrivia.Count)
+            {
+                var kind = trailingTrivia[removeCount].Kind();
+                if (kind == SyntaxKind.WhitespaceTrivia)
+                {
+                    hasWhitespace = true;
+                }
+                else if (kind == SyntaxKind.EndOfLineTrivia)
+                {
+                    hasNewline = true;
+                }
+                else
+                {
+                    break;
+                }
+                removeCount++;
+            }
+
+            if (!hasWhitespace || !hasNewline) return usingDirective;
+            var remainingTrivia = default(SyntaxTriviaList);
+            for (int i = removeCount, count = trailingTrivia.Count; i < count; i++)
+            {
+                remainingTrivia = remainingTrivia.Add(trailingTrivia[i]);
+            }
+            return usingDirective.WithTrailingTrivia(remainingTrivia);
+        }
+
         private static string GetNamespaceName(SyntaxNode node)
         {
             for (var current = node.Parent; current != null; current = current.Parent)
@@ -219,10 +250,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     return GetName(namespaceDeclaration.Name);
                 }
 
-                if (FileScopedNamespaceType != null && FileScopedNamespaceType.IsInstanceOfType(current)
-                    && FileScopedNamespaceName?.GetValue(current) is NameSyntax name)
+                if (current.RawKind == FileScopedNamespaceDeclarationRawKind)
                 {
-                    return GetName(name);
+                    foreach (var child in current.ChildNodes())
+                    {
+                        if (child is NameSyntax name) return GetName(name);
+                    }
                 }
             }
             return string.Empty;
