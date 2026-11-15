@@ -79,8 +79,13 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             var hasProjectDefaultNamespace = !string.IsNullOrEmpty(portalNamespace);
             foreach (var node in root.DescendantNodes())
             {
-                if (node is not InvocationExpressionSyntax invocation) continue;
-                if (semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is not IMethodSymbol method
+                if (node is not InvocationExpressionSyntax
+                    && (node is not MemberAccessExpressionSyntax || node.Parent is InvocationExpressionSyntax))
+                {
+                    continue;
+                }
+
+                if (semanticModel.GetSymbolInfo(node, cancellationToken).Symbol is not IMethodSymbol method
                     || !IsSystemLinqNamespace(method.ContainingNamespace))
                 {
                     continue;
@@ -88,7 +93,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
                 if (methods.Count == 0 && !hasProjectDefaultNamespace)
                 {
-                    portalNamespace = GetTopLevelNamespaceName(invocation);
+                    portalNamespace = GetTopLevelNamespaceName(node);
                 }
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }

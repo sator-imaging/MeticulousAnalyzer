@@ -15,6 +15,162 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     public class SMA7050_LinqOperationCodeFixProviderTests_Namespace
     {
         [TestMethod]
+        public async Task SMA7050_CodeFix_MethodReferences_Overloads()
+        {
+            var test = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            Func<int> count = items.Count;
+            Func<Func<int, bool>, int> countMatching = items.Count;
+        }
+    }
+}
+";
+            var fixtest = @"
+namespace MyCompany.MyProduct
+{
+    using System;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            Func<int> count = items.Count;
+            Func<Func<int, bool>, int> countMatching = items.Count;
+        }
+    }
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count(source);
+        }
+
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Count(source, predicate);
+        }
+    }
+}
+";
+            var testObj = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", test) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixtest),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                },
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application");
+            await testObj.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_MethodReferenceAndInvocation_SameOverload()
+        {
+            var test = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            Func<int> count = items.Count;
+            var result = items.Count();
+        }
+    }
+}
+";
+            var fixtest = @"
+namespace MyCompany.MyProduct
+{
+    using System;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            Func<int> count = items.Count;
+            var result = items.Count();
+        }
+    }
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count(source);
+        }
+    }
+}
+";
+            var testObj = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", test) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixtest),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                },
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(testObj, "Application");
+            await testObj.RunAsync();
+        }
+
+        [TestMethod]
         public async Task SMA7050_CodeFix_SimpleLinqCall()
         {
             var test = @"
