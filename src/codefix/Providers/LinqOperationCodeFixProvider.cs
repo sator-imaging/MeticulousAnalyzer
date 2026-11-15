@@ -121,6 +121,15 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 var portalClass = FindPortalClass(portalRoot);
                 if (portalClass == null) return solution;
                 var members = portalClass.Members;
+                var closeBrace = portalClass.CloseBraceToken;
+                var portalText = await portalDocument.GetTextAsync(cancellationToken).ConfigureAwait(false);
+                var closeBraceLine = portalText.Lines.GetLineFromPosition(closeBrace.SpanStart);
+                var closeBraceIndentationSpan = Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(
+                    closeBraceLine.Start,
+                    closeBrace.SpanStart);
+                var classIndentation = portalText.ToString(closeBraceIndentationSpan);
+                if (classIndentation.Trim().Length != 0) classIndentation = string.Empty;
+                var methodIndentation = classIndentation + "    ";
                 var existingMethods = new List<IMethodSymbol>();
                 foreach (var member in members)
                 {
@@ -145,43 +154,18 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                     if (exists) continue;
 
-                    forwarders.Add(GenerateMethodForwarder(method, GetClassIndentation(portalClass)));
+                    forwarders.Add(GenerateMethodForwarder(method, methodIndentation));
                 }
 
                 if (forwarders.Count > 0)
                 {
-                    var closeBrace = portalClass.CloseBraceToken;
-                    var indentation = GetClassIndentation(portalClass);
-                    var methodIndentation = indentation + "    ";
-                    for (int i = 0, count = forwarders.Count; i < count; i++)
-                    {
-                        forwarders[i] = methodIndentation + forwarders[i];
-                    }
-
-                    var insertionText = string.Join(
-                        Environment.NewLine + Environment.NewLine,
-                        forwarders) + Environment.NewLine;
-                    var insertionPosition = closeBrace.SpanStart;
-                    var closeBraceTrivia = closeBrace.LeadingTrivia;
-                    if (closeBraceTrivia.Count > 0)
-                    {
-                        var lastTrivia = closeBraceTrivia[closeBraceTrivia.Count - 1];
-                        if (lastTrivia.IsKind(SyntaxKind.WhitespaceTrivia))
-                        {
-                            insertionPosition = lastTrivia.SpanStart;
-                        }
-                    }
-                    if (closeBraceTrivia.Count == 0
-                        || !closeBraceTrivia[closeBraceTrivia.Count - 1].IsKind(SyntaxKind.WhitespaceTrivia)
-                        && !closeBraceTrivia[closeBraceTrivia.Count - 1].IsKind(SyntaxKind.EndOfLineTrivia))
-                    {
-                        insertionText = Environment.NewLine + insertionText;
-                    }
-
-                    var portalText = await portalDocument.GetTextAsync(cancellationToken).ConfigureAwait(false);
+                    var insertionText = (members.Count == 0 ? string.Empty : Environment.NewLine)
+                        + string.Join(Environment.NewLine + Environment.NewLine, forwarders)
+                        + Environment.NewLine
+                        + classIndentation;
                     portalText = portalText.WithChanges(
                         new Microsoft.CodeAnalysis.Text.TextChange(
-                            new Microsoft.CodeAnalysis.Text.TextSpan(insertionPosition, 0),
+                            closeBraceIndentationSpan,
                             insertionText));
                     solution = solution.WithDocumentText(portalDocument.Id, portalText);
                 }
@@ -387,21 +371,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return source.ToString();
         }
 
-        private static string GetClassIndentation(ClassDeclarationSyntax portalClass)
-        {
-            var leadingTrivia = portalClass.CloseBraceToken.LeadingTrivia;
-            if (leadingTrivia.Count > 0)
-            {
-                var lastTrivia = leadingTrivia[leadingTrivia.Count - 1];
-                if (lastTrivia.IsKind(SyntaxKind.WhitespaceTrivia))
-                {
-                    return lastTrivia.ToString();
-                }
-            }
-
-            return string.Empty;
-        }
-
         private static string GenerateMethodForwarder(IMethodSymbol method, string indentation)
         {
             // Keep the complete signature from Roslyn; do not reconstruct its type parameters or constraints.
@@ -411,7 +380,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 parameterNames[i] = method.Parameters[i].Name;
             }
 
-            return $"{method.ToDisplayString(MethodSignatureFormat)}{Environment.NewLine}"
+            return $"{indentation}{method.ToDisplayString(MethodSignatureFormat)}{Environment.NewLine}"
                 + $"{indentation}{{{Environment.NewLine}"
                 + $"{indentation}    return {method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", parameterNames)});{Environment.NewLine}"
                 + $"{indentation}}}";

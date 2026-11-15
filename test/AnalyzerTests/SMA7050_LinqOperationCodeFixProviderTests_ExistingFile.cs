@@ -86,7 +86,7 @@ namespace MyCompany
 
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
-            return global::System.Linq.Enumerable.Count<TSource>(source);
+            return global::System.Linq.Enumerable.Count(source);
         }
     }
 }
@@ -191,7 +191,7 @@ namespace MyCompany
 
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
-            return global::System.Linq.Enumerable.Count<TSource>(source, predicate);
+            return global::System.Linq.Enumerable.Count(source, predicate);
         }
     }
 }
@@ -284,7 +284,7 @@ namespace MyCompany
 
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, bool> predicate)
         {
-            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+            return global::System.Linq.Enumerable.Where(source, predicate);
         }
     }
 }
@@ -408,7 +408,7 @@ namespace MyCompany
 
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
-            return global::System.Linq.Enumerable.Count<TSource>(source);
+            return global::System.Linq.Enumerable.Count(source);
         }
         #region Preserve close-brace trivia
         #endregion

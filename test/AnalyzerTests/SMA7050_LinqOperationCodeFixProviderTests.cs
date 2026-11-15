@@ -59,7 +59,7 @@ namespace MyCompany.MyProduct
     {
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
-            return global::System.Linq.Enumerable.Count<TSource>(source);
+            return global::System.Linq.Enumerable.Count(source);
         }
     }
 }
@@ -132,12 +132,12 @@ namespace App.Features
     {
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
-            return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
+            return global::System.Linq.Enumerable.Where(source, predicate);
         }
 
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
-            return global::System.Linq.Enumerable.Count<TSource>(source);
+            return global::System.Linq.Enumerable.Count(source);
         }
     }
 }
@@ -206,7 +206,7 @@ namespace MyCompany.Root
     {
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
-            return global::System.Linq.Enumerable.Count<TSource>(source);
+            return global::System.Linq.Enumerable.Count(source);
         }
     }
 }
