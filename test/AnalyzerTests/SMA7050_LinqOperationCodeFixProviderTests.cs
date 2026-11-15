@@ -57,6 +57,7 @@ namespace MyCompany.MyProduct
 {
     internal static partial class LinqPortal
     {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
@@ -130,11 +131,13 @@ namespace App.Features
 {
     internal static partial class LinqPortal
     {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Where(source, predicate);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
@@ -204,6 +207,7 @@ namespace MyCompany.Root
 {
     internal static partial class LinqPortal
     {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);

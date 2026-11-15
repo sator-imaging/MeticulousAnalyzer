@@ -84,6 +84,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
@@ -189,6 +190,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Count(source, predicate);
@@ -282,6 +284,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, bool> predicate)
         {
             return global::System.Linq.Enumerable.Where(source, predicate);
@@ -408,6 +411,7 @@ namespace MyCompany
         #region Preserve close-brace trivia
         #endregion
 
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);

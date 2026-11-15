@@ -384,7 +384,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 parameterNames[i] = method.Parameters[i].Name;
             }
 
-            return $"{indentation}{method.ToDisplayString(MethodSignatureFormat)}{Environment.NewLine}"
+            return $"{indentation}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]{Environment.NewLine}"
+                + $"{indentation}{method.ToDisplayString(MethodSignatureFormat)}{Environment.NewLine}"
                 + $"{indentation}{{{Environment.NewLine}"
                 + $"{indentation}    return {method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", parameterNames)});{Environment.NewLine}"
                 + $"{indentation}}}";
