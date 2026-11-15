@@ -249,7 +249,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 var updatedUsingDirective = usingDirective.WithTrailingTrivia(default(SyntaxTriviaList));
                 root = root.ReplaceNode(usingDirective, updatedUsingDirective);
                 usingDirective = FindUsingDirective(root.FindNode(usingDirective.Span, getInnermostNodeForTie: true)) ?? updatedUsingDirective;
-                nextToken = root.FindToken(nextToken.SpanStart);
+                nextToken = usingDirective.GetLastToken().GetNextToken();
                 root = root.ReplaceToken(nextToken, nextToken.WithLeadingTrivia(remainingTrailingTrivia));
             }
 
@@ -363,7 +363,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static MethodDeclarationSyntax? GenerateMethodForwarder(IMethodSymbol method)
         {
-            // Keep the complete signature symbol-rendered; do not rebuild type parameters, constraints, or modifiers by hand.
+            // Keep the full signature symbol-rendered; do not rebuild type parameters, constraints, default values, or modifiers by hand.
             if (SyntaxFactory.ParseMemberDeclaration(method.ToDisplayString(MethodSignatureFormat) + ";") is not MethodDeclarationSyntax declaration)
             {
                 return null;
