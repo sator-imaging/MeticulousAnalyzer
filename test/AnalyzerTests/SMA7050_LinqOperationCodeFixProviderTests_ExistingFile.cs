@@ -616,5 +616,85 @@ namespace MyCompany
             CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
             await test.RunAsync();
         }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_WrongCasePortalFile_CreatesExactPortalFile()
+        {
+            var source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M()
+        {
+            IEnumerable<int> list = new List<int>();
+            var count = list.Count();
+        }
+    }
+}
+";
+            var fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M()
+        {
+            IEnumerable<int> list = new List<int>();
+            var count = list.Count();
+        }
+    }
+}
+";
+            var wrongCasePortal = "// This is not the exact portal file.";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count(source);
+        }
+    }
+}
+";
+
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", source),
+                        ("LinqPortal.mycompany.cs", wrongCasePortal)
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.mycompany.cs", wrongCasePortal),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                }
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(test, "Application"); // The analyzer skips projects whose assembly name contains "Test".
+            await test.RunAsync();
+        }
     }
 }
