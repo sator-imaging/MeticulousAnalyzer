@@ -205,14 +205,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static bool IsSystemLinqNamespace(INamespaceSymbol namespaceSymbol)
         {
-            return namespaceSymbol is INamespaceSymbol
+            return namespaceSymbol.Name is "Linq"
+                && namespaceSymbol.ContainingNamespace is INamespaceSymbol
                    {
-                       Name: "Linq", ContainingNamespace is INamespaceSymbol
+                       Name: "System", ContainingNamespace: INamespaceSymbol
                        {
-                           Name: "System", ContainingNamespace is INamespaceSymbol
-                           {
-                               IsGlobalNamespace: true
-                           }
+                           IsGlobalNamespace: true
                        }
                    };
         }
