@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationAnalyzer, LinqOperationCodeFixProvider>;
+    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationCodeFixProviderTestDiagnosticAnalyzer, LinqOperationCodeFixProvider>;
 
     [TestClass]
     public class SMA7050_LinqOperationCodeFixProviderTests_Ordering
@@ -55,7 +55,7 @@ namespace MyCompany.MyProduct
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace MyCompany.MyProduct
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -95,7 +95,7 @@ namespace MyCompany.MyProduct
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.MyCompany.MyProduct.cs", expectedPortal)
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
                     }
                 },
             };

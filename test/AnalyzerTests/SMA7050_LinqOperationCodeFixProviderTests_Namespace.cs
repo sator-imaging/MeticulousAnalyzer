@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
 {
-    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationAnalyzer, LinqOperationCodeFixProvider>;
+    using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<LinqOperationCodeFixProviderTestDiagnosticAnalyzer, LinqOperationCodeFixProvider>;
 
     [TestClass]
-    public class SMA7050_LinqOperationCodeFixProviderTests
+    public class SMA7050_LinqOperationCodeFixProviderTests_Namespace
     {
         [TestMethod]
         public async Task SMA7050_CodeFix_SimpleLinqCall()
@@ -53,7 +53,7 @@ namespace MyCompany.MyProduct
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace MyCompany.MyProduct
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -80,7 +80,7 @@ namespace MyCompany.MyProduct
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.MyCompany.MyProduct.cs", expectedPortal)
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
                     }
                 },
             };
@@ -127,7 +127,7 @@ namespace App.Features
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace App.Features
+namespace App
 {
     internal static partial class LinqPortal
     {
@@ -160,11 +160,13 @@ namespace App.Features
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.App.Features.cs", expectedPortal)
+                        ("LinqPortal.App.cs", expectedPortal)
                     }
                 },
             };
 
+            testObj.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectDefaultNamespace(projectId, string.Empty));
             await testObj.RunAsync();
         }
 
@@ -203,7 +205,7 @@ namespace MyCompany.Root
             var expectedPortal = @"using System;
 using System.Collections.Generic;
 
-namespace MyCompany.Root
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -230,12 +232,147 @@ namespace MyCompany.Root
                     Sources =
                     {
                         ("Test0.cs", fixtest),
-                        ("LinqPortal.MyCompany.Root.cs", expectedPortal)
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
                     }
                 },
             };
 
+            testObj.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectDefaultNamespace(projectId, string.Empty));
             await testObj.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_NoNamespace_GeneratesGlobalLinqPortal()
+        {
+            var source = @"{|#0:using System.Linq;|}
+using System.Collections.Generic;
+
+public class C
+{
+    public int M(IEnumerable<int> items) => items.Count();
+}
+";
+            var fixedSource = @"using System.Collections.Generic;
+
+public class C
+{
+    public int M(IEnumerable<int> items) => items.Count();
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+internal static partial class LinqPortal
+{
+    [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+    {
+        return global::System.Linq.Enumerable.Count(source);
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", source) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.cs", expectedPortal)
+                    }
+                }
+            };
+
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectDefaultNamespace(projectId, string.Empty));
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_ProjectDefaultNamespace_UsesTopLevelNamespace()
+        {
+            var source = @"
+using ProjectRoot;
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public int M(IEnumerable<int> items) => items.Count();
+    }
+}
+";
+            var fixedSource = @"
+using ProjectRoot;
+namespace MyCompany.MyProduct
+{
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public int M(IEnumerable<int> items) => items.Count();
+    }
+}
+";
+            var namespaceAnchor = @"namespace ProjectRoot
+{
+    internal sealed class NamespaceAnchor { }
+}
+";
+            var expectedPortal = @"using System;
+using System.Collections.Generic;
+
+namespace ProjectRoot
+{
+    internal static partial class LinqPortal
+    {
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Count(source);
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", source),
+                        ("NamespaceAnchor.cs", namespaceAnchor)
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("NamespaceAnchor.cs", namespaceAnchor),
+                        ("LinqPortal.ProjectRoot.cs", expectedPortal)
+                    }
+                }
+            };
+            test.SolutionTransforms.Add((solution, projectId) =>
+                solution.WithProjectDefaultNamespace(projectId, "ProjectRoot.Some"));
+
+            await test.RunAsync();
         }
     }
 }

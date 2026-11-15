@@ -75,7 +75,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             if (root == null || semanticModel == null) return solution;
 
             var methods = new List<IMethodSymbol>();
-            var portalNamespace = string.Empty;
+            var portalNamespace = GetTopLevelNamespaceName(document.Project.DefaultNamespace ?? string.Empty);
+            var hasProjectDefaultNamespace = !string.IsNullOrEmpty(portalNamespace);
             foreach (var node in root.DescendantNodes())
             {
                 if (node is not InvocationExpressionSyntax invocation) continue;
@@ -85,7 +86,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     continue;
                 }
 
-                if (methods.Count == 0) portalNamespace = GetNamespaceName(invocation);
+                if (methods.Count == 0 && !hasProjectDefaultNamespace)
+                {
+                    portalNamespace = GetTopLevelNamespaceName(invocation);
+                }
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
 
@@ -140,7 +144,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                 }
 
-                var forwarders = new List<string>();
+                var forwardersByPosition = new Dictionary<int, List<string>>();
                 foreach (var method in methods)
                 {
                     var exists = false;
@@ -154,24 +158,91 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                     if (exists) continue;
 
+                    var insertionPosition = FindMethodInsertionPosition(
+                        members,
+                        method,
+                        portalText,
+                        closeBraceIndentationSpan.Start);
+                    if (!forwardersByPosition.TryGetValue(insertionPosition, out var forwarders))
+                    {
+                        forwarders = new List<string>();
+                        forwardersByPosition.Add(insertionPosition, forwarders);
+                    }
                     forwarders.Add(GenerateMethodForwarder(method, methodIndentation));
                 }
 
-                if (forwarders.Count > 0)
+                var changes = new List<Microsoft.CodeAnalysis.Text.TextChange>();
+                foreach (var member in members)
+                {
+                    var insertionPosition = GetMemberInsertionPosition(member, portalText);
+                    if (!forwardersByPosition.TryGetValue(insertionPosition, out var forwarders)) continue;
+                    changes.Add(new Microsoft.CodeAnalysis.Text.TextChange(
+                        new Microsoft.CodeAnalysis.Text.TextSpan(insertionPosition, 0),
+                        string.Join(Environment.NewLine + Environment.NewLine, forwarders)
+                            + Environment.NewLine
+                            + Environment.NewLine));
+                    forwardersByPosition.Remove(insertionPosition);
+                }
+
+                if (forwardersByPosition.TryGetValue(closeBraceIndentationSpan.Start, out var appendedForwarders))
                 {
                     var insertionText = (members.Count == 0 ? string.Empty : Environment.NewLine)
-                        + string.Join(Environment.NewLine + Environment.NewLine, forwarders)
+                        + string.Join(Environment.NewLine + Environment.NewLine, appendedForwarders)
                         + Environment.NewLine
                         + classIndentation;
-                    portalText = portalText.WithChanges(
-                        new Microsoft.CodeAnalysis.Text.TextChange(
-                            closeBraceIndentationSpan,
-                            insertionText));
+                    changes.Add(new Microsoft.CodeAnalysis.Text.TextChange(
+                        closeBraceIndentationSpan,
+                        insertionText));
+                }
+
+                if (changes.Count > 0)
+                {
+                    portalText = portalText.WithChanges(changes);
                     solution = solution.WithDocumentText(portalDocument.Id, portalText);
                 }
             }
 
             return solution;
+        }
+
+        private static int FindMethodInsertionPosition(
+            SyntaxList<MemberDeclarationSyntax> members,
+            IMethodSymbol method,
+            Microsoft.CodeAnalysis.Text.SourceText portalText,
+            int appendPosition)
+        {
+            var lastOverloadIndex = -1;
+            for (int i = 0, count = members.Count; i < count; i++)
+            {
+                if (members[i] is MethodDeclarationSyntax declaration
+                    && declaration.Identifier.ValueText == method.Name)
+                {
+                    lastOverloadIndex = i;
+                }
+            }
+
+            if (lastOverloadIndex < 0 || lastOverloadIndex + 1 >= members.Count)
+            {
+                return appendPosition;
+            }
+
+            return GetMemberInsertionPosition(members[lastOverloadIndex + 1], portalText);
+        }
+
+        private static int GetMemberInsertionPosition(
+            MemberDeclarationSyntax member,
+            Microsoft.CodeAnalysis.Text.SourceText portalText)
+        {
+            foreach (var trivia in member.GetLeadingTrivia())
+            {
+                if (trivia.Kind() != SyntaxKind.WhitespaceTrivia
+                    && trivia.Kind() != SyntaxKind.EndOfLineTrivia)
+                {
+                    return portalText.Lines.GetLineFromPosition(trivia.SpanStart).Start;
+                }
+            }
+
+            return portalText.Lines.GetLineFromPosition(member.GetFirstToken().SpanStart).Start;
         }
 
         private static void AddIfMissing(List<IMethodSymbol> methods, IMethodSymbol method)
@@ -195,12 +266,68 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             for (int i = 0, count = left.Parameters.Length; i < count; i++)
             {
                 if (left.Parameters[i].RefKind != right.Parameters[i].RefKind
-                    || !SymbolEqualityComparer.Default.Equals(left.Parameters[i].Type, right.Parameters[i].Type))
+                    || !AreParameterTypesEquivalent(left.Parameters[i].Type, right.Parameters[i].Type))
                 {
                     return false;
                 }
             }
             return true;
+        }
+
+        private static bool AreParameterTypesEquivalent(ITypeSymbol left, ITypeSymbol right)
+        {
+            if (left is ITypeParameterSymbol leftTypeParameter
+                && right is ITypeParameterSymbol rightTypeParameter)
+            {
+                if (leftTypeParameter.TypeParameterKind != rightTypeParameter.TypeParameterKind
+                    || leftTypeParameter.Ordinal != rightTypeParameter.Ordinal)
+                {
+                    return false;
+                }
+
+                return leftTypeParameter.TypeParameterKind == TypeParameterKind.Method
+                    || SymbolEqualityComparer.Default.Equals(
+                        leftTypeParameter.ContainingSymbol,
+                        rightTypeParameter.ContainingSymbol);
+            }
+
+            if (left is INamedTypeSymbol leftNamedType
+                && right is INamedTypeSymbol rightNamedType)
+            {
+                if (!SymbolEqualityComparer.Default.Equals(
+                        leftNamedType.OriginalDefinition,
+                        rightNamedType.OriginalDefinition)
+                    || leftNamedType.TypeArguments.Length != rightNamedType.TypeArguments.Length)
+                {
+                    return false;
+                }
+
+                for (int i = 0, count = leftNamedType.TypeArguments.Length; i < count; i++)
+                {
+                    if (!AreParameterTypesEquivalent(
+                            leftNamedType.TypeArguments[i],
+                            rightNamedType.TypeArguments[i]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if (left is IArrayTypeSymbol leftArrayType
+                && right is IArrayTypeSymbol rightArrayType)
+            {
+                return leftArrayType.Rank == rightArrayType.Rank
+                    && AreParameterTypesEquivalent(leftArrayType.ElementType, rightArrayType.ElementType);
+            }
+
+            if (left is IPointerTypeSymbol leftPointerType
+                && right is IPointerTypeSymbol rightPointerType)
+            {
+                return AreParameterTypesEquivalent(leftPointerType.PointedAtType, rightPointerType.PointedAtType);
+            }
+
+            return SymbolEqualityComparer.Default.Equals(left, right);
         }
 
         private static bool IsSystemLinqNamespace(INamespaceSymbol namespaceSymbol)
@@ -293,39 +420,47 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return result;
         }
 
-        private static string GetNamespaceName(SyntaxNode node)
+        private static string GetTopLevelNamespaceName(SyntaxNode node)
         {
+            NameSyntax? outermostName = null;
             for (var current = node.Parent; current != null; current = current.Parent)
             {
                 if (current is NamespaceDeclarationSyntax namespaceDeclaration)
                 {
-                    return GetName(namespaceDeclaration.Name);
+                    outermostName = namespaceDeclaration.Name;
                 }
-
-                if (current.RawKind == FileScopedNamespaceDeclarationRawKind)
+                else if (current.RawKind == FileScopedNamespaceDeclarationRawKind)
                 {
                     foreach (var child in current.ChildNodes())
                     {
-                        if (child is NameSyntax name) return GetName(name);
+                        if (child is NameSyntax name)
+                        {
+                            outermostName = name;
+                            break;
+                        }
                     }
                 }
             }
-            return string.Empty;
+
+            return outermostName == null ? string.Empty : GetTopLevelName(outermostName);
         }
 
-        private static string GetName(NameSyntax name)
+        private static string GetTopLevelNamespaceName(string namespaceName)
         {
-            if (name is IdentifierNameSyntax identifierName)
+            var separator = namespaceName.IndexOf('.');
+            return separator < 0 ? namespaceName : namespaceName.Substring(0, separator);
+        }
+
+        private static string GetTopLevelName(NameSyntax name)
+        {
+            while (name is QualifiedNameSyntax qualifiedName)
             {
-                return identifierName.Identifier.ValueText;
+                name = qualifiedName.Left;
             }
 
-            if (name is QualifiedNameSyntax qualifiedName)
-            {
-                return $"{GetName(qualifiedName.Left)}.{GetName(qualifiedName.Right)}";
-            }
-
-            return string.Empty;
+            return name is IdentifierNameSyntax identifierName
+                ? identifierName.Identifier.ValueText
+                : string.Empty;
         }
 
         private static Document? FindPortalDocument(Project project, string fileName)

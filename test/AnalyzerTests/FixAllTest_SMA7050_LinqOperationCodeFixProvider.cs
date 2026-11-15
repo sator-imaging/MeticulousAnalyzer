@@ -7,7 +7,7 @@ using SatorImaging.MeticulousAnalyzer.Analysis.Analyzers;
 using SatorImaging.MeticulousAnalyzer.CodeFixes.Providers;
 using System.Threading.Tasks;
 using VerifyCS = SatorImaging.MeticulousAnalyzer.Tests.CSharpCodeFixVerifier<
-    SatorImaging.MeticulousAnalyzer.Analysis.Analyzers.LinqOperationAnalyzer,
+    SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests.LinqOperationCodeFixProviderTestDiagnosticAnalyzer,
     SatorImaging.MeticulousAnalyzer.CodeFixes.Providers.LinqOperationCodeFixProvider>;
 
 namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
