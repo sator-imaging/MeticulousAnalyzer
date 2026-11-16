@@ -55,20 +55,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
                 | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 
-        private static readonly SymbolDisplayFormat InheritdocFormat = new(
-            globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
-            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
-            memberOptions: SymbolDisplayMemberOptions.IncludeContainingType | SymbolDisplayMemberOptions.IncludeParameters,
-            delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
-            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.Default,
-            parameterOptions: SymbolDisplayParameterOptions.IncludeType,
-            propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
-            localOptions: SymbolDisplayLocalOptions.None,
-            kindOptions: SymbolDisplayKindOptions.None,
-            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
-                | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
-
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
 
@@ -479,8 +465,10 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 parameterNames[i] = method.Parameters[i].Name;
             }
 
-            // C# cref syntax uses braces for generic parameters; use Roslyn's display text without rebuilding the signature.
-            var inheritdocCref = method.ToDisplayString(InheritdocFormat).Replace('<', '{').Replace('>', '}');
+            // Cref syntax omits the member-kind prefix from Roslyn's documentation comment ID.
+            var documentationCommentId = method.GetDocumentationCommentId()
+                ?? throw new InvalidOperationException("The method has no documentation comment ID.");
+            var inheritdocCref = documentationCommentId.Substring(2);
 
             return $"{indentation}/// <inheritdoc cref=\"{inheritdocCref}\"/>\n"
                 + $"{indentation}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]\n"
