@@ -210,7 +210,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
             [CallerLineNumber] int lineNumber = -1
             )
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(capacity: 128);
             foreach (var child in syntax.ChildNodes())
             {
                 if (sb.Length > 0)
@@ -341,7 +341,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis
 
         internal static string GetMemberNamePrefix(SyntaxNode? node)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(capacity: 128);
 
             var parent = node?.Parent;
             while (parent != null)
