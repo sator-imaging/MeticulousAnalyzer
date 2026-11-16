@@ -434,7 +434,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static string GenerateEmptyPortal(string namespaceName)
         {
-            var source = new StringBuilder(capacity: 4096);
+            var source = new StringBuilder(capacity: 8192);
             source.Append(GeneratedFileHeader);
 
             if (!string.IsNullOrEmpty(namespaceName))
