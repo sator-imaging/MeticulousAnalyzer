@@ -43,7 +43,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             memberOptions: SymbolDisplayMemberOptions.IncludeType
                 | SymbolDisplayMemberOptions.IncludeParameters
                 | SymbolDisplayMemberOptions.IncludeAccessibility
-                | SymbolDisplayMemberOptions.IncludeParamsRefOut // TODO: update roslyn version --> .IncludeModifiers
+                | SymbolDisplayMemberOptions.IncludeModifiers
                 | SymbolDisplayMemberOptions.IncludeRef
                 | SymbolDisplayMemberOptions.IncludeExplicitInterface
                 | SymbolDisplayMemberOptions.IncludeContainingType,
@@ -70,7 +70,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
             extensionMethodStyle: SymbolDisplayExtensionMethodStyle.StaticMethod,
             parameterOptions: SymbolDisplayParameterOptions.IncludeType
-                | SymbolDisplayParameterOptions.IncludeModifiers,
+                | SymbolDisplayParameterOptions.IncludeParamsRefOut // TODO: update roslyn version --> .IncludeModifiers,
             propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
             localOptions: SymbolDisplayLocalOptions.None,
             kindOptions: SymbolDisplayKindOptions.None,
