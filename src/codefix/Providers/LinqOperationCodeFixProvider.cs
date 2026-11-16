@@ -43,7 +43,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             memberOptions: SymbolDisplayMemberOptions.IncludeType
                 | SymbolDisplayMemberOptions.IncludeParameters
                 | SymbolDisplayMemberOptions.IncludeAccessibility
-                | SymbolDisplayMemberOptions.IncludeModifiers
+                | SymbolDisplayMemberOptions.IncludeParamsRefOut // TODO: update roslyn version --> .IncludeModifiers
                 | SymbolDisplayMemberOptions.IncludeRef
                 | SymbolDisplayMemberOptions.IncludeExplicitInterface
                 | SymbolDisplayMemberOptions.IncludeContainingType,
@@ -51,7 +51,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             extensionMethodStyle: SymbolDisplayExtensionMethodStyle.StaticMethod,
             parameterOptions: SymbolDisplayParameterOptions.IncludeType
                 | SymbolDisplayParameterOptions.IncludeName
-                | SymbolDisplayParameterOptions.IncludeModifiers
+                | SymbolDisplayParameterOptions.IncludeParamsRefOut // TODO: update roslyn version --> .IncludeModifiers
                 | SymbolDisplayParameterOptions.IncludeExtensionThis
                 | SymbolDisplayParameterOptions.IncludeDefaultValue,
             propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
@@ -76,7 +76,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             kindOptions: SymbolDisplayKindOptions.None,
             miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
                 | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
-                | SymbolDisplayMiscellaneousOptions.ExpandValueTuple); 
+                ); // TODO: update roslyn version --> | SymbolDisplayMiscellaneousOptions.ExpandValueTuple); 
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
@@ -494,8 +494,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             var inheritdocCref = method.ToDisplayString(InheritdocFormat)
                 .Replace('<', '{')
                 .Replace('>', '}')
-                .Replace("params ", "", StringComparison.Ordinal)
-                .Replace("scoped ", "", StringComparison.Ordinal);
+                .Replace("params ", "")
+                .Replace("scoped ", "");
 
             return $"{indentation}/// <inheritdoc cref=\"{inheritdocCref}\"/>\n"
                 + $"{indentation}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]\n"
