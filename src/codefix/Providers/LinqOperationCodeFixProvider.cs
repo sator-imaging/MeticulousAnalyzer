@@ -46,7 +46,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 | SymbolDisplayMemberOptions.IncludeModifiers
                 | SymbolDisplayMemberOptions.IncludeRef
                 | SymbolDisplayMemberOptions.IncludeExplicitInterface
-                | SymbolDisplayMemberOptions.IncludeContainingType,
+                , // DO NOT add containing type to method name --> | SymbolDisplayMemberOptions.IncludeContainingType,
             delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
             extensionMethodStyle: SymbolDisplayExtensionMethodStyle.StaticMethod,
             parameterOptions: SymbolDisplayParameterOptions.IncludeType
