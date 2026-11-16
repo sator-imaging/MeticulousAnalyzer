@@ -14,6 +14,364 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     [TestClass]
     public class SMA7050_LinqOperationCodeFixProviderTests_ExistingFile
     {
+        private static Task VerifyOverloadOrderAsync(string source, string fixedSource, string existingPortal, string expectedPortal)
+        {
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", source), ("LinqPortal.MyCompany.cs", existingPortal) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                }
+            };
+            // The analyzer skips projects whose assembly name contains "Test".
+            CSharpVerifierHelper.SetAssemblyName(test, "Application");
+            return test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_OverloadOrder_FormattedExistingMethods()
+        {
+            const string source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var any = items.Any(x => x > 0);
+            var select = items.Select((x, index) => x + index);
+        }
+    }
+}
+";
+            const string fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using Enumerable = System.Linq.Enumerable;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var any = items.Any(x => x > 0);
+            var select = items.Select((x, index) => x + index);
+        }
+    }
+}
+";
+            const string existingPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(
+            this global::System.Collections.Generic.IEnumerable<TSource> source // formatted
+        )
+        {
+            return global::System.Linq.Enumerable.Any(source);
+        }
+
+        // Select documentation
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+    }
+}
+";
+            const string expectedPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(
+            this global::System.Collections.Generic.IEnumerable<TSource> source // formatted
+        )
+        {
+            return global::System.Linq.Enumerable.Any(source);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Any(source, predicate);
+        }
+
+        // Select documentation
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, int, TResult})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+    }
+}
+";
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_OverloadOrder_ShorterSignatureBeforeFormattedExistingOverload()
+        {
+            const string source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var any = items.Any();
+        }
+    }
+}
+";
+            const string fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using Enumerable = System.Linq.Enumerable;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var any = items.Any();
+        }
+    }
+}
+";
+            const string existingPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        // Existing overload
+        public static bool Any<TSource>(
+            this global::System.Collections.Generic.IEnumerable<TSource> source,
+            global::System.Func<TSource, bool> predicate
+        )
+        {
+            return global::System.Linq.Enumerable.Any(source, predicate);
+        }
+    }
+}
+";
+            const string expectedPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any(source);
+        }
+
+        // Existing overload
+        public static bool Any<TSource>(
+            this global::System.Collections.Generic.IEnumerable<TSource> source,
+            global::System.Func<TSource, bool> predicate
+        )
+        {
+            return global::System.Linq.Enumerable.Any(source, predicate);
+        }
+    }
+}
+";
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_OverloadOrder_SharedBoundaryBetweenExistingMethods()
+        {
+            const string source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var select = items.Select(x => x + 1);
+            var any = items.Any(x => x > 0);
+        }
+    }
+}
+";
+            const string fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using Enumerable = System.Linq.Enumerable;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var select = items.Select(x => x + 1);
+            var any = items.Any(x => x > 0);
+        }
+    }
+}
+";
+            const string existingPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any(source);
+        }
+
+        // Existing indexed overload
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+    }
+}
+";
+            const string expectedPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any(source);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Any(source, predicate);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, TResult})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+
+        // Existing indexed overload
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+    }
+}
+";
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
+        }
+
+        [TestMethod]
+        public async Task SMA7050_CodeFix_OverloadOrder_NewMethodsShareInsertionPosition()
+        {
+            const string source = @"
+namespace MyCompany.MyProduct
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var anyPredicate = items.Any(x => x > 0);
+            var selectIndex = items.Select((x, index) => x + index);
+            var any = items.Any();
+            var select = items.Select(x => x + 1);
+        }
+    }
+}
+";
+            const string fixedSource = @"
+namespace MyCompany.MyProduct
+{
+    using Enumerable = System.Linq.Enumerable;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var anyPredicate = items.Any(x => x > 0);
+            var selectIndex = items.Select((x, index) => x + index);
+            var any = items.Any();
+            var select = items.Select(x => x + 1);
+        }
+    }
+}
+";
+            const string existingPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+    }
+}
+";
+            const string expectedPortal = @"namespace MyCompany
+{
+    internal static partial class LinqPortal
+    {
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
+        {
+            return global::System.Linq.Enumerable.Any(source);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
+        {
+            return global::System.Linq.Enumerable.Any(source, predicate);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, TResult})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, int, TResult})""/>
+        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, TResult> selector)
+        {
+            return global::System.Linq.Enumerable.Select(source, selector);
+        }
+    }
+}
+";
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
+        }
+
         [TestMethod]
         public async Task SMA7050_CodeFix_ExistingLinqPortalFile_AddsNewMember_AtLast()
         {

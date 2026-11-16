@@ -188,7 +188,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     }
                 }
 
-                var forwardersByPosition = new Dictionary<int, List<string>>();
+                var forwardersByPosition = new Dictionary<int, List<IMethodSymbol>>();
                 foreach (var method in methods)
                 {
                     var exists = false;
@@ -205,14 +205,15 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     var insertionPosition = FindMethodInsertionPosition(
                         members,
                         method,
+                        portalModel,
                         portalText,
                         closeBraceIndentationSpan.Start);
                     if (!forwardersByPosition.TryGetValue(insertionPosition, out var forwarders))
                     {
-                        forwarders = new List<string>();
+                        forwarders = new List<IMethodSymbol>();
                         forwardersByPosition.Add(insertionPosition, forwarders);
                     }
-                    forwarders.Add(GenerateMethodForwarder(method, methodIndentation));
+                    InsertForwarder(forwarders, method);
                 }
 
                 var changes = new List<Microsoft.CodeAnalysis.Text.TextChange>();
@@ -222,14 +223,14 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     if (!forwardersByPosition.TryGetValue(insertionPosition, out var forwarders)) continue;
                     changes.Add(new Microsoft.CodeAnalysis.Text.TextChange(
                         new Microsoft.CodeAnalysis.Text.TextSpan(insertionPosition, 0),
-                        string.Join("\n\n", forwarders) + "\n\n"));
+                        GenerateMethodForwarders(forwarders, methodIndentation, (member as MethodDeclarationSyntax)?.Identifier.ValueText) + "\n\n"));
                     forwardersByPosition.Remove(insertionPosition);
                 }
 
                 if (forwardersByPosition.TryGetValue(closeBraceIndentationSpan.Start, out var appendedForwarders))
                 {
                     var insertionText = (members.Count == 0 ? string.Empty : "\n")
-                        + string.Join("\n\n", appendedForwarders)
+                        + GenerateMethodForwarders(appendedForwarders, methodIndentation)
                         + "\n"
                         + classIndentation;
                     changes.Add(new Microsoft.CodeAnalysis.Text.TextChange(
@@ -250,15 +251,23 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
         private static int FindMethodInsertionPosition(
             SyntaxList<MemberDeclarationSyntax> members,
             IMethodSymbol method,
+            SemanticModel? portalModel,
             Microsoft.CodeAnalysis.Text.SourceText portalText,
             int appendPosition)
         {
             var lastOverloadIndex = -1;
+            var signatureLength = method.ToDisplayString(MethodSignatureFormat).Length;
             for (int i = 0, count = members.Count; i < count; i++)
             {
                 if (members[i] is MethodDeclarationSyntax declaration
                     && declaration.Identifier.ValueText == method.Name)
                 {
+                    // Compare symbol signatures, not syntax text, so user formatting does not affect overload order.
+                    if (portalModel?.GetDeclaredSymbol(declaration) is IMethodSymbol existing
+                        && existing.ToDisplayString(MethodSignatureFormat).Length > signatureLength)
+                    {
+                        return GetMemberInsertionPosition(declaration, portalText);
+                    }
                     lastOverloadIndex = i;
                 }
             }
@@ -269,6 +278,45 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             }
 
             return GetMemberInsertionPosition(members[lastOverloadIndex + 1], portalText);
+        }
+
+        private static void InsertForwarder(List<IMethodSymbol> forwarders, IMethodSymbol method)
+        {
+            var insertionIndex = forwarders.Count;
+            var signatureLength = method.ToDisplayString(MethodSignatureFormat).Length;
+            for (int i = 0, count = forwarders.Count; i < count; i++)
+            {
+                if (forwarders[i].Name != method.Name) continue;
+                if (forwarders[i].ToDisplayString(MethodSignatureFormat).Length > signatureLength)
+                {
+                    insertionIndex = i;
+                    break;
+                }
+                insertionIndex = i + 1;
+            }
+            forwarders.Insert(insertionIndex, method);
+        }
+
+        private static string GenerateMethodForwarders(List<IMethodSymbol> methods, string indentation, string? nextMethodName = null)
+        {
+            var forwarders = new string[methods.Count];
+            var index = 0;
+            // Overloads inserted before an existing method must remain next to that method.
+            for (int i = 0, count = methods.Count; i < count; i++)
+            {
+                if (methods[i].Name != nextMethodName)
+                {
+                    forwarders[index++] = GenerateMethodForwarder(methods[i], indentation);
+                }
+            }
+            for (int i = 0, count = methods.Count; i < count; i++)
+            {
+                if (methods[i].Name == nextMethodName)
+                {
+                    forwarders[index++] = GenerateMethodForwarder(methods[i], indentation);
+                }
+            }
+            return string.Join("\n\n", forwarders);
         }
 
         private static int GetMemberInsertionPosition(
