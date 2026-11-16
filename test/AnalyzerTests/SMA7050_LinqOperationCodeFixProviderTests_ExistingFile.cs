@@ -85,6 +85,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
 
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -188,6 +189,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Count<TSource>(source);
         }
 
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
@@ -289,6 +291,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Where<TSource>(source, predicate);
         }
 
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Where{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, int, bool})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, bool> predicate)
         {
@@ -418,6 +421,7 @@ namespace MyCompany
         #region Preserve close-brace trivia
         #endregion
 
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
@@ -582,6 +586,7 @@ namespace MyCompany
             return global::System.Linq.Enumerable.Any<TSource>(source);
         }
 
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
@@ -670,6 +675,7 @@ namespace MyCompany
 {
     internal static partial class LinqPortal
     {
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
