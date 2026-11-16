@@ -68,9 +68,9 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        CodeFixResources.CodeFix_LinqOperation ?? "Create LinqPortal and alias System.Linq.Enumerable",
+                        CodeFixResources.CodeFix_LinqOperation,
                         cancellationToken => FixLinqOperationAsync(context.Document, usingDirective, cancellationToken),
-                        nameof(LinqOperationCodeFixProvider)),
+                        CodeFixResources.CodeFix_LinqOperation),
                     diagnostic);
             }
         }
