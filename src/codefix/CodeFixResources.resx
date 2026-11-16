@@ -124,7 +124,7 @@
     <value>Use Named Argument</value>
   </data>
   <data name="CodeFix_LinqOperation" xml:space="preserve">
-    <value>Generate `LinqPortal` and alias `System.Linq.Enumerable`</value>
+    <value>Alias and Generate `LinqPortal.cs`</value>
   </data>
   <data name="CodeFix_NullSuppression" xml:space="preserve">
     <value>Add 3 Parentheses Fence</value>
