@@ -31,7 +31,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             + "// </auto-generated>\n"
             + "\n"
             + "#nullable enable\n"
-            + "#pragma warning disable IDE0001 // Simplify name\n";
+            + "#pragma warning disable IDE0001 // Simplify name\n"
+            + "\n";
 
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
@@ -434,7 +435,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
         private static string GenerateEmptyPortal(string namespaceName)
         {
             var source = new StringBuilder(capacity: 4096);
-            source.AppendLine(GeneratedFileHeader);
+            source.Append(GeneratedFileHeader);
 
             if (!string.IsNullOrEmpty(namespaceName))
             {
