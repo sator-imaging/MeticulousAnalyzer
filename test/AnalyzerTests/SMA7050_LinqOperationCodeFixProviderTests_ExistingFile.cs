@@ -14,6 +14,32 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     [TestClass]
     public class SMA7050_LinqOperationCodeFixProviderTests_ExistingFile
     {
+        private static Task VerifyOverloadOrderAsync(string source, string fixedSource, string existingPortal, string expectedPortal)
+        {
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", source), ("LinqPortal.MyCompany.cs", existingPortal) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources =
+                    {
+                        ("Test0.cs", fixedSource),
+                        ("LinqPortal.MyCompany.cs", expectedPortal)
+                    }
+                }
+            };
+            // The analyzer skips projects whose assembly name contains "Test".
+            CSharpVerifierHelper.SetAssemblyName(test, "Application");
+            return test.RunAsync();
+        }
+
         [TestMethod]
         public async Task SMA7050_CodeFix_OverloadOrder_FormattedExistingMethods()
         {
@@ -101,27 +127,7 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            var test = new VerifyCS.Test
-            {
-                TestState =
-                {
-                    Sources = { ("Test0.cs", source), ("LinqPortal.MyCompany.cs", existingPortal) },
-                    ExpectedDiagnostics =
-                    {
-                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
-                    }
-                },
-                FixedState =
-                {
-                    Sources =
-                    {
-                        ("Test0.cs", fixedSource),
-                        ("LinqPortal.MyCompany.cs", expectedPortal)
-                    }
-                }
-            };
-            CSharpVerifierHelper.SetAssemblyName(test, "Application");
-            await test.RunAsync();
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
         }
 
         [TestMethod]
@@ -194,27 +200,7 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            var test = new VerifyCS.Test
-            {
-                TestState =
-                {
-                    Sources = { ("Test0.cs", source), ("LinqPortal.MyCompany.cs", existingPortal) },
-                    ExpectedDiagnostics =
-                    {
-                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
-                    }
-                },
-                FixedState =
-                {
-                    Sources =
-                    {
-                        ("Test0.cs", fixedSource),
-                        ("LinqPortal.MyCompany.cs", expectedPortal)
-                    }
-                }
-            };
-            CSharpVerifierHelper.SetAssemblyName(test, "Application");
-            await test.RunAsync();
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
         }
 
         [TestMethod]
@@ -300,27 +286,7 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            var test = new VerifyCS.Test
-            {
-                TestState =
-                {
-                    Sources = { ("Test0.cs", source), ("LinqPortal.MyCompany.cs", existingPortal) },
-                    ExpectedDiagnostics =
-                    {
-                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
-                    }
-                },
-                FixedState =
-                {
-                    Sources =
-                    {
-                        ("Test0.cs", fixedSource),
-                        ("LinqPortal.MyCompany.cs", expectedPortal)
-                    }
-                }
-            };
-            CSharpVerifierHelper.SetAssemblyName(test, "Application");
-            await test.RunAsync();
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
         }
 
         [TestMethod]
@@ -403,27 +369,7 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            var test = new VerifyCS.Test
-            {
-                TestState =
-                {
-                    Sources = { ("Test0.cs", source), ("LinqPortal.MyCompany.cs", existingPortal) },
-                    ExpectedDiagnostics =
-                    {
-                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
-                    }
-                },
-                FixedState =
-                {
-                    Sources =
-                    {
-                        ("Test0.cs", fixedSource),
-                        ("LinqPortal.MyCompany.cs", expectedPortal)
-                    }
-                }
-            };
-            CSharpVerifierHelper.SetAssemblyName(test, "Application");
-            await test.RunAsync();
+            await VerifyOverloadOrderAsync(source, fixedSource, existingPortal, expectedPortal);
         }
 
         [TestMethod]
