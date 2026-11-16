@@ -40,12 +40,18 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
                 | SymbolDisplayGenericsOptions.IncludeVariance
                 | SymbolDisplayGenericsOptions.IncludeTypeConstraints,
-            memberOptions: SymbolDisplayMemberOptions.IncludeType | SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeAccessibility | SymbolDisplayMemberOptions.IncludeModifiers,
+            memberOptions: SymbolDisplayMemberOptions.IncludeType
+                | SymbolDisplayMemberOptions.IncludeParameters
+                | SymbolDisplayMemberOptions.IncludeAccessibility
+                | SymbolDisplayMemberOptions.IncludeModifiers
+                | SymbolDisplayMemberOptions.IncludeRef
+                | SymbolDisplayMemberOptions.IncludeExplicitInterface
+                | SymbolDisplayMemberOptions.IncludeContainingType,
             delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
-            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.Default,
+            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.StaticMethod,
             parameterOptions: SymbolDisplayParameterOptions.IncludeType
                 | SymbolDisplayParameterOptions.IncludeName
-                | SymbolDisplayParameterOptions.IncludeParamsRefOut
+                | SymbolDisplayParameterOptions.IncludeModifiers
                 | SymbolDisplayParameterOptions.IncludeExtensionThis
                 | SymbolDisplayParameterOptions.IncludeDefaultValue,
             propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
@@ -53,7 +59,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             kindOptions: SymbolDisplayKindOptions.None,
             miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
                 | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
-                | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+                | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
+                | SymbolDisplayMiscellaneousOptions.AllowDefaultLiteral);
 
         private static readonly SymbolDisplayFormat InheritdocFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
@@ -61,13 +68,15 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
             memberOptions: SymbolDisplayMemberOptions.IncludeContainingType | SymbolDisplayMemberOptions.IncludeParameters,
             delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
-            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.Default,
-            parameterOptions: SymbolDisplayParameterOptions.IncludeType,
+            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.StaticMethod,
+            parameterOptions: SymbolDisplayParameterOptions.IncludeType
+                | SymbolDisplayParameterOptions.IncludeModifiers,
             propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
             localOptions: SymbolDisplayLocalOptions.None,
             kindOptions: SymbolDisplayKindOptions.None,
             miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
-                | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
+                | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
+                | SymbolDisplayMiscellaneousOptions.ExpandValueTuple); 
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
@@ -472,6 +481,8 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         private static string GenerateMethodForwarder(IMethodSymbol method, string indentation)
         {
+            method = (method.ReducedFrom ?? method).OriginalDefinition;
+
             // Keep the complete signature from Roslyn; do not reconstruct its type parameters or constraints.
             var parameterNames = new string[method.Parameters.Length];
             for (int i = 0, count = method.Parameters.Length; i < count; i++)
@@ -480,7 +491,11 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             }
 
             // C# cref syntax uses braces for generic parameters; use Roslyn's display text without rebuilding the signature.
-            var inheritdocCref = method.ToDisplayString(InheritdocFormat).Replace('<', '{').Replace('>', '}');
+            var inheritdocCref = method.ToDisplayString(InheritdocFormat)
+                .Replace('<', '{')
+                .Replace('>', '}')
+                .Replace("params ", "", StringComparison.Ordinal)
+                .Replace("scoped ", "", StringComparison.Ordinal);
 
             return $"{indentation}/// <inheritdoc cref=\"{inheritdocCref}\"/>\n"
                 + $"{indentation}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]\n"
