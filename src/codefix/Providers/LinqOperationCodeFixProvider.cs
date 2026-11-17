@@ -78,6 +78,20 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers
                 ); // TODO: update roslyn version --> | SymbolDisplayMiscellaneousOptions.ExpandValueTuple); 
 
+        // Keep unrelated symbol details excluded so the first angle bracket starts the method type parameters.
+        private static readonly SymbolDisplayFormat MethodTypeParametersFormat = new(
+            globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+            typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameOnly,
+            genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+            memberOptions: SymbolDisplayMemberOptions.None,
+            delegateStyle: SymbolDisplayDelegateStyle.NameOnly,
+            extensionMethodStyle: SymbolDisplayExtensionMethodStyle.StaticMethod,
+            parameterOptions: SymbolDisplayParameterOptions.None,
+            propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
+            localOptions: SymbolDisplayLocalOptions.None,
+            kindOptions: SymbolDisplayKindOptions.None,
+            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
+
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(LinqOperationAnalyzer.RuleId_LinqOperation);
 
@@ -223,14 +237,16 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                     if (!forwardersByPosition.TryGetValue(insertionPosition, out var forwarders)) continue;
                     changes.Add(new Microsoft.CodeAnalysis.Text.TextChange(
                         new Microsoft.CodeAnalysis.Text.TextSpan(insertionPosition, 0),
-                        GenerateMethodForwarders(forwarders, methodIndentation, (member as MethodDeclarationSyntax)?.Identifier.ValueText) + "\n\n"));
+                        GenerateMethodForwarders(
+                            forwarders, methodIndentation, semanticModel.Compilation, (CSharpParseOptions)root.SyntaxTree.Options,
+                            cancellationToken, (member as MethodDeclarationSyntax)?.Identifier.ValueText) + "\n\n"));
                     forwardersByPosition.Remove(insertionPosition);
                 }
 
                 if (forwardersByPosition.TryGetValue(closeBraceIndentationSpan.Start, out var appendedForwarders))
                 {
                     var insertionText = (members.Count == 0 ? string.Empty : "\n")
-                        + GenerateMethodForwarders(appendedForwarders, methodIndentation)
+                        + GenerateMethodForwarders(appendedForwarders, methodIndentation, semanticModel.Compilation, (CSharpParseOptions)root.SyntaxTree.Options, cancellationToken)
                         + "\n"
                         + classIndentation;
                     changes.Add(new Microsoft.CodeAnalysis.Text.TextChange(
@@ -297,7 +313,13 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             forwarders.Insert(insertionIndex, method);
         }
 
-        private static string GenerateMethodForwarders(List<IMethodSymbol> methods, string indentation, string? nextMethodName = null)
+        private static string GenerateMethodForwarders(
+            List<IMethodSymbol> methods,
+            string indentation,
+            Compilation compilation,
+            CSharpParseOptions parseOptions,
+            CancellationToken cancellationToken,
+            string? nextMethodName = null)
         {
             var forwarders = new string[methods.Count];
             var index = 0;
@@ -306,14 +328,14 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             {
                 if (methods[i].Name != nextMethodName)
                 {
-                    forwarders[index++] = GenerateMethodForwarder(methods[i], indentation);
+                    forwarders[index++] = GenerateMethodForwarder(methods[i], indentation, compilation, parseOptions, cancellationToken);
                 }
             }
             for (int i = 0, count = methods.Count; i < count; i++)
             {
                 if (methods[i].Name == nextMethodName)
                 {
-                    forwarders[index++] = GenerateMethodForwarder(methods[i], indentation);
+                    forwarders[index++] = GenerateMethodForwarder(methods[i], indentation, compilation, parseOptions, cancellationToken);
                 }
             }
             return string.Join("\n\n", forwarders);
@@ -527,7 +549,12 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return source.ToString().Replace("\r\n", "\n");
         }
 
-        private static string GenerateMethodForwarder(IMethodSymbol method, string indentation)
+        private static string GenerateMethodForwarder(
+            IMethodSymbol method,
+            string indentation,
+            Compilation compilation,
+            CSharpParseOptions parseOptions,
+            CancellationToken cancellationToken)
         {
             method = (method.ReducedFrom ?? method).OriginalDefinition;
 
@@ -536,6 +563,14 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             for (int i = 0, count = method.Parameters.Length; i < count; i++)
             {
                 parameterNames[i] = method.Parameters[i].Name;
+            }
+
+            var typeParameters = string.Empty;
+            if (method.IsGenericMethod && RequiresExplicitTypeArguments(method, parameterNames, compilation, parseOptions, cancellationToken))
+            {
+                // Exclude the return type so its generic brackets cannot be mistaken for method type parameters.
+                var nameAndTypeParameters = method.ToDisplayString(MethodTypeParametersFormat);
+                typeParameters = nameAndTypeParameters.Substring(nameAndTypeParameters.IndexOf('<'));
             }
 
             // C# cref syntax uses braces for generic parameters; use Roslyn's display text without rebuilding the signature.
@@ -549,8 +584,33 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 + $"{indentation}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]\n"
                 + $"{indentation}{method.ToDisplayString(MethodSignatureFormat)}\n"
                 + $"{indentation}{{\n"
-                + $"{indentation}    return {method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}({string.Join(", ", parameterNames)});\n"
+                + $"{indentation}    return {method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}{typeParameters}({string.Join(", ", parameterNames)});\n"
                 + $"{indentation}}}";
+        }
+
+        private static bool RequiresExplicitTypeArguments(
+            IMethodSymbol method,
+            string[] parameterNames,
+            Compilation compilation,
+            CSharpParseOptions parseOptions,
+            CancellationToken cancellationToken)
+        {
+            // Isolate the target overload so another overload cannot conceal a type-inference failure.
+            var signature = method.ToDisplayString(MethodSignatureFormat);
+            var uniqueId = Guid.NewGuid().ToString("N");
+            var targetName = "__SMA7050Target_" + uniqueId;
+            var probe = "#nullable enable\n"
+                + $"namespace __SMA7050_{uniqueId} {{\n"
+                + $"static class {targetName} {{ {signature} {{ throw null; }} }}\n"
+                + $"static class __SMA7050Forwarder_{uniqueId} {{ {signature} {{ return {targetName}.{method.Name}({string.Join(", ", parameterNames)}); }} }}\n"
+                + "}";
+            var tree = CSharpSyntaxTree.ParseText(probe, parseOptions, cancellationToken: cancellationToken);
+            var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
+            foreach (var diagnostic in model.GetDiagnostics(cancellationToken: cancellationToken))
+            {
+                if (diagnostic.Id == "CS0411") return true;
+            }
+            return false;
         }
     }
 }
