@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.3.0-rc.21](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.21) (2026-11-17)
+
+### 🚀 Features
+* feat(SMA7050): add inheritdoc to LinqOperation forwarders by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#784](https://github.com/sator-imaging/MeticulousAnalyzer/pull/784)
+### ✨ Bug Fixes
+* fix(SMA7050-LinqCodeFix): method signature generation by [@sator-imaging](https://github.com/sator-imaging) in [#787](https://github.com/sator-imaging/MeticulousAnalyzer/pull/787)
+* fix(SMA7050-LinqOperation): group LinqPortal overloads by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#788](https://github.com/sator-imaging/MeticulousAnalyzer/pull/788)
+* fix(SMA7050-LinqOperation): preserve generic type inference by [@sator-imaging](https://github.com/sator-imaging) with [@Copilot](https://github.com/Copilot) in [#789](https://github.com/sator-imaging/MeticulousAnalyzer/pull/789)
+### 📖 Documentation
+* docs: linq codefix by [@sator-imaging](https://github.com/sator-imaging) in [#785](https://github.com/sator-imaging/MeticulousAnalyzer/pull/785)
+### 📚 Other Changes
+* refactor: optimize StringBuilder and LinqOp Codefix by [@sator-imaging](https://github.com/sator-imaging) in [#783](https://github.com/sator-imaging/MeticulousAnalyzer/pull/783)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.20...v5.3.0-rc.21
+
+
 ## [5.3.0-rc.20](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.20) (2026-11-15)
 
 ### 🚀 Features
