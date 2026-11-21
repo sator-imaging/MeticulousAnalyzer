@@ -366,28 +366,36 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetReturnTypeLocation(IMethodSymbol method)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
-                    return new OneOrMore<Location>(methodDecl.ReturnType.GetLocation());
+                    locations.Add(methodDecl.ReturnType.GetLocation());
                 }
 
                 if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
                 {
-                    return new OneOrMore<Location>(localFunc.ReturnType.GetLocation());
+                    locations.Add(localFunc.ReturnType.GetLocation());
                 }
 
                 if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
                 {
-                    return new OneOrMore<Location>(operatorDecl.ReturnType.GetLocation());
+                    locations.Add(operatorDecl.ReturnType.GetLocation());
                 }
 
                 if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
                 {
-                    return new OneOrMore<Location>(conversionDecl.Type.GetLocation());
+                    locations.Add(conversionDecl.Type.GetLocation());
                 }
+            }
+
+            // Partial methods can have separate definition and implementation declarations.
+            // Inspect every declaration so a restricted signature type is reported in each file.
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(method.Locations);
@@ -395,6 +403,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -406,7 +415,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         var parameterSyntax = methodDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return new OneOrMore<Location>(parameterSyntax.Type.GetLocation());
+                            locations.Add(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
@@ -418,10 +427,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         var parameterSyntax = localFunc.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return new OneOrMore<Location>(parameterSyntax.Type.GetLocation());
+                            locations.Add(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
+            }
+
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(parameter.Locations);
@@ -486,6 +500,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             ITypeSymbol typeSymbol,
             Compilation compilation)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is not BaseTypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
@@ -500,9 +515,14 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeSymbol)
                         || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
                     {
-                        return new OneOrMore<Location>(baseTypeSyntax.Type.GetLocation());
+                        locations.Add(baseTypeSyntax.Type.GetLocation());
                     }
                 }
+            }
+
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(namedType.Locations);
@@ -534,6 +554,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             ITypeSymbol constraintType,
             Compilation compilation)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -597,10 +618,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, constraintType)
                             || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
                         {
-                            return new OneOrMore<Location>(typeConstraint.Type.GetLocation());
+                            locations.Add(typeConstraint.Type.GetLocation());
                         }
                     }
                 }
+            }
+
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(symbol.Locations);

@@ -450,5 +450,61 @@ namespace Foo.Bar
                 .WithArguments("InternalType", "Foo.Bar", "Foo");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_PartialClassMembersInDifferentFiles()
+        {
+            var source1 = @"
+namespace Foo
+{
+    internal class InternalType { }
+}
+
+namespace Foo.Bar
+{
+    public partial class Consumer
+    {
+        private {|#0:Foo.InternalType|} Field1;
+
+        partial void Method({|#1:Foo.InternalType|} value);
+    }
+}
+";
+            var source2 = @"
+namespace Foo.Bar
+{
+    public partial class Consumer
+    {
+        private {|#2:Foo.InternalType|} Field2;
+
+        partial void Method({|#3:Foo.InternalType|} value)
+        {
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        ("File1.cs", source1),
+                        ("File2.cs", source2),
+                    }
+                }
+            };
+
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("InternalType", "Foo.Bar", "Foo"));
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic().WithLocation(1).WithArguments("InternalType", "Foo.Bar", "Foo"));
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic().WithLocation(2).WithArguments("InternalType", "Foo.Bar", "Foo"));
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic().WithLocation(3).WithArguments("InternalType", "Foo.Bar", "Foo"));
+
+            await test.RunAsync();
+        }
     }
 }
