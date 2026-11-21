@@ -692,6 +692,70 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_LoopNestedIfElseIfWithoutExitBeforeContinue()
+        {
+            var test = @"
+class C
+{
+    void M(bool condition, bool some, bool other)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (condition)
+            {
+                if (some)
+                {
+                    // no exit or branching
+                }
+                else if (other)
+                {
+                    // no exit or branching
+                }
+
+                continue;
+            }
+
+            DoSomething();
+        }
+    }
+
+    void DoSomething() { }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8030_Violation_LoopNestedIfElseIfWithExitBeforeContinue()
+        {
+            var test = @"
+class C
+{
+    void M(bool condition, bool some, bool other)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (condition)
+            {
+                if (some)
+                {
+                    // no exit or branching
+                }
+                else if (other)
+                {
+                    {|#0:return|};
+                }
+
+                continue;
+            }
+        }
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
+                VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_NonLocalExitFromLoop).WithLocation(0));
+        }
+
+        [TestMethod]
         public async Task SMA8030_Violation_LoopNestedIfWithPriorStatement()
         {
             var test = @"
