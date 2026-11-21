@@ -446,7 +446,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Violation_AccessInternalDefinedInGeneratedCode()
+        public async Task SMA0080_Violation_NormalCodeAccessInternalDefinedInGeneratedCode()
         {
             var genSource = @"
 namespace Foo

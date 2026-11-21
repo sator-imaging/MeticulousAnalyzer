@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -53,6 +54,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static string[]? VisibleNamespaces;
         private static string[]? VisibleTypes;
+
+        private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
+
+        // Source generators typically inject helper references into '.g.cs'.
+        // Only reports in normal source files are useful to users.
+        private static bool IsGeneratedCode(SyntaxTree tree)
+        {
+            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
+        }
 
         public override void Initialize(AnalysisContext context)
         {
@@ -692,6 +702,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 || declarationNamespace.Name == "Core"
                 || (VisibleNamespaces != null && VisibleNamespaces.Contains(declarationNamespace.Name))
                 || SymbolEqualityComparer.Default.Equals(useNamespace, declarationNamespace))
+            {
+                return;
+            }
+
+            // The reference location, not the declaration location, determines whether to report.
+            if (location.SourceTree is { } sourceTree && IsGeneratedCode(sourceTree))
             {
                 return;
             }
