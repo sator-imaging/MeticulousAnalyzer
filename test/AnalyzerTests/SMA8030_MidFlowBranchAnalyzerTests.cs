@@ -714,8 +714,12 @@ class C
 
                 continue;
             }
+
+            DoSomething();
         }
     }
+
+    void DoSomething() { }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
