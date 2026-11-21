@@ -1022,7 +1022,7 @@ namespace MyCompany.MyProduct
 }
 ";
             var wrongCasePortal = "// This is not the exact portal file.";
-var expectedPortal = LinqOperationCodeFixProvider.GeneratedFileHeader + @"namespace MyCompany
+            var expectedPortal = LinqOperationCodeFixProvider.GeneratedFileHeader + @"namespace MyCompany
 {
     internal static partial class LinqPortal
     {
