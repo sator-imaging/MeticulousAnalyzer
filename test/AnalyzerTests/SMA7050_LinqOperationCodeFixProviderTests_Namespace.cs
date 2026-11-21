@@ -15,6 +15,61 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     public class SMA7050_LinqOperationCodeFixProviderTests_Namespace
     {
         [TestMethod]
+        public async Task SMA7050_CodeFix_FullyQualifiedCalls_DoNotGeneratePortalMethods()
+        {
+            var source = @"
+namespace MyCompany
+{
+    {|#0:using System.Linq;|}
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var count = System.Linq.Enumerable.Count(items);
+            var max = global::System.Linq.Enumerable.Max(items);
+        }
+    }
+}
+";
+            var fixedSource = @"
+namespace MyCompany
+{
+    using Enumerable = System.Linq.Enumerable;
+    using System.Collections.Generic;
+
+    public class C
+    {
+        public void M(IEnumerable<int> items)
+        {
+            var count = System.Linq.Enumerable.Count(items);
+            var max = global::System.Linq.Enumerable.Max(items);
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("Test0.cs", source) },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyCS.Diagnostic(LinqOperationAnalyzer.RuleId_LinqOperation).WithLocation(markupKey: 0)
+                    }
+                },
+                FixedState =
+                {
+                    Sources = { ("Test0.cs", fixedSource) }
+                },
+            };
+
+            CSharpVerifierHelper.SetAssemblyName(test, "Application");
+            await test.RunAsync();
+        }
+
+        [TestMethod]
         public async Task SMA7050_CodeFix_MethodReferences_Overloads()
         {
             var test = @"

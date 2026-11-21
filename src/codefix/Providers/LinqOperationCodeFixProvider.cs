@@ -150,6 +150,11 @@ When rewriting by hand, should consult the reference source first:
                     continue;
                 }
 
+                if (IsFullyQualifiedMethodCall(semanticModel, node, cancellationToken))
+                {
+                    continue;
+                }
+
                 if (semanticModel.GetSymbolInfo(node, cancellationToken).Symbol is not IMethodSymbol method
                     || !IsSystemLinqNamespace(method.ContainingNamespace))
                 {
@@ -464,6 +469,27 @@ When rewriting by hand, should consult the reference source first:
                            IsGlobalNamespace: true
                        }
                    };
+        }
+
+        private static bool IsFullyQualifiedMethodCall(
+            SemanticModel semanticModel,
+            SyntaxNode node,
+            CancellationToken cancellationToken)
+        {
+            var memberAccess = node switch
+            {
+                InvocationExpressionSyntax invocation => invocation.Expression as MemberAccessExpressionSyntax,
+                MemberAccessExpressionSyntax access => access,
+                _ => null
+            };
+            if (memberAccess?.Expression is not ExpressionSyntax receiver)
+            {
+                return false;
+            }
+
+            // Fully qualified calls explicitly name the Enumerable type, so they bypass LinqPortal forwarding.
+            return receiver is not IdentifierNameSyntax
+                && semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is INamedTypeSymbol;
         }
 
         private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode node)
