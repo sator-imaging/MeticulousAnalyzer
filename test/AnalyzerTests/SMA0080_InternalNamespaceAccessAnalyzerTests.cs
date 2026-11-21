@@ -446,7 +446,7 @@ namespace Foo.Bar
         }
 
         [TestMethod]
-        public async Task SMA0080_Compliant_AccessInternalDefinedInGeneratedCode()
+        public async Task SMA0080_Violation_AccessInternalDefinedInGeneratedCode()
         {
             var genSource = @"
 namespace Foo
@@ -464,7 +464,7 @@ namespace Foo.Bar
     {
         public void M()
         {
-            var x = Foo.InternalType.Value;
+            var x = {|#0:Foo.InternalType.Value|};
         }
     }
 }
@@ -481,6 +481,8 @@ namespace Foo.Bar
                 }
             };
 
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo"));
             await test.RunAsync();
         }
 

@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
@@ -54,19 +53,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static string[]? VisibleNamespaces;
         private static string[]? VisibleTypes;
-
-        private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
-
-        // Source generators typically inject internal helper attributes or types into their own namespace.
-        // Access to these attributes or types is only permitted when declared in '.g.cs'.
-        private static bool IsGeneratedCode(SyntaxTree tree)
-        {
-            // NOTE: The most reliable detection logic is checking the file name.
-            //       There are some attributes or properties but Roslyn does not
-            //       provide official guidelines for generated code.
-            //       SGs may or may not set these so the result is not deterministic.
-            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
-        }
 
         public override void Initialize(AnalysisContext context)
         {
@@ -366,36 +352,28 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetReturnTypeLocation(IMethodSymbol method)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is MethodDeclarationSyntax methodDecl && methodDecl.ReturnType != null)
                 {
-                    locations.Add(methodDecl.ReturnType.GetLocation());
+                    return new OneOrMore<Location>(methodDecl.ReturnType.GetLocation());
                 }
 
                 if (syntax is LocalFunctionStatementSyntax localFunc && localFunc.ReturnType != null)
                 {
-                    locations.Add(localFunc.ReturnType.GetLocation());
+                    return new OneOrMore<Location>(localFunc.ReturnType.GetLocation());
                 }
 
                 if (syntax is OperatorDeclarationSyntax operatorDecl && operatorDecl.ReturnType != null)
                 {
-                    locations.Add(operatorDecl.ReturnType.GetLocation());
+                    return new OneOrMore<Location>(operatorDecl.ReturnType.GetLocation());
                 }
 
                 if (syntax is ConversionOperatorDeclarationSyntax conversionDecl && conversionDecl.Type != null)
                 {
-                    locations.Add(conversionDecl.Type.GetLocation());
+                    return new OneOrMore<Location>(conversionDecl.Type.GetLocation());
                 }
-            }
-
-            // Partial methods can have separate definition and implementation declarations.
-            // Inspect every declaration so a restricted signature type is reported in each file.
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(method.Locations);
@@ -403,7 +381,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetParameterTypeLocation(IMethodSymbol method, IParameterSymbol parameter)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in method.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -415,7 +392,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         var parameterSyntax = methodDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            locations.Add(parameterSyntax.Type.GetLocation());
+                            return new OneOrMore<Location>(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
@@ -427,15 +404,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         var parameterSyntax = localFunc.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            locations.Add(parameterSyntax.Type.GetLocation());
+                            return new OneOrMore<Location>(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
-            }
-
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(parameter.Locations);
@@ -457,25 +429,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetPropertyTypeLocation(IPropertySymbol property)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
+                if (syntax is BasePropertyDeclarationSyntax propertyDeclaration)
+                {
+                    return new OneOrMore<Location>(propertyDeclaration.Type.GetLocation());
+                }
+
                 if (syntax is IndexerDeclarationSyntax indexerDeclaration)
                 {
-                    locations.Add(indexerDeclaration.Type.GetLocation());
+                    return new OneOrMore<Location>(indexerDeclaration.Type.GetLocation());
                 }
-                else if (syntax is BasePropertyDeclarationSyntax propertyDeclaration)
-                {
-                    locations.Add(propertyDeclaration.Type.GetLocation());
-                }
-            }
-
-            // Partial properties can have separate definition and implementation declarations.
-            // Inspect every declaration instead of letting the first file determine diagnostics.
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(property.Locations);
@@ -483,7 +448,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is IndexerDeclarationSyntax indexerDecl)
@@ -494,15 +458,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         var parameterSyntax = indexerDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            locations.Add(parameterSyntax.Type.GetLocation());
+                            return new OneOrMore<Location>(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
-            }
-
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(parameter.Locations);
@@ -513,7 +472,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             ITypeSymbol typeSymbol,
             Compilation compilation)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in namedType.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is not BaseTypeDeclarationSyntax typeDecl || typeDecl.BaseList == null)
@@ -528,14 +486,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeSymbol)
                         || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, typeSymbol))
                     {
-                        locations.Add(baseTypeSyntax.Type.GetLocation());
+                        return new OneOrMore<Location>(baseTypeSyntax.Type.GetLocation());
                     }
                 }
-            }
-
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(namedType.Locations);
@@ -543,25 +496,19 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetEventTypeLocation(IEventSymbol @event)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is VariableDeclaratorSyntax declarator
                     && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
                 {
-                    locations.Add(variableDeclaration.Type.GetLocation());
+                    return new OneOrMore<Location>(variableDeclaration.Type.GetLocation());
                 }
 
                 if (syntax is EventDeclarationSyntax eventDeclaration)
                 {
-                    locations.Add(eventDeclaration.Type.GetLocation());
+                    return new OneOrMore<Location>(eventDeclaration.Type.GetLocation());
                 }
-            }
-
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(@event.Locations);
@@ -573,7 +520,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             ITypeSymbol constraintType,
             Compilation compilation)
         {
-            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
@@ -637,15 +583,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         if (SymbolEqualityComparer.Default.Equals(typeInfo.Type, constraintType)
                             || SymbolEqualityComparer.Default.Equals(typeInfo.ConvertedType, constraintType))
                         {
-                            locations.Add(typeConstraint.Type.GetLocation());
+                            return new OneOrMore<Location>(typeConstraint.Type.GetLocation());
                         }
                     }
                 }
-            }
-
-            if (locations.Count > 0)
-            {
-                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(symbol.Locations);
@@ -755,22 +696,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Exempt if restricted symbol is declared in generated code.
-            foreach (var loc in restrictedSymbol.Locations)
-            {
-                var sourceTree = loc.SourceTree;
-                if (sourceTree is not null && !IsGeneratedCode(sourceTree))
-                {
-                    reportDiagnostic(Diagnostic.Create(
-                        Rule_InternalNamespaceAccess,
-                        location,
-                        restrictedSymbol.ToDiagnosticMessageName(),
-                        useNamespace.ToDiagnosticMessageName(),
-                        declarationNamespace.ToDiagnosticMessageName()));
-
-                    return;
-                }
-            }
+            reportDiagnostic(Diagnostic.Create(
+                Rule_InternalNamespaceAccess,
+                location,
+                restrictedSymbol.ToDiagnosticMessageName(),
+                useNamespace.ToDiagnosticMessageName(),
+                declarationNamespace.ToDiagnosticMessageName()));
         }
 
         private static ISymbol? TryGetNameOfSymbolFromOperation(INameOfOperation nameOf)
