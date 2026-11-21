@@ -457,18 +457,25 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetPropertyTypeLocation(IPropertySymbol property)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
-                if (syntax is BasePropertyDeclarationSyntax propertyDeclaration)
-                {
-                    return new OneOrMore<Location>(propertyDeclaration.Type.GetLocation());
-                }
-
                 if (syntax is IndexerDeclarationSyntax indexerDeclaration)
                 {
-                    return new OneOrMore<Location>(indexerDeclaration.Type.GetLocation());
+                    locations.Add(indexerDeclaration.Type.GetLocation());
                 }
+                else if (syntax is BasePropertyDeclarationSyntax propertyDeclaration)
+                {
+                    locations.Add(propertyDeclaration.Type.GetLocation());
+                }
+            }
+
+            // Partial properties can have separate definition and implementation declarations.
+            // Inspect every declaration instead of letting the first file determine diagnostics.
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(property.Locations);
@@ -476,6 +483,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetIndexerParameterTypeLocation(IPropertySymbol property, IParameterSymbol parameter)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in property.DeclaringSyntaxReferences)
             {
                 if (syntaxRef.GetSyntax() is IndexerDeclarationSyntax indexerDecl)
@@ -486,10 +494,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                         var parameterSyntax = indexerDecl.ParameterList.Parameters[index];
                         if (parameterSyntax.Type != null)
                         {
-                            return new OneOrMore<Location>(parameterSyntax.Type.GetLocation());
+                            locations.Add(parameterSyntax.Type.GetLocation());
                         }
                     }
                 }
+            }
+
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(parameter.Locations);
@@ -530,19 +543,25 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static OneOrMore<Location> GetEventTypeLocation(IEventSymbol @event)
         {
+            var locations = ImmutableArray.CreateBuilder<Location>();
             foreach (var syntaxRef in @event.DeclaringSyntaxReferences)
             {
                 var syntax = syntaxRef.GetSyntax();
                 if (syntax is VariableDeclaratorSyntax declarator
                     && declarator.Parent is VariableDeclarationSyntax variableDeclaration)
                 {
-                    return new OneOrMore<Location>(variableDeclaration.Type.GetLocation());
+                    locations.Add(variableDeclaration.Type.GetLocation());
                 }
 
                 if (syntax is EventDeclarationSyntax eventDeclaration)
                 {
-                    return new OneOrMore<Location>(eventDeclaration.Type.GetLocation());
+                    locations.Add(eventDeclaration.Type.GetLocation());
                 }
+            }
+
+            if (locations.Count > 0)
+            {
+                return new OneOrMore<Location>(locations.ToImmutable());
             }
 
             return new OneOrMore<Location>(@event.Locations);
