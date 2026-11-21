@@ -25,7 +25,7 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
         // Microsoft.CodeAnalysis.CSharp 3.8.0 has no named SyntaxKind for file-scoped namespaces.
         private const int FileScopedNamespaceDeclarationRawKind = 8845;
 
-        // The auto-generated tag will disable analyzer and formatter behavior.
+        // DO NO use the auto-generated tag. it will disable analyzer and formatter.
         public const string GeneratedFileHeader =
 @"/*
 
