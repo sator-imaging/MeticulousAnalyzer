@@ -38,6 +38,27 @@ Tips: Should not rewrite linq operation using `yield return`.
 
 Snippet: Getting count without evaluating linq operation.
 
+```cs
+#if NET6_0_OR_GREATER
+        if (!global::System.Linq.Enumerable.TryGetNonEnumeratedCount(source, out int __count))
+        {
+            __count = -1;
+        }
+#else
+        int __count = source switch
+        {
+            global::System.Collections.Generic.ICollection<TSource> x => x.Count,
+            global::System.Collections.Generic.IReadOnlyCollection<TSource> x => x.Count,
+            _ => -1,
+        };
+#endif
+```
+
+*/
+
+#nullable enable
+#pragma warning disable IDE0001 // Simplify name
+";
 
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
