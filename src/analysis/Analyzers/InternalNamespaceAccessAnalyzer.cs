@@ -57,14 +57,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
 
-        // Source generators typically inject internal helper attributes or types into their own namespace.
-        // Access to these attributes or types is only permitted when declared in '.g.cs'.
+        // Source generators typically inject helper references into '.g.cs'.
+        // Only reports in normal source files are useful to users.
         private static bool IsGeneratedCode(SyntaxTree tree)
         {
-            // NOTE: The most reliable detection logic is checking the file name.
-            //       There are some attributes or properties but Roslyn does not
-            //       provide official guidelines for generated code.
-            //       SGs may or may not set these so the result is not deterministic.
             return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
         }
 
@@ -710,22 +706,18 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
-            // Exempt if restricted symbol is declared in generated code.
-            foreach (var loc in restrictedSymbol.Locations)
+            // The reference location, not the declaration location, determines whether to report.
+            if (location.SourceTree is { } sourceTree && IsGeneratedCode(sourceTree))
             {
-                var sourceTree = loc.SourceTree;
-                if (sourceTree is not null && !IsGeneratedCode(sourceTree))
-                {
-                    reportDiagnostic(Diagnostic.Create(
-                        Rule_InternalNamespaceAccess,
-                        location,
-                        restrictedSymbol.ToDiagnosticMessageName(),
-                        useNamespace.ToDiagnosticMessageName(),
-                        declarationNamespace.ToDiagnosticMessageName()));
-
-                    return;
-                }
+                return;
             }
+
+            reportDiagnostic(Diagnostic.Create(
+                Rule_InternalNamespaceAccess,
+                location,
+                restrictedSymbol.ToDiagnosticMessageName(),
+                useNamespace.ToDiagnosticMessageName(),
+                declarationNamespace.ToDiagnosticMessageName()));
         }
 
         private static ISymbol? TryGetNameOfSymbolFromOperation(INameOfOperation nameOf)
