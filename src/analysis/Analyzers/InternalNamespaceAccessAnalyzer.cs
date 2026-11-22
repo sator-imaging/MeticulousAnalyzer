@@ -61,10 +61,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         // Only reports in normal source files are useful to users.
         private static bool IsGeneratedCode(SyntaxTree tree)
         {
-            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
-        }
-
-        public override void Initialize(AnalysisContext context)
             // NOTE: The most reliable detection logic is checking the file name.
             //       There are some attributes or properties but Roslyn does not
             //       provide official guidelines for generated code.
