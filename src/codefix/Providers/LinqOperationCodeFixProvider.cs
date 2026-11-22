@@ -487,7 +487,7 @@ When rewriting by hand, should consult the reference source first:
                 return false;
             }
 
-            // Fully qualified Enumerable calls explicitly name System.Linq.Enumerable, so they bypass LinqPortal forwarding.
+            // Static using of Enumerable provides direct access to LINQ methods; fully qualified System.Linq.Enumerable calls already resolve the static type directly.
             return receiver is not IdentifierNameSyntax
                 && semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is INamedTypeSymbol receiverType
                 && receiverType.Name == "Enumerable"
