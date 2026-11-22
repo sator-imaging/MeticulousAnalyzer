@@ -65,7 +65,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
         }
 
         public override void Initialize(AnalysisContext context)
-        {
+            // NOTE: The most reliable detection logic is checking the file name.
+            //       There are some attributes or properties but Roslyn does not
+            //       provide official guidelines for generated code.
+            //       SGs may or may not set these so the result is not deterministic.
+            return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
