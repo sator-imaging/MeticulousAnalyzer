@@ -747,9 +747,9 @@ class C
 
                 continue;
             }
-
-            DoSomething();
         }
+
+        DoSomething();
     }
 
     void DoSomething() { }
