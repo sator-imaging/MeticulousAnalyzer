@@ -57,8 +57,7 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static readonly ConditionalWeakTable<SyntaxTree, StrongBox<bool>> _generatedCodeCache = new();
 
-        // Source generators typically inject helper references into '.g.cs'.
-        // Only reports in normal source files are useful to users.
+        // TODO: This helper may not be required as analyzer configured to skip generated code.
         private static bool IsGeneratedCode(SyntaxTree tree)
         {
             // NOTE: The most reliable detection logic is checking the file name.
