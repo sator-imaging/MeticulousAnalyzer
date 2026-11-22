@@ -146,42 +146,24 @@ namespace MyCompany
         public async Task SMA7050_CodeFix_StaticGenericMethod_SingleNonReceiverParameter()
         {
             var source = @"
-namespace System.Linq
-{
-    public static class TestMethods
-    {
-        public static T Identity<T>(T value) => value;
-    }
-}
-
 namespace MyCompany
 {
     {|#0:using System.Linq;|}
-    using TestMethods = System.Linq.TestMethods;
 
     public class C
     {
-        public int M() => TestMethods.Identity(1);
+        public object M() => Enumerable.Empty<string>();
     }
 }
 ";
             var fixedSource = @"
-namespace System.Linq
-{
-    public static class TestMethods
-    {
-        public static T Identity<T>(T value) => value;
-    }
-}
-
 namespace MyCompany
 {
     using Enumerable = System.Linq.Enumerable;
-    using TestMethods = System.Linq.TestMethods;
 
     public class C
     {
-        public int M() => TestMethods.Identity(1);
+        public object M() => Enumerable.Empty<string>();
     }
 }
 ";
@@ -189,11 +171,11 @@ namespace MyCompany
 {
     internal static partial class LinqPortal
     {
-        /// <inheritdoc cref=""global::System.Linq.TestMethods.Identity{T}(T)""/>
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.Empty{TResult}()""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static T Identity<T>(T value)
+        public static global::System.Collections.Generic.IEnumerable<TResult> Empty<TResult>()
         {
-            return global::System.Linq.TestMethods.Identity(value);
+            return global::System.Linq.Enumerable.Empty<TResult>();
         }
     }
 }
@@ -288,44 +270,26 @@ namespace MyCompany
         public async Task SMA7050_CodeFix_TypeInference_CompetingOverload()
         {
             var source = @"
-namespace System.Linq
-{
-    public static class TestMethods
-    {
-        public static TResult Pick<T, TResult>(T value, int count) => default(TResult);
-        public static T Pick<T>(T value, int count) => value;
-    }
-}
-
 namespace MyCompany
 {
     {|#0:using System.Linq;|}
-    using TestMethods = System.Linq.TestMethods;
+    using System.Collections.Generic;
 
     public class C
     {
-        public string M() => TestMethods.Pick<int, string>(1, 2);
+        public string M(IEnumerable<string> items) => Enumerable.First(items, item => item != null);
     }
 }
 ";
             var fixedSource = @"
-namespace System.Linq
-{
-    public static class TestMethods
-    {
-        public static TResult Pick<T, TResult>(T value, int count) => default(TResult);
-        public static T Pick<T>(T value, int count) => value;
-    }
-}
-
 namespace MyCompany
 {
     using Enumerable = System.Linq.Enumerable;
-    using TestMethods = System.Linq.TestMethods;
+    using System.Collections.Generic;
 
     public class C
     {
-        public string M() => TestMethods.Pick<int, string>(1, 2);
+        public string M(IEnumerable<string> items) => Enumerable.First(items, item => item != null);
     }
 }
 ";
@@ -333,11 +297,11 @@ namespace MyCompany
 {
     internal static partial class LinqPortal
     {
-        /// <inheritdoc cref=""global::System.Linq.TestMethods.Pick{T, TResult}(T, int)""/>
+        /// <inheritdoc cref=""global::System.Linq.Enumerable.First{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static TResult Pick<T, TResult>(T value, int count)
+        public static TSource First<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
-            return global::System.Linq.TestMethods.Pick<T, TResult>(value, count);
+            return global::System.Linq.Enumerable.First(source, predicate);
         }
     }
 }
