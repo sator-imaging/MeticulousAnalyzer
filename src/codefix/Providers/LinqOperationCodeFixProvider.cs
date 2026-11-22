@@ -487,11 +487,9 @@ When rewriting by hand, should consult the reference source first:
                 return false;
             }
 
-            // Static using of Enumerable provides direct access to LINQ methods; fully qualified System.Linq.Enumerable calls already resolve the static type directly.
+            // Fully qualified static calls resolve directly and must not generate LinqPortal forwarders.
             return receiver is not IdentifierNameSyntax
-                && semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is INamedTypeSymbol receiverType
-                && receiverType.Name == "Enumerable"
-                && IsSystemLinqNamespace(receiverType.ContainingNamespace);
+                && semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is INamedTypeSymbol;
         }
 
         private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode node)

@@ -157,10 +157,11 @@ namespace System.Linq
 namespace MyCompany
 {
     {|#0:using System.Linq;|}
+    using TestMethods = System.Linq.TestMethods;
 
     public class C
     {
-        public int M() => System.Linq.TestMethods.Identity(1);
+        public int M() => TestMethods.Identity(1);
     }
 }
 ";
@@ -176,10 +177,11 @@ namespace System.Linq
 namespace MyCompany
 {
     using Enumerable = System.Linq.Enumerable;
+    using TestMethods = System.Linq.TestMethods;
 
     public class C
     {
-        public int M() => System.Linq.TestMethods.Identity(1);
+        public int M() => TestMethods.Identity(1);
     }
 }
 ";
@@ -298,10 +300,11 @@ namespace System.Linq
 namespace MyCompany
 {
     {|#0:using System.Linq;|}
+    using TestMethods = System.Linq.TestMethods;
 
     public class C
     {
-        public string M() => System.Linq.TestMethods.Pick<int, string>(1, 2);
+        public string M() => TestMethods.Pick<int, string>(1, 2);
     }
 }
 ";
@@ -318,10 +321,11 @@ namespace System.Linq
 namespace MyCompany
 {
     using Enumerable = System.Linq.Enumerable;
+    using TestMethods = System.Linq.TestMethods;
 
     public class C
     {
-        public string M() => System.Linq.TestMethods.Pick<int, string>(1, 2);
+        public string M() => TestMethods.Pick<int, string>(1, 2);
     }
 }
 ";
