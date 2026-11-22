@@ -487,9 +487,11 @@ When rewriting by hand, should consult the reference source first:
                 return false;
             }
 
-            // Fully qualified calls explicitly name the Enumerable type, so they bypass LinqPortal forwarding.
+            // Fully qualified Enumerable calls explicitly name System.Linq.Enumerable, so they bypass LinqPortal forwarding.
             return receiver is not IdentifierNameSyntax
-                && semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is INamedTypeSymbol;
+                && semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is INamedTypeSymbol receiverType
+                && receiverType.Name == "Enumerable"
+                && IsSystemLinqNamespace(receiverType.ContainingNamespace);
         }
 
         private static UsingDirectiveSyntax? FindUsingDirective(SyntaxNode node)
