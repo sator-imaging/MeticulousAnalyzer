@@ -748,11 +748,7 @@ class C
                 continue;
             }
         }
-
-        DoSomething();
     }
-
-    void DoSomething() { }
 }";
             await VerifyCS.VerifyAnalyzerAsync(test,
                 VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_MidFlowBranch).WithLocation(0),
