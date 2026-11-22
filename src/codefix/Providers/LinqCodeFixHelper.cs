@@ -4,8 +4,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -47,18 +45,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
             return separator < 0 ? namespaceName : namespaceName.Substring(0, separator);
         }
 
-        internal static string GetTopLevelName(NameSyntax name)
-        {
-            while (name is QualifiedNameSyntax qualifiedName)
-            {
-                name = qualifiedName.Left;
-            }
-
-            return name is IdentifierNameSyntax identifierName
-                ? identifierName.Identifier.ValueText
-                : string.Empty;
-        }
-
         internal static Document? FindDocument(Project project, string fileName)
         {
             foreach (var document in project.Documents)
@@ -86,20 +72,36 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
 
         internal static string GenerateEmptyFile(string className, string namespaceName)
         {
+            return GenerateEmptyFile(
+                LinqOperationCodeFixProvider.GeneratedFileHeader,
+                className,
+                namespaceName);
+        }
+
+        internal static string GenerateEmptyFile(string header, string className, string namespaceName)
+        {
             var source = new StringBuilder(capacity: 8192);
-            source.Append(LinqOperationCodeFixProvider.GeneratedFileHeader);
+            source.Append(header);
 
             if (!string.IsNullOrEmpty(namespaceName))
             {
-                source.AppendLine($"namespace {namespaceName}");
+                source.AppendLine("namespace " + namespaceName);
                 source.AppendLine("{");
             }
 
             var indent = string.IsNullOrEmpty(namespaceName) ? string.Empty : "    ";
-            source.AppendLine($"{indent}internal static partial class {className}");
-            source.AppendLine($"{indent}{{");
-            source.AppendLine($"{indent}}}");
-            if (!string.IsNullOrEmpty(namespaceName)) source.AppendLine("}");
+            source.Append(indent);
+            source.Append("internal static partial class ");
+            source.Append(className);
+            source.AppendLine();
+            source.Append(indent);
+            source.AppendLine("{");
+            source.Append(indent);
+            source.AppendLine("}");
+            if (!string.IsNullOrEmpty(namespaceName))
+            {
+                source.AppendLine("}");
+            }
             return source.ToString().Replace("\r\n", "\n");
         }
 
@@ -121,6 +123,18 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
                 }
             }
             return true;
+        }
+
+        private static string GetTopLevelName(NameSyntax name)
+        {
+            while (name is QualifiedNameSyntax qualifiedName)
+            {
+                name = qualifiedName.Left;
+            }
+
+            return name is IdentifierNameSyntax identifierName
+                ? identifierName.Identifier.ValueText
+                : string.Empty;
         }
 
         private static bool AreParameterTypesEquivalent(ITypeSymbol left, ITypeSymbol right)
