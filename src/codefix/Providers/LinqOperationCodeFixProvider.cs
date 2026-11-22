@@ -22,9 +22,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LinqOperationCodeFixProvider)), Shared]
     public sealed class LinqOperationCodeFixProvider : CodeFixProvider
     {
-        // Microsoft.CodeAnalysis.CSharp 3.8.0 has no named SyntaxKind for file-scoped namespaces.
-        private const int FileScopedNamespaceDeclarationRawKind = 8845;
-
         // DO NO use the auto-generated tag. it will disable analyzer and formatter.
         public const string GeneratedFileHeader =
 @"/*
@@ -140,7 +137,7 @@ When rewriting by hand, should consult the reference source first:
             if (root == null || semanticModel == null) return solution;
 
             var methods = new List<IMethodSymbol>();
-            var portalNamespace = GetTopLevelNamespaceName(document.Project.DefaultNamespace ?? string.Empty);
+            var portalNamespace = LinqCodeFixHelper.GetTopLevelNamespaceName(document.Project.DefaultNamespace ?? string.Empty);
             var hasProjectDefaultNamespace = !string.IsNullOrEmpty(portalNamespace);
             foreach (var node in root.DescendantNodes())
             {
@@ -163,7 +160,7 @@ When rewriting by hand, should consult the reference source first:
 
                 if (methods.Count == 0 && !hasProjectDefaultNamespace)
                 {
-                    portalNamespace = GetTopLevelNamespaceName(node);
+                    portalNamespace = LinqCodeFixHelper.GetTopLevelNamespaceName(node);
                 }
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
@@ -177,13 +174,13 @@ When rewriting by hand, should consult the reference source first:
             {
                 var fileName = string.IsNullOrEmpty(portalNamespace) ? "LinqPortal.cs" : $"LinqPortal.{portalNamespace}.cs";
                 var project = solution.GetProject(document.Project.Id)!;
-                var portalDocument = FindPortalDocument(project, fileName);
+                var portalDocument = LinqCodeFixHelper.FindDocument(project, fileName);
                 if (portalDocument == null)
                 {
                     var filePath = project.FilePath == null
                         ? null
                         : Path.Combine(Path.GetDirectoryName(project.FilePath)!, fileName);
-                    var source = GenerateEmptyPortal(portalNamespace);
+                    var source = LinqCodeFixHelper.GenerateEmptyFile("LinqPortal", portalNamespace);
                     var documentId = DocumentId.CreateNewId(project.Id, fileName);
                     solution = solution.AddDocument(
                         documentId,
@@ -197,7 +194,7 @@ When rewriting by hand, should consult the reference source first:
                 var portalModel = await portalDocument.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
                 if (portalRoot == null) return solution;
 
-                var portalClass = FindPortalClass(portalRoot);
+                var portalClass = LinqCodeFixHelper.FindClass(portalRoot, "LinqPortal");
                 if (portalClass == null) return solution;
                 var members = portalClass.Members;
                 var closeBrace = portalClass.CloseBraceToken;
@@ -225,7 +222,7 @@ When rewriting by hand, should consult the reference source first:
                     var exists = false;
                     for (int i = 0, count = existingMethods.Count; i < count; i++)
                     {
-                        if (AreMethodsEquivalent(existingMethods[i], method))
+                        if (LinqCodeFixHelper.AreMethodsEquivalent(existingMethods[i], method))
                         {
                             exists = true;
                             break;
@@ -278,7 +275,549 @@ When rewriting by hand, should consult the reference source first:
                 }
             }
 
+            var fusionNamespace = LinqCodeFixHelper.GetTopLevelNamespaceName(document.Project.DefaultNamespace ?? string.Empty);
+            if (string.IsNullOrEmpty(fusionNamespace))
+            {
+                fusionNamespace = LinqCodeFixHelper.GetTopLevelNamespaceName(root);
+            }
+
+            var callChanges = new List<TextChange>();
+            var fusionMethods = new List<LinqFusionMethod>();
+            foreach (var outerNode in root.DescendantNodes())
+            {
+                if (outerNode is not InvocationExpressionSyntax outerInvocation
+                    || outerInvocation.Expression is not MemberAccessExpressionSyntax outerAccess
+                    || outerAccess.Expression is not InvocationExpressionSyntax innerInvocation
+                    || outerAccess.Expression is not ExpressionSyntax)
+                {
+                    continue;
+                }
+
+                if (semanticModel.GetSymbolInfo(innerInvocation, cancellationToken).Symbol is not IMethodSymbol innerMethod
+                    || semanticModel.GetSymbolInfo(outerInvocation, cancellationToken).Symbol is not IMethodSymbol outerMethod)
+                {
+                    continue;
+                }
+
+                var innerConstructedMethod = (innerMethod.ReducedFrom ?? innerMethod);
+                innerMethod = (innerMethod.ReducedFrom ?? innerMethod).ConstructedFrom;
+                outerMethod = (outerMethod.ReducedFrom ?? outerMethod).ConstructedFrom;
+
+                var innerName = innerMethod.Name;
+                var outerName = outerMethod.Name;
+                if (innerName is not ("Where" or "OfType" or "Select")
+                    || outerName is not ("Any" or "First" or "FirstOrDefault" or "Last" or "LastOrDefault" or "Single" or "SingleOrDefault" or "All"))
+                {
+                    continue;
+                }
+
+                if (innerMethod.ContainingType.Name is not ("Enumerable" or "LinqPortal")
+                    || outerMethod.ContainingType.Name is not ("Enumerable" or "LinqPortal"))
+                {
+                    continue;
+                }
+
+                // Containing-type names are checked because overload resolution must not depend on namespace aliases.
+                var fusionName = "Fused_" + innerName + "_" + outerName;
+                var fusionMethod = GenerateLinqFusionMethod(
+                    innerMethod,
+                    outerMethod,
+                    innerInvocation,
+                    outerInvocation,
+                    fusionName);
+                AddLinqFusionMethodIfMissing(fusionMethods, fusionMethod);
+
+                var receiver = innerInvocation.Expression is MemberAccessExpressionSyntax innerAccess
+                    ? innerAccess.Expression
+                    : null;
+                if (receiver == null) continue;
+
+                var arguments = new StringBuilder();
+                if (innerInvocation.ArgumentList.Arguments.Count > 0)
+                {
+                    for (int i = 0, count = innerInvocation.ArgumentList.Arguments.Count; i < count; i++)
+                    {
+                        if (arguments.Length > 0) arguments.Append(", ");
+                        arguments.Append(innerInvocation.ArgumentList.Arguments[i].ToString());
+                    }
+                }
+                if (outerInvocation.ArgumentList.Arguments.Count > 0)
+                {
+                    for (int i = 0, count = outerInvocation.ArgumentList.Arguments.Count; i < count; i++)
+                    {
+                        if (arguments.Length > 0) arguments.Append(", ");
+                        arguments.Append(outerInvocation.ArgumentList.Arguments[i].ToString());
+                    }
+                }
+
+                var replacement = receiver.WithoutTrivia().ToFullString()
+                    + "." + fusionName
+                    + (innerName == "OfType" && innerConstructedMethod.TypeArguments.Length > 0
+                        ? "<" + innerConstructedMethod.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + ">"
+                        : string.Empty)
+                    + "(" + arguments.ToString() + ")";
+                callChanges.Add(new TextChange(outerInvocation.Span, replacement));
+            }
+
+            if (callChanges.Count > 0)
+            {
+                text = text.WithChanges(callChanges);
+                solution = solution.WithDocumentText(document.Id, text);
+            }
+
+            if (fusionMethods.Count > 0)
+            {
+                var fileName = string.IsNullOrEmpty(fusionNamespace)
+                    ? "LinqFusion.cs"
+                    : $"LinqFusion.{fusionNamespace}.cs";
+                var project = solution.GetProject(document.Project.Id)!;
+                var fusionDocument = LinqCodeFixHelper.FindDocument(project, fileName);
+                if (fusionDocument == null)
+                {
+                    var filePath = project.FilePath == null
+                        ? null
+                        : Path.Combine(Path.GetDirectoryName(project.FilePath)!, fileName);
+                    var source = LinqCodeFixHelper.GenerateEmptyFile("LinqFusion", fusionNamespace);
+                    var documentId = DocumentId.CreateNewId(project.Id, fileName);
+                    solution = solution.AddDocument(
+                        documentId,
+                        fileName,
+                        SourceText.From(source),
+                        filePath: filePath);
+                    fusionDocument = solution.GetDocument(documentId)!;
+                }
+
+                var fusionRoot = await fusionDocument.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var fusionModel = await fusionDocument.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+                var fusionClass = fusionRoot == null
+                    ? null
+                    : LinqCodeFixHelper.FindClass(fusionRoot, "LinqFusion");
+                if (fusionClass != null)
+                {
+                    var existingMethods = new List<IMethodSymbol>();
+                    foreach (var member in fusionClass.Members)
+                    {
+                        if (member is MethodDeclarationSyntax declaration
+                            && fusionModel?.GetDeclaredSymbol(declaration) is IMethodSymbol existing)
+                        {
+                            existingMethods.Add(existing);
+                        }
+                    }
+
+                    var methodsToAdd = new List<LinqFusionMethod>();
+                    foreach (var fusionMethod in fusionMethods)
+                    {
+                        var exists = false;
+                        foreach (var existing in existingMethods)
+                        {
+                            if (existing.Name == fusionMethod.Name
+                                && existing.Parameters.Length == fusionMethod.ParameterCount)
+                            {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) methodsToAdd.Add(fusionMethod);
+                    }
+
+                    if (methodsToAdd.Count > 0)
+                    {
+                        var fusionText = await fusionDocument.GetTextAsync(cancellationToken).ConfigureAwait(false);
+                        var closeBrace = fusionClass.CloseBraceToken;
+                        var closeBraceLine = fusionText.Lines.GetLineFromPosition(closeBrace.SpanStart);
+                        var closeBraceIndentationSpan = TextSpan.FromBounds(
+                            closeBraceLine.Start,
+                            closeBrace.SpanStart);
+                        var classIndentation = fusionText.ToString(TextSpan.FromBounds(
+                            closeBraceLine.Start,
+                            closeBrace.SpanStart));
+                        if (classIndentation.Trim().Length != 0) classIndentation = string.Empty;
+                        var methodIndentation = classIndentation + "    ";
+                        var insertionText = (fusionClass.Members.Count == 0 ? string.Empty : "\n")
+                            + GenerateLinqFusionMethods(methodsToAdd, methodIndentation)
+                            + "\n"
+                            + classIndentation;
+                        solution = solution.WithDocumentText(
+                            fusionDocument.Id,
+                            fusionText.WithChanges(new TextChange(closeBraceIndentationSpan, insertionText)));
+                    }
+                }
+            }
+
             return solution;
+        }
+
+        private sealed class LinqFusionMethod
+        {
+            internal LinqFusionMethod(string name, int parameterCount, string signature, string body)
+            {
+                Name = name;
+                ParameterCount = parameterCount;
+                Signature = signature;
+                Body = body;
+            }
+
+            internal string Name { get; }
+            internal int ParameterCount { get; }
+            internal string Signature { get; }
+            internal string Body { get; }
+        }
+
+        private sealed class LinqFusionGenerationSteps
+        {
+            internal int NestLevel { get; set; }
+            internal string BeforeLoop { get; set; } = string.Empty;
+            internal string LoopVariableName { get; set; } = "item";
+            internal string InsideLoop { get; set; } = string.Empty;
+            internal string AfterLoop { get; set; } = string.Empty;
+        }
+
+        private static void AddLinqFusionMethodIfMissing(List<LinqFusionMethod> methods, LinqFusionMethod method)
+        {
+            for (int i = 0, count = methods.Count; i < count; i++)
+            {
+                if (methods[i].Name == method.Name
+                    && methods[i].ParameterCount == method.ParameterCount)
+                {
+                    return;
+                }
+            }
+            methods.Add(method);
+        }
+
+        private static LinqFusionMethod GenerateLinqFusionMethod(
+            IMethodSymbol innerMethod,
+            IMethodSymbol outerMethod,
+            InvocationExpressionSyntax innerInvocation,
+            InvocationExpressionSyntax outerInvocation,
+            string fusionName)
+        {
+            var innerName = innerMethod.Name;
+            var outerName = outerMethod.Name;
+            var sourceType = innerMethod.OriginalDefinition.Parameters.Length > 0
+                ? innerMethod.OriginalDefinition.Parameters[0].Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                : "global::System.Collections.Generic.IEnumerable<TSource>";
+            var genericSourceType = sourceType.Replace(innerMethod.OriginalDefinition.TypeParameters.Length > 0
+                    ? innerMethod.OriginalDefinition.TypeParameters[0].Name
+                    : "TSource",
+                "TSource");
+
+            var resultType = innerName == "Select"
+                ? "TResult"
+                : innerName == "OfType"
+                    ? "TResult"
+                    : "TSource";
+
+            var parameterCount = 1;
+            var parameters = new StringBuilder();
+            parameters.Append($"this {genericSourceType} source");
+
+            if (innerName == "Where")
+            {
+                parameters.Append(", global::System.Func<TSource, bool> predicate");
+                parameterCount++;
+            }
+            else if (innerName == "Select")
+            {
+                if (innerMethod.OriginalDefinition.Parameters.Length >= 3)
+                {
+                    parameters.Append(", global::System.Func<TSource, int, TResult> selector");
+                }
+                else
+                {
+                    parameters.Append(", global::System.Func<TSource, TResult> selector");
+                }
+                parameterCount++;
+            }
+
+            if (outerInvocation.ArgumentList.Arguments.Count > 0)
+            {
+                var terminalParameterName = innerName == "Where"
+                    ? "terminalPredicate"
+                    : "predicate";
+                parameters.Append($", global::System.Func<{resultType}, bool> {terminalParameterName}");
+                parameterCount++;
+            }
+
+            var typeParameters = new StringBuilder();
+            if (innerName == "Select")
+            {
+                typeParameters.Append("<TSource, TResult>");
+            }
+            else if (innerName == "OfType")
+            {
+                typeParameters.Append("<TResult>");
+            }
+            else
+            {
+                typeParameters.Append("<TSource>");
+            }
+
+            var returnType = outerName == "Any" || outerName == "All"
+                ? "bool"
+                : resultType;
+            if (outerName == "FirstOrDefault" || outerName == "LastOrDefault" || outerName == "SingleOrDefault")
+            {
+                returnType += "?";
+            }
+
+            var signature = $"public static {returnType} {fusionName}{typeParameters}({parameters})";
+            var steps = CreateLinqFusionGenerationSteps(
+                innerName,
+                outerName,
+                resultType,
+                outerInvocation.ArgumentList.Arguments.Count > 0);
+            var body = GenerateLinqFusionBody(steps);
+            return new LinqFusionMethod(fusionName, parameterCount, signature, body);
+        }
+
+        private static LinqFusionGenerationSteps CreateLinqFusionGenerationSteps(
+            string innerName,
+            string outerName,
+            string resultType,
+            bool hasTerminalPredicate)
+        {
+            var steps = new LinqFusionGenerationSteps
+            {
+                NestLevel = 1,
+                LoopVariableName = "item"
+            };
+
+            var innerCondition = innerName == "Where"
+                ? "predicate(item)"
+                : innerName == "OfType"
+                    ? "item is TResult match"
+                    : "true";
+
+            if (innerName == "Select")
+            {
+                steps.BeforeLoop = string.Empty;
+                steps.InsideLoop = $"var result = selector(item);\n";
+                innerCondition = "true";
+                resultType = "TResult";
+            }
+
+            if (outerName == "Any")
+            {
+                if (innerName == "Select")
+                {
+                    if (hasTerminalPredicate)
+                    {
+                        steps.InsideLoop += "                if (predicate(result))\n                {\n                    return true;\n                }";
+                    }
+                    else
+                    {
+                        steps.InsideLoop += "                return true;";
+                    }
+                }
+                else if (innerName == "OfType")
+                {
+                    if (hasTerminalPredicate)
+                    {
+                        steps.InsideLoop = "                if (item is TResult match && predicate(match))\n                {\n                    return true;\n                }";
+                    }
+                    else
+                    {
+                        steps.InsideLoop = "                if (item is TResult)\n                {\n                    return true;\n                }";
+                    }
+                }
+                else
+                {
+                    var condition = hasTerminalPredicate
+                        ? "predicate(item) && terminalPredicate(item)"
+                        : "predicate(item)";
+                    steps.InsideLoop = $"                if ({condition})\n                {{\n                    return true;\n                }}";
+                    if (innerName == "Select")
+                    {
+                        steps.InsideLoop = "                " + steps.InsideLoop.TrimStart();
+                    }
+                }
+                steps.AfterLoop = "            return false;";
+            }
+            else if (outerName == "All")
+            {
+                if (innerName == "Select")
+                {
+                    steps.InsideLoop += "                if (!predicate(result))\n                {\n                    return false;\n                }";
+                }
+                else if (innerName == "OfType")
+                {
+                    steps.InsideLoop = "                if (item is TResult match && !predicate(match))\n                {\n                    return false;\n                }";
+                }
+                else
+                {
+                    steps.InsideLoop = "                if (predicate(item) && !terminalPredicate(item))\n                {\n                    return false;\n                }";
+                    // All has a predicate on the terminal; inner predicate and terminal predicate are both named in this overload.
+                }
+                steps.AfterLoop = "            return true;";
+            }
+            else if (outerName == "First" || outerName == "FirstOrDefault")
+            {
+                if (innerName == "Select")
+                {
+                    steps.InsideLoop += hasTerminalPredicate
+                        ? "                if (predicate(result))\n                {\n                    return result;\n                }"
+                        : "                return result;";
+                }
+                else if (innerName == "OfType")
+                {
+                    steps.InsideLoop = hasTerminalPredicate
+                        ? "                if (item is TResult match && predicate(match))\n                {\n                    return match;\n                }"
+                        : "                if (item is TResult match)\n                {\n                    return match;\n                }";
+                }
+                else
+                {
+                    steps.InsideLoop = hasTerminalPredicate
+                        ? "                if (predicate(item) && terminalPredicate(item))\n                {\n                    return item;\n                }"
+                        : "                if (predicate(item))\n                {\n                    return item;\n                }";
+                }
+                steps.AfterLoop = outerName == "First"
+                    ? "            throw new global::System.InvalidOperationException(\"Sequence contains no elements\");"
+                    : $"            return default({resultType});";
+            }
+            else if (outerName == "Last" || outerName == "LastOrDefault")
+            {
+                steps.BeforeLoop = $"            bool found = false;\n            {resultType} result = default({resultType});";
+                if (innerName == "Select")
+                {
+                    steps.InsideLoop += hasTerminalPredicate
+                        ? "                if (predicate(result))\n                {\n                    found = true;\n                    result = result;\n                }"
+                        : "                found = true;\n                result = result;";
+                }
+                else if (innerName == "OfType")
+                {
+                    steps.InsideLoop = hasTerminalPredicate
+                        ? "                if (item is TResult match && predicate(match))\n                {\n                    found = true;\n                    result = match;\n                }"
+                        : "                if (item is TResult match)\n                {\n                    found = true;\n                    result = match;\n                }";
+                }
+                else
+                {
+                    steps.InsideLoop = hasTerminalPredicate
+                        ? "                if (predicate(item) && terminalPredicate(item))\n                {\n                    found = true;\n                    result = item;\n                }"
+                        : "                if (predicate(item))\n                {\n                    found = true;\n                    result = item;\n                }";
+                }
+                if (outerName == "Last")
+                {
+                    steps.AfterLoop = "            if (found)\n            {\n                return result;\n            }\n            throw new global::System.InvalidOperationException(\"Sequence contains no elements\");";
+                }
+                else
+                {
+                    steps.AfterLoop = "            return found ? result : default;";
+                }
+            }
+            else if (outerName == "Single" || outerName == "SingleOrDefault")
+            {
+                steps.BeforeLoop = $"            bool found = false;\n            {resultType} result = default({resultType});";
+                if (innerName == "Select")
+                {
+                    steps.InsideLoop += hasTerminalPredicate
+                        ? "                if (predicate(result))\n                {\n                    if (found) throw new global::System.InvalidOperationException(\"Sequence contains more than one element\");\n                    found = true;\n                    result = result;\n                }"
+                        : "                if (found) throw new global::System.InvalidOperationException(\"Sequence contains more than one element\");\n                found = true;\n                result = result;";
+                }
+                else if (innerName == "OfType")
+                {
+                    steps.InsideLoop = hasTerminalPredicate
+                        ? "                if (item is TResult match && predicate(match))\n                {\n                    if (found) throw new global::System.InvalidOperationException(\"Sequence contains more than one element\");\n                    found = true;\n                    result = match;\n                }"
+                        : "                if (item is TResult match)\n                {\n                    if (found) throw new global::System.InvalidOperationException(\"Sequence contains more than one element\");\n                    found = true;\n                    result = match;\n                }";
+                }
+                else
+                {
+                    steps.InsideLoop = hasTerminalPredicate
+                        ? "                if (predicate(item) && terminalPredicate(item))\n                {\n                    if (found) throw new global::System.InvalidOperationException(\"Sequence contains more than one element\");\n                    found = true;\n                    result = item;\n                }"
+                        : "                if (predicate(item))\n                {\n                    if (found) throw new global::System.InvalidOperationException(\"Sequence contains more than one element\");\n                    found = true;\n                    result = item;\n                }";
+                }
+                if (outerName == "Single")
+                {
+                    steps.AfterLoop = "            if (found)\n            {\n                return result;\n            }\n            throw new global::System.InvalidOperationException(\"Sequence contains no elements\");";
+                }
+                else
+                {
+                    steps.AfterLoop = "            return found ? result : default;";
+                }
+            }
+
+            return steps;
+        }
+
+        private static string GenerateLinqFusionBody(LinqFusionGenerationSteps steps)
+        {
+            var body = new StringBuilder();
+            body.Append("{\n");
+            if (!string.IsNullOrEmpty(steps.BeforeLoop))
+            {
+                AppendIndentedBodyLines(body, steps.BeforeLoop, 1);
+            }
+            body.Append("    foreach (var ");
+            body.Append(steps.LoopVariableName);
+            body.Append(" in source)\n");
+            body.Append("    {\n");
+            AppendLoopBodyLines(body, steps.InsideLoop);
+            body.Append("    }\n");
+            if (!string.IsNullOrEmpty(steps.AfterLoop))
+            {
+                AppendIndentedBodyLines(body, steps.AfterLoop, 1);
+            }
+            body.Append("}");
+            return body.ToString();
+        }
+
+        private static void AppendIndentedBodyLines(StringBuilder body, string text, int indentLevel)
+        {
+            var lines = text.Split('\n');
+            for (int i = 0, count = lines.Length; i < count; i++)
+            {
+                var line = lines[i].Trim();
+                if (line.Length == 0) continue;
+                for (int level = 0; level < indentLevel; level++) body.Append("    ");
+                body.Append(line);
+                body.Append('\n');
+            }
+        }
+
+        private static void AppendLoopBodyLines(StringBuilder body, string text)
+        {
+            var lines = text.Split('\n');
+            var nestedDepth = 0;
+            for (int i = 0, count = lines.Length; i < count; i++)
+            {
+                var line = lines[i].Trim();
+                if (line.Length == 0) continue;
+
+                if (line.StartsWith("}", StringComparison.Ordinal))
+                {
+                    if (nestedDepth > 0) nestedDepth--;
+                }
+
+                var indentLevel = 2 + nestedDepth;
+                for (int level = 0; level < indentLevel; level++) body.Append("    ");
+                body.Append(line);
+                body.Append('\n');
+
+                if (line.EndsWith("{", StringComparison.Ordinal))
+                {
+                    nestedDepth++;
+                }
+            }
+        }
+
+        private static string GenerateLinqFusionMethods(List<LinqFusionMethod> methods, string indentation)
+        {
+            var output = new StringBuilder();
+            for (int i = 0, count = methods.Count; i < count; i++)
+            {
+                if (i > 0) output.Append("\n\n");
+                output.Append(indentation);
+                output.Append(methods[i].Signature);
+                output.Append('\n');
+                var bodyLines = methods[i].Body.Split('\n');
+                for (int lineIndex = 0, lineCount = bodyLines.Length; lineIndex < lineCount; lineIndex++)
+                {
+                    if (lineIndex > 0) output.Append('\n');
+                    output.Append(indentation);
+                    output.Append(bodyLines[lineIndex]);
+                }
+            }
+            return output.ToString();
         }
 
         private static int FindMethodInsertionPosition(
@@ -378,85 +917,9 @@ When rewriting by hand, should consult the reference source first:
         {
             for (int i = 0, count = methods.Count; i < count; i++)
             {
-                if (AreMethodsEquivalent(methods[i], method)) return;
+                if (LinqCodeFixHelper.AreMethodsEquivalent(methods[i], method)) return;
             }
             methods.Add(method);
-        }
-
-        private static bool AreMethodsEquivalent(IMethodSymbol left, IMethodSymbol right)
-        {
-            if (left.Name != right.Name
-                || left.TypeParameters.Length != right.TypeParameters.Length
-                || left.Parameters.Length != right.Parameters.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0, count = left.Parameters.Length; i < count; i++)
-            {
-                if (left.Parameters[i].RefKind != right.Parameters[i].RefKind
-                    || !AreParameterTypesEquivalent(left.Parameters[i].Type, right.Parameters[i].Type))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static bool AreParameterTypesEquivalent(ITypeSymbol left, ITypeSymbol right)
-        {
-            if (left is ITypeParameterSymbol leftTypeParameter
-                && right is ITypeParameterSymbol rightTypeParameter)
-            {
-                if (leftTypeParameter.TypeParameterKind != rightTypeParameter.TypeParameterKind
-                    || leftTypeParameter.Ordinal != rightTypeParameter.Ordinal)
-                {
-                    return false;
-                }
-
-                return leftTypeParameter.TypeParameterKind == TypeParameterKind.Method
-                    || SymbolEqualityComparer.Default.Equals(
-                        leftTypeParameter.ContainingSymbol,
-                        rightTypeParameter.ContainingSymbol);
-            }
-
-            if (left is INamedTypeSymbol leftNamedType
-                && right is INamedTypeSymbol rightNamedType)
-            {
-                if (!SymbolEqualityComparer.Default.Equals(
-                        leftNamedType.OriginalDefinition,
-                        rightNamedType.OriginalDefinition)
-                    || leftNamedType.TypeArguments.Length != rightNamedType.TypeArguments.Length)
-                {
-                    return false;
-                }
-
-                for (int i = 0, count = leftNamedType.TypeArguments.Length; i < count; i++)
-                {
-                    if (!AreParameterTypesEquivalent(
-                            leftNamedType.TypeArguments[i],
-                            rightNamedType.TypeArguments[i]))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            if (left is IArrayTypeSymbol leftArrayType
-                && right is IArrayTypeSymbol rightArrayType)
-            {
-                return leftArrayType.Rank == rightArrayType.Rank
-                    && AreParameterTypesEquivalent(leftArrayType.ElementType, rightArrayType.ElementType);
-            }
-
-            if (left is IPointerTypeSymbol leftPointerType
-                && right is IPointerTypeSymbol rightPointerType)
-            {
-                return AreParameterTypesEquivalent(leftPointerType.PointedAtType, rightPointerType.PointedAtType);
-            }
-
-            return SymbolEqualityComparer.Default.Equals(left, right);
         }
 
         private static bool IsSystemLinqNamespace(INamespaceSymbol namespaceSymbol)
@@ -499,92 +962,6 @@ When rewriting by hand, should consult the reference source first:
                 if (current is UsingDirectiveSyntax directive) return directive;
             }
             return null;
-        }
-
-        private static string GetTopLevelNamespaceName(SyntaxNode node)
-        {
-            NameSyntax? outermostName = null;
-            for (var current = node.Parent; current != null; current = current.Parent)
-            {
-                if (current is NamespaceDeclarationSyntax namespaceDeclaration)
-                {
-                    outermostName = namespaceDeclaration.Name;
-                }
-                else if (current.RawKind == FileScopedNamespaceDeclarationRawKind)
-                {
-                    foreach (var child in current.ChildNodes())
-                    {
-                        if (child is NameSyntax name)
-                        {
-                            outermostName = name;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return outermostName == null ? string.Empty : GetTopLevelName(outermostName);
-        }
-
-        private static string GetTopLevelNamespaceName(string namespaceName)
-        {
-            var separator = namespaceName.IndexOf('.');
-            return separator < 0 ? namespaceName : namespaceName.Substring(0, separator);
-        }
-
-        private static string GetTopLevelName(NameSyntax name)
-        {
-            while (name is QualifiedNameSyntax qualifiedName)
-            {
-                name = qualifiedName.Left;
-            }
-
-            return name is IdentifierNameSyntax identifierName
-                ? identifierName.Identifier.ValueText
-                : string.Empty;
-        }
-
-        private static Document? FindPortalDocument(Project project, string fileName)
-        {
-            foreach (var document in project.Documents)
-            {
-                if (document.Name == fileName)
-                {
-                    return document;
-                }
-            }
-            return null;
-        }
-
-        private static ClassDeclarationSyntax? FindPortalClass(SyntaxNode root)
-        {
-            foreach (var node in root.DescendantNodes())
-            {
-                if (node is ClassDeclarationSyntax declaration && declaration.Identifier.ValueText == "LinqPortal")
-                {
-                    return declaration;
-                }
-            }
-            return null;
-        }
-
-        private static string GenerateEmptyPortal(string namespaceName)
-        {
-            var source = new StringBuilder(capacity: 8192);
-            source.Append(GeneratedFileHeader);
-
-            if (!string.IsNullOrEmpty(namespaceName))
-            {
-                source.AppendLine($"namespace {namespaceName}");
-                source.AppendLine("{");
-            }
-
-            var indent = string.IsNullOrEmpty(namespaceName) ? string.Empty : "    ";
-            source.AppendLine($"{indent}internal static partial class LinqPortal");
-            source.AppendLine($"{indent}{{");
-            source.AppendLine($"{indent}}}");
-            if (!string.IsNullOrEmpty(namespaceName)) source.AppendLine("}");
-            return source.ToString().Replace("\r\n", "\n");
         }
 
         private static string GenerateMethodForwarder(
