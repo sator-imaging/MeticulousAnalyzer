@@ -239,7 +239,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                     continue;
                 }
 
-                context.ReportDiagnostic(Diagnostic.Create(GetDescriptor(isParameter), location, name));
+                // Keep the parameter and local rules explicit at the diagnostic reporting call site.
+                context.ReportDiagnostic(Diagnostic.Create(
+                    isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal,
+                    location,
+                    name));
             }
         }
 
@@ -638,11 +642,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             name = string.Empty;
             isParameter = false;
             return false;
-        }
-
-        private static DiagnosticDescriptor GetDescriptor(bool isParameter)
-        {
-            return isParameter ? Rule_ReadOnlyParameter : Rule_ReadOnlyLocal;
         }
 
         private static bool IsAllowedArgumentValue(IOperation value)
