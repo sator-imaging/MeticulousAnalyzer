@@ -66,6 +66,10 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             //       provide official guidelines for generated code.
             //       SGs may or may not set these so the result is not deterministic.
             return _generatedCodeCache.GetValue(tree, t => new StrongBox<bool>(t.FilePath?.EndsWith(".g.cs", StringComparison.Ordinal) ?? false)).Value;
+        }
+
+        public override void Initialize(AnalysisContext context)
+        {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
