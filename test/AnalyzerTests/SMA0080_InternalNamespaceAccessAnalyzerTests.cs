@@ -590,5 +590,74 @@ namespace Consumer
             var expected = VerifyCS.Diagnostic().WithLocation(0).WithArguments("DoIt", "Consumer", "Target");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task SMA0080_Compliant_BuildCs()
+        {
+            var source = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = Foo.InternalType.Value;
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("some/path/build.cs", source) }
+                }
+            };
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task SMA0080_Violation_BuildCsDifferentCase()
+        {
+            var source = @"
+namespace Foo
+{
+    internal class InternalType
+    {
+        public static int Value;
+    }
+}
+
+namespace Foo.Bar
+{
+    public class Consumer
+    {
+        public void M()
+        {
+            var x = {|#0:Foo.InternalType.Value|};
+        }
+    }
+}
+";
+            var test = new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources = { ("some/path/Build.cs", source) }
+                }
+            };
+            test.ExpectedDiagnostics.Add(VerifyCS.Diagnostic().WithLocation(0).WithArguments("Value", "Foo.Bar", "Foo"));
+
+            await test.RunAsync();
+        }
     }
 }

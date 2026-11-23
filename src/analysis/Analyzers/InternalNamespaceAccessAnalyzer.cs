@@ -710,9 +710,24 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             // The reference location, not the declaration location, determines whether to report.
-            if (location.SourceTree is { } sourceTree && IsGeneratedCode(sourceTree))
+            if (location.SourceTree is { } sourceTree)
             {
-                return;
+                if (IsGeneratedCode(sourceTree))
+                {
+                    return;
+                }
+
+                var filePath = sourceTree.FilePath;
+                if (filePath.EndsWith("build.cs", StringComparison.Ordinal)
+                    && (
+                        filePath.EndsWith("\\build.cs", StringComparison.Ordinal)
+                        || filePath.EndsWith("/build.cs", StringComparison.Ordinal)
+                    )
+                )
+                {
+                    // Build scripts are excluded from namespace-boundary diagnostics.
+                    return;
+                }
             }
 
             reportDiagnostic(Diagnostic.Create(
