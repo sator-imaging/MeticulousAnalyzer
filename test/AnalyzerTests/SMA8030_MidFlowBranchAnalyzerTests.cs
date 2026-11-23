@@ -41,11 +41,11 @@ class C
     {
         if (invalid)
         {
-            return;
+            goto EXIT;
         }
 
-    EXIT:
-        ;
+    EXIT: ;
+    OTHER: ;
 
         if (foo)
         {
