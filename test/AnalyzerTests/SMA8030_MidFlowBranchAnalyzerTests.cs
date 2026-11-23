@@ -59,6 +59,37 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_EmptyLabelResetsMainFlowAfterElseGoto()
+        {
+            var test = @"
+class C
+{
+    void M(bool some, bool other)
+    {
+        if (some)
+        {
+            return;
+        }
+        else
+        {
+            goto NEXT;
+        }
+
+        NEXT:
+        ;
+
+        if (other)
+        {
+            return;
+        }
+
+        System.Console.WriteLine();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Compliant_AssertCallDoesNotStartMainFlow()
         {
             var test = @"

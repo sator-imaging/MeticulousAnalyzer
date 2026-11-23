@@ -78,10 +78,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 var statement = block.Statements[i];
 
-                // Empty labeled statements do not participate in early-exit block detection.
+                // Empty labeled statements end an early-exit sequence and restore early-flow state.
                 if (statement is LabeledStatementSyntax labeledStatement &&
                     labeledStatement.Statement is EmptyStatementSyntax)
                 {
+                    isMainFlowStarted = false;
                     continue;
                 }
 
