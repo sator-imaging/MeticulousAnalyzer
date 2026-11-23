@@ -82,7 +82,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 if (statement is LabeledStatementSyntax labeledStatement &&
                     labeledStatement.Statement is EmptyStatementSyntax)
                 {
-                    isMainFlowStarted = false;
                     continue;
                 }
 
