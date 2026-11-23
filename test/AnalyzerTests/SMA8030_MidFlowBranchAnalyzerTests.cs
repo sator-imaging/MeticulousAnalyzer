@@ -45,6 +45,8 @@ class C
         }
 
     EXIT:
+        ;
+
         if (foo)
         {
             throw new System.Exception();
