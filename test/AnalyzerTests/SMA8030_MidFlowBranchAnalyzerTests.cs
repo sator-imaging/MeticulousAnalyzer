@@ -32,6 +32,33 @@ class C
         }
 
         [TestMethod]
+        public async Task SMA8030_Compliant_LabelDoesNotStartMainFlow()
+        {
+            var test = @"
+class C
+{
+    void M(bool invalid, bool foo)
+    {
+        if (invalid)
+        {
+            goto EXIT;
+        }
+
+    EXIT: ;
+    OTHER: ;
+
+        if (foo)
+        {
+            throw new System.Exception();
+        }
+
+        System.Console.WriteLine();
+    }
+}";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task SMA8030_Compliant_AssertCallDoesNotStartMainFlow()
         {
             var test = @"
