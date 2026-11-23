@@ -75,7 +75,9 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string existingPortal = @"namespace MyCompany
+            const string existingPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -94,7 +96,9 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string expectedPortal = @"namespace MyCompany
+            const string expectedPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -106,7 +110,7 @@ namespace MyCompany.MyProduct
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Any(source, predicate);
@@ -119,7 +123,7 @@ namespace MyCompany.MyProduct
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, int, TResult})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, TResult> selector)
         {
             return global::System.Linq.Enumerable.Select(source, selector);
@@ -163,7 +167,9 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string existingPortal = @"namespace MyCompany
+            const string existingPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -178,12 +184,14 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string expectedPortal = @"namespace MyCompany
+            const string expectedPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Any(source);
@@ -238,7 +246,9 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string existingPortal = @"namespace MyCompany
+            const string existingPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -255,7 +265,9 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string expectedPortal = @"namespace MyCompany
+            const string expectedPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
@@ -265,14 +277,14 @@ namespace MyCompany.MyProduct
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Any(source, predicate);
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, TResult})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, TResult> selector)
         {
             return global::System.Linq.Enumerable.Select(source, selector);
@@ -328,40 +340,44 @@ namespace MyCompany.MyProduct
     }
 }
 ";
-            const string existingPortal = @"namespace MyCompany
+            const string existingPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
     }
 }
 ";
-            const string expectedPortal = @"namespace MyCompany
+            const string expectedPortal = @"using global::System.Runtime.CompilerServices;
+
+namespace MyCompany
 {
     internal static partial class LinqPortal
     {
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Any(source);
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Any(source, predicate);
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, TResult})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, TResult> selector)
         {
             return global::System.Linq.Enumerable.Select(source, selector);
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Select{TSource, TResult}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, int, TResult})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TResult> Select<TSource, TResult>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, TResult> selector)
         {
             return global::System.Linq.Enumerable.Select(source, selector);
@@ -409,6 +425,7 @@ namespace MyCompany.MyProduct
 ";
             var existingPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -428,6 +445,7 @@ namespace MyCompany
 ";
             var expectedMergedPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -444,7 +462,7 @@ namespace MyCompany
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
@@ -518,6 +536,7 @@ namespace MyCompany.MyProduct
 ";
             var existingPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -537,6 +556,7 @@ namespace MyCompany
 ";
             var expectedMergedPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -548,7 +568,7 @@ namespace MyCompany
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Count(source, predicate);
@@ -625,6 +645,7 @@ namespace MyCompany.MyProduct
 ";
             var existingPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -639,6 +660,7 @@ namespace MyCompany
 ";
             var expectedPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -650,7 +672,7 @@ namespace MyCompany
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Where{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, int, bool})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static global::System.Collections.Generic.IEnumerable<TSource> Where<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, int, bool> predicate)
         {
             return global::System.Linq.Enumerable.Where(source, predicate);
@@ -723,6 +745,7 @@ namespace MyCompany.MyProduct
 ";
             var existingPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -753,6 +776,7 @@ namespace MyCompany
 ";
             var expectedMergedPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -780,7 +804,7 @@ namespace MyCompany
         #endregion
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
@@ -915,6 +939,7 @@ namespace MyCompany.MyProduct
 ";
             var existingPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -934,6 +959,7 @@ namespace MyCompany
 ";
             var expectedPortal = @"using System;
 using System.Collections.Generic;
+using global::System.Runtime.CompilerServices;
 
 namespace MyCompany
 {
@@ -945,7 +971,7 @@ namespace MyCompany
         }
 
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Any{TSource}(global::System.Collections.Generic.IEnumerable{TSource}, global::System.Func{TSource, bool})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source, global::System.Func<TSource, bool> predicate)
         {
             return global::System.Linq.Enumerable.Any(source, predicate);
@@ -1027,7 +1053,7 @@ namespace MyCompany.MyProduct
     internal static partial class LinqPortal
     {
         /// <inheritdoc cref=""global::System.Linq.Enumerable.Count{TSource}(global::System.Collections.Generic.IEnumerable{TSource})""/>
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TSource>(this global::System.Collections.Generic.IEnumerable<TSource> source)
         {
             return global::System.Linq.Enumerable.Count(source);
