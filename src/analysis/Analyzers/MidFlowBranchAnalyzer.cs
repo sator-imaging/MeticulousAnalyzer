@@ -311,12 +311,6 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             foreach (var statement in block.Statements)
             {
-                // Labels do not participate in early-exit block detection.
-                if (statement is LabeledStatementSyntax)
-                {
-                    continue;
-                }
-
                 // An if directive without an exit or branching statement is an allowed early-exit-block declaration.
                 if (statement is IfStatementSyntax ifStmt && !ContainsBranch(ifStmt))
                 {
