@@ -46,7 +46,6 @@ When rewriting by hand, should consult the reference source first:
 #pragma warning disable IDE0001 // Simplify name
 
 using global::System.Runtime.CompilerServices;
-
 ";
 
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
