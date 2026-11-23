@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.3.0-rc.22](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.22) (2026-11-23)
+
+### ✨ Bug Fixes
+* fix(InternalNamespaceAccessAnalyzer/SMA0080): suppress diagnostics from generated code by [@sator-imaging](https://github.com/sator-imaging) in [#795](https://github.com/sator-imaging/MeticulousAnalyzer/pull/795)
+* fix(MidFlowBranchAnalyzer): allow branchless nested if directives (SMA8030) by [@sator-imaging](https://github.com/sator-imaging) in [#793](https://github.com/sator-imaging/MeticulousAnalyzer/pull/793)
+* fix(LinqOperation SMA7050): ignore fully qualified LINQ calls by [@sator-imaging](https://github.com/sator-imaging) in [#794](https://github.com/sator-imaging/MeticulousAnalyzer/pull/794)
+* fix(MidFlowBranch/SMA8030): ignore labeled statements in early-exit detection by [@sator-imaging](https://github.com/sator-imaging) in [#798](https://github.com/sator-imaging/MeticulousAnalyzer/pull/798)
+### 📖 Documentation
+* docs(LinqOperationCodeFixProvider/SMA7050): update LINQ portal header by [@sator-imaging](https://github.com/sator-imaging) in [#792](https://github.com/sator-imaging/MeticulousAnalyzer/pull/792)
+### 📚 Other Changes
+* refactor(ReadOnlyVariableAnalyzer/SMA0060-SMA0064): remove redundant descriptor helper by [@sator-imaging](https://github.com/sator-imaging) in [#796](https://github.com/sator-imaging/MeticulousAnalyzer/pull/796)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.21...v5.3.0-rc.22
+
+
 ## [5.3.0-rc.21](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.21) (2026-11-17)
 
 ### 🚀 Features
