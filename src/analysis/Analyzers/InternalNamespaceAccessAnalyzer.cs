@@ -718,8 +718,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 }
 
                 var filePath = sourceTree.FilePath;
-                var fileNameStart = Math.Max(filePath.LastIndexOf('/'), filePath.LastIndexOf('\\')) + 1;
-                if (string.Equals(filePath.Substring(fileNameStart), "build.cs", StringComparison.Ordinal))
+                if (filePath.EndsWith("build.cs", StringComparison.Ordinal)
+                    && (
+                        filePath.EndsWith("\\build.cs", StringComparison.Ordinal)
+                        || filePath.EndsWith("/build.cs", StringComparison.Ordinal)
+                    )
+                )
                 {
                     // Build scripts are excluded from namespace-boundary diagnostics.
                     return;
