@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.3.0-rc.23](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.23) (2026-11-23)
+
+### ✨ Bug Fixes
+* fix(InternalNamespaceAccessAnalyzer): SMA0080 ignore build.cs references by [@sator-imaging](https://github.com/sator-imaging) in [#802](https://github.com/sator-imaging/MeticulousAnalyzer/pull/802)
+* fix(analyzer): tighten SMA8030 empty label handling by [@sator-imaging](https://github.com/sator-imaging) in [#801](https://github.com/sator-imaging/MeticulousAnalyzer/pull/801)
+
+
+**Full Changelog**: https://github.com/sator-imaging/MeticulousAnalyzer/compare/v5.3.0-rc.22...v5.3.0-rc.23
+
+
 ## [5.3.0-rc.22](https://github.com/sator-imaging/MeticulousAnalyzer/releases/tag/v5.3.0-rc.22) (2026-11-23)
 
 ### ✨ Bug Fixes
