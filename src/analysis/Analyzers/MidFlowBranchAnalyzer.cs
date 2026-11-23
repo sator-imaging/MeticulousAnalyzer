@@ -78,8 +78,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             {
                 var statement = block.Statements[i];
 
-                // Labels do not participate in early-exit block detection.
-                if (statement is LabeledStatementSyntax)
+                // Empty labeled statements do not participate in early-exit block detection.
+                if (statement is LabeledStatementSyntax labeledStatement &&
+                    labeledStatement.Statement is EmptyStatementSyntax)
                 {
                     continue;
                 }
