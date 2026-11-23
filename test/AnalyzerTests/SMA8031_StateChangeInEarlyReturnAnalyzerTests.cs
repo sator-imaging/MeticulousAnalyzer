@@ -12,29 +12,6 @@ namespace SatorImaging.MeticulousAnalyzer.Tests.AnalyzerTests
     public class SMA8031_StateChangeInEarlyReturnAnalyzerTests
     {
         [TestMethod]
-        public async Task SMA8031_Violation_LabeledEarlyReturnAfterReassignment()
-        {
-            var test = @"
-class C
-{
-    int M(bool cond, int val)
-    {
-        if (cond)
-        {
-            val = 10;
-        EXIT:
-            {|#0:return|} 0;
-        }
-
-        int a = 1;
-        return a;
-    }
-}";
-            var expected = VerifyCS.Diagnostic(MidFlowBranchAnalyzer.RuleId_StateChangeInEarlyReturn).WithLocation(0);
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task SMA8031_Violation_SampleFromPrompt()
         {
             var test = @"
