@@ -44,6 +44,9 @@ When rewriting by hand, should consult the reference source first:
 
 #nullable enable
 #pragma warning disable IDE0001 // Simplify name
+
+using global::System.Runtime.CompilerServices;
+
 ";
 
         private static readonly SymbolDisplayFormat MethodSignatureFormat = new(
@@ -618,8 +621,9 @@ When rewriting by hand, should consult the reference source first:
                 .Replace("params ", "")
                 .Replace("scoped ", "");
 
+            // The generated header imports this namespace for the short attribute form.
             return $"{indentation}/// <inheritdoc cref=\"{inheritdocCref}\"/>\n"
-                + $"{indentation}[global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]\n"
+                + $"{indentation}[MethodImpl(MethodImplOptions.AggressiveInlining)]\n"
                 + $"{indentation}{method.ToDisplayString(MethodSignatureFormat)}\n"
                 + $"{indentation}{{\n"
                 + $"{indentation}    return {method.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{method.Name}{typeParameters}({string.Join(", ", parameterNames)});\n"
