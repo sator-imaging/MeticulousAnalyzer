@@ -76,7 +76,9 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             for (int i = 0, count = block.Statements.Count; i < count; i++)
             {
-                var statement = block.Statements[i];
+                var statement = UnwrapLabeledStatement(block.Statements[i]);
+
+                // Labels annotate a statement but do not change or delimit main-flow analysis.
 
                 if (statement is EmptyStatementSyntax)
                 {
@@ -305,13 +307,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
             foreach (var statement in block.Statements)
             {
+                var unwrappedStatement = UnwrapLabeledStatement(statement);
+
                 // An if directive without an exit or branching statement is an allowed early-exit-block declaration.
-                if (statement is IfStatementSyntax ifStmt && !ContainsBranch(ifStmt))
+                if (unwrappedStatement is IfStatementSyntax ifStmt && !ContainsBranch(ifStmt))
                 {
                     continue;
                 }
 
-                var branchLoc = GetBranchLocation(statement);
+                var branchLoc = GetBranchLocation(unwrappedStatement);
                 if (branchLoc != null)
                 {
                     if (hasDisallowedStatement)
@@ -325,11 +329,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 {
                     continue;
                 }
-                else if (statement is LocalDeclarationStatementSyntax)
+                else if (unwrappedStatement is LocalDeclarationStatementSyntax)
                 {
                     continue;
                 }
-                else if (statement is ExpressionStatementSyntax exprStmt)
+                else if (unwrappedStatement is ExpressionStatementSyntax exprStmt)
                 {
                     if (exprStmt.Expression is AssignmentExpressionSyntax assign &&
                         (IsTupleDeclaration(assign) || IsOutParameterAssignment(context, assign)))
@@ -374,6 +378,11 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static Location? GetBranchLocation(SyntaxNode node)
         {
+            if (node is LabeledStatementSyntax labeledStmt)
+            {
+                return GetBranchLocation(labeledStmt.Statement);
+            }
+
             return node switch
             {
                 ReturnStatementSyntax returnStmt => returnStmt.ReturnKeyword.GetLocation(),
@@ -580,6 +589,8 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 
         private static bool StatementGuaranteesBranch(StatementSyntax statement)
         {
+            statement = UnwrapLabeledStatement(statement);
+
             if (statement is ReturnStatementSyntax or ThrowStatementSyntax or ContinueStatementSyntax or BreakStatementSyntax or GotoStatementSyntax or YieldStatementSyntax)
                 return true;
 
@@ -597,6 +608,15 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             return false;
+        }
+
+        private static StatementSyntax UnwrapLabeledStatement(StatementSyntax statement)
+        {
+            while (statement is LabeledStatementSyntax labeledStatement)
+            {
+                statement = labeledStatement.Statement;
+            }
+            return statement;
         }
     }
 }
