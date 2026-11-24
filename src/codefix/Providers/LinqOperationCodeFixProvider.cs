@@ -22,9 +22,6 @@ namespace SatorImaging.MeticulousAnalyzer.CodeFixes.Providers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(LinqOperationCodeFixProvider)), Shared]
     public sealed class LinqOperationCodeFixProvider : CodeFixProvider
     {
-        // Microsoft.CodeAnalysis.CSharp 3.8.0 has no named SyntaxKind for file-scoped namespaces.
-        private const int FileScopedNamespaceDeclarationRawKind = 8845;
-
         // DO NO use the auto-generated tag. it will disable analyzer and formatter.
         public const string GeneratedFileHeader =
 @"/*
@@ -142,7 +139,7 @@ using global::System.Runtime.CompilerServices;
             if (root == null || semanticModel == null) return solution;
 
             var methods = new List<IMethodSymbol>();
-            var portalNamespace = GetTopLevelNamespaceName(document.Project.DefaultNamespace ?? string.Empty);
+            var portalNamespace = LinqCodeFixHelper.GetTopLevelNamespaceName(document.Project.DefaultNamespace ?? string.Empty);
             var hasProjectDefaultNamespace = !string.IsNullOrEmpty(portalNamespace);
             foreach (var node in root.DescendantNodes())
             {
@@ -165,7 +162,7 @@ using global::System.Runtime.CompilerServices;
 
                 if (methods.Count == 0 && !hasProjectDefaultNamespace)
                 {
-                    portalNamespace = GetTopLevelNamespaceName(node);
+                    portalNamespace = LinqCodeFixHelper.GetTopLevelNamespaceName(node);
                 }
                 AddIfMissing(methods, (method.ReducedFrom ?? method).ConstructedFrom);
             }
@@ -179,13 +176,13 @@ using global::System.Runtime.CompilerServices;
             {
                 var fileName = string.IsNullOrEmpty(portalNamespace) ? "LinqPortal.cs" : $"LinqPortal.{portalNamespace}.cs";
                 var project = solution.GetProject(document.Project.Id)!;
-                var portalDocument = FindPortalDocument(project, fileName);
+                var portalDocument = LinqCodeFixHelper.FindDocument(project, fileName);
                 if (portalDocument == null)
                 {
                     var filePath = project.FilePath == null
                         ? null
                         : Path.Combine(Path.GetDirectoryName(project.FilePath)!, fileName);
-                    var source = GenerateEmptyPortal(portalNamespace);
+                    var source = LinqCodeFixHelper.GenerateEmptyFile("LinqPortal", portalNamespace);
                     var documentId = DocumentId.CreateNewId(project.Id, fileName);
                     solution = solution.AddDocument(
                         documentId,
@@ -199,7 +196,7 @@ using global::System.Runtime.CompilerServices;
                 var portalModel = await portalDocument.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
                 if (portalRoot == null) return solution;
 
-                var portalClass = FindPortalClass(portalRoot);
+                var portalClass = LinqCodeFixHelper.FindClass(portalRoot, "LinqPortal");
                 if (portalClass == null) return solution;
                 var members = portalClass.Members;
                 var closeBrace = portalClass.CloseBraceToken;
@@ -227,7 +224,7 @@ using global::System.Runtime.CompilerServices;
                     var exists = false;
                     for (int i = 0, count = existingMethods.Count; i < count; i++)
                     {
-                        if (AreMethodsEquivalent(existingMethods[i], method))
+                        if (LinqCodeFixHelper.AreMethodsEquivalent(existingMethods[i], method))
                         {
                             exists = true;
                             break;
@@ -380,85 +377,9 @@ using global::System.Runtime.CompilerServices;
         {
             for (int i = 0, count = methods.Count; i < count; i++)
             {
-                if (AreMethodsEquivalent(methods[i], method)) return;
+                if (LinqCodeFixHelper.AreMethodsEquivalent(methods[i], method)) return;
             }
             methods.Add(method);
-        }
-
-        private static bool AreMethodsEquivalent(IMethodSymbol left, IMethodSymbol right)
-        {
-            if (left.Name != right.Name
-                || left.TypeParameters.Length != right.TypeParameters.Length
-                || left.Parameters.Length != right.Parameters.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0, count = left.Parameters.Length; i < count; i++)
-            {
-                if (left.Parameters[i].RefKind != right.Parameters[i].RefKind
-                    || !AreParameterTypesEquivalent(left.Parameters[i].Type, right.Parameters[i].Type))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static bool AreParameterTypesEquivalent(ITypeSymbol left, ITypeSymbol right)
-        {
-            if (left is ITypeParameterSymbol leftTypeParameter
-                && right is ITypeParameterSymbol rightTypeParameter)
-            {
-                if (leftTypeParameter.TypeParameterKind != rightTypeParameter.TypeParameterKind
-                    || leftTypeParameter.Ordinal != rightTypeParameter.Ordinal)
-                {
-                    return false;
-                }
-
-                return leftTypeParameter.TypeParameterKind == TypeParameterKind.Method
-                    || SymbolEqualityComparer.Default.Equals(
-                        leftTypeParameter.ContainingSymbol,
-                        rightTypeParameter.ContainingSymbol);
-            }
-
-            if (left is INamedTypeSymbol leftNamedType
-                && right is INamedTypeSymbol rightNamedType)
-            {
-                if (!SymbolEqualityComparer.Default.Equals(
-                        leftNamedType.OriginalDefinition,
-                        rightNamedType.OriginalDefinition)
-                    || leftNamedType.TypeArguments.Length != rightNamedType.TypeArguments.Length)
-                {
-                    return false;
-                }
-
-                for (int i = 0, count = leftNamedType.TypeArguments.Length; i < count; i++)
-                {
-                    if (!AreParameterTypesEquivalent(
-                            leftNamedType.TypeArguments[i],
-                            rightNamedType.TypeArguments[i]))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            if (left is IArrayTypeSymbol leftArrayType
-                && right is IArrayTypeSymbol rightArrayType)
-            {
-                return leftArrayType.Rank == rightArrayType.Rank
-                    && AreParameterTypesEquivalent(leftArrayType.ElementType, rightArrayType.ElementType);
-            }
-
-            if (left is IPointerTypeSymbol leftPointerType
-                && right is IPointerTypeSymbol rightPointerType)
-            {
-                return AreParameterTypesEquivalent(leftPointerType.PointedAtType, rightPointerType.PointedAtType);
-            }
-
-            return SymbolEqualityComparer.Default.Equals(left, right);
         }
 
         private static bool IsSystemLinqNamespace(INamespaceSymbol namespaceSymbol)
@@ -501,92 +422,6 @@ using global::System.Runtime.CompilerServices;
                 if (current is UsingDirectiveSyntax directive) return directive;
             }
             return null;
-        }
-
-        private static string GetTopLevelNamespaceName(SyntaxNode node)
-        {
-            NameSyntax? outermostName = null;
-            for (var current = node.Parent; current != null; current = current.Parent)
-            {
-                if (current is NamespaceDeclarationSyntax namespaceDeclaration)
-                {
-                    outermostName = namespaceDeclaration.Name;
-                }
-                else if (current.RawKind == FileScopedNamespaceDeclarationRawKind)
-                {
-                    foreach (var child in current.ChildNodes())
-                    {
-                        if (child is NameSyntax name)
-                        {
-                            outermostName = name;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return outermostName == null ? string.Empty : GetTopLevelName(outermostName);
-        }
-
-        private static string GetTopLevelNamespaceName(string namespaceName)
-        {
-            var separator = namespaceName.IndexOf('.');
-            return separator < 0 ? namespaceName : namespaceName.Substring(0, separator);
-        }
-
-        private static string GetTopLevelName(NameSyntax name)
-        {
-            while (name is QualifiedNameSyntax qualifiedName)
-            {
-                name = qualifiedName.Left;
-            }
-
-            return name is IdentifierNameSyntax identifierName
-                ? identifierName.Identifier.ValueText
-                : string.Empty;
-        }
-
-        private static Document? FindPortalDocument(Project project, string fileName)
-        {
-            foreach (var document in project.Documents)
-            {
-                if (document.Name == fileName)
-                {
-                    return document;
-                }
-            }
-            return null;
-        }
-
-        private static ClassDeclarationSyntax? FindPortalClass(SyntaxNode root)
-        {
-            foreach (var node in root.DescendantNodes())
-            {
-                if (node is ClassDeclarationSyntax declaration && declaration.Identifier.ValueText == "LinqPortal")
-                {
-                    return declaration;
-                }
-            }
-            return null;
-        }
-
-        private static string GenerateEmptyPortal(string namespaceName)
-        {
-            var source = new StringBuilder(capacity: 8192);
-            source.Append(GeneratedFileHeader);
-
-            if (!string.IsNullOrEmpty(namespaceName))
-            {
-                source.AppendLine($"namespace {namespaceName}");
-                source.AppendLine("{");
-            }
-
-            var indent = string.IsNullOrEmpty(namespaceName) ? string.Empty : "    ";
-            source.AppendLine($"{indent}internal static partial class LinqPortal");
-            source.AppendLine($"{indent}{{");
-            source.AppendLine($"{indent}}}");
-            if (!string.IsNullOrEmpty(namespaceName)) source.AppendLine("}");
-            return source.ToString().Replace("\r\n", "\n");
         }
 
         private static string GenerateMethodForwarder(
