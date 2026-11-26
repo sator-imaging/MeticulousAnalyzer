@@ -6,25 +6,26 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 
 namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class CapacityArgumentAnalyzer : DiagnosticAnalyzer
+    public sealed class RequiredNamedArgumentAnalyzer : DiagnosticAnalyzer
     {
-        public const string RuleId_CapacityArgument = "SMA8005";
+        public const string RuleId_RequiredNamedArgument = "SMA8005";
 
-        private static readonly DiagnosticDescriptor Rule_CapacityArgument = new(
-            RuleId_CapacityArgument,
+        private static readonly DiagnosticDescriptor Rule_RequiredNamedArgument = new(
+            RuleId_RequiredNamedArgument,
             new LocalizableResourceString("SMA8005_Title", Resources.ResourceManager, typeof(Resources)),
             new LocalizableResourceString("SMA8005_MessageFormat", Resources.ResourceManager, typeof(Resources)),
-            Core.CategoryPrefix + nameof(CapacityArgumentAnalyzer),
+            Core.CategoryPrefix + nameof(RequiredNamedArgumentAnalyzer),
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: new LocalizableResourceString("SMA8005_MessageFormat", Resources.ResourceManager, typeof(Resources), "capacity"));
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_CapacityArgument);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule_RequiredNamedArgument);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -46,13 +47,13 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var parameter = argOp.Parameter;
-            if (parameter == null || !IsCapacityParameter(parameter))
+            if (parameter == null || !IsRequiredNamedArgument(parameter))
             {
                 return;
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_CapacityArgument,
+                Rule_RequiredNamedArgument,
                 argStx.GetLocation(),
                 parameter.ToDiagnosticMessageName()));
         }
@@ -76,20 +77,20 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
             }
 
             var parameter = constructor.Parameters[argIndex];
-            if (!IsCapacityParameter(parameter))
+            if (!IsRequiredNamedArgument(parameter))
             {
                 return;
             }
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Rule_CapacityArgument,
+                Rule_RequiredNamedArgument,
                 argStx.GetLocation(),
                 parameter.ToDiagnosticMessageName()));
         }
 
-        private static bool IsCapacityParameter(IParameterSymbol? parameter)
+        private static bool IsRequiredNamedArgument(IParameterSymbol? parameter)
             => parameter != null &&
-                parameter.Name == "capacity" &&
+                parameter.Name.EndsWith("capacity", StringComparison.OrdinalIgnoreCase) &&
                 parameter.Type.SpecialType == SpecialType.System_Int32;
     }
 }
