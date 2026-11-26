@@ -162,6 +162,8 @@ namespace SatorImaging.MeticulousAnalyzer.Tests
                 Resources.SMA8003_Title,
                 Resources.SMA8004_MessageFormat,
                 Resources.SMA8004_Title,
+                Resources.ResourceManager.GetString("SMA8005_MessageFormat")!,
+                Resources.ResourceManager.GetString("SMA8005_Title")!,
                 Resources.SMA8020_MessageFormat,
                 Resources.SMA8020_Title,
                 Resources.SMA8021_MessageFormat,

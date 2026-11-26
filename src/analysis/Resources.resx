@@ -507,6 +507,12 @@
   <data name="SMA8004_Title" xml:space="preserve">
     <value>Omittable Argument Should Be Passed as Named Argument</value>
   </data>
+  <data name="SMA8005_MessageFormat" xml:space="preserve">
+    <value>Pass '{0}' as a named argument to clarify the capacity</value>
+  </data>
+  <data name="SMA8005_Title" xml:space="preserve">
+    <value>Capacity Argument Should Be Passed as Named Argument</value>
+  </data>
   <data name="SMA8010_MessageFormat" xml:space="preserve">
     <value>Catch block does not contain a `throw` statement. Can suppress with leading comment for `catch` keyword: `// Ignore exception &lt;Reason&gt;`</value>
   </data>
