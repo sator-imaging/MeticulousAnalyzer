@@ -78,6 +78,45 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task SMA8000_Compliant_ConfigureAwaitLiteralArgument()
+        {
+            var test = @"
+using System.Threading.Tasks;
+namespace Test
+{
+    public class CTest
+    {
+        public async Task Test()
+        {
+            await Task.Delay(1).ConfigureAwait(false);
+        }
+    }
+}
+";
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task SMA8000_Violation_ConfigureAwaitBooleanExpression()
+        {
+            var test = @"
+using System.Threading.Tasks;
+namespace Test
+{
+    public class CTest
+    {
+        public async Task Test(bool value)
+        {
+            await Task.Delay(1).ConfigureAwait({|#0:value == false|});
+        }
+    }
+}
+";
+            var expected = VerifyCS.Diagnostic(ArgumentAnalyzer.RuleId_LiteralArgument).WithLocation(markupKey: 0).WithArguments("continueOnCapturedContext");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task SMA8000_Violation_SystemNamespaceConstructorStillReported()
         {
             var test = @"

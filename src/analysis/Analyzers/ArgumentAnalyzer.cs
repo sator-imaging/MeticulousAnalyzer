@@ -273,6 +273,12 @@ namespace SatorImaging.MeticulousAnalyzer.Analysis.Analyzers
                 return;
             }
 
+            if (invocationOp?.TargetMethod.Name == "ConfigureAwait" &&
+                argValue is ILiteralOperation)
+            {
+                return;
+            }
+
             if (!requireReporting)
             {
                 var methodOrCtorContainer = invocationOp?.TargetMethod.ContainingType
