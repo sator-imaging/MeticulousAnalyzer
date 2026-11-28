@@ -6,7 +6,7 @@
   />
   -->
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(DesignTimeBuild)' == 'true' ">
     <PackageReference Include="SatorImaging.MeticulousAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
