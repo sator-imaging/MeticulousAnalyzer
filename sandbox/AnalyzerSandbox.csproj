@@ -8,7 +8,9 @@
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup Condition=" true ">
+  <ItemGroup>
+    <!-- The published analyzer has the same assembly identity as the local projects -->
+    <PackageReference Remove="SatorImaging.MeticulousAnalyzer" />
 
     <ProjectReference Include="../src/analysis/SatorImaging.MeticulousAnalyzer.Analysis.csproj">
 		  <OutputItemType>Analyzer</OutputItemType>

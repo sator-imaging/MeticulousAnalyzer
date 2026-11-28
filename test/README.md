@@ -9,7 +9,7 @@ This document is the authoritative guide for developers contributing tests to th
 - **CI Configuration:** [`.github/workflows/test.yml`](../.github/workflows/test.yml)
 - **Test Command:**
   ```bash
-  dotnet test ./test -c <Configuration> --verbosity minimal -p:DontReferenceItself=true
+  dotnet test ./test -c <Configuration> --verbosity minimal
   ```
 - **Configurations:** `Debug` and `Release` (CI matrix)
 - **SDK:** .NET 10.x.x
