@@ -6,7 +6,8 @@
   />
   -->
 
-  <ItemGroup Condition=" '$(DesignTimeBuild)' == 'true' ">
+  <ItemGroup Condition=" '$(DesignTimeBuild)' == 'true'
+                     AND '$(MSBuildProjectName)' != 'AnalyzerSandbox' ">
     <PackageReference Include="SatorImaging.MeticulousAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
