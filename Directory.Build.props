@@ -6,14 +6,7 @@
   />
   -->
 
-  <PropertyGroup Condition=" '$(CI)' == 'true' OR '$(TF_BUILD)' == 'true' ">
-    <DontReferenceItself>true</DontReferenceItself>
-  </PropertyGroup>
-
-  <!-- CMD: dotnet restore -p:DontReferenceItself=true  other-options... -->
-  <ItemGroup Condition=" '$(DontReferenceItself)' != 'true'
-                     AND '$(MSBuildProjectFile)' != 'AnalyzerSandbox.csproj'
-  ">
+  <ItemGroup>
     <PackageReference Include="SatorImaging.MeticulousAnalyzer" Version="*-*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
